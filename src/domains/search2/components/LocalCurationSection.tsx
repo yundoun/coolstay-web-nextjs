@@ -15,14 +15,14 @@ export function LocalCurationSection({ region }: LocalCurationSectionProps) {
   const curation = getLocalCuration(region)
 
   return (
-    <section className="py-10 md:py-14">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <section className="py-8 md:py-12">
+      {/* Header - Design System Section Header */}
+      <div className="mb-6 md:mb-8 flex items-end justify-between gap-4">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold text-foreground">
+          <h2 className="text-xl font-semibold tracking-tight md:text-2xl lg:text-3xl">
             {curation.title}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground md:text-base">
             여행이 더 특별해지는 현지 추천 스팟
           </p>
         </div>
