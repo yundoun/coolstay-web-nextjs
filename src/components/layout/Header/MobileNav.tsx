@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { X, User, Search, MapPin, Heart, Clock } from "lucide-react"
 import {
   Sheet,
@@ -36,9 +37,14 @@ export function MobileNav({ isOpen, onClose, navItems }: MobileNavProps) {
       <SheetContent side="right" className="w-[300px] p-0">
         <SheetHeader className="p-4 border-b">
           <div className="flex items-center justify-between">
-            <SheetTitle className="flex items-center gap-2">
-              <span className="text-xl">🍯</span>
-              <span className="font-bold">꿀스테이</span>
+            <SheetTitle>
+              <Image
+                src="/coolstay_logo.png"
+                alt="꿀스테이"
+                width={100}
+                height={32}
+                className="h-6 w-auto"
+              />
             </SheetTitle>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="size-5" />

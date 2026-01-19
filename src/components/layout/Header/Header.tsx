@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
@@ -50,17 +51,19 @@ export function Header() {
             {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-1.5 shrink-0"
+              className="shrink-0"
             >
-              <span className="text-2xl">🍯</span>
-              <span
+              <Image
+                src="/coolstay_logo.png"
+                alt="꿀스테이"
+                width={120}
+                height={40}
                 className={cn(
-                  "text-xl font-bold transition-colors",
-                  isScrolled ? "text-foreground" : "text-white"
+                  "h-8 w-auto transition-all",
+                  isScrolled ? "" : "brightness-0 invert"
                 )}
-              >
-                꿀스테이
-              </span>
+                priority
+              />
             </Link>
 
             {/* Desktop Navigation */}

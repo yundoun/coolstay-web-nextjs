@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Instagram, Youtube, MessageCircle } from "lucide-react"
 import { Container } from "./Container"
 import { cn } from "@/lib/utils"
@@ -48,9 +49,14 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1 lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2 mb-4">
-              <span className="text-2xl">🍯</span>
-              <span className="text-xl font-bold">꿀스테이</span>
+            <Link href="/" className="inline-block mb-4">
+              <Image
+                src="/coolstay_logo.png"
+                alt="꿀스테이"
+                width={120}
+                height={40}
+                className="h-8 w-auto"
+              />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-xs">
               꿀같은 휴식을 선물하세요.
