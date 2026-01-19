@@ -18,7 +18,7 @@ const NAV_ITEMS = [
 ]
 
 // 투명 헤더를 사용할 페이지 경로
-const TRANSPARENT_HEADER_PATHS = ["/"]
+const TRANSPARENT_HEADER_PATHS = ["/", "/search2"]
 
 export interface HeaderProps {
   variant?: "solid" | "transparent"

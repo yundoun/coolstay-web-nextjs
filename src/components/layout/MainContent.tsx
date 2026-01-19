@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
 // 헤더 패딩이 필요 없는 페이지 (히어로 섹션이 있는 페이지)
-const FULL_BLEED_PATHS = ["/"]
+const FULL_BLEED_PATHS = ["/", "/search2"]
 
 interface MainContentProps {
   children: React.ReactNode

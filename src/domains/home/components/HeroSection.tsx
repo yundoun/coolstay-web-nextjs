@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { Search, MapPin, CalendarDays, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
@@ -100,9 +101,11 @@ function SearchBar() {
 
         {/* Search Button */}
         <div className="md:pl-4">
-          <Button size="lg" className="w-full gap-2 rounded-xl md:w-auto">
-            <Search className="size-5" />
-            <span className="md:sr-only lg:not-sr-only">검색</span>
+          <Button size="lg" className="w-full gap-2 rounded-xl md:w-auto" asChild>
+            <Link href="/search2">
+              <Search className="size-5" />
+              <span className="md:sr-only lg:not-sr-only">검색</span>
+            </Link>
           </Button>
         </div>
       </div>

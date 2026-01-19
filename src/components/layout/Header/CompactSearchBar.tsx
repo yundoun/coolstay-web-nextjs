@@ -1,11 +1,13 @@
 "use client"
 
+import Link from "next/link"
 import { Search, MapPin, CalendarDays, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function CompactSearchBar() {
   return (
-    <button
+    <Link
+      href="/search2"
       data-slot="compact-search-bar"
       className={cn(
         "w-full flex items-center gap-2 px-2 py-2",
@@ -40,6 +42,6 @@ export function CompactSearchBar() {
       <div className="shrink-0 flex items-center justify-center size-8 rounded-full bg-primary text-primary-foreground">
         <Search className="size-4" />
       </div>
-    </button>
+    </Link>
   )
 }
