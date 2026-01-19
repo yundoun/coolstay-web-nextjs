@@ -1,18 +1,331 @@
 @import "tailwindcss";
 
-:root {
-  --background: #FAFAF9;
-  --foreground: #292524;
-  --primary: #FFC600;
-  --primary-foreground: #1C1917;
+/* ========================================
+   Coolstay Design System - Tailwind v4
+   Based on: docs/web-design-system/web-design-tokens.json
+   ======================================== */
+
+/* Dark mode variant */
+@custom-variant dark (&:is(.dark *));
+
+/* ========================================
+   Theme Configuration
+   ======================================== */
+@theme inline {
+  /* Font Family */
+  --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+
+  /* Colors - CSS Variable References */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 10px 40px rgba(0, 0, 0, 0.12);
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Z-Index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* Sizing */
+  --header-height: 64px;
+  --header-height-mobile: 56px;
+  --sidebar-width: 280px;
+  --booking-widget-width: 380px;
+  --container-wide: 1440px;
+  --container-normal: 1200px;
+  --container-narrow: 800px;
+  --container-tight: 480px;
 }
 
+/* ========================================
+   Light Mode (Default)
+   Warm Gray Neutral Palette - Quiet Luxury
+   ======================================== */
+:root {
+  /* Base */
+  --background: #FAFAF9;
+  --foreground: #292524;
+
+  /* Card */
+  --card: #FFFFFF;
+  --card-foreground: #292524;
+
+  /* Popover */
+  --popover: #FFFFFF;
+  --popover-foreground: #292524;
+
+  /* Primary - Honey Yellow */
+  --primary: #FFC600;
+  --primary-foreground: #1C1917;
+  --primary-300: #FFDB66;
+  --primary-400: #FFD033;
+  --primary-500: #FFC600;
+  --primary-600: #E6B200;
+  --primary-700: #A37F00;
+
+  /* Secondary */
+  --secondary: #292524;
+  --secondary-foreground: #FAFAFA;
+
+  /* Muted */
+  --muted: #F5F5F4;
+  --muted-foreground: #78716C;
+
+  /* Accent */
+  --accent: #F5F5F4;
+  --accent-foreground: #292524;
+
+  /* Destructive */
+  --destructive: #EF4444;
+  --destructive-foreground: #FAFAFA;
+
+  /* Semantic */
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --info: #3B82F6;
+
+  /* Border & Input */
+  --border: #E7E5E4;
+  --input: #E7E5E4;
+  --ring: #FFC600;
+
+  /* Neutral Palette (Warm Gray) */
+  --neutral-50: #FAFAF9;
+  --neutral-100: #F5F5F4;
+  --neutral-200: #E7E5E4;
+  --neutral-300: #D6D3D1;
+  --neutral-400: #A8A29E;
+  --neutral-500: #78716C;
+  --neutral-600: #57534E;
+  --neutral-700: #44403C;
+  --neutral-800: #292524;
+  --neutral-900: #1C1917;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.3);
+
+  /* Social */
+  --kakao-bg: #FEE500;
+  --kakao-text: #000000;
+  --naver-bg: #03C75A;
+  --naver-text: #FFFFFF;
+
+  /* Calendar */
+  --calendar-saturday: #3B82F6;
+  --calendar-sunday: #EF4444;
+}
+
+/* ========================================
+   Dark Mode
+   Cool Gray Neutral Palette
+   ======================================== */
 .dark {
   --background: #18181B;
   --foreground: #F4F4F5;
+
+  --card: #27272A;
+  --card-foreground: #F4F4F5;
+
+  --popover: #27272A;
+  --popover-foreground: #F4F4F5;
+
+  --primary: #FFC600;
+  --primary-foreground: #1C1917;
+
+  --secondary: #3F3F46;
+  --secondary-foreground: #FAFAFA;
+
+  --muted: #27272A;
+  --muted-foreground: #A1A1AA;
+
+  --accent: #27272A;
+  --accent-foreground: #F4F4F5;
+
+  --destructive: #EF4444;
+  --destructive-foreground: #FAFAFA;
+
+  --border: #3F3F46;
+  --input: #3F3F46;
+  --ring: #FFC600;
+
+  /* Dark Neutral Palette (Cool Gray) */
+  --neutral-50: #18181B;
+  --neutral-100: #27272A;
+  --neutral-200: #3F3F46;
+  --neutral-300: #52525B;
+  --neutral-400: #71717A;
+  --neutral-500: #A1A1AA;
+  --neutral-600: #D4D4D8;
+  --neutral-700: #E4E4E7;
+  --neutral-800: #F4F4F5;
+  --neutral-900: #FAFAFA;
+
+  --overlay: rgba(0, 0, 0, 0.7);
+  --scrim: rgba(0, 0, 0, 0.5);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
+/* ========================================
+   Base Styles
+   ======================================== */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Focus Styles - Accessibility */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Reduced Motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ========================================
+   Custom Utilities
+   ======================================== */
+@layer utilities {
+  /* Scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Text */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Container Variants */
+  .container-wide {
+    max-width: var(--container-wide);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .container-normal {
+    max-width: var(--container-normal);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .container-narrow {
+    max-width: var(--container-narrow);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  .container-tight {
+    max-width: var(--container-tight);
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+}
+
+/* ========================================
+   Keyframe Animations
+   ======================================== */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

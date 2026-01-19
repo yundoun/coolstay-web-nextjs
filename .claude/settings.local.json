@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npx shadcn@latest init:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx shadcn@latest add button card input label badge separator tabs dialog sheet dropdown-menu avatar skeleton toast -y)",
+      "Bash(npx shadcn@latest add button card input label badge separator tabs dialog sheet dropdown-menu avatar skeleton sonner -y)",
+      "Bash(npx shadcn@latest add:*)"
     ]
   }
 }
