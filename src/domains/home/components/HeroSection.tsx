@@ -1,10 +1,8 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
-import { Search, MapPin, CalendarDays, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
+import { SearchBar } from "@/components/ui/search-bar"
 import { heroBackgrounds } from "../data/mock"
 import { cn } from "@/lib/utils"
 
@@ -41,7 +39,7 @@ export function HeroSection() {
 
           {/* Glassmorphism Search Bar */}
           <div className="mt-8 md:mt-12">
-            <SearchBar />
+            <SearchBar variant="hero" />
           </div>
 
           {/* Quick Tags */}
@@ -63,78 +61,5 @@ export function HeroSection() {
         </div>
       </Container>
     </section>
-  )
-}
-
-function SearchBar() {
-  return (
-    <div
-      className={cn(
-        "glass-search rounded-2xl p-3 md:p-4 shadow-2xl",
-        "border border-white/30"
-      )}
-    >
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-0 md:divide-x md:divide-border">
-        {/* Location */}
-        <SearchField
-          icon={MapPin}
-          label="어디로 떠나시나요?"
-          placeholder="지역, 숙소명 검색"
-          className="md:flex-1 md:pr-4"
-        />
-
-        {/* Date */}
-        <SearchField
-          icon={CalendarDays}
-          label="날짜"
-          placeholder="날짜 선택"
-          className="md:flex-1 md:px-4"
-        />
-
-        {/* Guests */}
-        <SearchField
-          icon={Users}
-          label="인원"
-          placeholder="성인 2명"
-          className="md:w-40 md:px-4"
-        />
-
-        {/* Search Button */}
-        <div className="md:pl-4">
-          <Button size="lg" className="w-full gap-2 rounded-xl md:w-auto" asChild>
-            <Link href="/search2">
-              <Search className="size-5" />
-              <span className="md:sr-only lg:not-sr-only">검색</span>
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface SearchFieldProps {
-  icon: React.ElementType
-  label: string
-  placeholder: string
-  className?: string
-}
-
-function SearchField({ icon: Icon, label, placeholder, className }: SearchFieldProps) {
-  return (
-    <button
-      className={cn(
-        "flex items-center gap-3 text-left",
-        "rounded-xl p-2 transition-colors hover:bg-muted/50",
-        "md:rounded-none md:hover:bg-transparent",
-        className
-      )}
-    >
-      <Icon className="size-5 shrink-0 text-muted-foreground" />
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="truncate text-sm text-foreground">{placeholder}</p>
-      </div>
-    </button>
   )
 }

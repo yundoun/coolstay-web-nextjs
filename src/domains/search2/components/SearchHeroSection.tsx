@@ -1,10 +1,9 @@
 "use client"
 
 import Image from "next/image"
-import { Search, MapPin, CalendarDays, Users } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { MapPin } from "lucide-react"
 import { Container } from "@/components/layout"
-import { cn } from "@/lib/utils"
+import { SearchBar } from "@/components/ui/search-bar"
 import { getRegionImage } from "../data/regionImages"
 
 interface SearchHeroSectionProps {
@@ -63,107 +62,17 @@ export function SearchHeroSection({
 
           {/* Glassmorphism Search Bar */}
           <div className="mt-6 md:mt-8">
-            <CompactSearchBar
-              region={region}
-              regionLabel={regionData.label}
-              checkIn={checkIn}
-              checkOut={checkOut}
-              guests={guests}
+            <SearchBar
+              variant="hero"
+              location={region ? regionData.label : undefined}
+              locationLabel="여행지"
+              locationPlaceholder="여행지 선택"
+              date={checkIn && checkOut ? `${checkIn} - ${checkOut}` : undefined}
+              guests={`성인 ${guests}명`}
             />
           </div>
         </div>
       </Container>
     </section>
-  )
-}
-
-interface CompactSearchBarProps {
-  region?: string
-  regionLabel: string
-  checkIn?: string
-  checkOut?: string
-  guests?: number
-}
-
-function CompactSearchBar({
-  region,
-  regionLabel,
-  checkIn,
-  checkOut,
-  guests = 2,
-}: CompactSearchBarProps) {
-  const dateDisplay = checkIn && checkOut
-    ? `${checkIn} - ${checkOut}`
-    : "날짜 선택"
-
-  return (
-    <div
-      className={cn(
-        "rounded-2xl p-2 md:p-3 shadow-2xl",
-        "border border-border/50",
-        "backdrop-blur-xl bg-background/95"
-      )}
-    >
-      <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-0">
-        {/* Location */}
-        <SearchField
-          icon={MapPin}
-          value={region ? regionLabel : "어디로?"}
-          className="md:flex-1 md:border-r md:border-border"
-        />
-
-        {/* Date */}
-        <SearchField
-          icon={CalendarDays}
-          value={dateDisplay}
-          className="md:flex-1 md:border-r md:border-border"
-        />
-
-        {/* Guests */}
-        <SearchField
-          icon={Users}
-          value={`성인 ${guests}명`}
-          className="md:w-32"
-        />
-
-        {/* Search Button */}
-        <div className="md:pl-2">
-          <Button
-            size="lg"
-            className={cn(
-              "w-full gap-2 rounded-xl md:w-auto",
-              "bg-primary hover:bg-primary/90",
-              "shadow-lg shadow-primary/25",
-              "transition-all duration-300 hover:scale-105"
-            )}
-          >
-            <Search className="size-5" />
-            <span className="md:sr-only lg:not-sr-only">검색</span>
-          </Button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-interface SearchFieldProps {
-  icon: React.ElementType
-  value: string
-  className?: string
-}
-
-function SearchField({ icon: Icon, value, className }: SearchFieldProps) {
-  return (
-    <button
-      className={cn(
-        "flex items-center gap-2 px-3 py-2 text-left",
-        "rounded-xl transition-all duration-200",
-        "hover:bg-muted",
-        className
-      )}
-    >
-      <Icon className="size-4 shrink-0 text-muted-foreground" />
-      <span className="truncate text-sm font-medium text-foreground">{value}</span>
-    </button>
   )
 }

@@ -33,6 +33,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { SearchBar } from '@/components/ui/search-bar';
 
 // 개발 모드에서만 접근 가능
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -65,7 +66,7 @@ export default function DesignSystemPage() {
           <div className="container-wide flex h-16 items-center justify-between">
             <h1 className="text-xl font-bold">Coolstay Design System</h1>
             <div className="flex items-center gap-4">
-              <Badge variant="outline">35 Components</Badge>
+              <Badge variant="outline">36 Components</Badge>
               <Button variant="outline" size="sm" onClick={toggleTheme}>
                 {isDark ? 'Light Mode' : 'Dark Mode'}
               </Button>
@@ -240,6 +241,26 @@ export default function DesignSystemPage() {
 
             {/* ==================== FORMS ==================== */}
             <TabsContent value="forms" className="space-y-8">
+              <section>
+                <h2 className="text-2xl font-bold mb-6">SearchBar</h2>
+                <div className="space-y-8">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Hero Variant (홈/검색 페이지)</h3>
+                    <div className="p-8 rounded-xl bg-gradient-to-br from-neutral-800 to-neutral-900">
+                      <SearchBar variant="hero" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Compact Variant (헤더)</h3>
+                    <div className="max-w-md">
+                      <SearchBar variant="compact" />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <Separator />
+
               <div className="grid md:grid-cols-2 gap-8">
                 <section>
                   <h2 className="text-2xl font-bold mb-6">Input & Label</h2>
