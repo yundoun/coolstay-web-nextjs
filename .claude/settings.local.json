@@ -6,7 +6,12 @@
       "Bash(npm run build:*)",
       "Bash(npx shadcn@latest add button card input label badge separator tabs dialog sheet dropdown-menu avatar skeleton toast -y)",
       "Bash(npx shadcn@latest add button card input label badge separator tabs dialog sheet dropdown-menu avatar skeleton sonner -y)",
-      "Bash(npx shadcn@latest add:*)"
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(git -C /Users/yundoun/Desktop/WorkSpace/coolstay-web-nextjs diff --stat .claude/skills/design-system/SKILL.md docs/web-design-system/)"
     ]
   }
 }
