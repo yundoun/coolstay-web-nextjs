@@ -526,18 +526,81 @@
     }
   },
 
+  "effects": {
+    "glassmorphism": {
+      "$description": "Frosted glass effects",
+      "default": {
+        "background": "rgba(255, 255, 255, 0.8)",
+        "backgroundDark": "rgba(39, 39, 42, 0.8)",
+        "backdropFilter": "blur(12px)",
+        "usage": "Header, floating cards"
+      },
+      "search": {
+        "background": "rgba(255, 255, 255, 0.95)",
+        "backgroundDark": "rgba(39, 39, 42, 0.95)",
+        "backdropFilter": "blur(20px)",
+        "usage": "Hero search bar"
+      }
+    }
+  },
+
+  "layout": {
+    "container": {
+      "$description": "Responsive container with padding",
+      "sizes": {
+        "wide": { "maxWidth": "1440px" },
+        "normal": { "maxWidth": "1200px", "default": true },
+        "narrow": { "maxWidth": "800px" },
+        "tight": { "maxWidth": "480px" }
+      },
+      "padding": {
+        "responsive": {
+          "mobile": "1rem",
+          "md": "1.5rem",
+          "lg": "2.5rem"
+        }
+      }
+    },
+    "stack": {
+      "$description": "Flex-based stack layout",
+      "gap": {
+        "none": "0",
+        "xs": "0.25rem",
+        "sm": "0.5rem",
+        "md": "1rem",
+        "lg": "1.5rem",
+        "xl": "2rem",
+        "2xl": "3rem"
+      }
+    },
+    "section": {
+      "$description": "Section wrapper with spacing and background",
+      "spacing": {
+        "sm": { "py": "1.5rem", "mdPy": "2rem" },
+        "md": { "py": "2rem", "mdPy": "3rem" },
+        "lg": { "py": "3rem", "mdPy": "4rem", "default": true },
+        "xl": { "py": "4rem", "mdPy": "6rem" }
+      },
+      "background": {
+        "default": "colors.background",
+        "muted": "colors.muted",
+        "card": "colors.card"
+      }
+    }
+  },
+
   "patterns": {
     "bentoGrid": {
-      "description": "Bento box layout for accommodation detail page",
+      "description": "Bento box layout for curation and detail pages",
       "display": "grid",
       "gridTemplateColumns": "repeat(4, 1fr)",
       "gridAutoRows": "minmax(120px, auto)",
       "gap": "spacing.4",
       "items": {
-        "2x2": { "gridColumn": "span 2", "gridRow": "span 2" },
-        "2x1": { "gridColumn": "span 2" },
-        "1x2": { "gridRow": "span 2" },
-        "1x1": {}
+        "large": { "gridColumn": "span 2", "gridRow": "span 2", "description": "2x2 main item" },
+        "wide": { "gridColumn": "span 2", "description": "2x1 horizontal" },
+        "tall": { "gridRow": "span 2", "description": "1x2 vertical" },
+        "small": { "description": "1x1 square" }
       }
     },
     "responsiveGrid": {
@@ -546,6 +609,31 @@
         "sm": { "columns": 2 },
         "lg": { "columns": 3 },
         "xl": { "columns": 4 }
+      }
+    },
+    "carousel": {
+      "$description": "Horizontal scroll carousel pattern",
+      "itemWidth": {
+        "mobile": "70%",
+        "sm": "45%",
+        "md": "33%",
+        "lg": "20%"
+      },
+      "gap": "spacing.4",
+      "scrollSnap": "x mandatory",
+      "scrollbar": "hide"
+    },
+    "heroSection": {
+      "$description": "Full-width hero section pattern",
+      "minHeight": {
+        "mobile": "70vh",
+        "desktop": "80vh"
+      },
+      "overlay": "linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.2), rgba(0,0,0,0.4))",
+      "searchBar": {
+        "effect": "effects.glassmorphism.search",
+        "borderRadius": "borderRadius.2xl",
+        "shadow": "shadows.2xl"
       }
     }
   },

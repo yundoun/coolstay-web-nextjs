@@ -314,6 +314,135 @@ Mobile (< 768px)
 └── Mobile: 예약 버튼 Fixed Bottom
 ```
 
+### 4.5 레이아웃 컴포넌트
+
+구현된 레이아웃 컴포넌트 (`src/components/layout/`)
+
+#### Container
+
+반응형 max-width와 패딩을 제공하는 컨테이너
+
+```tsx
+import { Container } from "@/components/layout"
+
+// 기본 사용
+<Container>콘텐츠</Container>
+
+// 사이즈 변형
+<Container size="wide">1440px</Container>
+<Container size="normal">1200px (기본)</Container>
+<Container size="narrow">800px</Container>
+<Container size="tight">480px</Container>
+
+// 패딩 옵션
+<Container padding="responsive">16px → 24px → 40px</Container>
+<Container padding="none">패딩 없음</Container>
+```
+
+**반응형 컨테이너 패딩**:
+| 브레이크포인트 | 패딩 |
+|---------------|------|
+| Mobile (<768px) | 16px (1rem) |
+| Tablet (≥768px) | 24px (1.5rem) |
+| Desktop (≥1024px) | 40px (2.5rem) |
+
+#### Stack
+
+플렉스 기반 스택 레이아웃
+
+```tsx
+import { Stack, HStack, VStack } from "@/components/layout"
+
+// 수직 스택 (기본)
+<Stack gap="md">
+  <Item />
+  <Item />
+</Stack>
+
+// 수평 스택
+<HStack gap="lg" align="center">
+  <Icon />
+  <Text />
+</HStack>
+
+// gap 옵션: none, xs, sm, md, lg, xl, 2xl
+// align: start, center, end, stretch, baseline
+// justify: start, center, end, between, around, evenly
+```
+
+#### Grid
+
+12컬럼 반응형 그리드
+
+```tsx
+import { Grid, GridItem } from "@/components/layout"
+
+// 기본 그리드
+<Grid cols={4} gap="lg" responsive>
+  <GridItem>1</GridItem>
+  <GridItem colSpan={2}>2-3</GridItem>
+  <GridItem>4</GridItem>
+</Grid>
+
+// responsive: true → 모바일 1열 → sm 2열 → lg 4열 자동 조정
+```
+
+#### Section
+
+섹션 래퍼 (타이틀, 배경, 간격 포함)
+
+```tsx
+import { Section } from "@/components/layout"
+
+<Section
+  title="이번 주 추천"
+  description="에디터가 직접 선정한 숙소"
+  background="muted"
+  spacing="lg"
+  headerAction={<Button>전체보기</Button>}
+>
+  <Content />
+</Section>
+
+// spacing: sm, md, lg, xl
+// background: default, muted, card
+```
+
+### 4.6 글래스모피즘 (Glassmorphism)
+
+반투명 유리 효과 유틸리티
+
+```css
+/* 일반 글래스 (헤더, 카드 등) */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+}
+
+/* 검색바용 (더 불투명) */
+.glass-search {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+/* 다크 모드 */
+.dark .glass { background: rgba(39, 39, 42, 0.8); }
+.dark .glass-search { background: rgba(39, 39, 42, 0.95); }
+```
+
+**사용 예시**:
+```tsx
+// 히어로 검색바
+<div className="glass-search rounded-2xl p-4 shadow-2xl border border-white/30">
+  <SearchFields />
+</div>
+
+// 스티키 헤더
+<header className="glass sticky top-0 z-fixed">
+  <HeaderContent />
+</header>
+```
+
 ---
 
 ## 5. 스페이싱 시스템
@@ -912,6 +1041,119 @@ CSS 클래스 (Tailwind 커스텀): kebab-case
 ├── card-accommodation
 └── input-search
 ```
+
+---
+
+## 13. 홈 페이지 패턴
+
+### 13.1 홈 페이지 구조
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  HeroSection (70-80vh)                                       │
+│  ├── 배경 이미지 (Full-width)                                │
+│  ├── 그라디언트 오버레이                                      │
+│  ├── 메인 카피 + 서브 카피                                    │
+│  ├── 글래스모피즘 검색바                                      │
+│  └── 퀵 태그 (오션뷰, 커플추천 등)                            │
+├─────────────────────────────────────────────────────────────┤
+│  Section: 이번 주 추천                                       │
+│  └── BentoGrid (2x2, 2x1, 1x2, 1x1 조합)                    │
+├─────────────────────────────────────────────────────────────┤
+│  Section: 인기 여행지 (background: muted)                    │
+│  └── RegionCarousel (수평 스크롤)                            │
+├─────────────────────────────────────────────────────────────┤
+│  Section: MD 추천 숙소                                       │
+│  └── 4컬럼 숙소 카드 그리드                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 13.2 홈 컴포넌트 (`src/domains/home/components/`)
+
+#### HeroSection
+
+히어로 섹션 + 글래스모피즘 검색바
+
+```tsx
+import { HeroSection } from "@/domains/home/components"
+
+<HeroSection />
+// 특징:
+// - 배경 이미지 + 그라디언트 오버레이
+// - 반응형 높이 (70vh mobile, 80vh desktop)
+// - 글래스모피즘 검색바 (위치/날짜/인원)
+// - 퀵 태그 버튼들
+```
+
+#### BentoGrid
+
+벤토 그리드 큐레이션 레이아웃
+
+```tsx
+import { BentoGrid } from "@/domains/home/components"
+
+<BentoGrid />
+// 레이아웃:
+// - large (2x2): 메인 큐레이션
+// - wide (2x1): 가로형 카드
+// - tall (1x2): 세로형 카드
+// - small (1x1): 정사각형 카드
+```
+
+#### RegionCarousel
+
+인기 지역 수평 스크롤 캐러셀
+
+```tsx
+import { RegionCarousel } from "@/domains/home/components"
+
+<RegionCarousel />
+// 반응형 너비:
+// - Mobile: 70% (1.4개 보임)
+// - Tablet: 33% (3개 보임)
+// - Desktop: 20% (5개 보임)
+// - 스크롤 스냅 적용
+// - 좌우 네비게이션 버튼 (데스크톱)
+```
+
+#### FeaturedSection
+
+MD 추천 숙소 그리드
+
+```tsx
+import { FeaturedSection } from "@/domains/home/components"
+
+<FeaturedSection />
+// 반응형 그리드:
+// - Mobile: 1열
+// - sm: 2열
+// - lg: 4열
+// 숙소 카드 포함:
+// - 이미지 + 찜 버튼
+// - 태그 배지
+// - 이름/위치/별점/가격
+```
+
+### 13.3 숙소 카드 패턴
+
+```
+┌─────────────────────────────────────┐
+│  ┌─────────────────────────────┐   │
+│  │         이미지              │ ♡ │  ← 찜 버튼
+│  │         (4:3)               │   │
+│  │  [20%]                      │   │  ← 할인 배지
+│  └─────────────────────────────┘   │
+│  [조식포함] [오션뷰]               │  ← 태그 배지
+│  그랜드 하얏트 제주       ⭐ 4.9  │  ← 이름 + 별점
+│  제주 서귀포시                     │  ← 위치
+│  ₩350,000  ₩420,000 /박           │  ← 할인가/원가
+└─────────────────────────────────────┘
+```
+
+**호버 효과**:
+- 카드: translateY(-4px) + shadow 증가
+- 이미지: scale(1.05)
+- 이름 텍스트: primary 색상 전환
 
 ---
 

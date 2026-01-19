@@ -17,8 +17,9 @@ UI/UX 구현 시 디자인 시스템과의 일관성을 보장합니다.
 
 ### 2. 구현된 컴포넌트 (UI Components)
 - UI 컴포넌트: `src/components/ui/` (button, card, input, dialog 등)
+- 레이아웃 컴포넌트: `src/components/layout/` (Container, Stack, Grid, Section)
+- 홈 도메인 컴포넌트: `src/domains/home/components/` (HeroSection, BentoGrid, RegionCarousel, FeaturedSection)
 - 도메인 컴포넌트: `src/components/domain/` (숙소 카드, 예약 위젯 등)
-- 레이아웃 컴포넌트: `src/components/layout/` (Header, Footer 등)
 
 ## 작업 프로세스
 
@@ -115,6 +116,40 @@ Read docs/web-design-system/web-design-tokens.json
 - sm (640px+): 2컬럼
 - lg (1024px+): 3컬럼
 - xl (1280px+): 4컬럼
+
+### 레이아웃 컴포넌트
+```tsx
+import { Container, Stack, HStack, VStack, Grid, GridItem, Section } from "@/components/layout"
+
+// Container: 반응형 max-width + 패딩
+<Container size="normal">...</Container>  // wide | normal | narrow | tight
+
+// Stack: 플렉스 스택
+<HStack gap="md" align="center">...</HStack>
+<VStack gap="lg">...</VStack>
+
+// Grid: 12컬럼 그리드
+<Grid cols={4} gap="lg" responsive>
+  <GridItem colSpan={2}>...</GridItem>
+</Grid>
+
+// Section: 섹션 래퍼
+<Section title="제목" background="muted" spacing="lg">...</Section>
+```
+
+### 글래스모피즘
+```tsx
+// 일반 글래스 (헤더 등)
+<div className="glass">...</div>
+
+// 검색바용 (더 불투명)
+<div className="glass-search rounded-2xl">...</div>
+```
+
+### 홈 컴포넌트
+```tsx
+import { HeroSection, BentoGrid, RegionCarousel, FeaturedSection } from "@/domains/home/components"
+```
 
 ## 새 컴포넌트/토큰 추가 요청 시
 
