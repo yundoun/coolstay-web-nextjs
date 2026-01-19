@@ -4,3 +4,4 @@ export { Grid, GridItem, gridVariants, gridItemVariants, type GridProps, type Gr
 export { Section, sectionVariants, type SectionProps } from "./Section"
 export { Header, CompactSearchBar, MobileNav } from "./Header"
 export { Footer } from "./Footer"
+export { MainContent } from "./MainContent"
