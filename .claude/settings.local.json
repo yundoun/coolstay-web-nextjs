@@ -11,7 +11,8 @@
       "Bash(xargs kill:*)",
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
-      "Bash(git -C /Users/yundoun/Desktop/WorkSpace/coolstay-web-nextjs diff --stat .claude/skills/design-system/SKILL.md docs/web-design-system/)"
+      "Bash(git -C /Users/yundoun/Desktop/WorkSpace/coolstay-web-nextjs diff --stat .claude/skills/design-system/SKILL.md docs/web-design-system/)",
+      "Bash(ls:*)"
     ]
   }
 }
