@@ -32,7 +32,7 @@ export function SearchBar({
   guests,
   guestsLabel = "인원",
   guestsPlaceholder = "성인 2명",
-  href = "/search2",
+  href = "/search",
   onSearch,
   className,
 }: SearchBarProps) {

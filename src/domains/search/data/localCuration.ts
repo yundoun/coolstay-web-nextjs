@@ -93,7 +93,6 @@ export const localCurations: Record<string, LocalCuration> = {
   },
 }
 
-// 기본 큐레이션 (지역 미선택 시)
 export const defaultCuration: LocalCuration = {
   region: "default",
   title: "여행자들이 사랑한 로컬 스팟",

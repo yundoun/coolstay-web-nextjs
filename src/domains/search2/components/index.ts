@@ -1,7 +1,0 @@
-export { SearchHeroSection } from "./SearchHeroSection"
-export { LifestyleFilterChips } from "./LifestyleFilterChips"
-export { BentoAccommodationCard } from "./BentoAccommodationCard"
-export { BentoSearchResultGrid } from "./BentoSearchResultGrid"
-export { SearchInfoBar } from "./SearchInfoBar"
-export { LocalCurationSection } from "./LocalCurationSection"
-export { Search2PageLayout } from "./Search2PageLayout"

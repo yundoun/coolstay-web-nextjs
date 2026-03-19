@@ -51,7 +51,6 @@ export const regionImages: RegionImage[] = [
   },
 ]
 
-// 기본 히어로 이미지 (지역 미선택 시)
 export const defaultHeroImage: RegionImage = {
   region: "default",
   label: "전국",

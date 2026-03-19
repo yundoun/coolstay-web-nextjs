@@ -16,6 +16,7 @@ export function useSearchFilters() {
     }
 
     const regions = searchParams.getAll("region")
+    const lifestyle = searchParams.getAll("lifestyle")
     const types = searchParams.getAll("type")
     const amenities = searchParams.getAll("amenity")
     const minPrice = Number(searchParams.get("minPrice")) || PRICE_RANGE.min
@@ -24,6 +25,7 @@ export function useSearchFilters() {
 
     return {
       regions,
+      lifestyle,
       types,
       amenities,
       minPrice,
@@ -37,25 +39,24 @@ export function useSearchFilters() {
     return searchParams?.get("sort") || DEFAULT_SORT
   }, [searchParams])
 
+  // 현재 선택된 지역 (첫 번째)
+  const selectedRegion = filters.regions[0] || null
+
   // URL 업데이트 헬퍼
   const updateURL = useCallback(
     (updates: Record<string, string | string[] | null>) => {
       const params = new URLSearchParams(searchParams?.toString() ?? "")
 
       Object.entries(updates).forEach(([key, value]) => {
-        // 기존 파라미터 삭제
         params.delete(key)
 
         if (value === null) {
-          // null이면 파라미터 제거
           return
         }
 
         if (Array.isArray(value)) {
-          // 배열인 경우 여러 개 추가
           value.forEach((v) => params.append(key, v))
         } else {
-          // 단일 값
           params.set(key, value)
         }
       })
@@ -74,6 +75,17 @@ export function useSearchFilters() {
       updateURL({ region: newRegions.length > 0 ? newRegions : null })
     },
     [filters.regions, updateURL]
+  )
+
+  // 라이프스타일 필터 토글
+  const toggleLifestyle = useCallback(
+    (value: string) => {
+      const newLifestyle = filters.lifestyle.includes(value)
+        ? filters.lifestyle.filter((l) => l !== value)
+        : [...filters.lifestyle, value]
+      updateURL({ lifestyle: newLifestyle.length > 0 ? newLifestyle : null })
+    },
+    [filters.lifestyle, updateURL]
   )
 
   // 숙소 유형 필터 토글
@@ -155,6 +167,12 @@ export function useSearchFilters() {
             updateURL({ region: newRegions.length > 0 ? newRegions : null })
           }
           break
+        case "lifestyle":
+          if (value) {
+            const newLifestyle = filters.lifestyle.filter((l) => l !== value)
+            updateURL({ lifestyle: newLifestyle.length > 0 ? newLifestyle : null })
+          }
+          break
         case "type":
           if (value) {
             const newTypes = filters.types.filter((t) => t !== value)
@@ -182,6 +200,7 @@ export function useSearchFilters() {
   const activeFilterCount = useMemo(() => {
     let count = 0
     count += filters.regions.length
+    count += filters.lifestyle.length
     count += filters.types.length
     count += filters.amenities.length
     if (filters.minPrice !== PRICE_RANGE.min || filters.maxPrice !== PRICE_RANGE.max) {
@@ -199,7 +218,9 @@ export function useSearchFilters() {
   return {
     filters,
     sort,
+    selectedRegion,
     toggleRegion,
+    toggleLifestyle,
     toggleType,
     toggleAmenity,
     setPriceRange,

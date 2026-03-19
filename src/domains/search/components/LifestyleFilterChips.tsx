@@ -29,7 +29,6 @@ export function LifestyleFilterChips({
 
   return (
     <div className="relative group">
-      {/* Scroll Buttons - Desktop */}
       <Button
         variant="ghost"
         size="icon"
@@ -62,12 +61,11 @@ export function LifestyleFilterChips({
         <ChevronRight className="size-4" />
       </Button>
 
-      {/* Filter Chips */}
       <div
         ref={scrollRef}
         className={cn(
           "flex gap-2 overflow-x-auto scrollbar-hide",
-          "pb-2 -mb-2", // for shadow visibility
+          "pb-2 -mb-2",
           "scroll-smooth snap-x snap-mandatory"
         )}
       >
@@ -106,7 +104,6 @@ export function LifestyleFilterChips({
         })}
       </div>
 
-      {/* Gradient Fade - Desktop */}
       <div className="absolute right-0 top-0 bottom-2 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none hidden md:block" />
       <div className="absolute left-0 top-0 bottom-2 w-12 bg-gradient-to-r from-background to-transparent pointer-events-none hidden md:block" />
     </div>

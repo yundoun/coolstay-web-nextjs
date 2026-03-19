@@ -7,10 +7,10 @@ import { Star, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EcoBadge, PremiumBadge, LocalPickBadge, NewBadge } from "@/components/badges"
 import { cn } from "@/lib/utils"
-import type { Search2Accommodation, BentoSize, BadgeType } from "../types"
+import type { SearchAccommodation, BentoSize, BadgeType } from "../types"
 
 interface BentoAccommodationCardProps {
-  accommodation: Search2Accommodation
+  accommodation: SearchAccommodation
   size?: BentoSize
   priority?: boolean
 }
@@ -31,7 +31,6 @@ export function BentoAccommodationCard({
       )
     : null
 
-  // 데스크톱 전용 벤토 레이아웃 클래스 (모바일은 모두 1x1)
   const desktopLayoutClasses: Record<BentoSize, string> = {
     large: "md:col-span-2 md:row-span-2",
     wide: "md:col-span-2 md:row-span-1",
@@ -39,7 +38,6 @@ export function BentoAccommodationCard({
     small: "md:col-span-1 md:row-span-1",
   }
 
-  // 카드 크기별 타이포그래피 (데스크톱)
   const isLargeCard = cardSize === "large" || cardSize === "tall"
 
   return (
@@ -49,13 +47,10 @@ export function BentoAccommodationCard({
         "group relative block overflow-hidden rounded-2xl",
         "transition-all duration-500",
         "hover:shadow-2xl hover:shadow-black/20",
-        // 모바일: 균일한 1x1
         "col-span-1 row-span-1",
-        // 데스크톱: 벤토 레이아웃
         desktopLayoutClasses[cardSize]
       )}
     >
-      {/* Background Image with Parallax */}
       <div className="absolute inset-0 overflow-hidden">
         <Image
           src={accommodation.imageUrl}
@@ -77,7 +72,6 @@ export function BentoAccommodationCard({
         />
       </div>
 
-      {/* Gradient Overlay */}
       <div
         className={cn(
           "absolute inset-0",
@@ -87,7 +81,6 @@ export function BentoAccommodationCard({
         )}
       />
 
-      {/* Top Badges */}
       <div className="absolute top-2 left-2 right-10 md:top-3 md:left-3 md:right-12 flex flex-wrap gap-1">
         {accommodation.badges?.map((badge) => (
           <BadgeRenderer key={badge} type={badge} size="sm" />
@@ -99,7 +92,6 @@ export function BentoAccommodationCard({
         )}
       </div>
 
-      {/* Wishlist Button */}
       <Button
         variant="ghost"
         size="icon"
@@ -126,9 +118,7 @@ export function BentoAccommodationCard({
         <span className="sr-only">찜하기</span>
       </Button>
 
-      {/* Content */}
       <div className="absolute inset-x-0 bottom-0 p-3 md:p-4">
-        {/* Main Info */}
         <div className="space-y-0.5 md:space-y-1">
           <h3
             className={cn(
@@ -144,7 +134,6 @@ export function BentoAccommodationCard({
             {accommodation.location}
           </p>
 
-          {/* Price */}
           <div className="flex items-baseline gap-1 md:gap-2 pt-0.5">
             {accommodation.originalPrice && (
               <span className="text-xs text-white/50 line-through hidden md:inline">
@@ -157,7 +146,6 @@ export function BentoAccommodationCard({
             <span className="text-xs text-white/70">/박</span>
           </div>
 
-          {/* Rating - 모든 카드에 항상 표시 */}
           <div className="flex items-center gap-1 pt-0.5">
             <Star className="size-3 md:size-3.5 fill-amber-400 text-amber-400" />
             <span className="text-xs md:text-sm font-medium text-white">
@@ -170,7 +158,6 @@ export function BentoAccommodationCard({
         </div>
       </div>
 
-      {/* Hover Overlay */}
       <div
         className={cn(
           "absolute inset-0 pointer-events-none",

@@ -1,6 +1,6 @@
 "use client"
 
-import { SlidersHorizontal, LayoutGrid, List, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,8 +16,6 @@ interface SearchInfoBarProps {
   regionLabel?: string
   sort: string
   onSortChange: (sort: string) => void
-  onFilterClick?: () => void
-  activeFilterCount?: number
 }
 
 export function SearchInfoBar({
@@ -25,8 +23,6 @@ export function SearchInfoBar({
   regionLabel,
   sort,
   onSortChange,
-  onFilterClick,
-  activeFilterCount = 0,
 }: SearchInfoBarProps) {
   const currentSort = sortOptions.find((s) => s.value === sort)
 
@@ -37,7 +33,6 @@ export function SearchInfoBar({
         "py-4 border-b border-border/50"
       )}
     >
-      {/* Left: Search Info */}
       <div className="flex items-center gap-2">
         <h2 className="text-sm md:text-base font-medium text-foreground">
           {regionLabel && (
@@ -50,9 +45,7 @@ export function SearchInfoBar({
         </h2>
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        {/* Sort Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -84,29 +77,6 @@ export function SearchInfoBar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        {/* Filter Button - Mobile */}
-        {onFilterClick && (
-          <Button
-            variant="outline"
-            size="sm"
-            className={cn(
-              "gap-1.5 rounded-full md:hidden",
-              "border-border/50 hover:border-border",
-              "transition-all duration-200",
-              activeFilterCount > 0 && "border-primary text-primary"
-            )}
-            onClick={onFilterClick}
-          >
-            <SlidersHorizontal className="size-4" />
-            <span>필터</span>
-            {activeFilterCount > 0 && (
-              <span className="flex items-center justify-center size-5 rounded-full bg-primary text-primary-foreground text-xs font-medium">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-        )}
       </div>
     </div>
   )

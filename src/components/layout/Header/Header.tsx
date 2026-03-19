@@ -12,13 +12,13 @@ import { CompactSearchBar } from "./CompactSearchBar"
 import { MobileNav } from "./MobileNav"
 
 const NAV_ITEMS = [
-  { label: "지역별", href: "/regions" },
-  { label: "특가", href: "/deals" },
-  { label: "테마", href: "/themes" },
+  { label: "검색", href: "/search" },
+  { label: "예약내역", href: "/bookings" },
+  { label: "마이페이지", href: "/mypage" },
 ]
 
 // 투명 헤더를 사용할 페이지 경로
-const TRANSPARENT_HEADER_PATHS = ["/", "/search2"]
+const TRANSPARENT_HEADER_PATHS = ["/", "/search"]
 
 export interface HeaderProps {
   variant?: "solid" | "transparent"

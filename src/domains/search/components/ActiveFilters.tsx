@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { filterLabels } from "../data/filterOptions"
+import { lifestyleFilters } from "../data/lifestyleFilters"
 import { PRICE_RANGE, type SearchFilters } from "../types"
 
 interface ActiveFiltersProps {
@@ -12,9 +13,14 @@ interface ActiveFiltersProps {
   onReset: () => void
 }
 
+const lifestyleLabels: Record<string, string> = Object.fromEntries(
+  lifestyleFilters.map((f) => [f.value, `${f.icon} ${f.label}`])
+)
+
 export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps) {
   const hasActiveFilters =
     filters.regions.length > 0 ||
+    filters.lifestyle.length > 0 ||
     filters.types.length > 0 ||
     filters.amenities.length > 0 ||
     filters.minPrice !== PRICE_RANGE.min ||
@@ -37,13 +43,8 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
-      {/* Region filters */}
       {filters.regions.map((region) => (
-        <Badge
-          key={`region-${region}`}
-          variant="secondary"
-          className="gap-1 pr-1"
-        >
+        <Badge key={`region-${region}`} variant="secondary" className="gap-1 pr-1">
           {filterLabels[region] || region}
           <button
             onClick={() => onRemove("region", region)}
@@ -55,13 +56,21 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
         </Badge>
       ))}
 
-      {/* Type filters */}
+      {filters.lifestyle.map((value) => (
+        <Badge key={`lifestyle-${value}`} variant="secondary" className="gap-1 pr-1">
+          {lifestyleLabels[value] || value}
+          <button
+            onClick={() => onRemove("lifestyle", value)}
+            className="ml-1 rounded-full p-0.5 hover:bg-muted-foreground/20"
+          >
+            <X className="size-3" />
+            <span className="sr-only">제거</span>
+          </button>
+        </Badge>
+      ))}
+
       {filters.types.map((type) => (
-        <Badge
-          key={`type-${type}`}
-          variant="secondary"
-          className="gap-1 pr-1"
-        >
+        <Badge key={`type-${type}`} variant="secondary" className="gap-1 pr-1">
           {filterLabels[type] || type}
           <button
             onClick={() => onRemove("type", type)}
@@ -73,13 +82,8 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
         </Badge>
       ))}
 
-      {/* Amenity filters */}
       {filters.amenities.map((amenity) => (
-        <Badge
-          key={`amenity-${amenity}`}
-          variant="secondary"
-          className="gap-1 pr-1"
-        >
+        <Badge key={`amenity-${amenity}`} variant="secondary" className="gap-1 pr-1">
           {filterLabels[amenity] || amenity}
           <button
             onClick={() => onRemove("amenity", amenity)}
@@ -91,7 +95,6 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
         </Badge>
       ))}
 
-      {/* Price filter */}
       {hasPriceFilter && (
         <Badge variant="secondary" className="gap-1 pr-1">
           {formatPrice(filters.minPrice)} - {formatPrice(filters.maxPrice)}
@@ -105,7 +108,6 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
         </Badge>
       )}
 
-      {/* Rating filter */}
       {filters.rating && (
         <Badge variant="secondary" className="gap-1 pr-1">
           {filters.rating}점 이상
@@ -119,7 +121,6 @@ export function ActiveFilters({ filters, onRemove, onReset }: ActiveFiltersProps
         </Badge>
       )}
 
-      {/* Reset all button */}
       <Button
         variant="ghost"
         size="sm"
