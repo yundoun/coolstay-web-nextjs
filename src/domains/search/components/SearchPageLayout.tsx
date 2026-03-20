@@ -22,13 +22,10 @@ function getDefaultDates() {
 
 export function SearchPageLayout() {
   const {
-    filters,
     sort,
     selectedRegion,
     toggleRegion,
     setSort,
-    resetFilters,
-    hasActiveFilters,
   } = useSearchFilters()
 
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
@@ -69,12 +66,10 @@ export function SearchPageLayout() {
     setRecentSearches([])
   }, [])
 
-  const hasSearchCondition = hasActiveFilters || selectedRegion !== null
-
   return (
     <div className="min-h-screen">
       <Container size="wide" padding="responsive">
-        {/* 검색 조건 바 (지역/날짜/인원) */}
+        {/* 검색 조건 바 — 항상 표시 */}
         <SearchConditionBar
           selectedRegion={selectedRegion}
           onRegionChange={toggleRegion}
@@ -86,17 +81,13 @@ export function SearchPageLayout() {
           onGuestChange={handleGuestChange}
         />
 
-        {/* 검색 조건 없을 때: 인기/최근 키워드 */}
-        {!hasSearchCondition && (
-          <div className="py-6 border-t border-border">
-            <PopularKeywords
-              recentSearches={recentSearches}
-              onKeywordClick={handleKeywordClick}
-              onRemoveRecent={handleRemoveRecent}
-              onClearRecent={handleClearRecent}
-            />
-          </div>
-        )}
+        {/* 인기/최근 키워드 — 항상 표시 (접을 수 있는 컴팩트 형태) */}
+        <PopularKeywords
+          recentSearches={recentSearches}
+          onKeywordClick={handleKeywordClick}
+          onRemoveRecent={handleRemoveRecent}
+          onClearRecent={handleClearRecent}
+        />
 
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
