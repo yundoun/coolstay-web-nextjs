@@ -3,6 +3,8 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20 11:32** | 헤더 검색 드롭다운 3단 하이브리드 + 인기검색어 | [`commit`](.work-history/entries/2026-03-20_15_search-dropdown-hybrid.md)
+- **2026-03-20** | 헤더 검색 드롭다운 렌더링 수정 | [`b87a590`](.work-history/entries/2026-03-20_14_dropdown-portal-fix.md)
 - **2026-03-20** | 헤더 검색창 드롭다운 자동완성 구현 | [`f87ff64`](.work-history/entries/2026-03-20_13_header-search-dropdown.md)
 - **2026-03-20** | 검색 모달 단일 화면으로 재구성 (모바일 앱 캡쳐 기반) | [`878c2d5`](.work-history/entries/2026-03-20_12_search-modal-single-screen.md)
 - **2026-03-20** | 헤더 검색 pill → 텍스트 필드로 교체 | [`799cf00`](.work-history/entries/2026-03-20_11_header-search-field.md)
