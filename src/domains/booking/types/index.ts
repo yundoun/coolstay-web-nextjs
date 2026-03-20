@@ -67,3 +67,30 @@ export interface BookingResult {
   totalAmount: number
   earnedMileage: number
 }
+
+// ─── 예약 내역 ─────────────────────────────────────────────
+
+export type BookingStatus =
+  | "confirmed"   // 예약 완료 - 입실전 (BS001)
+  | "checked_in"  // 입실 완료 (BS002)
+  | "cancelled"   // 예약 취소 (BS003)
+  | "processing"  // 처리중 (BS004)
+
+export interface BookingHistoryItem {
+  bookingId: string
+  status: BookingStatus
+  accommodationId: string
+  accommodationName: string
+  roomName: string
+  roomImageUrl: string
+  bookingType: BookingType
+  checkIn: string
+  checkOut: string
+  usageTime?: string
+  totalAmount: number
+  paymentMethod: PaymentMethod
+  bookerName: string
+  bookerPhone: string
+  createdAt: string
+  hasReview: boolean
+}

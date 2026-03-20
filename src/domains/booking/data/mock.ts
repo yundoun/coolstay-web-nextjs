@@ -1,5 +1,5 @@
 import { getAccommodationDetail } from "@/domains/accommodation/data/mock"
-import type { BookingContext, BookingType, Coupon } from "../types"
+import type { BookingContext, BookingType, BookingHistoryItem, Coupon } from "../types"
 
 const mockCoupons: Coupon[] = [
   {
@@ -66,3 +66,96 @@ export function getBookingContext(
     benefitPointRate: accommodation.benefitPointRate,
   }
 }
+
+// ─── 예약 내역 목데이터 ──────────────────────────────────────
+
+const ROOM_IMAGE = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80"
+
+export const bookingHistoryMock: BookingHistoryItem[] = [
+  {
+    bookingId: "CS2026032001",
+    status: "confirmed",
+    accommodationId: "1",
+    accommodationName: "파라다이스 호텔 부산",
+    roomName: "스탠다드 더블",
+    roomImageUrl: ROOM_IMAGE,
+    bookingType: "stay",
+    checkIn: "2026-03-25",
+    checkOut: "2026-03-26",
+    totalAmount: 150000,
+    paymentMethod: "card",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    createdAt: "2026-03-20",
+    hasReview: false,
+  },
+  {
+    bookingId: "CS2026031501",
+    status: "confirmed",
+    accommodationId: "2",
+    accommodationName: "그랜드 하얏트 제주",
+    roomName: "오션뷰 디럭스",
+    roomImageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80",
+    bookingType: "stay",
+    checkIn: "2026-04-01",
+    checkOut: "2026-04-03",
+    totalAmount: 840000,
+    paymentMethod: "card",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    createdAt: "2026-03-15",
+    hasReview: false,
+  },
+  {
+    bookingId: "CS2026031001",
+    status: "checked_in",
+    accommodationId: "3",
+    accommodationName: "세인트존스 호텔",
+    roomName: "디럭스 트윈",
+    roomImageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400&q=80",
+    bookingType: "stay",
+    checkIn: "2026-03-10",
+    checkOut: "2026-03-11",
+    totalAmount: 198000,
+    paymentMethod: "transfer",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    createdAt: "2026-03-08",
+    hasReview: true,
+  },
+  {
+    bookingId: "CS2026030501",
+    status: "checked_in",
+    accommodationId: "1",
+    accommodationName: "파라다이스 호텔 부산",
+    roomName: "프리미엄 스위트",
+    roomImageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=80",
+    bookingType: "rental",
+    checkIn: "2026-03-05",
+    checkOut: "2026-03-05",
+    usageTime: "최대 4시간",
+    totalAmount: 50000,
+    paymentMethod: "onsite",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    createdAt: "2026-03-05",
+    hasReview: false,
+  },
+  {
+    bookingId: "CS2026022801",
+    status: "cancelled",
+    accommodationId: "2",
+    accommodationName: "그랜드 하얏트 제주",
+    roomName: "스탠다드 킹",
+    roomImageUrl: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=80",
+    bookingType: "stay",
+    checkIn: "2026-03-01",
+    checkOut: "2026-03-02",
+    totalAmount: 320000,
+    paymentMethod: "card",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    createdAt: "2026-02-28",
+    hasReview: false,
+  },
+]

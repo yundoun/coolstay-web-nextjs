@@ -1,0 +1,227 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Clock, Moon, Calendar, Search } from "lucide-react"
+import { Container } from "@/components/layout"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+import { bookingHistoryMock } from "../data/mock"
+import type { BookingHistoryItem, BookingStatus } from "../types"
+
+type TabFilter = "all" | "upcoming"
+
+const STATUS_CONFIG: Record<
+  BookingStatus,
+  { label: string; variant: "default" | "secondary" | "destructive" | "outline" }
+> = {
+  confirmed: { label: "예약완료", variant: "default" },
+  checked_in: { label: "이용완료", variant: "secondary" },
+  cancelled: { label: "예약취소", variant: "destructive" },
+  processing: { label: "처리중", variant: "outline" },
+}
+
+const PAYMENT_LABELS: Record<string, string> = {
+  onsite: "현장결제",
+  card: "카드결제",
+  transfer: "계좌이체",
+  phone: "휴대폰결제",
+}
+
+const DAYS = ["일", "월", "화", "수", "목", "금", "토"]
+
+function formatDateKr(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00")
+  return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}(${DAYS[d.getDay()]})`
+}
+
+function diffDays(a: string, b: string) {
+  const da = new Date(a + "T00:00:00")
+  const db = new Date(b + "T00:00:00")
+  return Math.round((db.getTime() - da.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+export function BookingHistoryPage() {
+  const [tab, setTab] = useState<TabFilter>("all")
+
+  const filtered =
+    tab === "upcoming"
+      ? bookingHistoryMock.filter((b) => b.status === "confirmed")
+      : bookingHistoryMock
+
+  return (
+    <Container size="normal" padding="responsive" className="py-8">
+      <h1 className="text-2xl font-bold mb-6">예약 내역</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-1 mb-6 border-b">
+        <TabButton active={tab === "all"} onClick={() => setTab("all")}>
+          전체
+          <span className="ml-1.5 text-xs text-muted-foreground">
+            {bookingHistoryMock.length}
+          </span>
+        </TabButton>
+        <TabButton active={tab === "upcoming"} onClick={() => setTab("upcoming")}>
+          예약
+          <span className="ml-1.5 text-xs text-muted-foreground">
+            {bookingHistoryMock.filter((b) => b.status === "confirmed").length}
+          </span>
+        </TabButton>
+      </div>
+
+      {/* List */}
+      {filtered.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="space-y-4">
+          {filtered.map((booking) => (
+            <BookingCard key={booking.bookingId} booking={booking} />
+          ))}
+        </div>
+      )}
+    </Container>
+  )
+}
+
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors",
+        active
+          ? "border-primary text-primary"
+          : "border-transparent text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {children}
+    </button>
+  )
+}
+
+function BookingCard({ booking }: { booking: BookingHistoryItem }) {
+  const status = STATUS_CONFIG[booking.status]
+  const isRental = booking.bookingType === "rental"
+  const nights = isRental ? 0 : diffDays(booking.checkIn, booking.checkOut)
+
+  const dateDisplay = isRental
+    ? `${formatDateKr(booking.checkIn)} / 대실 ${booking.usageTime || ""}`
+    : `${formatDateKr(booking.checkIn)} ~ ${formatDateKr(booking.checkOut)} / ${nights}박 ${nights + 1}일`
+
+  return (
+    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow">
+      <div className="flex gap-4 p-4">
+        {/* Image */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-lg overflow-hidden shrink-0">
+          <Image
+            src={booking.roomImageUrl}
+            alt={booking.roomName}
+            fill
+            className="object-cover"
+            sizes="112px"
+          />
+          <div className="absolute bottom-0 left-0 right-0">
+            <Badge
+              variant={status.variant}
+              className="w-full rounded-none rounded-b-lg justify-center text-xs py-1"
+            >
+              {status.label}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className="font-semibold truncate">{booking.accommodationName}</h3>
+              <p className="text-sm text-muted-foreground truncate">{booking.roomName}</p>
+            </div>
+            <Badge variant="outline" className="shrink-0 text-xs">
+              {isRental ? (
+                <><Clock className="size-3 mr-1" />대실</>
+              ) : (
+                <><Moon className="size-3 mr-1" />숙박</>
+              )}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
+            <Calendar className="size-3.5 shrink-0" />
+            <span>{dateDisplay}</span>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-lg font-bold">
+              {booking.totalAmount.toLocaleString()}원
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {PAYMENT_LABELS[booking.paymentMethod]}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex border-t">
+        {booking.status === "confirmed" && (
+          <button className="flex-1 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium">
+            예약 취소
+          </button>
+        )}
+        {booking.status === "confirmed" && (
+          <div className="w-px bg-border" />
+        )}
+        <Link
+          href={`/accommodations/${booking.accommodationId}`}
+          className="flex-1 py-3 text-sm text-center text-muted-foreground hover:bg-muted/50 transition-colors font-medium"
+        >
+          숙소 보기
+        </Link>
+        {booking.status === "checked_in" && !booking.hasReview && (
+          <>
+            <div className="w-px bg-border" />
+            <button className="flex-1 py-3 text-sm text-primary hover:bg-primary/5 transition-colors font-medium">
+              후기 작성
+            </button>
+          </>
+        )}
+        {booking.status === "checked_in" && booking.hasReview && (
+          <>
+            <div className="w-px bg-border" />
+            <button className="flex-1 py-3 text-sm text-muted-foreground hover:bg-muted/50 transition-colors font-medium">
+              후기 확인
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 text-center">
+      <div className="rounded-full bg-muted p-6 mb-4">
+        <Search className="size-10 text-muted-foreground" />
+      </div>
+      <p className="text-lg font-semibold">예약 내역이 없습니다</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        꿀스테이에서 특별한 숙소를 찾아보세요
+      </p>
+      <Button className="mt-4" asChild>
+        <Link href="/search">숙소 둘러보기</Link>
+      </Button>
+    </div>
+  )
+}
