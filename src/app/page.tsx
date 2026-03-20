@@ -1,34 +1,32 @@
-import { Section } from "@/components/layout"
+import { Section, Container } from "@/components/layout"
 import {
   HeroSection,
-  BentoGrid,
-  RegionCarousel,
-  FeaturedSection,
+  PromoBannerCarousel,
+  CategoryFilters,
+  MotelCardList,
 } from "@/domains/home/components"
 
 export default function HomePage() {
   return (
     <main>
-      {/* Hero Section - Full width, 70-80vh */}
+      {/* Hero - 검색바 */}
       <HeroSection />
 
-      {/* Curation Bento Grid */}
-      <Section title="이번 주 추천" spacing="lg">
-        <BentoGrid />
+      {/* 이벤트 배너 캐러셀 */}
+      <Section spacing="md">
+        <PromoBannerCarousel />
       </Section>
 
-      {/* Popular Regions Carousel */}
-      <Section
-        title="인기 여행지"
-        description="지금 가장 핫한 국내 여행지를 만나보세요"
-        background="muted"
-        spacing="lg"
-      >
-        <RegionCarousel />
+      {/* 카테고리 필터 + 숙소 리스트 */}
+      <Section spacing="lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
+            주변 숙소
+          </h2>
+          <CategoryFilters />
+        </div>
+        <MotelCardList />
       </Section>
-
-      {/* Featured Accommodations */}
-      <FeaturedSection />
     </main>
   )
 }

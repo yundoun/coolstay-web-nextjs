@@ -1,205 +1,157 @@
-// 홈 화면 목업 데이터
+// 홈 화면 목업 데이터 (모바일 앱 기반)
 
-export interface Accommodation {
+// 이벤트 배너 (모바일: eventBanners)
+export interface EventBannerItem {
+  id: string
+  imageUrl: string
+  title: string
+  link: string
+}
+
+// 카테고리 필터 (모바일: eventFilters + 기본 정렬)
+export interface CategoryFilter {
+  code: string
+  label: string
+}
+
+// 숙소 카드 (모바일: searchedMotels)
+export interface HomeMotel {
   id: string
   name: string
   location: string
-  price: number
-  originalPrice?: number
+  imageUrl: string
   rating: number
   reviewCount: number
-  imageUrl: string
+  rentalTime?: string
+  rentalPrice?: number
+  stayTime?: string
+  stayPrice: number
+  stayOriginalPrice?: number
+  benefitPointRate: number
+  eventTitle?: string
   tags?: string[]
-  isSoldOut?: boolean
 }
 
-export interface Region {
-  id: string
-  name: string
-  imageUrl: string
-  accommodationCount: number
-}
-
-export interface CurationItem {
-  id: string
-  title: string
-  subtitle?: string
-  imageUrl: string
-  link: string
-  size: "large" | "wide" | "tall" | "small"
-}
-
-// 인기 지역 데이터
-export const popularRegions: Region[] = [
+// 이벤트 배너 데이터
+export const eventBanners: EventBannerItem[] = [
   {
-    id: "1",
-    name: "제주",
-    imageUrl: "https://images.unsplash.com/photo-1590523278191-995cbcda646b?w=400&h=300&fit=crop",
-    accommodationCount: 2341,
+    id: "banner-1",
+    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&h=400&fit=crop",
+    title: "봄맞이 특가 최대 50% 할인",
+    link: "/search?sort=price-asc",
   },
   {
-    id: "2",
-    name: "부산",
-    imageUrl: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=400&h=300&fit=crop",
-    accommodationCount: 1892,
+    id: "banner-2",
+    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=400&fit=crop",
+    title: "제주 인기 숙소 마일리지 2배 적립",
+    link: "/search?region=jeju",
   },
   {
-    id: "3",
-    name: "강릉",
-    imageUrl: "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=400&h=300&fit=crop",
-    accommodationCount: 987,
-  },
-  {
-    id: "4",
-    name: "경주",
-    imageUrl: "https://images.unsplash.com/photo-1583417319070-4a69db38a482?w=400&h=300&fit=crop",
-    accommodationCount: 756,
-  },
-  {
-    id: "5",
-    name: "여수",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
-    accommodationCount: 643,
-  },
-  {
-    id: "6",
-    name: "속초",
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400&h=300&fit=crop",
-    accommodationCount: 521,
-  },
-  {
-    id: "7",
-    name: "전주",
-    imageUrl: "https://images.unsplash.com/photo-1594849667839-5e3ce3dd439d?w=400&h=300&fit=crop",
-    accommodationCount: 432,
+    id: "banner-3",
+    imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&h=400&fit=crop",
+    title: "신규 회원 첫 예약 5,000원 쿠폰",
+    link: "/coupons",
   },
 ]
 
-// 이번 주 추천 큐레이션 데이터
-export const curationItems: CurationItem[] = [
-  {
-    id: "1",
-    title: "겨울 바다가 보고 싶을 때",
-    subtitle: "감성 오션뷰 숙소",
-    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
-    link: "/curation/ocean-view",
-    size: "large",
-  },
-  {
-    id: "2",
-    title: "커플 인기 숙소",
-    subtitle: "분위기 있는 프라이빗 공간",
-    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop",
-    link: "/curation/couple",
-    size: "wide",
-  },
-  {
-    id: "3",
-    title: "럭셔리 호캉스",
-    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=600&fit=crop",
-    link: "/curation/luxury",
-    size: "tall",
-  },
-  {
-    id: "4",
-    title: "가성비 숙소",
-    imageUrl: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop",
-    link: "/curation/budget",
-    size: "small",
-  },
+// 카테고리 필터 데이터
+export const categoryFilters: CategoryFilter[] = [
+  { code: "rating", label: "평점순" },
+  { code: "price-asc", label: "낮은가격" },
+  { code: "mileage", label: "마일리지" },
+  { code: "popular", label: "인기순" },
 ]
 
-// MD 추천 숙소 데이터
-export const featuredAccommodations: Accommodation[] = [
+// 숙소 카드 데이터
+export const homeMotels: HomeMotel[] = [
   {
     id: "1",
     name: "파라다이스 호텔 부산",
-    location: "부산 해운대구",
-    price: 289000,
-    originalPrice: 350000,
+    location: "해운대구",
+    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop",
     rating: 4.8,
     reviewCount: 2341,
-    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop",
+    rentalTime: "최대 4시간",
+    rentalPrice: 80000,
+    stayTime: "오후 03:00~",
+    stayPrice: 289000,
+    stayOriginalPrice: 350000,
+    benefitPointRate: 5,
+    eventTitle: "얼리체크인 이벤트",
     tags: ["조식포함", "수영장"],
   },
   {
     id: "2",
     name: "그랜드 하얏트 제주",
-    location: "제주 서귀포시",
-    price: 420000,
+    location: "서귀포시",
+    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&h=400&fit=crop",
     rating: 4.9,
     reviewCount: 1876,
-    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=600&h=400&fit=crop",
+    stayTime: "오후 03:00~",
+    stayPrice: 420000,
+    benefitPointRate: 3,
     tags: ["오션뷰", "스파"],
   },
   {
     id: "3",
     name: "세인트존스 호텔",
     location: "강릉 강문동",
-    price: 198000,
-    originalPrice: 250000,
+    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop",
     rating: 4.7,
     reviewCount: 943,
-    imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&h=400&fit=crop",
-    tags: ["조식포함"],
+    rentalTime: "최대 3시간",
+    rentalPrice: 55000,
+    stayTime: "오후 06:00~",
+    stayPrice: 198000,
+    stayOriginalPrice: 250000,
+    benefitPointRate: 7,
+    eventTitle: "연박 10% 추가 할인",
   },
   {
     id: "4",
     name: "롯데호텔 서울",
     location: "서울 중구",
-    price: 380000,
+    imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&h=400&fit=crop",
     rating: 4.6,
     reviewCount: 3201,
-    imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&h=400&fit=crop",
+    stayTime: "오후 03:00~",
+    stayPrice: 380000,
+    benefitPointRate: 4,
     tags: ["수영장", "피트니스"],
   },
   {
     id: "5",
     name: "메종 글래드 제주",
-    location: "제주 제주시",
-    price: 245000,
-    originalPrice: 300000,
+    location: "제주시",
+    imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&h=400&fit=crop",
     rating: 4.5,
     reviewCount: 1234,
-    imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&h=400&fit=crop",
+    rentalTime: "최대 4시간",
+    rentalPrice: 65000,
+    stayTime: "오후 05:00~",
+    stayPrice: 245000,
+    stayOriginalPrice: 300000,
+    benefitPointRate: 5,
     tags: ["조식포함", "오션뷰"],
   },
   {
     id: "6",
     name: "호텔 스카이파크 명동",
     location: "서울 중구",
-    price: 129000,
+    imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&h=400&fit=crop",
     rating: 4.3,
     reviewCount: 2876,
-    imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&h=400&fit=crop",
+    rentalTime: "최대 3시간",
+    rentalPrice: 40000,
+    stayTime: "오후 09:00~",
+    stayPrice: 129000,
+    benefitPointRate: 8,
+    eventTitle: "평일 특가",
     tags: ["역세권"],
-  },
-  {
-    id: "7",
-    name: "시그니엘 부산",
-    location: "부산 해운대구",
-    price: 520000,
-    rating: 4.9,
-    reviewCount: 987,
-    imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&h=400&fit=crop",
-    tags: ["럭셔리", "오션뷰"],
-  },
-  {
-    id: "8",
-    name: "설악 켄싱턴 스타",
-    location: "속초 설악동",
-    price: 175000,
-    originalPrice: 220000,
-    rating: 4.4,
-    reviewCount: 654,
-    imageUrl: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=400&fit=crop",
-    tags: ["마운틴뷰", "조식포함"],
   },
 ]
 
-// 히어로 섹션 배경 이미지들
+// 히어로 배경
 export const heroBackgrounds = [
   "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1920&h=1080&fit=crop",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1920&h=1080&fit=crop",
-  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1920&h=1080&fit=crop",
 ]

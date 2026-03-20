@@ -1,4 +1,4 @@
 export { HeroSection } from "./HeroSection"
-export { BentoGrid } from "./BentoGrid"
-export { RegionCarousel } from "./RegionCarousel"
-export { FeaturedSection } from "./FeaturedSection"
+export { PromoBannerCarousel } from "./PromoBannerCarousel"
+export { CategoryFilters } from "./CategoryFilters"
+export { MotelCardList } from "./MotelCardList"
