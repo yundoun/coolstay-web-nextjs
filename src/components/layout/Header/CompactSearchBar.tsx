@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback, useMemo } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
 import Image from "next/image"
-import { Search, X, MapPin, TrainFront, TrendingUp } from "lucide-react"
+import { Search, X, MapPin, TrainFront } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -73,6 +73,10 @@ const POPULAR_KEYWORDS = [
   { rank: 6, keyword: "여수" },
 ]
 
+const ICON_MAP = { pin: MapPin, train: TrainFront } as const
+
+const sectionHeaderCn = "px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider"
+
 /* ── 매칭 텍스트 하이라이트 ── */
 
 function HighlightMatch({ text, query }: { text: string; query: string }) {
@@ -91,17 +95,17 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 /* ── 제안 로직 ── */
 
 function suggestKeywords(query: string) {
-  if (!query.trim()) return []
+  if (!query) return []
   return KEYWORDS.filter((k) => k.includes(query)).slice(0, 5)
 }
 
 function suggestRegions(query: string) {
-  if (!query.trim()) return []
+  if (!query) return []
   return REGIONS.filter((r) => r.name.includes(query) || (r.area && r.area.includes(query))).slice(0, 5)
 }
 
 function suggestAccommodations(query: string) {
-  if (!query.trim()) return []
+  if (!query) return []
   return ACCOMMODATIONS.filter(
     (a) => a.name.includes(query) || a.location.includes(query)
   ).slice(0, 3)
@@ -121,11 +125,13 @@ export function CompactSearchBar() {
   useEffect(() => setMounted(true), [])
 
   const trimmed = query.trim()
-  const keywords = useMemo(() => suggestKeywords(trimmed), [trimmed])
-  const regions = useMemo(() => suggestRegions(trimmed), [trimmed])
-  const accommodations = useMemo(() => suggestAccommodations(trimmed), [trimmed])
-  const hasResults = keywords.length > 0 || regions.length > 0 || accommodations.length > 0
-  const showDropdown = isFocused && (hasResults || trimmed.length === 0)
+  const keywords = suggestKeywords(trimmed)
+  const regions = suggestRegions(trimmed)
+  const accommodations = suggestAccommodations(trimmed)
+  const showKeywords = trimmed.length > 0 && keywords.length > 0
+  const showRegions = trimmed.length > 0 && regions.length > 0
+  const showAccommodations = trimmed.length > 0 && accommodations.length > 0
+  const showDropdown = isFocused && (showKeywords || showRegions || showAccommodations || trimmed.length === 0)
 
   // 드롭다운 위치 계산
   useEffect(() => {
@@ -136,7 +142,7 @@ export function CompactSearchBar() {
       left: rect.left,
       width: Math.max(rect.width, 420),
     })
-  }, [showDropdown, query])
+  }, [showDropdown])
 
   // 외부 클릭
   useEffect(() => {
@@ -240,9 +246,7 @@ export function CompactSearchBar() {
               {/* 빈 입력 상태: 인기검색어 */}
               {trimmed.length === 0 && (
                 <div className="py-1.5">
-                  <p className="px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                    인기검색어
-                  </p>
+                  <p className={sectionHeaderCn}>인기검색어</p>
                   <div className="grid grid-cols-2 gap-x-2">
                     {POPULAR_KEYWORDS.map(({ rank, keyword }) => (
                       <button
@@ -264,11 +268,9 @@ export function CompactSearchBar() {
               )}
 
               {/* ① 키워드 자동완성 */}
-              {trimmed.length > 0 && keywords.length > 0 && (
+              {showKeywords && (
                 <div className="py-1.5">
-                  <p className="px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                    검색어 추천
-                  </p>
+                  <p className={sectionHeaderCn}>검색어 추천</p>
                   {keywords.map((keyword) => (
                     <button
                       key={keyword}
@@ -285,36 +287,31 @@ export function CompactSearchBar() {
               )}
 
               {/* ② 지역 제안 */}
-              {trimmed.length > 0 && regions.length > 0 && (
-                <div className={cn("py-1.5", keywords.length > 0 && "border-t")}>
-                  <p className="px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                    지역
-                  </p>
-                  {regions.map((region) => (
-                    <button
-                      key={region.name}
-                      onClick={() => handleSelect(region.name)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
-                    >
-                      {region.icon === "train" ? (
-                        <TrainFront className="size-4 text-muted-foreground shrink-0" />
-                      ) : (
-                        <MapPin className="size-4 text-muted-foreground shrink-0" />
-                      )}
-                      <span>
-                        <HighlightMatch text={region.name} query={trimmed} />
-                      </span>
-                    </button>
-                  ))}
+              {showRegions && (
+                <div className={cn("py-1.5", showKeywords && "border-t")}>
+                  <p className={sectionHeaderCn}>지역</p>
+                  {regions.map((region) => {
+                    const Icon = ICON_MAP[region.icon]
+                    return (
+                      <button
+                        key={region.name}
+                        onClick={() => handleSelect(region.name)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
+                      >
+                        <Icon className="size-4 text-muted-foreground shrink-0" />
+                        <span>
+                          <HighlightMatch text={region.name} query={trimmed} />
+                        </span>
+                      </button>
+                    )
+                  })}
                 </div>
               )}
 
               {/* ③ 숙소 제안 */}
-              {trimmed.length > 0 && accommodations.length > 0 && (
-                <div className={cn("py-1.5", (keywords.length > 0 || regions.length > 0) && "border-t")}>
-                  <p className="px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                    숙소
-                  </p>
+              {showAccommodations && (
+                <div className={cn("py-1.5", (showKeywords || showRegions) && "border-t")}>
+                  <p className={sectionHeaderCn}>숙소</p>
                   {accommodations.map((item) => (
                     <button
                       key={item.id}
