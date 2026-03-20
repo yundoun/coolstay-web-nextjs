@@ -48,6 +48,11 @@
     "zod": "^4.3.5",
     "zustand": "^5.0.10"
   },
+  "browserslist": [
+    ">0.2% in KR",
+    "not dead",
+    "iOS >= 15"
+  ],
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

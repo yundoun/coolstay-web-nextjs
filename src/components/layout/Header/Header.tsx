@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, User } from "lucide-react"
@@ -17,10 +17,7 @@ const NAV_ITEMS = [
   { label: "마이페이지", href: "/mypage" },
 ]
 
-// 항상 투명 헤더
-const ALWAYS_TRANSPARENT_PATHS = ["/"]
-// 검색 파라미터 없을 때만 투명
-const CONDITIONAL_TRANSPARENT_PATHS = ["/search"]
+const TRANSPARENT_HEADER_PATHS = ["/"]
 
 export interface HeaderProps {
   variant?: "solid" | "transparent"
@@ -28,19 +25,13 @@ export interface HeaderProps {
 
 export function Header({ variant }: HeaderProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-
-  const isAlwaysTransparent = ALWAYS_TRANSPARENT_PATHS.includes(pathname ?? "")
-  const isConditionalTransparent =
-    CONDITIONAL_TRANSPARENT_PATHS.includes(pathname ?? "") &&
-    (!searchParams || searchParams.toString() === "")
 
   // variant prop이 없으면 경로 기반으로 자동 결정
   const isTransparentMode = variant
     ? variant === "transparent"
-    : isAlwaysTransparent || isConditionalTransparent
+    : TRANSPARENT_HEADER_PATHS.includes(pathname ?? "")
 
   // 투명 모드일 때만 스크롤 감지, solid 모드는 항상 isScrolled=true 처럼 동작
   const showSolidHeader = !isTransparentMode || isScrolled

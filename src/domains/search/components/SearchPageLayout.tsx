@@ -3,20 +3,14 @@
 import { useState, useCallback } from "react"
 import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
-import { SearchHeroSection } from "./SearchHeroSection"
-import { LifestyleFilterChips } from "./LifestyleFilterChips"
-import { SearchInfoBar } from "./SearchInfoBar"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { PopularKeywords } from "./PopularKeywords"
-import { ActiveFilters } from "./ActiveFilters"
-import { FilterSidebar } from "./FilterSidebar"
-import { FilterBottomSheet } from "./FilterBottomSheet"
+import { SearchInfoBar } from "./SearchInfoBar"
 import { useSearchFilters } from "../hooks"
-import { searchResultsData, featuredSearchData, totalSearchResults } from "../data/mock"
-import { getRegionImage } from "../data/regionImages"
+import { searchResultsData, totalSearchResults } from "../data/mock"
+import { regionLabels } from "../data/filterOptions"
 import type { SearchAccommodation } from "../types"
 
-// 기본 날짜 (오늘/내일)
 function getDefaultDates() {
   const today = new Date()
   const tomorrow = new Date(today)
@@ -32,28 +26,18 @@ export function SearchPageLayout() {
     sort,
     selectedRegion,
     toggleRegion,
-    toggleLifestyle,
-    toggleType,
-    toggleAmenity,
-    setPriceRange,
-    setRating,
     setSort,
     resetFilters,
-    removeFilter,
-    activeFilterCount,
     hasActiveFilters,
   } = useSearchFilters()
 
-  const regionData = getRegionImage(selectedRegion || undefined)
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
 
-  // 날짜/인원 로컬 상태 (향후 URL 파라미터로 이관 가능)
   const [checkIn, setCheckIn] = useState(defaultCheckIn)
   const [checkOut, setCheckOut] = useState(defaultCheckOut)
   const [adults, setAdults] = useState(2)
   const [kids, setKids] = useState(0)
 
-  // 최근 검색어 로컬 상태
   const [recentSearches, setRecentSearches] = useState<string[]>([
     "해운대 호텔",
     "제주 펜션",
@@ -70,17 +54,12 @@ export function SearchPageLayout() {
     setKids(newKids)
   }, [])
 
-  const handleKeywordClick = useCallback(
-    (keyword: string) => {
-      // 최근 검색어에 추가
-      setRecentSearches((prev) => {
-        const filtered = prev.filter((k) => k !== keyword)
-        return [keyword, ...filtered].slice(0, 10)
-      })
-      // TODO: 실제 키워드 검색 API 연동
-    },
-    []
-  )
+  const handleKeywordClick = useCallback((keyword: string) => {
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((k) => k !== keyword)
+      return [keyword, ...filtered].slice(0, 10)
+    })
+  }, [])
 
   const handleRemoveRecent = useCallback((keyword: string) => {
     setRecentSearches((prev) => prev.filter((k) => k !== keyword))
@@ -90,24 +69,12 @@ export function SearchPageLayout() {
     setRecentSearches([])
   }, [])
 
-  // 검색 조건이 있는지 여부 (히어로 표시 결정)
   const hasSearchCondition = hasActiveFilters || selectedRegion !== null
-
-  // 모든 결과 합침 (기획전 + 일반)
-  const allResults = hasSearchCondition
-    ? [...featuredSearchData, ...searchResultsData]
-    : searchResultsData
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section - 검색 조건 없을 때만 표시 */}
-      {!hasSearchCondition && (
-        <SearchHeroSection region={selectedRegion || undefined} />
-      )}
-
-      {/* Main Content */}
       <Container size="wide" padding="responsive">
-        {/* 검색 조건 바 (날짜/인원/지역 퀵선택) */}
+        {/* 검색 조건 바 (지역/날짜/인원) */}
         <SearchConditionBar
           selectedRegion={selectedRegion}
           onRegionChange={toggleRegion}
@@ -119,15 +86,7 @@ export function SearchPageLayout() {
           onGuestChange={handleGuestChange}
         />
 
-        {/* 라이프스타일 필터 칩 */}
-        <div className="pb-4">
-          <LifestyleFilterChips
-            selectedFilters={filters.lifestyle}
-            onToggle={toggleLifestyle}
-          />
-        </div>
-
-        {/* 검색 조건 없을 때: 인기/최근 키워드 표시 */}
+        {/* 검색 조건 없을 때: 인기/최근 키워드 */}
         {!hasSearchCondition && (
           <div className="py-6 border-t border-border">
             <PopularKeywords
@@ -139,52 +98,17 @@ export function SearchPageLayout() {
           </div>
         )}
 
-        {/* 검색 결과 영역 */}
+        {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
           totalCount={totalSearchResults}
-          regionLabel={selectedRegion ? regionData.label : undefined}
+          regionLabel={selectedRegion ? regionLabels[selectedRegion] : undefined}
           sort={sort}
           onSortChange={setSort}
         />
 
-        {/* Mobile Filter BottomSheet */}
-        <FilterBottomSheet
-          filters={filters}
-          onToggleRegion={toggleRegion}
-          onToggleType={toggleType}
-          onToggleAmenity={toggleAmenity}
-          onPriceChange={setPriceRange}
-          onRatingChange={setRating}
-          onReset={resetFilters}
-          activeFilterCount={activeFilterCount}
-        />
-
-        {/* Main Layout: Sidebar + Content */}
-        <div className="flex gap-6 lg:gap-8 pt-4">
-          {/* Filter Sidebar - Desktop */}
-          <FilterSidebar
-            filters={filters}
-            onToggleRegion={toggleRegion}
-            onToggleType={toggleType}
-            onToggleAmenity={toggleAmenity}
-            onPriceChange={setPriceRange}
-            onRatingChange={setRating}
-            onReset={resetFilters}
-            activeFilterCount={activeFilterCount}
-          />
-
-          {/* Results */}
-          <div className="flex-1 min-w-0">
-            {/* Active Filters */}
-            <ActiveFilters
-              filters={filters}
-              onRemove={removeFilter}
-              onReset={resetFilters}
-            />
-
-            {/* Search Results Grid */}
-            <SearchResultGrid accommodations={allResults} />
-          </div>
+        {/* 검색 결과 */}
+        <div className="pt-4">
+          <SearchResultGrid accommodations={searchResultsData} />
         </div>
       </Container>
     </div>
@@ -218,7 +142,7 @@ function SearchResultGrid({
           검색 결과가 없습니다
         </p>
         <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-          다른 필터 조건이나 지역으로 검색해 보세요.
+          다른 조건이나 지역으로 검색해 보세요.
         </p>
       </div>
     )
@@ -234,7 +158,6 @@ function SearchResultGrid({
         />
       ))}
 
-      {/* Load More Indicator (향후 무한스크롤 연동) */}
       <div className="col-span-full flex justify-center py-8">
         <p className="text-sm text-muted-foreground">
           더 많은 숙소를 보려면 스크롤하세요
