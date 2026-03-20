@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
 import Image from "next/image"
-import { Search, X, MapPin, TrainFront } from "lucide-react"
+import { Search, X, MapPin, TrainFront, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import {
@@ -45,6 +45,14 @@ export function CompactSearchBar() {
   const router = useRouter()
   const [query, setQuery] = useState("")
   const [isFocused, setIsFocused] = useState(false)
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    if (typeof window === "undefined") return []
+    try {
+      return JSON.parse(localStorage.getItem("recentSearches") || "[]")
+    } catch {
+      return []
+    }
+  })
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 })
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -88,13 +96,35 @@ export function CompactSearchBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const addRecentSearch = useCallback((keyword: string) => {
+    setRecentSearches((prev) => {
+      const updated = [keyword, ...prev.filter((k) => k !== keyword)].slice(0, 10)
+      localStorage.setItem("recentSearches", JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const removeRecentSearch = useCallback((keyword: string) => {
+    setRecentSearches((prev) => {
+      const updated = prev.filter((k) => k !== keyword)
+      localStorage.setItem("recentSearches", JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const clearRecentSearches = useCallback(() => {
+    setRecentSearches([])
+    localStorage.removeItem("recentSearches")
+  }, [])
+
   const handleSelect = useCallback(
     (keyword: string) => {
+      addRecentSearch(keyword)
       setQuery("")
       setIsFocused(false)
       router.push(`/search?keyword=${encodeURIComponent(keyword)}`)
     },
-    [router]
+    [router, addRecentSearch]
   )
 
   const handleAccommodationClick = useCallback(
@@ -171,28 +201,63 @@ export function CompactSearchBar() {
             }}
           >
             <div className="bg-card border rounded-xl shadow-xl overflow-hidden max-h-[70vh] overflow-y-auto">
-              {/* 빈 입력 상태: 인기검색어 */}
+              {/* 빈 입력 상태: 최근검색 + 인기검색어 */}
               {trimmed.length === 0 && (
-                <div className="py-1.5">
-                  <p className={sectionHeaderCn}>인기검색어</p>
-                  <div className="grid grid-cols-2 gap-x-2">
-                    {HEADER_POPULAR.map(({ rank, keyword }) => (
-                      <button
-                        key={keyword}
-                        onClick={() => handleSelect(keyword)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
-                      >
-                        <span className={cn(
-                          "w-5 text-center text-xs font-bold shrink-0",
-                          rank <= 3 ? "text-primary" : "text-muted-foreground"
-                        )}>
-                          {rank}
-                        </span>
-                        <span>{keyword}</span>
-                      </button>
-                    ))}
+                <>
+                  {/* 최근 검색 */}
+                  {recentSearches.length > 0 && (
+                    <div className="py-1.5">
+                      <div className="flex items-center justify-between px-4 py-1.5">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">최근검색</p>
+                        <button
+                          onClick={clearRecentSearches}
+                          className="text-[11px] text-primary hover:underline"
+                        >
+                          전체 삭제
+                        </button>
+                      </div>
+                      {recentSearches.map((keyword) => (
+                        <div key={keyword} className="flex items-center group">
+                          <button
+                            onClick={() => handleSelect(keyword)}
+                            className="flex-1 flex items-center gap-3 px-4 py-2 text-sm hover:bg-muted transition-colors text-left"
+                          >
+                            <Clock className="size-3.5 text-muted-foreground shrink-0" />
+                            <span>{keyword}</span>
+                          </button>
+                          <button
+                            onClick={() => removeRecentSearch(keyword)}
+                            className="px-3 py-2 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 인기검색어 */}
+                  <div className={cn("py-1.5", recentSearches.length > 0 && "border-t")}>
+                    <p className={sectionHeaderCn}>인기검색어</p>
+                    <div className="grid grid-cols-2 gap-x-2">
+                      {HEADER_POPULAR.map(({ rank, keyword }) => (
+                        <button
+                          key={keyword}
+                          onClick={() => handleSelect(keyword)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
+                        >
+                          <span className={cn(
+                            "w-5 text-center text-xs font-bold shrink-0",
+                            rank <= 3 ? "text-primary" : "text-muted-foreground"
+                          )}>
+                            {rank}
+                          </span>
+                          <span>{keyword}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
 
               {/* ① 키워드 자동완성 */}

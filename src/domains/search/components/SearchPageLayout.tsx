@@ -4,7 +4,6 @@ import { useState, useCallback } from "react"
 import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
 import { SearchConditionBar } from "./SearchConditionBar"
-import { PopularKeywords } from "./PopularKeywords"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { useSearchFilters } from "../hooks"
 import { searchResultsData, totalSearchResults } from "../data/mock"
@@ -35,12 +34,6 @@ export function SearchPageLayout() {
   const [adults, setAdults] = useState(2)
   const [kids, setKids] = useState(0)
 
-  const [recentSearches, setRecentSearches] = useState<string[]>([
-    "해운대 호텔",
-    "제주 펜션",
-    "강릉 오션뷰",
-  ])
-
   const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
     setCheckIn(newCheckIn)
     setCheckOut(newCheckOut)
@@ -49,21 +42,6 @@ export function SearchPageLayout() {
   const handleGuestChange = useCallback((newAdults: number, newKids: number) => {
     setAdults(newAdults)
     setKids(newKids)
-  }, [])
-
-  const handleKeywordClick = useCallback((keyword: string) => {
-    setRecentSearches((prev) => {
-      const filtered = prev.filter((k) => k !== keyword)
-      return [keyword, ...filtered].slice(0, 10)
-    })
-  }, [])
-
-  const handleRemoveRecent = useCallback((keyword: string) => {
-    setRecentSearches((prev) => prev.filter((k) => k !== keyword))
-  }, [])
-
-  const handleClearRecent = useCallback(() => {
-    setRecentSearches([])
   }, [])
 
   return (
@@ -79,14 +57,6 @@ export function SearchPageLayout() {
           kids={kids}
           onDateChange={handleDateChange}
           onGuestChange={handleGuestChange}
-        />
-
-        {/* 인기/최근 키워드 — 항상 표시 (접을 수 있는 컴팩트 형태) */}
-        <PopularKeywords
-          recentSearches={recentSearches}
-          onKeywordClick={handleKeywordClick}
-          onRemoveRecent={handleRemoveRecent}
-          onClearRecent={handleClearRecent}
         />
 
         {/* 결과 정보 + 정렬 */}
