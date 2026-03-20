@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, MapPin, Clock, Share2, Heart } from "lucide-react"
+import { Star, MapPin, Clock, Share2, Heart, Coins, Ticket } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -12,41 +12,27 @@ interface AccommodationInfoProps {
 }
 
 export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
-  const discount = accommodation.originalPrice
-    ? Math.round(
-        ((accommodation.originalPrice - accommodation.price) /
-          accommodation.originalPrice) *
-          100
-      )
-    : null
-
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        {/* Badges */}
-        <div className="flex flex-wrap gap-2 mb-3">
-          {accommodation.badges.map((badge) => (
-            <Badge key={badge} variant="secondary" className="text-xs">
-              {badge === "eco" && "친환경"}
-              {badge === "premium" && "프리미엄"}
-              {badge === "localPick" && "로컬추천"}
-              {badge === "new" && "신규"}
-            </Badge>
-          ))}
-          {accommodation.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-        </div>
+        {/* Tags */}
+        {accommodation.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {accommodation.tags.map((tag) => (
+              <Badge key={tag} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
 
         {/* Title */}
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {accommodation.name}
         </h1>
 
-        {/* Location & Rating */}
+        {/* Location & Rating & Mileage */}
         <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">
             <MapPin className="size-4" />
@@ -57,8 +43,15 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
             <span className="font-medium text-foreground">
               {accommodation.rating}
             </span>
-            <span>({accommodation.reviewCount.toLocaleString()}개 리뷰)</span>
+            <span>({accommodation.reviewCount.toLocaleString()})</span>
           </div>
+          {/* 마일리지 적립률 */}
+          {accommodation.benefitPointRate > 0 && (
+            <div className="flex items-center gap-1 text-primary font-medium">
+              <Coins className="size-4" />
+              <span>+{accommodation.benefitPointRate}% 적립</span>
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -74,6 +67,29 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
         </div>
       </div>
 
+      {/* 쿠폰 섹션 */}
+      {accommodation.directDiscountYn && (
+        <>
+          <Separator />
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/5"
+            >
+              <Ticket className="size-4" />
+              직접할인 쿠폰
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 gap-2"
+            >
+              <Ticket className="size-4" />
+              내 쿠폰
+            </Button>
+          </div>
+        </>
+      )}
+
       <Separator />
 
       {/* Description */}
@@ -83,6 +99,16 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
           {accommodation.description}
         </p>
       </div>
+
+      {/* 사장님 인사말 */}
+      {accommodation.greetingMsg && (
+        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+          <p className="text-xs font-medium text-primary mb-1">사장님 인사말</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {accommodation.greetingMsg}
+          </p>
+        </div>
+      )}
 
       <Separator />
 

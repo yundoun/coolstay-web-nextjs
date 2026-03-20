@@ -11,18 +11,23 @@ export interface AccommodationDetail {
   reviewCount: number
   images: string[]
   tags: string[]
-  badges: string[]
   amenities: AmenityItem[]
   policies: Policy[]
   rooms: Room[]
   reviews: ReviewSummary
-  bestReviews: Review[]
+  bestReview: Review | null
+  recentReviews: Review[]
   events: MotelEvent[]
   parkingInfo?: string
   checkInTime: string
   checkOutTime: string
   latitude?: number
   longitude?: number
+  // 모바일 앱 필드
+  benefitPointRate: number // 마일리지 적립률 (5 = 5%)
+  phoneNumber?: string // 전화번호 (safeNumber)
+  directDiscountYn: boolean // 직접할인 쿠폰 여부
+  greetingMsg?: string // 사장님 인사말
 }
 
 export interface AmenityItem {
@@ -41,8 +46,6 @@ export interface Room {
   id: string
   name: string
   description: string
-  price: number
-  originalPrice?: number
   imageUrl: string
   images: string[]
   maxGuests: number
@@ -50,12 +53,20 @@ export interface Room {
   isAvailable: boolean
   remainingCount: number
   keywords: string[]
+  // 대실/숙박 구분 (모바일 앱 핵심)
+  rentalPrice?: number // 대실 가격
+  rentalOriginalPrice?: number
+  rentalTime?: string // 대실 이용 시간 (예: "최대 4시간")
+  rentalAvailable: boolean
+  stayPrice: number // 숙박 가격
+  stayOriginalPrice?: number
+  stayAvailable: boolean
 }
 
 export interface ReviewSummary {
   averageRating: number
   totalCount: number
-  ratingDistribution: Record<number, number> // 5: 120, 4: 80, ...
+  ratingDistribution: Record<number, number>
 }
 
 export interface Review {
@@ -66,6 +77,7 @@ export interface Review {
   images?: string[]
   createdAt: string
   roomName: string
+  isBest?: boolean
   reply?: {
     content: string
     createdAt: string
