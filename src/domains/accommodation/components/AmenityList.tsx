@@ -33,7 +33,7 @@ interface AmenityListProps {
 export function AmenityList({ amenities }: AmenityListProps) {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">편의시설</h2>
+      <h2 className="text-xl font-semibold mb-4">편의시설</h2>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {amenities.map((amenity) => {
           const Icon = iconMap[amenity.icon] || Sparkles
@@ -51,7 +51,7 @@ export function AmenityList({ amenities }: AmenityListProps) {
               <Icon className="size-5 text-primary shrink-0" />
               <span className="text-sm">{amenity.name}</span>
               {amenity.available ? (
-                <Check className="size-4 text-green-500 ml-auto shrink-0" />
+                <Check className="size-4 text-success ml-auto shrink-0" />
               ) : (
                 <X className="size-4 text-muted-foreground ml-auto shrink-0" />
               )}

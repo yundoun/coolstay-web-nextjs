@@ -94,7 +94,7 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
 
       {/* Description */}
       <div>
-        <h2 className="text-lg font-semibold mb-2">숙소 소개</h2>
+        <h2 className="text-xl font-semibold mb-2">숙소 소개</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {accommodation.description}
         </p>

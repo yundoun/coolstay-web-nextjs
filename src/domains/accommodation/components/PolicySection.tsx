@@ -15,7 +15,7 @@ interface PolicySectionProps {
 export function PolicySection({ policies }: PolicySectionProps) {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">이용 안내</h2>
+      <h2 className="text-xl font-semibold mb-4">이용 안내</h2>
       <Accordion type="multiple" className="w-full">
         {policies.map((policy, index) => (
           <AccordionItem key={index} value={`policy-${index}`}>

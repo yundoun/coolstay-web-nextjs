@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { eventBanners } from "../data/mock"
 
@@ -18,15 +19,13 @@ export function PromoBannerCarousel() {
     setCurrent((prev) => (prev - 1 + eventBanners.length) % eventBanners.length)
   }, [])
 
-  // Auto-scroll (3초 간격, 모바일 앱과 동일)
   useEffect(() => {
     const timer = setInterval(next, 3000)
     return () => clearInterval(timer)
   }, [next])
 
   return (
-    <div className="relative overflow-hidden rounded-2xl group">
-      {/* Slides */}
+    <div className="relative overflow-hidden rounded-xl group">
       <div
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
@@ -54,40 +53,43 @@ export function PromoBannerCarousel() {
         ))}
       </div>
 
-      {/* Navigation */}
-      <button
+      {/* Navigation — Button 컴포넌트 사용 */}
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={prev}
         className={cn(
           "absolute left-2 top-1/2 -translate-y-1/2 size-8 rounded-full",
-          "bg-black/30 text-white backdrop-blur-sm",
-          "flex items-center justify-center",
+          "bg-background/30 text-white backdrop-blur-sm",
           "opacity-0 group-hover:opacity-100 transition-opacity",
-          "hover:bg-black/50"
+          "hover:bg-background/50 hover:text-white"
         )}
       >
         <ChevronLeft className="size-5" />
-      </button>
-      <button
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={next}
         className={cn(
           "absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-full",
-          "bg-black/30 text-white backdrop-blur-sm",
-          "flex items-center justify-center",
+          "bg-background/30 text-white backdrop-blur-sm",
           "opacity-0 group-hover:opacity-100 transition-opacity",
-          "hover:bg-black/50"
+          "hover:bg-background/50 hover:text-white"
         )}
       >
         <ChevronRight className="size-5" />
-      </button>
+      </Button>
 
       {/* Dots */}
       <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 flex items-center gap-1.5">
         {eventBanners.map((_, index) => (
-          <button
+          <Button
             key={index}
+            variant="ghost"
             onClick={() => setCurrent(index)}
             className={cn(
-              "size-2 rounded-full transition-all",
+              "size-2 p-0 min-w-0 h-2 rounded-full transition-all",
               index === current ? "bg-white w-5" : "bg-white/50"
             )}
           />

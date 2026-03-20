@@ -25,7 +25,7 @@ export function ReviewSection({
   return (
     <div>
       <div className="flex items-end justify-between mb-6">
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-xl font-semibold">
           리뷰{" "}
           <span className="text-muted-foreground font-normal">
             ({reviews.totalCount.toLocaleString()})
@@ -40,7 +40,7 @@ export function ReviewSection({
       </div>
 
       {/* Rating Summary */}
-      <div className="flex gap-8 items-center p-6 rounded-2xl bg-muted/50 mb-6">
+      <div className="flex gap-8 items-center p-6 rounded-xl bg-muted/50 mb-6">
         <div className="text-center shrink-0">
           <div className="text-4xl font-bold">{reviews.averageRating}</div>
           <div className="flex items-center gap-0.5 mt-1">

@@ -14,7 +14,7 @@ export function MagazineSection() {
           key={item.id}
           href={item.href}
           className={cn(
-            "group rounded-2xl overflow-hidden border bg-card",
+            "group rounded-xl overflow-hidden border bg-card",
             "transition-all duration-300",
             "hover:shadow-lg hover:-translate-y-1"
           )}

@@ -49,7 +49,7 @@ export function AccommodationDetailLayout({
 
             {/* Rooms */}
             <div>
-              <h2 className="text-lg font-semibold mb-4">객실 선택</h2>
+              <h2 className="text-xl font-semibold mb-4">객실 선택</h2>
               <div className="space-y-4">
                 {accommodation.rooms.map((room) => (
                   <RoomCard
@@ -104,7 +104,7 @@ function BookingWidget({ accommodation }: { accommodation: AccommodationDetail }
     : null
 
   return (
-    <div className="rounded-2xl border bg-card p-6 shadow-lg">
+    <div className="rounded-xl border bg-card p-6 shadow-lg">
       {/* Mileage */}
       {accommodation.benefitPointRate > 0 && (
         <div className="flex items-center gap-1.5 mb-3 text-sm text-primary font-medium">
@@ -121,7 +121,7 @@ function BookingWidget({ accommodation }: { accommodation: AccommodationDetail }
               {lowestOriginal.toLocaleString()}원
             </span>
             {discount && (
-              <span className="text-sm font-bold text-rose-500">{discount}%</span>
+              <span className="text-sm font-bold text-destructive">{discount}%</span>
             )}
           </div>
         )}
@@ -136,33 +136,38 @@ function BookingWidget({ accommodation }: { accommodation: AccommodationDetail }
 
       {/* Date/Guest Selection */}
       <div className="space-y-3 mb-4">
-        <button className="w-full p-3 rounded-xl border text-left hover:border-primary transition-colors">
-          <p className="text-xs text-muted-foreground">체크인</p>
-          <p className="text-sm font-medium">날짜 선택</p>
-        </button>
-        <button className="w-full p-3 rounded-xl border text-left hover:border-primary transition-colors">
-          <p className="text-xs text-muted-foreground">체크아웃</p>
-          <p className="text-sm font-medium">날짜 선택</p>
-        </button>
-        <button className="w-full p-3 rounded-xl border text-left hover:border-primary transition-colors">
-          <p className="text-xs text-muted-foreground">인원</p>
-          <p className="text-sm font-medium">성인 2명</p>
-        </button>
+        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
+          <div className="text-left">
+            <p className="text-xs text-muted-foreground">체크인</p>
+            <p className="text-sm font-medium">날짜 선택</p>
+          </div>
+        </Button>
+        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
+          <div className="text-left">
+            <p className="text-xs text-muted-foreground">체크아웃</p>
+            <p className="text-sm font-medium">날짜 선택</p>
+          </div>
+        </Button>
+        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
+          <div className="text-left">
+            <p className="text-xs text-muted-foreground">인원</p>
+            <p className="text-sm font-medium">성인 2명</p>
+          </div>
+        </Button>
       </div>
 
-      <button className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">
+      <Button className="w-full rounded-xl" size="lg">
         객실 선택
-      </button>
+      </Button>
 
       {/* Phone */}
       {accommodation.phoneNumber && (
-        <a
-          href={`tel:${accommodation.phoneNumber}`}
-          className="flex items-center justify-center gap-2 w-full mt-3 py-2.5 rounded-xl border text-sm font-medium hover:bg-muted transition-colors"
-        >
-          <Phone className="size-4" />
-          전화 문의
-        </a>
+        <Button variant="outline" className="w-full mt-3 gap-2 rounded-xl" asChild>
+          <a href={`tel:${accommodation.phoneNumber}`}>
+            <Phone className="size-4" />
+            전화 문의
+          </a>
+        </Button>
       )}
     </div>
   )
@@ -174,16 +179,15 @@ function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetai
   )
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur-md border-t px-4 py-3">
+    <div className="fixed bottom-0 left-0 right-0 z-[var(--z-fixed)] lg:hidden bg-background/95 backdrop-blur-md border-t px-4 py-3">
       <div className="flex items-center gap-3">
         {/* 전화 버튼 */}
         {accommodation.phoneNumber && (
-          <a
-            href={`tel:${accommodation.phoneNumber}`}
-            className="flex items-center justify-center size-12 rounded-xl border shrink-0 hover:bg-muted transition-colors"
-          >
-            <Phone className="size-5" />
-          </a>
+          <Button variant="outline" size="icon" className="size-12 rounded-xl shrink-0" asChild>
+            <a href={`tel:${accommodation.phoneNumber}`}>
+              <Phone className="size-5" />
+            </a>
+          </Button>
         )}
 
         {/* 가격 */}
@@ -202,9 +206,9 @@ function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetai
         </div>
 
         {/* 예약 버튼 */}
-        <button className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors shrink-0">
+        <Button size="lg" className="px-6 rounded-xl shrink-0">
           객실 선택
-        </button>
+        </Button>
       </div>
     </div>
   )

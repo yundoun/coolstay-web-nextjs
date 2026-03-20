@@ -60,7 +60,7 @@ export function RecentlyViewed() {
             className={cn(
               "shrink-0 w-44 snap-start group",
               "rounded-xl overflow-hidden border bg-card",
-              "transition-all duration-300 hover:shadow-md"
+              "transition-all duration-300 hover:shadow-lg"
             )}
           >
             <div className="relative aspect-[3/2] overflow-hidden">

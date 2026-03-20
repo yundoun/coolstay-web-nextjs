@@ -17,7 +17,7 @@ export function RoomCard({ room, accommodationId }: RoomCardProps) {
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-card overflow-hidden",
+        "rounded-xl border bg-card overflow-hidden",
         "transition-all duration-300",
         room.isAvailable
           ? "hover:shadow-lg hover:border-primary/30"

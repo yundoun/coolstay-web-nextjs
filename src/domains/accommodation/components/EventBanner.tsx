@@ -13,7 +13,7 @@ export function EventBanner({ events }: EventBannerProps) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4">진행중인 이벤트</h2>
+      <h2 className="text-xl font-semibold mb-4">진행중인 이벤트</h2>
       <div className="space-y-3">
         {events.map((event) => (
           <div

@@ -68,7 +68,7 @@ export function RegionRecommendations() {
                   </div>
                 )}
                 {discount && (
-                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-rose-500 text-white text-[10px] font-bold">
+                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-destructive text-white text-[10px] font-bold">
                     {discount}%
                   </div>
                 )}

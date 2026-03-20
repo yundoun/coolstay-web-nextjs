@@ -14,7 +14,7 @@ export function FeatureSection() {
           key={item.id}
           href={item.href}
           className={cn(
-            "group relative overflow-hidden rounded-2xl",
+            "group relative overflow-hidden rounded-xl",
             index === 0 ? "sm:col-span-2 sm:row-span-1" : "",
             "aspect-[16/9]",
             index === 0 && "sm:aspect-[2/1]"
