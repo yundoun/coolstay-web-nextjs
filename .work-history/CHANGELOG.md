@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20 15:16** | 예약 페이지 구현 | [`1496a46`](.work-history/entries/2026-03-20_21_booking-page.md)
 - **2026-03-20 15:07** | CHANGELOG 커밋 훅 수정 | [`33f4770`](.work-history/entries/2026-03-20_20_changelog-hook-fix.md)
 - **2026-03-20** | 인기검색어/최근검색을 헤더 검색바로 이동 | [`bced22f`](.work-history/entries/2026-03-20_19_search-keywords-to-header.md)
 - **2026-03-20** | 검색 모달 3단계 스텝 방식 재설계 | [`d9f0774`](.work-history/entries/2026-03-20_18_search-modal-step-redesign.md)
