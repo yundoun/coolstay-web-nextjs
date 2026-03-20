@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20** | 디자인 시스템 점검 및 불일치 수정 | [`2021855`](.work-history/entries/2026-03-20_08_design-system-audit-fix.md)
 - **2026-03-20** | 검색 페이지 레이아웃 통일 | [`7f175b1`](.work-history/entries/2026-03-20_07_search-layout-consistency.md)
 - **2026-03-20** | 홈 화면 풀 개편 — 모바일 앱 전체 섹션 반영 | [`be91c5a`](.work-history/entries/2026-03-20_06_home-page-full-overhaul.md)
 - **2026-03-20** | 홈 화면 모바일 앱 기반 개편 | [`610154e`](.work-history/entries/2026-03-20_05_home-page-mobile-alignment.md)

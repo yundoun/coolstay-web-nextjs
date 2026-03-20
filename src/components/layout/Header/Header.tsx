@@ -28,16 +28,17 @@ export function Header({ variant }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
 
-  // variant prop이 없으면 경로 기반으로 자동 결정
+  const isHome = pathname === "/"
   const isTransparentMode = variant
     ? variant === "transparent"
     : TRANSPARENT_HEADER_PATHS.includes(pathname ?? "")
 
-  // 투명 모드일 때만 스크롤 감지, solid 모드는 항상 isScrolled=true 처럼 동작
   const showSolidHeader = !isTransparentMode || isScrolled
 
+  // 홈에서 히어로 검색바가 스크롤 아웃되면 pill 표시
+  const showSearchPill = isHome && isScrolled
+
   useEffect(() => {
-    // solid 모드에서는 스크롤 감지 불필요
     if (!isTransparentMode) return
 
     const handleScroll = () => {
@@ -66,10 +67,7 @@ export function Header({ variant }: HeaderProps) {
         <Container size="wide" className="h-16 md:h-[var(--header-height)]">
           <div className="flex h-full items-center justify-between gap-4">
             {/* Logo */}
-            <Link
-              href="/"
-              className="shrink-0"
-            >
+            <Link href="/" className="shrink-0">
               <Image
                 src="/coolstay_logo.png"
                 alt="꿀스테이"
@@ -83,8 +81,27 @@ export function Header({ variant }: HeaderProps) {
               />
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            {/* Compact Search Pill — 홈에서 히어로 스크롤 아웃 시만 */}
+            <div
+              className={cn(
+                "flex-1 max-w-lg mx-2 md:mx-4",
+                "transition-all duration-300",
+                showSearchPill
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 -translate-y-2 pointer-events-none"
+              )}
+            >
+              <CompactSearchBar />
+            </div>
+
+            {/* Desktop Navigation — pill 없을 때만 */}
+            <nav
+              className={cn(
+                "hidden md:flex items-center gap-1",
+                "transition-all duration-300",
+                showSearchPill && "md:hidden lg:flex"
+              )}
+            >
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.href}
@@ -101,22 +118,8 @@ export function Header({ variant }: HeaderProps) {
               ))}
             </nav>
 
-            {/* Compact Search Bar - Only visible on solid header (desktop) */}
-            <div
-              className={cn(
-                "hidden lg:flex flex-1 max-w-md mx-4",
-                "transition-all duration-300",
-                showSolidHeader
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-2 pointer-events-none"
-              )}
-            >
-              <CompactSearchBar />
-            </div>
-
             {/* Right Actions */}
-            <div className="flex items-center gap-2">
-              {/* Login Button - Desktop */}
+            <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant={showSolidHeader ? "outline" : "ghost"}
                 size="sm"
@@ -132,7 +135,6 @@ export function Header({ variant }: HeaderProps) {
                 </Link>
               </Button>
 
-              {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -150,7 +152,6 @@ export function Header({ variant }: HeaderProps) {
         </Container>
       </header>
 
-      {/* Mobile Navigation Sheet */}
       <MobileNav
         isOpen={isMobileNavOpen}
         onClose={() => setIsMobileNavOpen(false)}
