@@ -1,10 +1,13 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-// 헤더 패딩이 필요 없는 페이지 (히어로 섹션이 있는 페이지)
-const FULL_BLEED_PATHS = ["/", "/search"]
+// 항상 full bleed인 페이지
+const ALWAYS_FULL_BLEED_PATHS = ["/"]
+
+// 조건부 full bleed (검색 파라미터 없을 때만)
+const CONDITIONAL_FULL_BLEED_PATHS = ["/search"]
 
 interface MainContentProps {
   children: React.ReactNode
@@ -13,7 +16,14 @@ interface MainContentProps {
 
 export function MainContent({ children, className }: MainContentProps) {
   const pathname = usePathname()
-  const isFullBleed = FULL_BLEED_PATHS.includes(pathname ?? "")
+  const searchParams = useSearchParams()
+
+  const isAlwaysFullBleed = ALWAYS_FULL_BLEED_PATHS.includes(pathname ?? "")
+  const isConditionalFullBleed =
+    CONDITIONAL_FULL_BLEED_PATHS.includes(pathname ?? "") &&
+    (!searchParams || searchParams.toString() === "")
+
+  const isFullBleed = isAlwaysFullBleed || isConditionalFullBleed
 
   return (
     <div

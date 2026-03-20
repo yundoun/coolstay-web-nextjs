@@ -1,5 +1,7 @@
 export { SearchPageLayout } from "./SearchPageLayout"
 export { SearchHeroSection } from "./SearchHeroSection"
+export { SearchConditionBar } from "./SearchConditionBar"
+export { PopularKeywords } from "./PopularKeywords"
 export { LifestyleFilterChips } from "./LifestyleFilterChips"
 export { BentoAccommodationCard } from "./BentoAccommodationCard"
 export { BentoSearchResultGrid } from "./BentoSearchResultGrid"

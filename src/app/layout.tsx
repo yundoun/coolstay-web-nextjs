@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import "@/styles/globals.css"
 import { Header, Footer, MainContent } from "@/components/layout"
@@ -15,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
-        <Header />
-        <MainContent>{children}</MainContent>
+        <Suspense>
+          <Header />
+          <MainContent>{children}</MainContent>
+        </Suspense>
         <Footer />
       </body>
     </html>

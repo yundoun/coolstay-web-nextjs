@@ -61,13 +61,14 @@ export const ratingOptions: RatingOption[] = [
   { value: "3.0", label: "3.0점 이상", minRating: 3.0 },
 ]
 
-// 정렬 옵션
+// 정렬 옵션 (모바일 앱 기반: RATING, PRICE_LOW, PRICE_HIGH, BENEFIT_MILEAGE, USER_LIKE)
 export const sortOptions: SortOption[] = [
   { value: "recommend", label: "추천순" },
+  { value: "rating", label: "평점 높은순" },
   { value: "price-asc", label: "가격 낮은순" },
   { value: "price-desc", label: "가격 높은순" },
-  { value: "rating", label: "평점 높은순" },
-  { value: "review", label: "리뷰 많은순" },
+  { value: "mileage", label: "마일리지순" },
+  { value: "popular", label: "인기순" },
 ]
 
 // 필터 라벨 맵
