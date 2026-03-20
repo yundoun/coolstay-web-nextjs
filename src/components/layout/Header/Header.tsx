@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -12,7 +12,6 @@ import { CompactSearchBar } from "./CompactSearchBar"
 import { MobileNav } from "./MobileNav"
 
 const NAV_ITEMS = [
-  { label: "검색", href: "/search" },
   { label: "예약내역", href: "/bookings" },
   { label: "마이페이지", href: "/mypage" },
 ]
@@ -33,20 +32,25 @@ export function Header({ variant }: HeaderProps) {
     ? variant === "transparent"
     : TRANSPARENT_HEADER_PATHS.includes(pathname ?? "")
 
-  // IntersectionObserver로 히어로 검색바 감시
+  // IntersectionObserver로 히어로 검색바 감시 (홈에서만)
   useEffect(() => {
-    if (!isHome) return
+    if (!isHome) {
+      setHeroSearchVisible(false)
+      return
+    }
 
-    // DOM이 준비될 때까지 약간 대기
     const timeout = setTimeout(() => {
       const heroSearchBar = document.getElementById("hero-search-bar")
-      if (!heroSearchBar) return
+      if (!heroSearchBar) {
+        setHeroSearchVisible(false)
+        return
+      }
 
       const observer = new IntersectionObserver(
         ([entry]) => {
           setHeroSearchVisible(entry.isIntersecting)
         },
-        { threshold: 0, rootMargin: "-64px 0px 0px 0px" } // 헤더 높이만큼 오프셋
+        { threshold: 0, rootMargin: "-64px 0px 0px 0px" }
       )
 
       observer.observe(heroSearchBar)
@@ -56,9 +60,9 @@ export function Header({ variant }: HeaderProps) {
     return () => clearTimeout(timeout)
   }, [isHome])
 
-  // 헤더 상태: 히어로 검색바가 보이면 투명, 안 보이면 solid
   const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
-  const showSearchPill = isHome && !heroSearchVisible
+  // 홈: 히어로 검색바 사라지면 표시 / 다른 페이지: 항상 표시
+  const showHeaderSearch = isHome ? !heroSearchVisible : true
 
   return (
     <>
@@ -73,7 +77,7 @@ export function Header({ variant }: HeaderProps) {
         )}
       >
         <Container size="wide" className="h-16 md:h-[var(--header-height)]">
-          <div className="flex h-full items-center justify-between gap-4">
+          <div className="flex h-full items-center justify-between gap-3 md:gap-4">
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <Image
@@ -82,19 +86,19 @@ export function Header({ variant }: HeaderProps) {
                 width={120}
                 height={40}
                 className={cn(
-                  "h-8 w-auto transition-all",
+                  "h-7 md:h-8 w-auto transition-all",
                   showSolidHeader ? "" : "brightness-0 invert"
                 )}
                 priority
               />
             </Link>
 
-            {/* Compact Search Pill — 히어로 검색바가 뷰포트에서 사라지면 등장 */}
+            {/* 검색 텍스트 필드 */}
             <div
               className={cn(
-                "flex-1 max-w-lg mx-2 md:mx-4",
+                "flex-1 max-w-md mx-1 md:mx-4",
                 "transition-all duration-300",
-                showSearchPill
+                showHeaderSearch
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 -translate-y-2 pointer-events-none"
               )}
@@ -103,19 +107,13 @@ export function Header({ variant }: HeaderProps) {
             </div>
 
             {/* Desktop Navigation */}
-            <nav
-              className={cn(
-                "hidden md:flex items-center gap-1",
-                "transition-all duration-300",
-                showSearchPill && "md:hidden lg:flex"
-              )}
-            >
+            <nav className="hidden md:flex items-center gap-1 shrink-0">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                    "px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                     showSolidHeader
                       ? "text-foreground hover:bg-muted"
                       : "text-white/90 hover:text-white hover:bg-white/10"
