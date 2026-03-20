@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20** | 헤더 검색창 드롭다운 자동완성 구현 | [`f87ff64`](.work-history/entries/2026-03-20_13_header-search-dropdown.md)
 - **2026-03-20** | 검색 모달 단일 화면으로 재구성 (모바일 앱 캡쳐 기반) | [`878c2d5`](.work-history/entries/2026-03-20_12_search-modal-single-screen.md)
 - **2026-03-20** | 헤더 검색 pill → 텍스트 필드로 교체 | [`799cf00`](.work-history/entries/2026-03-20_11_header-search-field.md)
 - **2026-03-20** | 검색 모달 + 히어로/헤더 pill 스크롤 동기화 | [`3ef956b`](.work-history/entries/2026-03-20_10_search-modal-and-scroll-sync.md)
