@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 
-const FULL_BLEED_PATHS = ["/"]
+const FULL_BLEED_PATHS: string[] = []
 
 interface MainContentProps {
   children: React.ReactNode

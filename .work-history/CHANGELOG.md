@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20 15:51** | 홈 화면 헤더 투명 모드 제거 | [`b4bba5f`](.work-history/entries/2026-03-20_26_header-solid-mode.md)
 - **2026-03-20 15:45** | 히어로 섹션을 꿀딜 섹션으로 교체 | [`f7df411`](.work-history/entries/2026-03-20_25_hero-to-honeydeal.md)
 - **2026-03-20 15:37** | 로그인/회원가입 페이지 구현 | [`8ee70a4`](.work-history/entries/2026-03-20_24_auth-pages.md)
 - **2026-03-20 15:32** | 마이페이지 구현 | [`e14fdf0`](.work-history/entries/2026-03-20_23_mypage.md)

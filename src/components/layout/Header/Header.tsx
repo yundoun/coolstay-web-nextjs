@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { label: "마이페이지", href: "/mypage" },
 ]
 
-const TRANSPARENT_HEADER_PATHS = ["/"]
+const TRANSPARENT_HEADER_PATHS: string[] = []
 
 export interface HeaderProps {
   variant?: "solid" | "transparent"
