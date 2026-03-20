@@ -1,71 +1,40 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
-import { useRouter } from "next/navigation"
-import {
-  X,
-  Search,
-  CalendarDays,
-  Users,
-  Clock,
-  Minus,
-  Plus,
-  ArrowLeft,
-} from "lucide-react"
+import { useEffect, useCallback, useMemo } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import { X, Minus, Plus, ChevronLeft, ChevronRight, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import { useSearchModal } from "@/lib/stores/search-modal"
+import { cityRegions } from "@/domains/search/data/regions"
 
-// 인기 검색어 (실제로는 API에서 가져옴)
-const popularKeywords = [
-  { rank: 1, keyword: "대구" },
-  { rank: 2, keyword: "서면" },
-  { rank: 3, keyword: "경주" },
-  { rank: 4, keyword: "대전" },
-  { rank: 5, keyword: "부산" },
-  { rank: 6, keyword: "동성로" },
-  { rank: 7, keyword: "울산" },
-  { rank: 8, keyword: "서울" },
-]
+const DAYS = ["일", "월", "화", "수", "목", "금", "토"]
 
-function getDefaultDates() {
-  const today = new Date()
-  const tomorrow = new Date(today)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  const days = ["일", "월", "화", "수", "목", "금", "토"]
-  const fmt = (d: Date) =>
-    `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}(${days[d.getDay()]})`
-  const fmtValue = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-  return {
-    displayCheckIn: fmt(today),
-    displayCheckOut: fmt(tomorrow),
-    valueCheckIn: fmtValue(today),
-    valueCheckOut: fmtValue(tomorrow),
-  }
+function formatDateKr(d: Date) {
+  return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}(${DAYS[d.getDay()]})`
 }
 
+function diffDays(a: Date, b: Date) {
+  return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24))
+}
+
+function isSameDay(a: Date, b: Date) {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  )
+}
+
+function isBetween(d: Date, start: Date, end: Date) {
+  return d.getTime() > start.getTime() && d.getTime() < end.getTime()
+}
+
+// ─── SearchModal ───────────────────────────────────────────
+
 export function SearchModal() {
-  const { isOpen, close } = useSearchModal()
-  const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const { isOpen, step, close } = useSearchModal()
 
-  const [query, setQuery] = useState("")
-  const [adults, setAdults] = useState(2)
-  const [kids, setKids] = useState(0)
-  const [recentSearches, setRecentSearches] = useState<string[]>([
-    "해운대 호텔",
-    "제주 펜션",
-  ])
-
-  const defaults = getDefaultDates()
-
-  // ESC 닫기 + body overflow
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") close()
@@ -73,8 +42,6 @@ export function SearchModal() {
     if (isOpen) {
       document.addEventListener("keydown", handleEsc)
       document.body.style.overflow = "hidden"
-      // 모달 열리면 input 포커스
-      setTimeout(() => inputRef.current?.focus(), 100)
     }
     return () => {
       document.removeEventListener("keydown", handleEsc)
@@ -82,237 +49,519 @@ export function SearchModal() {
     }
   }, [isOpen, close])
 
-  // 모달 열릴 때 리셋
-  useEffect(() => {
-    if (isOpen) setQuery("")
-  }, [isOpen])
-
-  const handleSearch = useCallback(
-    (keyword?: string) => {
-      const searchTerm = keyword || query
-      if (searchTerm.trim()) {
-        // 최근 검색어에 추가
-        setRecentSearches((prev) => {
-          const filtered = prev.filter((k) => k !== searchTerm)
-          return [searchTerm, ...filtered].slice(0, 10)
-        })
-      }
-      close()
-      const params = new URLSearchParams()
-      if (searchTerm.trim()) params.set("keyword", searchTerm.trim())
-      router.push(`/search?${params.toString()}`)
-    },
-    [query, close, router]
-  )
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") handleSearch()
-    },
-    [handleSearch]
-  )
-
-  const handleClearRecent = useCallback(() => {
-    setRecentSearches([])
-  }, [])
-
-  const handleRemoveRecent = useCallback((keyword: string) => {
-    setRecentSearches((prev) => prev.filter((k) => k !== keyword))
-  }, [])
-
-  const guestLabel = kids > 0 ? `${adults + kids}명` : `${adults}명`
-
-  if (!isOpen) return null
+  if (!isOpen || !step) return null
 
   return (
-    <div className="fixed inset-0 z-[var(--z-modal)] flex items-start justify-center">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center">
       <div
-        className="absolute inset-0 bg-background/80 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
         onClick={close}
       />
+      <div className="relative animate-fade-in-up">
+        {step === "region" && <RegionPanel />}
+        {step === "date" && <DatePanel />}
+        {step === "guest" && <GuestPanel />}
+      </div>
+    </div>
+  )
+}
 
-      {/* Modal */}
-      <div
-        className={cn(
-          "relative w-full max-w-lg mx-4 mt-12 md:mt-20",
-          "bg-card rounded-xl border shadow-xl",
-          "animate-fade-in-up",
-          "max-h-[85vh] overflow-hidden flex flex-col"
-        )}
-      >
-        {/* Header — 모바일 앱과 동일 구조 */}
-        <div className="flex items-center gap-3 p-4 border-b shrink-0">
-          <Button variant="ghost" size="icon" onClick={close} className="size-8 rounded-full shrink-0">
-            <ArrowLeft className="size-4" />
-          </Button>
-          <h2 className="font-semibold">검색</h2>
-        </div>
+// ─── 지역 선택 패널 ─────────────────────────────────────────
 
-        {/* 검색 입력 필드 */}
-        <div className="px-4 pt-4 shrink-0">
-          <div className="flex items-center gap-2 px-4 py-3 border rounded-xl bg-background focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
-            <Search className="size-4 text-muted-foreground shrink-0" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="지역, 전철역, 숙소명으로 찾아보세요"
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            />
-            {query && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-6 rounded-full shrink-0"
-                onClick={() => setQuery("")}
-              >
-                <X className="size-3" />
-              </Button>
-            )}
-          </div>
-        </div>
+function RegionPanel() {
+  const { selectedCity, setCity, setArea, setStep, close } = useSearchModal()
+  const activeCity = selectedCity || cityRegions[0].city
+  const activeCityData = cityRegions.find((c) => c.city === activeCity)
 
-        {/* 날짜/인원 조건 바 */}
-        <div className="flex items-center gap-2 px-4 py-3 shrink-0">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 border rounded-full text-xs text-muted-foreground">
-            <CalendarDays className="size-3" />
-            <span>{defaults.displayCheckIn} - {defaults.displayCheckOut} · 1박</span>
-          </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-1.5 border rounded-full text-xs text-muted-foreground hover:border-primary transition-colors">
-                <Users className="size-3" />
-                <span>{guestLabel}</span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-4" align="start">
-              <div className="space-y-4">
-                <GuestCounter label="성인" count={adults} min={1} max={10} onChange={setAdults} />
-                <GuestCounter label="아동" count={kids} min={0} max={5} onChange={setKids} />
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+  const handleAreaClick = (area: string) => {
+    const city = cityRegions.find((c) => c.city === activeCity)
+    if (city) {
+      setCity(activeCity)
+      setArea(area)
+      setStep("date")
+    }
+  }
 
-        {/* 스크롤 가능 컨텐츠 영역 */}
-        <div className="flex-1 overflow-y-auto border-t">
-          {/* 최근 검색 */}
-          <div className="px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold">최근 검색</h3>
-              {recentSearches.length > 0 && (
-                <button
-                  onClick={handleClearRecent}
-                  className="text-xs text-primary hover:underline"
-                >
-                  전체 삭제
-                </button>
+  const handleCityOnly = () => {
+    setCity(activeCity)
+    setArea(null)
+    setStep("date")
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[640px] max-h-[80vh] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b">
+        <h2 className="text-lg font-bold">지역 선택</h2>
+        <button
+          onClick={close}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <X className="size-5 text-gray-500" />
+        </button>
+      </div>
+
+      {/* Body: 2-column */}
+      <div className="flex min-h-[400px]">
+        {/* Left: City list */}
+        <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
+          {cityRegions.map((region) => (
+            <button
+              key={region.city}
+              onClick={() => setCity(region.city)}
+              className={cn(
+                "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
+                activeCity === region.city
+                  ? "text-primary font-semibold bg-white"
+                  : "text-gray-600 hover:bg-gray-100"
               )}
-            </div>
+            >
+              {activeCity === region.city && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+              )}
+              {region.city}
+            </button>
+          ))}
+        </div>
 
-            {recentSearches.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-6">
-                최근 검색한 조건이 없습니다.
-              </p>
-            ) : (
-              <div className="space-y-1">
-                {recentSearches.map((keyword) => (
-                  <div
-                    key={keyword}
-                    className="flex items-center justify-between group"
-                  >
-                    <button
-                      onClick={() => handleSearch(keyword)}
-                      className="flex items-center gap-2.5 py-2 text-sm hover:text-primary transition-colors"
-                    >
-                      <Clock className="size-3.5 text-muted-foreground" />
-                      {keyword}
-                    </button>
-                    <button
-                      onClick={() => handleRemoveRecent(keyword)}
-                      className="p-1 text-muted-foreground hover:text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Right: Area list */}
+        <div className="flex-1 py-2 overflow-y-auto">
+          {/* 전체 선택 */}
+          <button
+            onClick={handleCityOnly}
+            className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            <MapPin className="size-4 text-gray-400" />
+            <span className="font-medium">{activeCity} 전체</span>
+            <ChevronRight className="size-4 text-gray-300 ml-auto" />
+          </button>
 
-          {/* 인기 검색어 순위 */}
-          <div className="px-4 py-4 border-t">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold">인기 검색어 순위</h3>
-              <span className="text-xs text-muted-foreground">
-                {new Date().toLocaleDateString("ko-KR")} 기준
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-              {popularKeywords.map((item) => (
-                <button
-                  key={item.rank}
-                  onClick={() => handleSearch(item.keyword)}
-                  className="flex items-center gap-3 py-2.5 text-sm hover:text-primary transition-colors text-left border-b border-border/30 last:border-0"
-                >
-                  <span
-                    className={cn(
-                      "w-5 text-center text-xs font-bold",
-                      item.rank <= 3 ? "text-primary" : "text-muted-foreground"
-                    )}
-                  >
-                    {item.rank}
-                  </span>
-                  <span className="font-medium">{item.keyword}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {activeCityData?.areas.map((area) => (
+            <button
+              key={area.name}
+              onClick={() => handleAreaClick(area.name)}
+              className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <MapPin className="size-4 text-gray-400" />
+              <span>{area.name}</span>
+              <ChevronRight className="size-4 text-gray-300 ml-auto" />
+            </button>
+          ))}
         </div>
       </div>
     </div>
   )
 }
 
-function GuestCounter({
-  label,
-  count,
-  min,
-  max,
-  onChange,
-}: {
-  label: string
-  count: number
-  min: number
-  max: number
-  onChange: (n: number) => void
-}) {
+// ─── 날짜 선택 패널 ─────────────────────────────────────────
+
+function DatePanel() {
+  const { checkIn, checkOut, setCheckIn, setCheckOut, setStep, close } =
+    useSearchModal()
+
+  const today = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    return d
+  }, [])
+
+  // 기본 체크인/아웃
+  const effectiveCheckIn = checkIn || today
+  const effectiveCheckOut = useMemo(() => {
+    if (checkOut) return checkOut
+    const d = new Date(today)
+    d.setDate(d.getDate() + 1)
+    return d
+  }, [checkOut, today])
+
+  const nights = diffDays(effectiveCheckIn, effectiveCheckOut)
+
+  // 캘린더 네비게이션: baseMonth는 왼쪽 달
+  const initialBase = useMemo(() => {
+    const d = new Date(effectiveCheckIn)
+    d.setDate(1)
+    return d
+  }, [effectiveCheckIn])
+
+  const [baseMonth, setBaseMonth] = useReducedState(initialBase)
+
+  const handlePrev = () => {
+    const d = new Date(baseMonth)
+    d.setMonth(d.getMonth() - 1)
+    // 과거 달로 못 가게
+    const firstOfCurrent = new Date(today.getFullYear(), today.getMonth(), 1)
+    if (d >= firstOfCurrent) setBaseMonth(d)
+  }
+
+  const handleNext = () => {
+    const d = new Date(baseMonth)
+    d.setMonth(d.getMonth() + 1)
+    setBaseMonth(d)
+  }
+
+  const handleDateClick = (date: Date) => {
+    if (date < today) return
+    if (!checkIn || (checkIn && checkOut)) {
+      // 새 선택 시작
+      setCheckIn(date)
+      setCheckOut(null)
+    } else {
+      // 체크아웃 선택
+      if (date <= checkIn) {
+        setCheckIn(date)
+        setCheckOut(null)
+      } else {
+        setCheckOut(date)
+      }
+    }
+  }
+
+  const canApply = checkIn && checkOut
+
+  const handleApply = () => {
+    if (canApply) setStep("guest")
+  }
+
+  const rightMonth = new Date(baseMonth)
+  rightMonth.setMonth(rightMonth.getMonth() + 1)
+
   return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm">{label}</span>
-      <div className="flex items-center gap-3">
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
-          disabled={count <= min}
-          onClick={() => onChange(count - 1)}
+    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[780px] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b">
+        <h2 className="text-lg font-bold">날짜 선택</h2>
+        <button
+          onClick={close}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
         >
-          <Minus className="size-3" />
+          <X className="size-5 text-gray-500" />
+        </button>
+      </div>
+
+      {/* 체크인/아웃 요약 */}
+      <div className="flex items-center justify-center gap-6 py-5 border-b">
+        <div className="text-center">
+          <p className="text-xs text-gray-400 mb-1">체크인</p>
+          <p className="text-lg font-bold">{formatDateKr(effectiveCheckIn)}</p>
+        </div>
+        <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+          {nights > 0 ? `${nights}박` : "-"}
+        </div>
+        <div className="text-center">
+          <p className="text-xs text-gray-400 mb-1">체크아웃</p>
+          <p className="text-lg font-bold">
+            {checkOut ? formatDateKr(effectiveCheckOut) : "-"}
+          </p>
+        </div>
+      </div>
+
+      {/* 캘린더 네비게이션 */}
+      <div className="flex items-center justify-between px-8 pt-5 pb-2">
+        <button
+          onClick={handlePrev}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <ChevronLeft className="size-5 text-gray-500" />
+        </button>
+        <div className="flex items-center gap-6 text-sm font-semibold">
+          <span>
+            {baseMonth.getFullYear()}년 {baseMonth.getMonth() + 1}월
+          </span>
+          <span className="text-gray-300">|</span>
+          <span>
+            {rightMonth.getFullYear()}년 {rightMonth.getMonth() + 1}월
+          </span>
+        </div>
+        <button
+          onClick={handleNext}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <ChevronRight className="size-5 text-gray-500" />
+        </button>
+      </div>
+
+      {/* 듀얼 캘린더 */}
+      <div className="grid grid-cols-2 gap-4 px-6 pb-4">
+        <CalendarMonth
+          year={baseMonth.getFullYear()}
+          month={baseMonth.getMonth()}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          today={today}
+          onDateClick={handleDateClick}
+        />
+        <CalendarMonth
+          year={rightMonth.getFullYear()}
+          month={rightMonth.getMonth()}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          today={today}
+          onDateClick={handleDateClick}
+        />
+      </div>
+
+      {/* 적용 버튼 */}
+      <div className="px-6 pb-6">
+        <Button
+          className="w-full py-6 rounded-xl text-base font-semibold"
+          disabled={!canApply}
+          onClick={handleApply}
+        >
+          적용하기
         </Button>
-        <span className="w-6 text-center text-sm font-medium">{count}</span>
-        <Button
-          variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
-          disabled={count >= max}
-          onClick={() => onChange(count + 1)}
+      </div>
+    </div>
+  )
+}
+
+function useReducedState(initial: Date): [Date, (d: Date) => void] {
+  const [state, setState] = useStateHook(initial)
+  return [state, setState]
+}
+
+// useState import를 위해
+import { useState as useStateHook } from "react"
+
+// 캘린더 한 달
+
+interface CalendarMonthProps {
+  year: number
+  month: number
+  checkIn: Date | null
+  checkOut: Date | null
+  today: Date
+  onDateClick: (date: Date) => void
+}
+
+function CalendarMonth({
+  year,
+  month,
+  checkIn,
+  checkOut,
+  today,
+  onDateClick,
+}: CalendarMonthProps) {
+  const firstDay = new Date(year, month, 1).getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+  const cells: (number | null)[] = []
+  for (let i = 0; i < firstDay; i++) cells.push(null)
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d)
+
+  return (
+    <div>
+      {/* 요일 헤더 */}
+      <div className="grid grid-cols-7 mb-1">
+        {DAYS.map((day, i) => (
+          <div
+            key={day}
+            className={cn(
+              "text-center text-xs font-medium py-2",
+              i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+            )}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* 날짜 그리드 */}
+      <div className="grid grid-cols-7">
+        {cells.map((day, i) => {
+          if (day === null) {
+            return <div key={`empty-${i}`} className="h-10" />
+          }
+
+          const date = new Date(year, month, day)
+          const isPast = date < today
+          const isCheckIn = checkIn ? isSameDay(date, checkIn) : false
+          const isCheckOut = checkOut ? isSameDay(date, checkOut) : false
+          const isSelected = isCheckIn || isCheckOut
+          const isInRange =
+            checkIn && checkOut ? isBetween(date, checkIn, checkOut) : false
+
+          const dayOfWeek = date.getDay()
+          const isSunday = dayOfWeek === 0
+          const isSaturday = dayOfWeek === 6
+
+          return (
+            <button
+              key={day}
+              disabled={isPast}
+              onClick={() => onDateClick(date)}
+              className={cn(
+                "h-10 text-sm relative flex items-center justify-center transition-colors",
+                isPast && "text-gray-200 cursor-not-allowed",
+                !isPast && !isSelected && !isInRange && "hover:bg-gray-100 rounded-full",
+                !isPast &&
+                  !isSelected &&
+                  !isInRange &&
+                  isSunday &&
+                  "text-red-400",
+                !isPast &&
+                  !isSelected &&
+                  !isInRange &&
+                  isSaturday &&
+                  "text-blue-400",
+                isInRange && "bg-primary/10",
+                isSelected && "z-10"
+              )}
+            >
+              {isSelected && (
+                <span className="absolute inset-1 bg-primary rounded-full" />
+              )}
+              <span
+                className={cn(
+                  "relative z-10",
+                  isSelected && "text-white font-bold"
+                )}
+              >
+                {day}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── 인원 선택 패널 ─────────────────────────────────────────
+
+function GuestPanel() {
+  const {
+    adults,
+    kids,
+    setAdults,
+    setKids,
+    close,
+    selectedCity,
+    selectedArea,
+    checkIn,
+    checkOut,
+  } = useSearchModal()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const handleApply = () => {
+    close()
+    // 검색 페이지에서는 URL 갱신으로 결과 반영
+    if (pathname === "/search") {
+      const params = new URLSearchParams()
+      if (selectedCity) {
+        params.set("keyword", selectedArea || selectedCity)
+      }
+      if (checkIn) {
+        params.set(
+          "checkIn",
+          `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, "0")}-${String(checkIn.getDate()).padStart(2, "0")}`
+        )
+      }
+      if (checkOut) {
+        params.set(
+          "checkOut",
+          `${checkOut.getFullYear()}-${String(checkOut.getMonth() + 1).padStart(2, "0")}-${String(checkOut.getDate()).padStart(2, "0")}`
+        )
+      }
+      params.set("adults", String(adults))
+      if (kids > 0) params.set("kids", String(kids))
+      router.push(`/search?${params.toString()}`)
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[420px] overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b">
+        <h2 className="text-lg font-bold">인원 선택</h2>
+        <button
+          onClick={close}
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
         >
-          <Plus className="size-3" />
+          <X className="size-5 text-gray-500" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="px-6 py-6 space-y-6">
+        {/* 성인 */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-base font-semibold">성인</p>
+            <p className="text-sm text-gray-400">만 13세 이상</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              disabled={adults <= 1}
+              onClick={() => setAdults(adults - 1)}
+              className={cn(
+                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
+                adults <= 1
+                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
+                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+              )}
+            >
+              <Minus className="size-4" />
+            </button>
+            <span className="w-8 text-center text-lg font-bold">{adults}</span>
+            <button
+              disabled={adults >= 10}
+              onClick={() => setAdults(adults + 1)}
+              className={cn(
+                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
+                adults >= 10
+                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
+                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+              )}
+            >
+              <Plus className="size-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* 아동 */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-base font-semibold">아동</p>
+            <p className="text-sm text-gray-400">만 12세 이하</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              disabled={kids <= 0}
+              onClick={() => setKids(kids - 1)}
+              className={cn(
+                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
+                kids <= 0
+                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
+                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+              )}
+            >
+              <Minus className="size-4" />
+            </button>
+            <span className="w-8 text-center text-lg font-bold">{kids}</span>
+            <button
+              disabled={kids >= 5}
+              onClick={() => setKids(kids + 1)}
+              className={cn(
+                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
+                kids >= 5
+                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
+                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+              )}
+            >
+              <Plus className="size-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 적용 버튼 */}
+      <div className="px-6 pb-6">
+        <Button
+          className="w-full py-6 rounded-xl text-base font-semibold"
+          onClick={handleApply}
+        >
+          성인 {adults}, 아동 {kids} 적용하기
         </Button>
       </div>
     </div>
