@@ -3,9 +3,8 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
-- **2026-03-20** | CompactSearchBar 코드 퀄리티 개선 | [`73f099c`](.work-history/entries/2026-03-20_16_search-dropdown-quality.md)
-- **2026-03-20 11:50** | 검색 자동완성 아키텍처 리팩토링 | [`commit`](.work-history/entries/2026-03-20_17_search-architecture-refactor.md)
-- **2026-03-20 11:40** | CompactSearchBar 코드 퀄리티 개선 | [`commit`](.work-history/entries/2026-03-20_16_search-dropdown-quality.md)
+- **2026-03-20 11:50** | 검색 자동완성 아키텍처 리팩토링 | [`392c88f`](.work-history/entries/2026-03-20_17_search-architecture-refactor.md)
+- **2026-03-20 11:40** | CompactSearchBar 코드 퀄리티 개선 | [`73f099c`](.work-history/entries/2026-03-20_16_search-dropdown-quality.md)
 - **2026-03-20 11:32** | 헤더 검색 드롭다운 3단 하이브리드 + 인기검색어 | [`a107a56`](.work-history/entries/2026-03-20_15_search-dropdown-hybrid.md)
 - **2026-03-20** | 헤더 검색 드롭다운 렌더링 수정 | [`b87a590`](.work-history/entries/2026-03-20_14_dropdown-portal-fix.md)
 - **2026-03-20** | 헤더 검색창 드롭다운 자동완성 구현 | [`f87ff64`](.work-history/entries/2026-03-20_13_header-search-dropdown.md)
