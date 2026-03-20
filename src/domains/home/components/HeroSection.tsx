@@ -165,9 +165,30 @@ export function HeroSection() {
 
   return (
     <section data-slot="hero-section">
-      {/* 검색바 — 심플한 상단 배치 */}
-      <div className="bg-gradient-to-b from-primary/5 to-background border-b">
-        <Container size="normal" className="py-6 md:py-8">
+      {/* 컴팩트 히어로 비주얼 */}
+      <div className="relative h-[180px] md:h-[220px] overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1920&h=400&fit=crop"
+          alt="꿀스테이 히어로"
+          fill
+          className="object-cover"
+          sizes="100vw"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+        <Container size="normal" className="relative h-full flex flex-col justify-center">
+          <h1 className="text-white text-xl md:text-2xl font-bold drop-shadow-lg">
+            꿀같은 휴식을 선물하세요
+          </h1>
+          <p className="text-white/80 text-sm mt-1 drop-shadow">
+            전국 5,000개 이상의 엄선된 숙소
+          </p>
+        </Container>
+      </div>
+
+      {/* 검색바 — 히어로 하단에 겹치게 배치 */}
+      <div className="relative -mt-7 z-10">
+        <Container size="normal">
           <div id="hero-search-bar">
             <div className="bg-white rounded-xl p-3 md:p-4 shadow-lg border">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-0 md:divide-x md:divide-border">
