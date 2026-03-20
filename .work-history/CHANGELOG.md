@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20 15:32** | 마이페이지 구현 | [`e14fdf0`](.work-history/entries/2026-03-20_23_mypage.md)
 - **2026-03-20 15:28** | 예약 내역 페이지 구현 | [`ad8bc82`](.work-history/entries/2026-03-20_22_booking-history-page.md)
 - **2026-03-20 15:16** | 예약 페이지 구현 | [`1496a46`](.work-history/entries/2026-03-20_21_booking-page.md)
 - **2026-03-20 15:07** | CHANGELOG 커밋 훅 수정 | [`33f4770`](.work-history/entries/2026-03-20_20_changelog-hook-fix.md)
