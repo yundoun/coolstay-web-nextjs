@@ -4,19 +4,7 @@ import { useState } from "react"
 import { TrendingUp, Clock, X, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
-const popularKeywords = [
-  "해운대",
-  "제주 오션뷰",
-  "강남 호텔",
-  "속초 펜션",
-  "경주 한옥",
-  "여수 바다",
-  "전주 한옥마을",
-  "부산 광안리",
-  "강릉 커피",
-  "서울 호캉스",
-]
+import { POPULAR_KEYWORDS } from "../data/autocomplete"
 
 interface PopularKeywordsProps {
   recentSearches: string[]
@@ -45,7 +33,7 @@ export function PopularKeywords({
           <span className="font-medium">인기 검색어</span>
           {!isExpanded && (
             <span className="text-xs text-muted-foreground/60 hidden sm:inline">
-              {popularKeywords.slice(0, 3).join(" · ")}
+              {POPULAR_KEYWORDS.slice(0, 3).join(" · ")}
             </span>
           )}
         </div>
@@ -102,7 +90,7 @@ export function PopularKeywords({
 
           {/* Popular Keywords */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1.5">
-            {popularKeywords.map((keyword, index) => (
+            {POPULAR_KEYWORDS.map((keyword, index) => (
               <button
                 key={keyword}
                 onClick={() => onKeywordClick(keyword)}

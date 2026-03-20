@@ -8,7 +8,7 @@ import { Menu, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
 import { cn } from "@/lib/utils"
-import { CompactSearchBar } from "./CompactSearchBar"
+import { CompactSearchBar } from "@/domains/search/components/CompactSearchBar"
 import { MobileNav } from "./MobileNav"
 
 const NAV_ITEMS = [
