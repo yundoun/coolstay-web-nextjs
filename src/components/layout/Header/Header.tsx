@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -25,7 +25,7 @@ export interface HeaderProps {
 
 export function Header({ variant }: HeaderProps) {
   const pathname = usePathname()
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [heroSearchVisible, setHeroSearchVisible] = useState(true)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
 
   const isHome = pathname === "/"
@@ -33,24 +33,32 @@ export function Header({ variant }: HeaderProps) {
     ? variant === "transparent"
     : TRANSPARENT_HEADER_PATHS.includes(pathname ?? "")
 
-  const showSolidHeader = !isTransparentMode || isScrolled
-
-  // 홈에서 히어로 검색바가 스크롤 아웃되면 pill 표시
-  const showSearchPill = isHome && isScrolled
-
+  // IntersectionObserver로 히어로 검색바 감시
   useEffect(() => {
-    if (!isTransparentMode) return
+    if (!isHome) return
 
-    const handleScroll = () => {
-      const scrollThreshold = 300
-      setIsScrolled(window.scrollY > scrollThreshold)
-    }
+    // DOM이 준비될 때까지 약간 대기
+    const timeout = setTimeout(() => {
+      const heroSearchBar = document.getElementById("hero-search-bar")
+      if (!heroSearchBar) return
 
-    handleScroll()
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setHeroSearchVisible(entry.isIntersecting)
+        },
+        { threshold: 0, rootMargin: "-64px 0px 0px 0px" } // 헤더 높이만큼 오프셋
+      )
 
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [isTransparentMode])
+      observer.observe(heroSearchBar)
+      return () => observer.disconnect()
+    }, 100)
+
+    return () => clearTimeout(timeout)
+  }, [isHome])
+
+  // 헤더 상태: 히어로 검색바가 보이면 투명, 안 보이면 solid
+  const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
+  const showSearchPill = isHome && !heroSearchVisible
 
   return (
     <>
@@ -81,7 +89,7 @@ export function Header({ variant }: HeaderProps) {
               />
             </Link>
 
-            {/* Compact Search Pill — 홈에서 히어로 스크롤 아웃 시만 */}
+            {/* Compact Search Pill — 히어로 검색바가 뷰포트에서 사라지면 등장 */}
             <div
               className={cn(
                 "flex-1 max-w-lg mx-2 md:mx-4",
@@ -94,7 +102,7 @@ export function Header({ variant }: HeaderProps) {
               <CompactSearchBar />
             </div>
 
-            {/* Desktop Navigation — pill 없을 때만 */}
+            {/* Desktop Navigation */}
             <nav
               className={cn(
                 "hidden md:flex items-center gap-1",

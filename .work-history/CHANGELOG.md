@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-20** | 헤더 검색 pill — 홈 전용 컴팩트 검색 진입점 | [`f68c6c6`](.work-history/entries/2026-03-20_09_header-search-pill.md)
 - **2026-03-20** | 디자인 시스템 점검 및 불일치 수정 | [`2021855`](.work-history/entries/2026-03-20_08_design-system-audit-fix.md)
 - **2026-03-20** | 검색 페이지 레이아웃 통일 | [`7f175b1`](.work-history/entries/2026-03-20_07_search-layout-consistency.md)
 - **2026-03-20** | 홈 화면 풀 개편 — 모바일 앱 전체 섹션 반영 | [`be91c5a`](.work-history/entries/2026-03-20_06_home-page-full-overhaul.md)

@@ -1,11 +1,16 @@
 "use client"
 
 import Image from "next/image"
+import { Search, MapPin, CalendarDays, Users } from "lucide-react"
 import { Container } from "@/components/layout"
-import { SearchBar } from "@/components/ui/search-bar"
+import { Button } from "@/components/ui/button"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import { heroBackgrounds } from "../data/mock"
+import { cn } from "@/lib/utils"
 
 export function HeroSection() {
+  const { open } = useSearchModal()
+
   return (
     <section
       data-slot="hero-section"
@@ -32,11 +37,61 @@ export function HeroSection() {
             전국 5,000개 이상의 엄선된 숙소에서 특별한 순간을 만나보세요
           </p>
 
-          <div className="mt-8 md:mt-10">
-            <SearchBar variant="hero" />
+          {/* 검색바 — 클릭 시 모달 오픈. id로 IntersectionObserver 감시 */}
+          <div id="hero-search-bar" className="mt-8 md:mt-10">
+            <button
+              onClick={open}
+              className={cn(
+                "w-full glass-search rounded-xl p-3 md:p-4 shadow-2xl",
+                "border border-white/30",
+                "transition-all hover:shadow-[0_8px_40px_rgba(0,0,0,0.3)]",
+                "text-left cursor-pointer"
+              )}
+            >
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-0 md:divide-x md:divide-border">
+                <SearchField icon={MapPin} label="어디로 떠나시나요?" value="지역, 숙소명 검색" className="md:flex-1 md:pr-4" />
+                <SearchField icon={CalendarDays} label="날짜" value="날짜 선택" className="md:flex-1 md:px-4" />
+                <SearchField icon={Users} label="인원" value="성인 2명" className="md:w-40 md:px-4" />
+                <div className="md:pl-4">
+                  <div className="flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold">
+                    <Search className="size-5" />
+                    <span className="md:sr-only lg:not-sr-only">검색</span>
+                  </div>
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </Container>
     </section>
+  )
+}
+
+function SearchField({
+  icon: Icon,
+  label,
+  value,
+  className,
+}: {
+  icon: React.ElementType
+  label: string
+  value: string
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-3",
+        "rounded-xl p-2",
+        "md:rounded-none",
+        className
+      )}
+    >
+      <Icon className="size-5 shrink-0 text-muted-foreground" />
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="truncate text-sm text-foreground">{value}</p>
+      </div>
+    </div>
   )
 }
