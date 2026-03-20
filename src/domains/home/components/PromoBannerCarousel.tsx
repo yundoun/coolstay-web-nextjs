@@ -6,18 +6,36 @@ import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { eventBanners } from "../data/mock"
+import { useHomeFilter } from "../hooks/useHomeData"
+import { eventBanners as mockBanners } from "../data/mock"
+import type { Banner } from "@/lib/api/types"
+
+function apiBannerToLocal(banner: Banner) {
+  return {
+    id: String(banner.key),
+    imageUrl: banner.banner_image_url || banner.image_urls?.[0] || "",
+    title: banner.title || "",
+    subtitle: banner.description || "",
+    link: banner.webview_link || banner.link?.target || "#",
+  }
+}
 
 export function PromoBannerCarousel() {
+  const { data } = useHomeFilter()
+
+  const banners = data?.banners?.length
+    ? data.banners.map(apiBannerToLocal)
+    : mockBanners
+
   const [current, setCurrent] = useState(0)
 
   const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % eventBanners.length)
-  }, [])
+    setCurrent((prev) => (prev + 1) % banners.length)
+  }, [banners.length])
 
   const prev = useCallback(() => {
-    setCurrent((prev) => (prev - 1 + eventBanners.length) % eventBanners.length)
-  }, [])
+    setCurrent((prev) => (prev - 1 + banners.length) % banners.length)
+  }, [banners.length])
 
   useEffect(() => {
     const timer = setInterval(next, 3000)
@@ -30,7 +48,7 @@ export function PromoBannerCarousel() {
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {eventBanners.map((banner) => (
+        {banners.map((banner) => (
           <Link
             key={banner.id}
             href={banner.link}
@@ -83,7 +101,7 @@ export function PromoBannerCarousel() {
 
       {/* Dots */}
       <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 flex items-center gap-1.5">
-        {eventBanners.map((_, index) => (
+        {banners.map((_, index) => (
           <Button
             key={index}
             variant="ghost"

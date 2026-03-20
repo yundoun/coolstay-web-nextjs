@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "@/styles/globals.css"
 import { Header, Footer, MainContent } from "@/components/layout"
 import { SearchModal } from "@/components/search/SearchModal"
+import { Providers } from "./providers"
 
 export const metadata: Metadata = {
   title: "꿀스테이 - 꿀같은 휴식을 선물하세요",
@@ -16,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
-        <Header />
-        <MainContent>{children}</MainContent>
-        <Footer />
-        <SearchModal />
+        <Providers>
+          <Header />
+          <MainContent>{children}</MainContent>
+          <Footer />
+          <SearchModal />
+        </Providers>
       </body>
     </html>
   )

@@ -4,12 +4,31 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { featureItems } from "../data/mock"
+import { useHomeFilter } from "../hooks/useHomeData"
+import { featureItems as mockFeatures } from "../data/mock"
+import type { Banner } from "@/lib/api/types"
+
+function apiBannerToFeature(banner: Banner, index: number) {
+  return {
+    id: String(banner.key),
+    title: banner.title || "",
+    subtitle: banner.description || banner.thumb_description || "",
+    imageUrl: banner.banner_image_url || banner.image_urls?.[0] || "",
+    href: banner.webview_link || banner.link?.target || "#",
+  }
+}
 
 export function FeatureSection() {
+  const { data } = useHomeFilter()
+
+  // banners 중 기획전 성격의 배너가 있으면 사용, 없으면 mock
+  const features = data?.banners && data.banners.length > 3
+    ? data.banners.slice(0, 3).map(apiBannerToFeature)
+    : mockFeatures
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {featureItems.map((item, index) => (
+      {features.map((item, index) => (
         <Link
           key={item.id}
           href={item.href}
