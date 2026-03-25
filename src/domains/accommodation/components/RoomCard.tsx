@@ -11,18 +11,20 @@ import type { Room } from "../types"
 interface RoomCardProps {
   room: Room
   accommodationId: string
+  onDetailClick?: (room: Room) => void
 }
 
-export function RoomCard({ room, accommodationId }: RoomCardProps) {
+export function RoomCard({ room, accommodationId, onDetailClick }: RoomCardProps) {
   return (
     <div
       className={cn(
         "rounded-xl border bg-card overflow-hidden",
         "transition-all duration-300",
         room.isAvailable
-          ? "hover:shadow-lg hover:border-primary/30"
+          ? "hover:shadow-lg hover:border-primary/30 cursor-pointer"
           : "opacity-60"
       )}
+      onClick={() => onDetailClick?.(room)}
     >
       <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 p-0 sm:p-4">
         {/* Image */}
@@ -76,7 +78,8 @@ export function RoomCard({ room, accommodationId }: RoomCardProps) {
           )}
 
           {/* 대실/숙박 가격 구분 */}
-          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div className="mt-4 flex flex-col sm:flex-row gap-3" onClick={(e) => e.stopPropagation()}>
             {/* 대실 */}
             {room.rentalAvailable && room.rentalPrice && (
               <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/50 border">

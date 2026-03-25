@@ -13,6 +13,7 @@ import { ReviewSection } from "./ReviewSection"
 import { PolicySection } from "./PolicySection"
 import { MapSection } from "./MapSection"
 import { EventBanner } from "./EventBanner"
+import { RoomDetailModal } from "./RoomDetailModal"
 import type { AccommodationDetail, Room } from "../types"
 
 interface AccommodationDetailLayoutProps {
@@ -50,6 +51,8 @@ export function AccommodationDetailLayout({
   const [checkOut, setCheckOut] = useState(tomorrow)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [dateSeed, setDateSeed] = useState(0)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
 
   // Rooms with date-based price variation
   const adjustedRooms = useMemo(() => {
@@ -127,6 +130,10 @@ export function AccommodationDetailLayout({
                     key={room.id}
                     room={room}
                     accommodationId={accommodation.id}
+                    onDetailClick={(r) => {
+                      setSelectedRoom(r)
+                      setRoomModalOpen(true)
+                    }}
                   />
                 ))}
               </div>
@@ -173,6 +180,14 @@ export function AccommodationDetailLayout({
 
       {/* Mobile Bottom Bar */}
       <MobileBookingBar accommodation={accommodation} />
+
+      {/* Room Detail Modal */}
+      <RoomDetailModal
+        room={selectedRoom}
+        accommodationId={accommodation.id}
+        open={roomModalOpen}
+        onOpenChange={setRoomModalOpen}
+      />
     </div>
   )
 }
