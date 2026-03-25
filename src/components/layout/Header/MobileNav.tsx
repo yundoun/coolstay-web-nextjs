@@ -105,33 +105,6 @@ export function MobileNav({ isOpen, onClose, navItems }: MobileNavProps) {
             ))}
           </nav>
 
-          <Separator />
-
-          {/* Additional Links */}
-          <nav className="p-2">
-            <Link
-              href="/help"
-              onClick={onClose}
-              className={cn(
-                "flex items-center px-4 py-3 rounded-lg",
-                "text-muted-foreground text-sm",
-                "hover:bg-muted transition-colors"
-              )}
-            >
-              고객센터
-            </Link>
-            <Link
-              href="/partner"
-              onClick={onClose}
-              className={cn(
-                "flex items-center px-4 py-3 rounded-lg",
-                "text-muted-foreground text-sm",
-                "hover:bg-muted transition-colors"
-              )}
-            >
-              파트너 등록
-            </Link>
-          </nav>
         </div>
       </SheetContent>
     </Sheet>
