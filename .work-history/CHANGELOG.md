@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-25 14:55** | [INFRA-0] CLAUDE.md 및 태스크 스크립트 일반화 | [`e90b61c`](.work-history/entries/2026-03-25_18-00_INFRA-0_workflow-generalize.md)
 - **2026-03-25 11:40** | Android 기능 정합 워크플로우 구축 | [`9698c50`](.work-history/entries/2026-03-25_17-30_P0-0_workflow-setup.md)
 - **2026-03-20 17:53** | 컴팩트 히어로 섹션 추가 | [`dbdb4be`](.work-history/entries/2026-03-20_17-50_compact-hero.md)
 - **2026-03-20 17:50** | CoolStay V2 API 연동 — 홈 화면 | [`e01c11f`](.work-history/entries/2026-03-20_17-40_v2-api-integration.md)

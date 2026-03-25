@@ -20,8 +20,8 @@ count_grep() {
   fi
 }
 
-TOTAL=$(count_grep '^\- \[[ x]\] `P')
-DONE=$(count_grep '^\- \[x\] `P')
+TOTAL=$(count_grep '^\- \[[ x]\] `')
+DONE=$(count_grep '^\- \[x\] `')
 
 if [ "$TOTAL" -eq 0 ]; then
   exit 0
@@ -32,28 +32,32 @@ PERCENT=$(( DONE * 100 / TOTAL ))
 # 진행률 라인 업데이트
 sed -i '' "s|> \*\*진행률\*\*: .*|> **진행률**: ${DONE} / ${TOTAL} (${PERCENT}%)|" "$TASKS_FILE"
 
-# Phase별 완료 상태 출력
-P1_TOTAL=$(count_grep '^\- \[[ x]\] `P1')
-P1_DONE=$(count_grep '^\- \[x\] `P1')
-P2_TOTAL=$(count_grep '^\- \[[ x]\] `P2')
-P2_DONE=$(count_grep '^\- \[x\] `P2')
-P3_TOTAL=$(count_grep '^\- \[[ x]\] `P3')
-P3_DONE=$(count_grep '^\- \[x\] `P3')
-P4_TOTAL=$(count_grep '^\- \[[ x]\] `P4')
-P4_DONE=$(count_grep '^\- \[x\] `P4')
-
+# 섹션별 완료 상태 출력
 echo ""
 echo "┌──────────────────────────────────────┐"
 echo "│  📋 태스크 진행률: ${DONE}/${TOTAL} (${PERCENT}%)"
-echo "│──────────────────────────────────────│"
-echo "│  Phase 1 정리:    ${P1_DONE}/${P1_TOTAL}"
-echo "│  Phase 2 핵심:    ${P2_DONE}/${P2_TOTAL}"
-echo "│  Phase 3 보강:    ${P3_DONE}/${P3_TOTAL}"
-echo "│  Phase 4 서브:    ${P4_DONE}/${P4_TOTAL}"
+
+# 섹션 헤더가 있으면 섹션별 통계 표시
+SECTIONS=$(grep '^### ' "$TASKS_FILE" | sed 's/^### //')
+if [ -n "$SECTIONS" ]; then
+  echo "│──────────────────────────────────────│"
+  while IFS= read -r section; do
+    start_line=$(grep -n "^### ${section}$" "$TASKS_FILE" | head -1 | cut -d: -f1)
+    end_line=$(awk "NR > $start_line && /^### /{print NR; exit}" "$TASKS_FILE")
+    if [ -z "$end_line" ]; then
+      end_line=$(wc -l < "$TASKS_FILE")
+    fi
+    content=$(sed -n "${start_line},${end_line}p" "$TASKS_FILE")
+    s_total=$(echo "$content" | grep -c '^\- \[[ x]\] `' 2>/dev/null || echo 0)
+    s_done=$(echo "$content" | grep -c '^\- \[x\] `' 2>/dev/null || echo 0)
+    printf "│  %-20s %d/%d\n" "${section}:" "$s_done" "$s_total"
+  done <<< "$SECTIONS"
+fi
+
 echo "└──────────────────────────────────────┘"
 echo ""
 
-# 변경사항이 있으면 스테이징 (amend에 포함)
+# 변경사항이 있으면 스테이징
 if ! git diff --quiet "$TASKS_FILE" 2>/dev/null; then
   git add "$TASKS_FILE"
 fi
