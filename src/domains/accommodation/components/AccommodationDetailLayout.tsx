@@ -10,6 +10,7 @@ import { AmenityList } from "./AmenityList"
 import { RoomCard } from "./RoomCard"
 import { ReviewSection } from "./ReviewSection"
 import { PolicySection } from "./PolicySection"
+import { MapSection } from "./MapSection"
 import { EventBanner } from "./EventBanner"
 import type { AccommodationDetail } from "../types"
 
@@ -74,6 +75,15 @@ export function AccommodationDetailLayout({
             <Separator />
 
             <PolicySection policies={accommodation.policies} />
+
+            <Separator />
+
+            <MapSection
+              address={accommodation.address}
+              name={accommodation.name}
+              latitude={accommodation.latitude}
+              longitude={accommodation.longitude}
+            />
           </div>
 
           {/* Right: Sticky Booking Widget (Desktop) */}
