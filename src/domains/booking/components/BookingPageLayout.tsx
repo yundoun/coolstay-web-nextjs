@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { useBookingForm } from "../hooks/useBookingForm"
 import { RoomSummaryCard } from "./RoomSummaryCard"
+import { TimeSlotSelector } from "./TimeSlotSelector"
 import { BookerInfoForm } from "./BookerInfoForm"
 import { VehicleSelector } from "./VehicleSelector"
 import { CouponSelector } from "./CouponSelector"
@@ -22,6 +24,8 @@ interface BookingPageLayoutProps {
 export function BookingPageLayout({ context }: BookingPageLayoutProps) {
   const router = useRouter()
   const form = useBookingForm(context)
+  const [selectedTime, setSelectedTime] = useState("12:00")
+  const isRental = context.bookingType === "rental"
 
   const handleSubmit = () => {
     if (!form.isValid) return
@@ -62,6 +66,19 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
           {/* Left: Form */}
           <div className="lg:col-span-2 space-y-6">
             <RoomSummaryCard context={context} />
+
+            {/* Time Slot Selector — only for rental (대실) */}
+            {isRental && (
+              <>
+                <Separator />
+                <section>
+                  <TimeSlotSelector
+                    selectedTime={selectedTime}
+                    onSelectTime={setSelectedTime}
+                  />
+                </section>
+              </>
+            )}
 
             <Separator />
 
