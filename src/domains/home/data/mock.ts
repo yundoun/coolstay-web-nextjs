@@ -10,13 +10,13 @@ export interface BusinessType {
 
 export const businessTypes: BusinessType[] = [
   { code: "motel", label: "모텔", emoji: "🏨", href: "/search?type=motel" },
-  { code: "hotel", label: "호텔", emoji: "🏢", href: "/search?type=hotel" },
+  { code: "hotel_resort", label: "호텔·리조트", emoji: "🏢", href: "/search?type=hotel_resort" },
   { code: "pension", label: "펜션", emoji: "🏡", href: "/search?type=pension" },
-  { code: "resort", label: "리조트", emoji: "🌴", href: "/search?type=resort" },
-  { code: "guesthouse", label: "게스트하우스", emoji: "🛏️", href: "/search?type=guesthouse" },
-  { code: "glamping", label: "글램핑", emoji: "⛺", href: "/search?type=glamping" },
-  { code: "camping", label: "캠핑", emoji: "🏕️", href: "/search?type=camping" },
-  { code: "hanok", label: "한옥", emoji: "🏯", href: "/search?type=hanok" },
+  { code: "camping_glamping", label: "캠핑·글램핑", emoji: "⛺", href: "/search?type=camping_glamping" },
+  { code: "guesthouse_hanok", label: "게하·한옥", emoji: "🛏️", href: "/search?type=guesthouse_hanok" },
+  { code: "event", label: "이벤트", emoji: "🎉", href: "/events" },
+  { code: "exhibition", label: "기획전", emoji: "📋", href: "/exhibitions" },
+  { code: "rentcar", label: "렌터카", emoji: "🚗", href: "/rentcar" },
 ]
 
 // 이벤트 배너
