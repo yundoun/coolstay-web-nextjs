@@ -71,6 +71,11 @@ export function RecentlyViewed() {
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="176px"
               />
+              {motel.mileageAvailable && (
+                <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
+                  무제한 {motel.mileageAvailable.toLocaleString()}원 사용가능
+                </div>
+              )}
             </div>
             <div className="p-2.5">
               <p className="text-sm font-medium line-clamp-1">{motel.name}</p>

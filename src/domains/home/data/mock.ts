@@ -97,13 +97,14 @@ export interface RecentMotel {
   imageUrl: string
   stayPrice: number
   rating: number
+  mileageAvailable?: number
 }
 
 export const recentMotels: RecentMotel[] = [
-  { id: "1", name: "파라다이스 호텔 부산", location: "해운대구", imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop", stayPrice: 289000, rating: 4.8 },
-  { id: "3", name: "세인트존스 호텔", location: "강릉 강문동", imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop", stayPrice: 198000, rating: 4.7 },
-  { id: "5", name: "메종 글래드 제주", location: "제주시", imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&h=200&fit=crop", stayPrice: 245000, rating: 4.5 },
-  { id: "6", name: "호텔 스카이파크 명동", location: "서울 중구", imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&h=200&fit=crop", stayPrice: 129000, rating: 4.3 },
+  { id: "1", name: "파라다이스 호텔 부산", location: "해운대구", imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop", stayPrice: 289000, rating: 4.8, mileageAvailable: 5000 },
+  { id: "3", name: "세인트존스 호텔", location: "강릉 강문동", imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop", stayPrice: 198000, rating: 4.7, mileageAvailable: 3000 },
+  { id: "5", name: "메종 글래드 제주", location: "제주시", imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&h=200&fit=crop", stayPrice: 245000, rating: 4.5, mileageAvailable: 4000 },
+  { id: "6", name: "호텔 스카이파크 명동", location: "서울 중구", imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&h=200&fit=crop", stayPrice: 129000, rating: 4.3, mileageAvailable: 2000 },
 ]
 
 // 기획전
