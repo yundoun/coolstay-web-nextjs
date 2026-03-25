@@ -19,6 +19,7 @@ export function MainContent({ children, className }: MainContentProps) {
       className={cn(
         "flex-1",
         !isFullBleed && "pt-16 md:pt-[var(--header-height)]",
+        "pb-14 md:pb-0", // Bottom padding for mobile GNB
         className
       )}
     >
