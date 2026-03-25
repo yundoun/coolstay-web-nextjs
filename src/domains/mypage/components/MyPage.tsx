@@ -72,7 +72,9 @@ export function MyPage() {
                 {mockUser.membership}
               </Badge>
             </div>
-            <h2 className="text-xl font-bold mt-1">{mockUser.nickname}</h2>
+            <Link href="/mypage/profile" className="hover:underline">
+              <h2 className="text-xl font-bold mt-1">{mockUser.nickname}</h2>
+            </Link>
             <p className="text-sm text-muted-foreground">{mockUser.email}</p>
           </div>
           <Button variant="ghost" size="icon" className="shrink-0" asChild>
