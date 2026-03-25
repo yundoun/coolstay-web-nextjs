@@ -77,6 +77,22 @@ export const POPULAR_KEYWORDS = [
   "서울 호캉스",
 ]
 
+/** 해시태그 키워드 (검색 페이지 인기 키워드 칩) */
+export const HASHTAG_KEYWORDS = [
+  "수영장",
+  "바베큐",
+  "스파",
+  "오션뷰",
+  "루프탑",
+  "넷플릭스",
+  "조식포함",
+  "애견동반",
+  "커플추천",
+  "가족여행",
+  "파티룸",
+  "키즈풀",
+]
+
 /* ── 제안 로직 ── */
 
 export function suggestKeywords(query: string) {

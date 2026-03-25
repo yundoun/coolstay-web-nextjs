@@ -5,6 +5,7 @@ import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
+import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
 import { searchResultsData, totalSearchResults } from "../data/mock"
 import { regionLabels } from "../data/filterOptions"
@@ -58,6 +59,11 @@ export function SearchPageLayout() {
           onDateChange={handleDateChange}
           onGuestChange={handleGuestChange}
         />
+
+        {/* 키워드 검색 */}
+        <div className="py-4">
+          <KeywordSearchSection />
+        </div>
 
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
