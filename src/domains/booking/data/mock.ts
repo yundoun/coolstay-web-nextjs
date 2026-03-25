@@ -1,5 +1,5 @@
 import { getAccommodationDetail } from "@/domains/accommodation/data/mock"
-import type { BookingContext, BookingType, BookingHistoryItem, Coupon } from "../types"
+import type { BookingContext, BookingType, BookingHistoryItem, BookingDetail, Coupon } from "../types"
 
 const mockCoupons: Coupon[] = [
   {
@@ -159,3 +159,109 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     hasReview: false,
   },
 ]
+
+// ─── 예약 상세 목데이터 ──────────────────────────────────────
+
+const ROOM_IMAGE_DETAIL = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80"
+
+export const bookingDetailMock: Record<string, BookingDetail> = {
+  CS2026032001: {
+    bookingId: "CS2026032001",
+    status: "confirmed",
+    accommodationId: "1",
+    accommodationName: "파라다이스 호텔 부산",
+    roomName: "스탠다드 더블",
+    roomImageUrl: ROOM_IMAGE_DETAIL,
+    bookingType: "stay",
+    checkIn: "2026-03-25",
+    checkOut: "2026-03-26",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    bookingDate: "2026-03-20 14:30",
+    transportation: "자가용",
+    paymentMethod: "card",
+    originalPrice: 180000,
+    coupon1Discount: 20000,
+    coupon1Name: "신규회원 할인 쿠폰",
+    coupon2Discount: 10000,
+    coupon2Name: "앱 첫결제 쿠폰",
+    mileageDiscount: 0,
+    totalAmount: 150000,
+    hasReview: false,
+  },
+  CS2026031001: {
+    bookingId: "CS2026031001",
+    status: "checked_in",
+    accommodationId: "3",
+    accommodationName: "세인트존스 호텔",
+    roomName: "디럭스 트윈",
+    roomImageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&q=80",
+    bookingType: "stay",
+    checkIn: "2026-03-10",
+    checkOut: "2026-03-11",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    bookingDate: "2026-03-08 09:15",
+    transportation: "도보",
+    paymentMethod: "transfer",
+    originalPrice: 220000,
+    coupon1Discount: 12000,
+    coupon1Name: "주말 특가 쿠폰",
+    coupon2Discount: 0,
+    mileageDiscount: 10000,
+    totalAmount: 198000,
+    hasReview: true,
+  },
+  CS2026030501: {
+    bookingId: "CS2026030501",
+    status: "checked_in",
+    accommodationId: "1",
+    accommodationName: "파라다이스 호텔 부산",
+    roomName: "프리미엄 스위트",
+    roomImageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80",
+    bookingType: "rental",
+    checkIn: "2026-03-05",
+    checkOut: "2026-03-05",
+    usageTime: "최대 4시간",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    bookingDate: "2026-03-05 10:00",
+    transportation: "자가용",
+    paymentMethod: "onsite",
+    originalPrice: 60000,
+    coupon1Discount: 10000,
+    coupon1Name: "대실 할인 쿠폰",
+    coupon2Discount: 0,
+    mileageDiscount: 0,
+    totalAmount: 50000,
+    hasReview: false,
+  },
+  CS2026022801: {
+    bookingId: "CS2026022801",
+    status: "cancelled",
+    accommodationId: "2",
+    accommodationName: "그랜드 하얏트 제주",
+    roomName: "스탠다드 킹",
+    roomImageUrl: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
+    bookingType: "stay",
+    checkIn: "2026-03-01",
+    checkOut: "2026-03-02",
+    bookerName: "홍길동",
+    bookerPhone: "010-1234-5678",
+    bookingDate: "2026-02-28 16:45",
+    transportation: "대중교통",
+    paymentMethod: "card",
+    originalPrice: 350000,
+    coupon1Discount: 20000,
+    coupon1Name: "제주 특별 할인",
+    coupon2Discount: 10000,
+    coupon2Name: "앱 전용 쿠폰",
+    mileageDiscount: 0,
+    totalAmount: 320000,
+    hasReview: false,
+  },
+}
+
+export function getBookingDetail(bookingId: string): BookingDetail | null {
+  return bookingDetailMock[bookingId] || null
+}
