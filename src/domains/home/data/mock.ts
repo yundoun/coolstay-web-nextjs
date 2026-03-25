@@ -10,13 +10,13 @@ export interface BusinessType {
 
 export const businessTypes: BusinessType[] = [
   { code: "motel", label: "모텔", emoji: "🏨", href: "/search?type=motel" },
-  { code: "hotel", label: "호텔", emoji: "🏢", href: "/search?type=hotel" },
+  { code: "hotel_resort", label: "호텔·리조트", emoji: "🏢", href: "/search?type=hotel_resort" },
   { code: "pension", label: "펜션", emoji: "🏡", href: "/search?type=pension" },
-  { code: "resort", label: "리조트", emoji: "🌴", href: "/search?type=resort" },
-  { code: "guesthouse", label: "게스트하우스", emoji: "🛏️", href: "/search?type=guesthouse" },
-  { code: "glamping", label: "글램핑", emoji: "⛺", href: "/search?type=glamping" },
-  { code: "camping", label: "캠핑", emoji: "🏕️", href: "/search?type=camping" },
-  { code: "hanok", label: "한옥", emoji: "🏯", href: "/search?type=hanok" },
+  { code: "camping_glamping", label: "캠핑·글램핑", emoji: "⛺", href: "/search?type=camping_glamping" },
+  { code: "guesthouse_hanok", label: "게하·한옥", emoji: "🛏️", href: "/search?type=guesthouse_hanok" },
+  { code: "event", label: "이벤트", emoji: "🎉", href: "/events" },
+  { code: "exhibition", label: "기획전", emoji: "📋", href: "/exhibitions" },
+  { code: "rentcar", label: "렌터카", emoji: "🚗", href: "/rentcar" },
 ]
 
 // 이벤트 배너
@@ -97,13 +97,14 @@ export interface RecentMotel {
   imageUrl: string
   stayPrice: number
   rating: number
+  mileageAvailable?: number
 }
 
 export const recentMotels: RecentMotel[] = [
-  { id: "1", name: "파라다이스 호텔 부산", location: "해운대구", imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop", stayPrice: 289000, rating: 4.8 },
-  { id: "3", name: "세인트존스 호텔", location: "강릉 강문동", imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop", stayPrice: 198000, rating: 4.7 },
-  { id: "5", name: "메종 글래드 제주", location: "제주시", imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&h=200&fit=crop", stayPrice: 245000, rating: 4.5 },
-  { id: "6", name: "호텔 스카이파크 명동", location: "서울 중구", imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&h=200&fit=crop", stayPrice: 129000, rating: 4.3 },
+  { id: "1", name: "파라다이스 호텔 부산", location: "해운대구", imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop", stayPrice: 289000, rating: 4.8, mileageAvailable: 5000 },
+  { id: "3", name: "세인트존스 호텔", location: "강릉 강문동", imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop", stayPrice: 198000, rating: 4.7, mileageAvailable: 3000 },
+  { id: "5", name: "메종 글래드 제주", location: "제주시", imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&h=200&fit=crop", stayPrice: 245000, rating: 4.5, mileageAvailable: 4000 },
+  { id: "6", name: "호텔 스카이파크 명동", location: "서울 중구", imageUrl: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=300&h=200&fit=crop", stayPrice: 129000, rating: 4.3, mileageAvailable: 2000 },
 ]
 
 // 기획전

@@ -1,6 +1,7 @@
 "use client"
 
-import { Phone, Coins } from "lucide-react"
+import { useState, useMemo, useCallback } from "react"
+import { Phone, Coins, CalendarDays, RefreshCw } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
@@ -10,16 +11,77 @@ import { AmenityList } from "./AmenityList"
 import { RoomCard } from "./RoomCard"
 import { ReviewSection } from "./ReviewSection"
 import { PolicySection } from "./PolicySection"
+import { MapSection } from "./MapSection"
 import { EventBanner } from "./EventBanner"
-import type { AccommodationDetail } from "../types"
+import { RoomDetailModal } from "./RoomDetailModal"
+import type { AccommodationDetail, Room } from "../types"
 
 interface AccommodationDetailLayoutProps {
   accommodation: AccommodationDetail
 }
 
+// Apply a date-based price variation to simulate server refresh
+function applyDateVariation(rooms: Room[], seed: number): Room[] {
+  return rooms.map((room, i) => {
+    // Deterministic variation based on seed and room index
+    const factor = 1 + ((((seed * 7 + i * 13) % 20) - 10) / 100) // -10% to +10%
+    return {
+      ...room,
+      stayPrice: Math.round(room.stayPrice * factor),
+      rentalPrice: room.rentalPrice ? Math.round(room.rentalPrice * factor) : undefined,
+    }
+  })
+}
+
+function formatDate(date: Date) {
+  const month = date.getMonth() + 1
+  const day = date.getDate()
+  const weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+  return `${month}/${day} (${weekdays[date.getDay()]})`
+}
+
 export function AccommodationDetailLayout({
   accommodation,
 }: AccommodationDetailLayoutProps) {
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  const [checkIn, setCheckIn] = useState(today)
+  const [checkOut, setCheckOut] = useState(tomorrow)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [dateSeed, setDateSeed] = useState(0)
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
+  const [roomModalOpen, setRoomModalOpen] = useState(false)
+
+  // Rooms with date-based price variation
+  const adjustedRooms = useMemo(() => {
+    if (dateSeed === 0) return accommodation.rooms
+    return applyDateVariation(accommodation.rooms, dateSeed)
+  }, [accommodation.rooms, dateSeed])
+
+  const handleDateChange = useCallback((direction: "next" | "prev") => {
+    setIsRefreshing(true)
+    const days = direction === "next" ? 1 : -1
+
+    setCheckIn((prev) => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() + days)
+      return d
+    })
+    setCheckOut((prev) => {
+      const d = new Date(prev)
+      d.setDate(d.getDate() + days)
+      return d
+    })
+
+    // Generate new seed for price variation
+    setDateSeed((prev) => prev + 1)
+
+    // Visual feedback
+    setTimeout(() => setIsRefreshing(false), 300)
+  }, [])
+
   return (
     <div className="min-h-screen pb-20 lg:pb-16">
       {/* Image Gallery */}
@@ -49,13 +111,29 @@ export function AccommodationDetailLayout({
 
             {/* Rooms */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">객실 선택</h2>
-              <div className="space-y-4">
-                {accommodation.rooms.map((room) => (
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">객실 선택</h2>
+                {dateSeed > 0 && (
+                  <div className="flex items-center gap-1 text-xs text-primary">
+                    <RefreshCw className="size-3" />
+                    <span>가격이 업데이트되었습니다</span>
+                  </div>
+                )}
+              </div>
+              <div
+                className={`space-y-4 transition-opacity duration-300 ${
+                  isRefreshing ? "opacity-50" : "opacity-100"
+                }`}
+              >
+                {adjustedRooms.map((room) => (
                   <RoomCard
                     key={room.id}
                     room={room}
                     accommodationId={accommodation.id}
+                    onDetailClick={(r) => {
+                      setSelectedRoom(r)
+                      setRoomModalOpen(true)
+                    }}
                   />
                 ))}
               </div>
@@ -74,12 +152,27 @@ export function AccommodationDetailLayout({
             <Separator />
 
             <PolicySection policies={accommodation.policies} />
+
+            <Separator />
+
+            <MapSection
+              address={accommodation.address}
+              name={accommodation.name}
+              latitude={accommodation.latitude}
+              longitude={accommodation.longitude}
+            />
           </div>
 
           {/* Right: Sticky Booking Widget (Desktop) */}
           <div className="hidden lg:block">
             <div className="sticky top-24">
-              <BookingWidget accommodation={accommodation} />
+              <BookingWidget
+                accommodation={accommodation}
+                rooms={adjustedRooms}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                onDateChange={handleDateChange}
+              />
             </div>
           </div>
         </div>
@@ -87,16 +180,36 @@ export function AccommodationDetailLayout({
 
       {/* Mobile Bottom Bar */}
       <MobileBookingBar accommodation={accommodation} />
+
+      {/* Room Detail Modal */}
+      <RoomDetailModal
+        room={selectedRoom}
+        accommodationId={accommodation.id}
+        open={roomModalOpen}
+        onOpenChange={setRoomModalOpen}
+      />
     </div>
   )
 }
 
-function BookingWidget({ accommodation }: { accommodation: AccommodationDetail }) {
+function BookingWidget({
+  accommodation,
+  rooms,
+  checkIn,
+  checkOut,
+  onDateChange,
+}: {
+  accommodation: AccommodationDetail
+  rooms: Room[]
+  checkIn: Date
+  checkOut: Date
+  onDateChange: (direction: "next" | "prev") => void
+}) {
   const lowestStayPrice = Math.min(
-    ...accommodation.rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
+    ...rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
   )
   const lowestOriginal = accommodation.rooms.find(
-    (r) => r.stayPrice === lowestStayPrice
+    (r) => r.stayPrice === Math.min(...accommodation.rooms.filter((r2) => r2.stayAvailable).map((r2) => r2.stayPrice))
   )?.stayOriginalPrice
 
   const discount = lowestOriginal
@@ -136,18 +249,34 @@ function BookingWidget({ accommodation }: { accommodation: AccommodationDetail }
 
       {/* Date/Guest Selection */}
       <div className="space-y-3 mb-4">
-        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
-          <div className="text-left">
-            <p className="text-xs text-muted-foreground">체크인</p>
-            <p className="text-sm font-medium">날짜 선택</p>
-          </div>
-        </Button>
-        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
-          <div className="text-left">
-            <p className="text-xs text-muted-foreground">체크아웃</p>
-            <p className="text-sm font-medium">날짜 선택</p>
-          </div>
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1 justify-start rounded-xl h-auto p-3"
+            onClick={() => onDateChange("prev")}
+          >
+            <div className="text-left flex items-center gap-2">
+              <CalendarDays className="size-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">체크인</p>
+                <p className="text-sm font-medium">{formatDate(checkIn)}</p>
+              </div>
+            </div>
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1 justify-start rounded-xl h-auto p-3"
+            onClick={() => onDateChange("next")}
+          >
+            <div className="text-left flex items-center gap-2">
+              <CalendarDays className="size-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">체크아웃</p>
+                <p className="text-sm font-medium">{formatDate(checkOut)}</p>
+              </div>
+            </div>
+          </Button>
+        </div>
         <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
           <div className="text-left">
             <p className="text-xs text-muted-foreground">인원</p>

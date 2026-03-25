@@ -1,0 +1,57 @@
+import type { NotificationItem } from "../types"
+
+export const notificationsMock: NotificationItem[] = [
+  {
+    id: "noti1",
+    type: "booking",
+    title: "예약이 확정되었습니다",
+    message: "해운대 오션뷰 호텔 (3/28~3/30) 예약이 확정되었습니다. 즐거운 여행 되세요!",
+    createdAt: "2026-03-25T12:30:00",
+    isRead: false,
+    link: "/bookings",
+  },
+  {
+    id: "noti2",
+    type: "coupon",
+    title: "쿠폰이 곧 만료됩니다",
+    message: "보유하신 '주말 특가 15% 할인' 쿠폰이 3일 후 만료됩니다. 서둘러 사용해보세요!",
+    createdAt: "2026-03-25T09:00:00",
+    isRead: false,
+    link: "/coupons",
+  },
+  {
+    id: "noti3",
+    type: "review",
+    title: "후기를 작성해주세요",
+    message: "경주 힐링 펜션 이용은 어떠셨나요? 후기를 남겨주시면 500P 마일리지를 드립니다.",
+    createdAt: "2026-03-24T15:00:00",
+    isRead: false,
+    link: "/reviews",
+  },
+  {
+    id: "noti4",
+    type: "event",
+    title: "봄맞이 특가 이벤트 시작!",
+    message: "전국 인기 숙소 최대 30% 할인! 지금 바로 확인해보세요.",
+    createdAt: "2026-03-23T10:00:00",
+    isRead: true,
+    link: "/events",
+  },
+  {
+    id: "noti5",
+    type: "system",
+    title: "서비스 점검 안내",
+    message: "3월 28일(토) 02:00~06:00 정기 점검이 진행됩니다. 이용에 참고해주세요.",
+    createdAt: "2026-03-22T14:00:00",
+    isRead: true,
+  },
+  {
+    id: "noti6",
+    type: "booking",
+    title: "체크인 안내",
+    message: "내일 체크인 예정인 숙소가 있습니다. 제주 블루오션 리조트 (체크인 15:00)",
+    createdAt: "2026-03-21T18:00:00",
+    isRead: true,
+    link: "/bookings",
+  },
+]

@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import "@/styles/globals.css"
-import { Header, Footer, MainContent } from "@/components/layout"
+import { Header, Footer, MainContent, BottomNav } from "@/components/layout"
 import { SearchModal } from "@/components/search/SearchModal"
 import { Providers } from "./providers"
 
@@ -21,6 +21,7 @@ export default function RootLayout({
           <Header />
           <MainContent>{children}</MainContent>
           <Footer />
+          <BottomNav />
           <SearchModal />
         </Providers>
       </body>

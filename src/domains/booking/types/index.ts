@@ -68,6 +68,34 @@ export interface BookingResult {
   earnedMileage: number
 }
 
+// ─── 예약 상세 ─────────────────────────────────────────────
+
+export interface BookingDetail {
+  bookingId: string
+  status: BookingStatus
+  accommodationId: string
+  accommodationName: string
+  roomName: string
+  roomImageUrl: string
+  bookingType: BookingType
+  checkIn: string
+  checkOut: string
+  usageTime?: string
+  bookerName: string
+  bookerPhone: string
+  bookingDate: string
+  transportation: string
+  paymentMethod: PaymentMethod
+  originalPrice: number
+  coupon1Discount: number
+  coupon1Name?: string
+  coupon2Discount: number
+  coupon2Name?: string
+  mileageDiscount: number
+  totalAmount: number
+  hasReview: boolean
+}
+
 // ─── 예약 내역 ─────────────────────────────────────────────
 
 export type BookingStatus =

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
+import { PhoneVerificationStep } from "./PhoneVerificationStep"
 import { cn } from "@/lib/utils"
 
 interface Agreement {
@@ -28,7 +29,7 @@ const INITIAL_AGREEMENTS: Agreement[] = [
 
 export function RegisterPage() {
   const router = useRouter()
-  const [step, setStep] = useState<"terms" | "info">("terms")
+  const [step, setStep] = useState<"terms" | "phone" | "info">("terms")
 
   // 약관
   const [agreements, setAgreements] = useState(INITIAL_AGREEMENTS)
@@ -86,11 +87,18 @@ export function RegisterPage() {
             number={1}
             label="약관 동의"
             active={step === "terms"}
-            completed={step === "info"}
+            completed={step === "phone" || step === "info"}
           />
           <div className="flex-1 h-px bg-border" />
           <StepIndicator
             number={2}
+            label="본인 인증"
+            active={step === "phone"}
+            completed={step === "info"}
+          />
+          <div className="flex-1 h-px bg-border" />
+          <StepIndicator
+            number={3}
             label="정보 입력"
             active={step === "info"}
             completed={false}
@@ -137,14 +145,22 @@ export function RegisterPage() {
               className="w-full mt-6"
               size="lg"
               disabled={!requiredAgreed}
-              onClick={() => setStep("info")}
+              onClick={() => setStep("phone")}
             >
               다음
             </Button>
           </div>
         )}
 
-        {/* Step 2: Info */}
+        {/* Step 2: Phone Verification */}
+        {step === "phone" && (
+          <PhoneVerificationStep
+            onVerified={() => setStep("info")}
+            onBack={() => setStep("terms")}
+          />
+        )}
+
+        {/* Step 3: Info */}
         {step === "info" && (
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
@@ -238,7 +254,7 @@ export function RegisterPage() {
                 variant="outline"
                 size="lg"
                 className="flex-1"
-                onClick={() => setStep("terms")}
+                onClick={() => setStep("phone")}
               >
                 이전
               </Button>
