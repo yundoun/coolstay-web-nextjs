@@ -12,7 +12,20 @@
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
       "Bash(git -C /Users/yundoun/Desktop/WorkSpace/coolstay-web-nextjs diff --stat .claude/skills/design-system/SKILL.md docs/web-design-system/)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/task-status.sh)",
+      "Bash(grep -c '^\\\\- \\\\[[ x]\\\\] `P' /Users/yundoun/Desktop/demo/coolstay-web-nextjs/TASKS.md)",
+      "Bash(grep -c '^\\\\- \\\\[x\\\\] `P' /Users/yundoun/Desktop/demo/coolstay-web-nextjs/TASKS.md)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(bash /Users/yundoun/Desktop/demo/coolstay-web-nextjs/scripts/task-status.sh)",
+      "Bash(./scripts/complete-task.sh)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(./scripts/update-task-progress.sh)",
+      "Bash(git checkout:*)",
+      "Bash(./scripts/complete-task.sh P1-1 \"HeroSection 꿀딜 제거\")",
+      "Bash(git -c core.quotepath=false diff --cached --name-only)"
     ]
   }
 }

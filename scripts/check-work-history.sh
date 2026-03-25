@@ -7,7 +7,7 @@ HISTORY_DIR=".work-history/entries"
 TODAY=$(date +%Y-%m-%d)
 
 # 스테이징된 파일 확인 (히스토리 파일 자체 변경은 제외)
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -v "^\.work-history/")
+STAGED_FILES=$(git -c core.quotepath=false diff --cached --name-only --diff-filter=ACMR | grep -v "^\.work-history/")
 
 # 히스토리 파일만 변경된 경우 통과
 if [ -z "$STAGED_FILES" ]; then
@@ -15,7 +15,7 @@ if [ -z "$STAGED_FILES" ]; then
 fi
 
 # 오늘 날짜의 히스토리 엔트리가 스테이징되어 있는지 확인
-STAGED_HISTORY=$(git diff --cached --name-only | grep "^\.work-history/entries/${TODAY}")
+STAGED_HISTORY=$(git -c core.quotepath=false diff --cached --name-only | grep "^\.work-history/entries/${TODAY}")
 
 if [ -z "$STAGED_HISTORY" ]; then
   echo ""
