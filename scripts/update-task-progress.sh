@@ -30,7 +30,7 @@ fi
 PERCENT=$(( DONE * 100 / TOTAL ))
 
 # 진행률 라인 업데이트
-sed -i '' "s|> **진행률**: .*|> **진행률**: ${DONE} / ${TOTAL} (${PERCENT}%)|" "$TASKS_FILE"
+sed -i '' "s|> \*\*진행률\*\*: .*|> **진행률**: ${DONE} / ${TOTAL} (${PERCENT}%)|" "$TASKS_FILE"
 
 # Phase별 완료 상태 출력
 P1_TOTAL=$(count_grep '^\- \[[ x]\] `P1')
