@@ -61,15 +61,17 @@ show_section() {
   local section_content
   section_content=$(sed -n "${start_line},${end_line}p" "$TASKS_FILE")
 
-  local total done remaining
-  total=$(echo "$section_content" | grep -c '^\- \[[ x]\] `' 2>/dev/null || echo 0)
-  done=$(echo "$section_content" | grep -c '^\- \[x\] `' 2>/dev/null || echo 0)
-  remaining=$((total - done))
+  local total done_count remaining
+  total=$(echo "$section_content" | grep -c '^\- \[[ x]\] `' 2>/dev/null)
+  [ -z "$total" ] && total=0
+  done_count=$(echo "$section_content" | grep -c '^\- \[x\] `' 2>/dev/null)
+  [ -z "$done_count" ] && done_count=0
+  remaining=$((total - done_count))
 
   # 프로그레스 바
   local bar=""
   if [ "$total" -gt 0 ]; then
-    local filled=$((done * 20 / total))
+    local filled=$((done_count * 20 / total))
     local empty=$((20 - filled))
     local i=0
     while [ $i -lt $filled ]; do bar="${bar}█"; i=$((i+1)); done
@@ -80,7 +82,7 @@ show_section() {
   fi
 
   echo "  ${section_name}"
-  echo "  ${bar} ${done}/${total}"
+  echo "  ${bar} ${done_count}/${total}"
   echo ""
 
   # 미완료 태스크 목록

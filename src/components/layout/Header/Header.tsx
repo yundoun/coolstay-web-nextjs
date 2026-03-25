@@ -4,14 +4,15 @@ import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, User } from "lucide-react"
+import { User, Heart, Gift } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import { CompactSearchBar } from "@/domains/search/components/CompactSearchBar"
-import { MobileNav } from "./MobileNav"
 
 const NAV_ITEMS = [
+  { label: "찜목록", href: "/favorites", icon: Heart },
+  { label: "혜택함", href: "/coupons", icon: Gift },
   { label: "예약내역", href: "/bookings" },
   { label: "마이페이지", href: "/mypage" },
 ]
@@ -25,8 +26,6 @@ export interface HeaderProps {
 export function Header({ variant }: HeaderProps) {
   const pathname = usePathname()
   const [heroSearchVisible, setHeroSearchVisible] = useState(true)
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
-
   const isHome = pathname === "/"
   const isTransparentMode = variant
     ? variant === "transparent"
@@ -113,12 +112,13 @@ export function Header({ variant }: HeaderProps) {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                    "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
                     showSolidHeader
                       ? "text-foreground hover:bg-muted"
                       : "text-white/90 hover:text-white hover:bg-white/10"
                   )}
                 >
+                  {item.icon && <item.icon className="size-4" />}
                   {item.label}
                 </Link>
               ))}
@@ -141,28 +141,10 @@ export function Header({ variant }: HeaderProps) {
                 </Link>
               </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "md:hidden",
-                  !showSolidHeader && "text-white hover:bg-white/10"
-                )}
-                onClick={() => setIsMobileNavOpen(true)}
-              >
-                <Menu className="size-5" />
-                <span className="sr-only">메뉴 열기</span>
-              </Button>
             </div>
           </div>
         </Container>
       </header>
-
-      <MobileNav
-        isOpen={isMobileNavOpen}
-        onClose={() => setIsMobileNavOpen(false)}
-        navItems={NAV_ITEMS}
-      />
     </>
   )
 }
