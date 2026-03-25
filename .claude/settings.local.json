@@ -25,7 +25,8 @@
       "Bash(./scripts/update-task-progress.sh)",
       "Bash(git checkout:*)",
       "Bash(./scripts/complete-task.sh P1-1 \"HeroSection 꿀딜 제거\")",
-      "Bash(git -c core.quotepath=false diff --cached --name-only)"
+      "Bash(git -c core.quotepath=false diff --cached --name-only)",
+      "Bash(./scripts/complete-task.sh P1-2 \"Footer 정리\")"
     ]
   }
 }

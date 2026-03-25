@@ -13,17 +13,6 @@ const FOOTER_LINKS = {
     { label: "공지사항", href: "/notices" },
     { label: "이용가이드", href: "/guide" },
   ],
-  파트너: [
-    { label: "숙소 등록", href: "/partner/register" },
-    { label: "파트너 센터", href: "/partner" },
-    { label: "광고 문의", href: "/partner/ads" },
-  ],
-  회사소개: [
-    { label: "꿀스테이 소개", href: "/about" },
-    { label: "브랜드 스토리", href: "/story" },
-    { label: "채용", href: "/careers" },
-    { label: "보도자료", href: "/press" },
-  ],
 }
 
 const SOCIAL_LINKS = [
@@ -46,9 +35,9 @@ export function Footer() {
     >
       {/* Main Footer */}
       <Container size="wide" className="py-12 md:py-16">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           {/* Brand Column */}
-          <div className="col-span-2 md:col-span-1 lg:col-span-2">
+          <div className="col-span-2 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <Image
                 src="/coolstay_logo.png"
