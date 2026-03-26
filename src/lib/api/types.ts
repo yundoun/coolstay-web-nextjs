@@ -429,3 +429,36 @@ export interface MyAreaResponse {
 export interface DetailsResponse {
   motel: Motel
 }
+
+// contents/images/list
+export interface ImageCategory {
+  category_code: string  // IC003: 대표, IC004: 내부, IC005: 외부, IC006: 장비, IC007: 편의, IC100: 객실
+  category_name: string
+  images: ImageItem[]
+}
+
+export interface ImagesResponse {
+  images_per_category: ImageCategory[]
+}
+
+// contents/books/daystatus/list
+export interface DailyBook {
+  date: number       // Unix timestamp
+  v2_date: string    // YYYYMMDD
+  status: string     // Y: 예약 가능, N: 불가
+}
+
+export interface DailyBookStatusResponse {
+  daily_books: DailyBook[]
+}
+
+// contents/refund-policy/list
+export interface RefundPolicy {
+  until: string      // 취소 기한 (ex: "3일 전")
+  percent: number    // 환불 비율
+  amount: number     // 환불 금액
+}
+
+export interface RefundPolicyResponse {
+  refund_policies: RefundPolicy[]
+}

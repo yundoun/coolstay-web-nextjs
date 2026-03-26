@@ -1,4 +1,5 @@
 export { AccommodationDetailLayout } from "./AccommodationDetailLayout"
+export { AccommodationDetailPage } from "./AccommodationDetailPage"
 export { ImageGallery } from "./ImageGallery"
 export { AccommodationInfo } from "./AccommodationInfo"
 export { AmenityList } from "./AmenityList"
