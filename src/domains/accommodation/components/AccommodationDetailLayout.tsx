@@ -110,7 +110,7 @@ export function AccommodationDetailLayout({
             )}
 
             {/* Rooms */}
-            <div>
+            <div id="rooms-section">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">객실 선택</h2>
                 {dateSeed > 0 && (
@@ -285,7 +285,11 @@ function BookingWidget({
         </Button>
       </div>
 
-      <Button className="w-full rounded-xl" size="lg">
+      <Button
+        className="w-full rounded-xl"
+        size="lg"
+        onClick={() => document.getElementById("rooms-section")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+      >
         객실 선택
       </Button>
 
@@ -334,8 +338,12 @@ function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetai
           </div>
         </div>
 
-        {/* 예약 버튼 */}
-        <Button size="lg" className="px-6 rounded-xl shrink-0">
+        {/* 객실 선택 → 스크롤 */}
+        <Button
+          size="lg"
+          className="px-6 rounded-xl shrink-0"
+          onClick={() => document.getElementById("rooms-section")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
           객실 선택
         </Button>
       </div>
