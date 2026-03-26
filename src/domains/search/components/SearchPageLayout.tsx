@@ -9,9 +9,9 @@ import { SearchInfoBar } from "./SearchInfoBar"
 import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
 import { useContentsList } from "../hooks/useContentsData"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import { searchResultsData, totalSearchResults } from "../data/mock"
-import { regionLabels } from "../data/filterOptions"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
 
@@ -41,8 +41,10 @@ export function SearchPageLayout() {
   const [adults, setAdults] = useState(2)
   const [kids, setKids] = useState(0)
 
+  // store에서 regionCode 가져오기 (API 지역 코드)
+  const regionCode = useSearchModal((s) => s.regionCode)
+
   // API 검색 파라미터
-  const regionCode = searchParams?.get("region") || undefined
   const apiParams = useMemo(() => {
     if (!regionCode) return undefined
     return {
@@ -113,7 +115,7 @@ export function SearchPageLayout() {
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
           totalCount={totalCount}
-          regionLabel={selectedRegion ? regionLabels[selectedRegion] : undefined}
+          regionLabel={selectedRegion || undefined}
           sort={sort}
           onSortChange={setSort}
         />
