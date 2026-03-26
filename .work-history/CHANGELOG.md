@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-26 16:40** | Phase 2 나머지 API Hook + 명세서 [CD-5~7] | [`624a7a1`](.work-history/entries/2026-03-26_17-50_CD-5-7_docs.md)
 - **2026-03-26 16:39** | Contents 상세 API 연동 [CD-1~4] | [`2f8243d`](.work-history/entries/2026-03-26_17-40_CD-1-4_detail-api.md)
 - **2026-03-26 16:31** | Phase 2 브랜치 설정 | [`c2cb770`](.work-history/entries/2026-03-26_17-20_CD-0_phase2-setup.md)
 - **2026-03-26 16:16** | Contents 검색 API 명세서 작성 | [`06d3b1a`](.work-history/entries/2026-03-26_17-10_CA-docs_api-spec.md)
