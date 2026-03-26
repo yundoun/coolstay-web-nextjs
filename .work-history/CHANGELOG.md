@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-26 17:02** | 숙소 상세 UI 플로우 개선 | [`a0142d7`](.work-history/entries/2026-03-26_18-20_UI-refine_detail-flow.md)
 - **2026-03-26 16:54** | 객실 선택 플로우 개선 | [`92e2054`](.work-history/entries/2026-03-26_18-30_UI-room-flow.md)
 - **2026-03-26 16:46** | Contents 리뷰/키워드 API 연동 [CR-1~9] | [`e8095a7`](.work-history/entries/2026-03-26_18-10_CR-1-9_review-keyword-api.md)
 - **2026-03-26 16:41** | Phase 3 브랜치 설정 | [`c697b2f`](.work-history/entries/2026-03-26_18-00_CR-0_phase3-setup.md)

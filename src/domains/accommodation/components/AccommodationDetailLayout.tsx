@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
-import { Phone, Coins, CalendarDays, RefreshCw } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Coins, CalendarDays, Users, RefreshCw } from "lucide-react"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,7 @@ import { PolicySection } from "./PolicySection"
 import { MapSection } from "./MapSection"
 import { EventBanner } from "./EventBanner"
 import { RoomDetailModal } from "./RoomDetailModal"
+import { RentalTimeModal } from "./RentalTimeModal"
 import type { AccommodationDetail, Room } from "../types"
 
 interface AccommodationDetailLayoutProps {
@@ -53,6 +55,8 @@ export function AccommodationDetailLayout({
   const [dateSeed, setDateSeed] = useState(0)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [roomModalOpen, setRoomModalOpen] = useState(false)
+  const [rentalRoom, setRentalRoom] = useState<Room | null>(null)
+  const [rentalModalOpen, setRentalModalOpen] = useState(false)
 
   // Rooms with date-based price variation
   const adjustedRooms = useMemo(() => {
@@ -60,27 +64,15 @@ export function AccommodationDetailLayout({
     return applyDateVariation(accommodation.rooms, dateSeed)
   }, [accommodation.rooms, dateSeed])
 
-  const handleDateChange = useCallback((direction: "next" | "prev") => {
-    setIsRefreshing(true)
-    const days = direction === "next" ? 1 : -1
+  // SearchModal에서 날짜 변경 시 store 업데이트 → 추후 API 재조회 연동
+  const modalCheckIn = useSearchModal((s) => s.checkIn)
+  const modalCheckOut = useSearchModal((s) => s.checkOut)
 
-    setCheckIn((prev) => {
-      const d = new Date(prev)
-      d.setDate(d.getDate() + days)
-      return d
-    })
-    setCheckOut((prev) => {
-      const d = new Date(prev)
-      d.setDate(d.getDate() + days)
-      return d
-    })
-
-    // Generate new seed for price variation
-    setDateSeed((prev) => prev + 1)
-
-    // Visual feedback
-    setTimeout(() => setIsRefreshing(false), 300)
-  }, [])
+  // SearchModal에서 날짜가 변경되면 반영
+  useMemo(() => {
+    if (modalCheckIn) setCheckIn(modalCheckIn)
+    if (modalCheckOut) setCheckOut(modalCheckOut)
+  }, [modalCheckIn, modalCheckOut])
 
   return (
     <div className="min-h-screen pb-20 lg:pb-16">
@@ -110,7 +102,7 @@ export function AccommodationDetailLayout({
             )}
 
             {/* Rooms */}
-            <div id="rooms-section">
+            <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">객실 선택</h2>
                 {dateSeed > 0 && (
@@ -133,6 +125,10 @@ export function AccommodationDetailLayout({
                     onDetailClick={(r) => {
                       setSelectedRoom(r)
                       setRoomModalOpen(true)
+                    }}
+                    onRentalClick={(r) => {
+                      setRentalRoom(r)
+                      setRentalModalOpen(true)
                     }}
                   />
                 ))}
@@ -171,7 +167,6 @@ export function AccommodationDetailLayout({
                 rooms={adjustedRooms}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                onDateChange={handleDateChange}
               />
             </div>
           </div>
@@ -188,6 +183,16 @@ export function AccommodationDetailLayout({
         open={roomModalOpen}
         onOpenChange={setRoomModalOpen}
       />
+
+      {/* Rental Time Selection Modal */}
+      <RentalTimeModal
+        open={rentalModalOpen}
+        onOpenChange={setRentalModalOpen}
+        accommodationId={accommodation.id}
+        roomId={rentalRoom?.id ?? ""}
+        roomName={rentalRoom?.name ?? ""}
+        price={rentalRoom?.rentalPrice ?? 0}
+      />
     </div>
   )
 }
@@ -197,14 +202,16 @@ function BookingWidget({
   rooms,
   checkIn,
   checkOut,
-  onDateChange,
 }: {
   accommodation: AccommodationDetail
   rooms: Room[]
   checkIn: Date
   checkOut: Date
-  onDateChange: (direction: "next" | "prev") => void
 }) {
+  const openModal = useSearchModal((s) => s.open)
+  const adults = useSearchModal((s) => s.adults)
+  const kids = useSearchModal((s) => s.kids)
+
   const lowestStayPrice = Math.min(
     ...rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
   )
@@ -215,6 +222,8 @@ function BookingWidget({
   const discount = lowestOriginal
     ? Math.round(((lowestOriginal - lowestStayPrice) / lowestOriginal) * 100)
     : null
+
+  const guestLabel = kids > 0 ? `성인 ${adults}, 아동 ${kids}` : `성인 ${adults}명`
 
   return (
     <div className="rounded-xl border bg-card p-6 shadow-lg">
@@ -247,13 +256,13 @@ function BookingWidget({
         </div>
       </div>
 
-      {/* Date/Guest Selection */}
-      <div className="space-y-3 mb-4">
+      {/* Date/Guest Selection — 클릭 시 SearchModal 오픈 */}
+      <div className="space-y-3">
         <div className="flex gap-2">
           <Button
             variant="outline"
             className="flex-1 justify-start rounded-xl h-auto p-3"
-            onClick={() => onDateChange("prev")}
+            onClick={() => openModal("date")}
           >
             <div className="text-left flex items-center gap-2">
               <CalendarDays className="size-4 text-muted-foreground" />
@@ -266,7 +275,7 @@ function BookingWidget({
           <Button
             variant="outline"
             className="flex-1 justify-start rounded-xl h-auto p-3"
-            onClick={() => onDateChange("next")}
+            onClick={() => openModal("date")}
           >
             <div className="text-left flex items-center gap-2">
               <CalendarDays className="size-4 text-muted-foreground" />
@@ -277,36 +286,26 @@ function BookingWidget({
             </div>
           </Button>
         </div>
-        <Button variant="outline" className="w-full justify-start rounded-xl h-auto p-3">
-          <div className="text-left">
-            <p className="text-xs text-muted-foreground">인원</p>
-            <p className="text-sm font-medium">성인 2명</p>
+        <Button
+          variant="outline"
+          className="w-full justify-start rounded-xl h-auto p-3"
+          onClick={() => openModal("guest")}
+        >
+          <div className="text-left flex items-center gap-2">
+            <Users className="size-4 text-muted-foreground" />
+            <div>
+              <p className="text-xs text-muted-foreground">인원</p>
+              <p className="text-sm font-medium">{guestLabel}</p>
+            </div>
           </div>
         </Button>
       </div>
-
-      <Button
-        className="w-full rounded-xl"
-        size="lg"
-        onClick={() => document.getElementById("rooms-section")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-      >
-        객실 선택
-      </Button>
-
-      {/* Phone */}
-      {accommodation.phoneNumber && (
-        <Button variant="outline" className="w-full mt-3 gap-2 rounded-xl" asChild>
-          <a href={`tel:${accommodation.phoneNumber}`}>
-            <Phone className="size-4" />
-            전화 문의
-          </a>
-        </Button>
-      )}
     </div>
   )
 }
 
 function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetail }) {
+  const openModal = useSearchModal((s) => s.open)
   const lowestStayPrice = Math.min(
     ...accommodation.rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
   )
@@ -314,15 +313,6 @@ function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetai
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[var(--z-fixed)] lg:hidden bg-background/95 backdrop-blur-md border-t px-4 py-3">
       <div className="flex items-center gap-3">
-        {/* 전화 버튼 */}
-        {accommodation.phoneNumber && (
-          <Button variant="outline" size="icon" className="size-12 rounded-xl shrink-0" asChild>
-            <a href={`tel:${accommodation.phoneNumber}`}>
-              <Phone className="size-5" />
-            </a>
-          </Button>
-        )}
-
         {/* 가격 */}
         <div className="flex-1 min-w-0">
           {accommodation.benefitPointRate > 0 && (
@@ -338,13 +328,15 @@ function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetai
           </div>
         </div>
 
-        {/* 객실 선택 → 스크롤 */}
+        {/* 날짜 변경 */}
         <Button
-          size="lg"
-          className="px-6 rounded-xl shrink-0"
-          onClick={() => document.getElementById("rooms-section")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          variant="outline"
+          size="sm"
+          className="rounded-xl gap-1.5 shrink-0"
+          onClick={() => openModal("date")}
         >
-          객실 선택
+          <CalendarDays className="size-4" />
+          날짜 변경
         </Button>
       </div>
     </div>

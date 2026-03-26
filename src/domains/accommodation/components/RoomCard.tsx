@@ -1,18 +1,21 @@
 "use client"
 
 import Image from "next/image"
-import { Users, AlertCircle, Clock, Moon, ChevronRight } from "lucide-react"
+import Link from "next/link"
+import { Users, AlertCircle, Clock, Moon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
 
 interface RoomCardProps {
   room: Room
-  accommodationId?: string
+  accommodationId: string
   onDetailClick?: (room: Room) => void
+  onRentalClick?: (room: Room) => void
 }
 
-export function RoomCard({ room, onDetailClick }: RoomCardProps) {
+export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }: RoomCardProps) {
   return (
     <div
       className={cn(
@@ -75,41 +78,74 @@ export function RoomCard({ room, onDetailClick }: RoomCardProps) {
             </div>
           )}
 
-          {/* 대실/숙박 가격 + 상세보기 유도 */}
-          <div className="mt-4 flex items-end justify-between gap-3">
-            <div className="flex flex-col sm:flex-row gap-3 flex-1">
-              {/* 대실 */}
-              {room.rentalAvailable && room.rentalPrice && (
-                <div className="flex items-center gap-1.5">
-                  <Clock className="size-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">대실</span>
-                  {room.rentalOriginalPrice && (
+          {/* 대실/숙박 가격 구분 */}
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+          <div className="mt-4 flex flex-col sm:flex-row gap-3" onClick={(e) => e.stopPropagation()}>
+            {/* 대실 */}
+            {room.rentalAvailable && room.rentalPrice && (
+              <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/50 border">
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                    <Clock className="size-3" />
+                    <span>대실</span>
+                    {room.rentalTime && (
+                      <span className="text-muted-foreground/60">({room.rentalTime})</span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    {room.rentalOriginalPrice && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {room.rentalOriginalPrice.toLocaleString()}
+                      </span>
+                    )}
+                    <span className="text-base font-bold">
+                      {room.rentalPrice.toLocaleString()}원
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!room.isAvailable}
+                  onClick={() => onRentalClick?.(room)}
+                >
+                  {room.isAvailable ? "예약" : "매진"}
+                </Button>
+              </div>
+            )}
+
+            {/* 숙박 */}
+            <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/50 border">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                  <Moon className="size-3" />
+                  <span>숙박</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  {room.stayOriginalPrice && (
                     <span className="text-xs text-muted-foreground line-through">
-                      {room.rentalOriginalPrice.toLocaleString()}
+                      {room.stayOriginalPrice.toLocaleString()}
                     </span>
                   )}
-                  <span className="text-sm font-bold">
-                    {room.rentalPrice.toLocaleString()}원
+                  <span className="text-base font-bold">
+                    {room.stayPrice.toLocaleString()}원
                   </span>
                 </div>
-              )}
-
-              {/* 숙박 */}
-              <div className="flex items-center gap-1.5">
-                <Moon className="size-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">숙박</span>
-                {room.stayOriginalPrice && (
-                  <span className="text-xs text-muted-foreground line-through">
-                    {room.stayOriginalPrice.toLocaleString()}
-                  </span>
-                )}
-                <span className="text-sm font-bold">
-                  {room.stayPrice.toLocaleString()}원
-                </span>
               </div>
+              <Button
+                size="sm"
+                disabled={!room.stayAvailable}
+                asChild={room.stayAvailable}
+              >
+                {room.stayAvailable ? (
+                  <Link href={`/booking/${accommodationId}?room=${room.id}&type=stay`}>
+                    예약
+                  </Link>
+                ) : (
+                  "매진"
+                )}
+              </Button>
             </div>
-
-            <ChevronRight className="size-5 text-muted-foreground shrink-0" />
           </div>
         </div>
       </div>
