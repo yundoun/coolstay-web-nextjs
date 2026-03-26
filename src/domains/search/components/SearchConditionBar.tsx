@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Users,
   MapPin,
+  Search,
   Minus,
   Plus,
   X,
@@ -14,6 +15,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import { cityRegions } from "../data/regions"
 
 type DropdownType = "region" | "date" | "guest" | null
@@ -53,6 +55,7 @@ interface SearchConditionBarProps {
   kids: number
   onDateChange: (checkIn: string, checkOut: string) => void
   onGuestChange: (adults: number, kids: number) => void
+  onSearch?: () => void
 }
 
 export function SearchConditionBar({
@@ -64,6 +67,7 @@ export function SearchConditionBar({
   kids,
   onDateChange,
   onGuestChange,
+  onSearch,
 }: SearchConditionBarProps) {
   const [openDropdown, setOpenDropdown] = useState<DropdownType>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -91,16 +95,42 @@ export function SearchConditionBar({
     setOpenDropdown((prev) => (prev === type ? null : type))
   }
 
-  // 지역 라벨
-  const selectedCity = useRef<string | null>(null)
+  // 라벨
   const regionLabel = selectedRegion || "전체"
 
-  const guestLabel =
-    kids > 0 ? `성인 ${adults} 아동 ${kids}` : `성인 ${adults}`
+  // 모바일 축약 날짜: 3/25~3/26 1박
+  const ciDate = new Date(checkIn + "T00:00:00")
+  const coDate = new Date(checkOut + "T00:00:00")
+  const nights = diffDays(ciDate, coDate)
+  const dateLabelShort = `${ciDate.getMonth() + 1}/${ciDate.getDate()}~${coDate.getMonth() + 1}/${coDate.getDate()} ${nights}박`
+  const dateLabelFull = `${checkIn} ~ ${checkOut}`
+
+  const totalGuests = adults + kids
+  const guestLabelShort = `${totalGuests}명`
+  const guestLabelFull = kids > 0 ? `성인 ${adults} 아동 ${kids}` : `성인 ${adults}`
+
+  const openModal = useSearchModal((s) => s.open)
 
   return (
-    <div ref={containerRef} className="relative py-4">
-      <div className="flex flex-wrap items-center gap-2">
+    <div ref={containerRef} className="sticky top-16 md:top-[var(--header-height)] z-40 -mx-4 px-4 md:-mx-6 md:px-6 py-2.5 bg-background/95 backdrop-blur-md border-b border-border/50">
+      {/* 모바일: 요약 바 → 탭하면 SearchModal 열기 */}
+      <button
+        className="md:hidden flex items-center gap-2 w-full px-3 py-2 rounded-full border border-border/60 bg-muted/40 text-xs text-foreground"
+        onClick={() => openModal("region")}
+      >
+        <Search className="size-3.5 text-muted-foreground shrink-0" />
+        <span className="flex items-center gap-1.5 truncate">
+          <span className="font-medium">{regionLabel}</span>
+          <span className="text-muted-foreground">·</span>
+          <span>{dateLabelShort}</span>
+          <span className="text-muted-foreground">·</span>
+          <span>{guestLabelShort}</span>
+        </span>
+        <ChevronRight className="size-3.5 text-muted-foreground shrink-0 ml-auto" />
+      </button>
+
+      {/* PC: 기존 드롭다운 필터 */}
+      <div className="hidden md:flex items-center gap-2">
         {/* Region */}
         <Button
           variant="outline"
@@ -126,9 +156,7 @@ export function SearchConditionBar({
           onClick={() => toggle("date")}
         >
           <CalendarDays className="size-3.5" />
-          <span>
-            {checkIn} ~ {checkOut}
-          </span>
+          {dateLabelFull}
         </Button>
 
         {/* Guest */}
@@ -142,8 +170,20 @@ export function SearchConditionBar({
           onClick={() => toggle("guest")}
         >
           <Users className="size-3.5" />
-          {guestLabel}
+          {guestLabelFull}
         </Button>
+
+        {/* Search */}
+        {onSearch && (
+          <Button
+            size="sm"
+            className="gap-1.5 rounded-full"
+            onClick={onSearch}
+          >
+            <Search className="size-3.5" />
+            검색
+          </Button>
+        )}
       </div>
 
       {/* Dropdown Panels */}

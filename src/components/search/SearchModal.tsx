@@ -52,12 +52,12 @@ export function SearchModal() {
   if (!isOpen || !step) return null
 
   return (
-    <div className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center">
+    <div className="fixed inset-0 z-[var(--z-modal)] flex items-end md:items-center justify-center">
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"
         onClick={close}
       />
-      <div className="relative animate-fade-in-up">
+      <div className="relative w-full md:w-auto animate-fade-in-up">
         {step === "region" && <RegionPanel />}
         {step === "date" && <DatePanel />}
         {step === "guest" && <GuestPanel />}
@@ -89,7 +89,7 @@ function RegionPanel() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[640px] max-h-[80vh] overflow-hidden">
+    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b">
         <h2 className="text-lg font-bold">지역 선택</h2>
@@ -102,7 +102,7 @@ function RegionPanel() {
       </div>
 
       {/* Body: 2-column */}
-      <div className="flex min-h-[400px]">
+      <div className="flex flex-1 min-h-0 md:min-h-[400px]">
         {/* Left: City list */}
         <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
           {cityRegions.map((region) => (
@@ -226,7 +226,7 @@ function DatePanel() {
   rightMonth.setMonth(rightMonth.getMonth() + 1)
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[780px] overflow-hidden">
+    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[780px] max-h-[85vh] md:max-h-none overflow-hidden overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b">
         <h2 className="text-lg font-bold">날짜 선택</h2>
@@ -256,7 +256,7 @@ function DatePanel() {
       </div>
 
       {/* 캘린더 네비게이션 */}
-      <div className="flex items-center justify-between px-8 pt-5 pb-2">
+      <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-2">
         <button
           onClick={handlePrev}
           className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -267,8 +267,8 @@ function DatePanel() {
           <span>
             {baseMonth.getFullYear()}년 {baseMonth.getMonth() + 1}월
           </span>
-          <span className="text-gray-300">|</span>
-          <span>
+          <span className="hidden md:inline text-gray-300">|</span>
+          <span className="hidden md:inline">
             {rightMonth.getFullYear()}년 {rightMonth.getMonth() + 1}월
           </span>
         </div>
@@ -280,8 +280,8 @@ function DatePanel() {
         </button>
       </div>
 
-      {/* 듀얼 캘린더 */}
-      <div className="grid grid-cols-2 gap-4 px-6 pb-4">
+      {/* 캘린더: 모바일 1열, PC 2열 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-4">
         <CalendarMonth
           year={baseMonth.getFullYear()}
           month={baseMonth.getMonth()}
@@ -470,7 +470,7 @@ function GuestPanel() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-2xl w-[90vw] max-w-[420px] overflow-hidden">
+    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[420px] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b">
         <h2 className="text-lg font-bold">인원 선택</h2>

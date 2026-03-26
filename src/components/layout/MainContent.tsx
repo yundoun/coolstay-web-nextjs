@@ -13,7 +13,6 @@ interface MainContentProps {
 export function MainContent({ children, className }: MainContentProps) {
   const pathname = usePathname()
   const isFullBleed = FULL_BLEED_PATHS.includes(pathname ?? "")
-
   return (
     <div
       className={cn(

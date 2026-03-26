@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Search, X, MapPin, TrainFront, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import {
   POPULAR_KEYWORDS,
   suggestKeywords,
@@ -41,8 +42,21 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 /* ── 컴포넌트 ── */
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+  return isMobile
+}
+
 export function CompactSearchBar() {
   const router = useRouter()
+  const isMobile = useIsMobile()
+  const openModal = useSearchModal((s) => s.open)
   const [query, setQuery] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
@@ -166,7 +180,14 @@ export function CompactSearchBar() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => setIsFocused(true)}
+            onFocus={() => {
+              if (isMobile) {
+                inputRef.current?.blur()
+                openModal("region")
+                return
+              }
+              setIsFocused(true)
+            }}
             onKeyDown={handleKeyDown}
             placeholder="지역, 숙소명 검색"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground min-w-0"

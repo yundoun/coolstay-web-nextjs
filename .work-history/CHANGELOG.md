@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-26 15:16** | [SH-4~6] 검색 조건 모바일 모달 분리 + PC 드롭다운 유지 | [`690125a`](.work-history/entries/2026-03-26_00-00_SH-4-5-6_search-mobile-modal.md)
 - **2026-03-25 16:59** | [SH-1~3] 네비게이션 정리 | [`f0a8fe3`](.work-history/entries/2026-03-25_19-00_SH-1-2-3_nav-cleanup.md)
 - **2026-03-25 14:55** | [INFRA-0] CLAUDE.md 및 태스크 스크립트 일반화 | [`e90b61c`](.work-history/entries/2026-03-25_18-00_INFRA-0_workflow-generalize.md)
 - **2026-03-25 11:40** | Android 기능 정합 워크플로우 구축 | [`9698c50`](.work-history/entries/2026-03-25_17-30_P0-0_workflow-setup.md)

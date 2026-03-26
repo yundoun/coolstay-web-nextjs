@@ -60,7 +60,6 @@ export function Header({ variant }: HeaderProps) {
   }, [isHome])
 
   const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
-  // 홈: 히어로 검색바 사라지면 표시 / 다른 페이지: 항상 표시
   const showHeaderSearch = isHome ? !heroSearchVisible : true
 
   return (
@@ -140,7 +139,6 @@ export function Header({ variant }: HeaderProps) {
                   로그인
                 </Link>
               </Button>
-
             </div>
           </div>
         </Container>

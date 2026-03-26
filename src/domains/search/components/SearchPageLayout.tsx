@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
 import { SearchConditionBar } from "./SearchConditionBar"
@@ -21,6 +22,8 @@ function getDefaultDates() {
 }
 
 export function SearchPageLayout() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const {
     sort,
     selectedRegion,
@@ -45,10 +48,20 @@ export function SearchPageLayout() {
     setKids(newKids)
   }, [])
 
+  const handleSearch = useCallback(() => {
+    const params = new URLSearchParams(searchParams?.toString() ?? "")
+    params.set("checkIn", checkIn)
+    params.set("checkOut", checkOut)
+    params.set("adults", String(adults))
+    if (kids > 0) params.set("kids", String(kids))
+    else params.delete("kids")
+    router.push(`/search?${params.toString()}`, { scroll: false })
+  }, [searchParams, checkIn, checkOut, adults, kids, router])
+
   return (
     <div className="min-h-screen">
       <Container size="wide" padding="responsive">
-        {/* 검색 조건 바 — 항상 표시 */}
+        {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
           selectedRegion={selectedRegion}
           onRegionChange={toggleRegion}
@@ -58,9 +71,10 @@ export function SearchPageLayout() {
           kids={kids}
           onDateChange={handleDateChange}
           onGuestChange={handleGuestChange}
+          onSearch={handleSearch}
         />
 
-        {/* 키워드 검색 */}
+        {/* 해시태그 필터 */}
         <div className="py-4">
           <KeywordSearchSection />
         </div>
