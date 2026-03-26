@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
@@ -8,9 +8,12 @@ import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
+import { useContentsList } from "../hooks/useContentsData"
+import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import { searchResultsData, totalSearchResults } from "../data/mock"
 import { regionLabels } from "../data/filterOptions"
-import type { SearchAccommodation } from "../types"
+import type { Accommodation } from "@/components/accommodation"
+import type { StoreItem } from "@/lib/api/types"
 
 function getDefaultDates() {
   const today = new Date()
@@ -37,6 +40,34 @@ export function SearchPageLayout() {
   const [checkOut, setCheckOut] = useState(defaultCheckOut)
   const [adults, setAdults] = useState(2)
   const [kids, setKids] = useState(0)
+
+  // API 검색 파라미터
+  const regionCode = searchParams?.get("region") || undefined
+  const apiParams = useMemo(() => {
+    if (!regionCode) return undefined
+    return {
+      search_type: "ST003" as const,
+      search_extra: regionCode,
+      search_start_date: checkIn,
+      search_end_date: checkOut,
+      search_adult_count: adults,
+      search_kids_count: kids,
+      count: 20,
+    }
+  }, [regionCode, checkIn, checkOut, adults, kids])
+
+  const { data: apiData, isLoading } = useContentsList(apiParams)
+
+  // API 데이터 → AccommodationCard 변환, 없으면 mock 폴백
+  const accommodations: Accommodation[] = useMemo(() => {
+    if (apiData?.motels?.length) {
+      return apiData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
+    }
+    // API 결과 없으면 mock 데이터 폴백
+    return searchResultsData
+  }, [apiData])
+
+  const totalCount = apiData?.totalCount ?? totalSearchResults
 
   const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
     setCheckIn(newCheckIn)
@@ -81,7 +112,7 @@ export function SearchPageLayout() {
 
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
-          totalCount={totalSearchResults}
+          totalCount={totalCount}
           regionLabel={selectedRegion ? regionLabels[selectedRegion] : undefined}
           sort={sort}
           onSortChange={setSort}
@@ -89,7 +120,13 @@ export function SearchPageLayout() {
 
         {/* 검색 결과 */}
         <div className="pt-4">
-          <SearchResultGrid accommodations={searchResultsData} />
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            </div>
+          ) : (
+            <SearchResultGrid accommodations={accommodations} />
+          )}
         </div>
       </Container>
     </div>
@@ -99,7 +136,7 @@ export function SearchPageLayout() {
 function SearchResultGrid({
   accommodations,
 }: {
-  accommodations: SearchAccommodation[]
+  accommodations: Accommodation[]
 }) {
   if (accommodations.length === 0) {
     return (

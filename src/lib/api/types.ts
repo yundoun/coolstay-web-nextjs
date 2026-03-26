@@ -276,8 +276,10 @@ export interface StoreRoomItem {
 export interface StoreItem {
   key: string
   filter_bit: number
+  partnership_type?: string
   name: string
   like_count: number
+  distance?: string
   consecutive_yn: string
   user_like_yn: string
   parking_yn: string
@@ -343,49 +345,87 @@ export interface RegionStoresResponse {
   recommend_stores: StoreItem[]
 }
 
-// ─── Contents API 응답 (기존) ───
+// ─── Contents API 응답 ───
+
+// contents/regions/list
+export interface RegionItem {
+  type: string
+  view_type: string
+  open_yn: string
+  code: string
+  name: string
+  thumb_url?: string
+  geometry?: { latitude: string; longitude: string }
+  sub_regions: RegionItem[]
+  depth: number
+  priority: number
+}
+
+export interface RegionsResponse {
+  regions: RegionItem[]
+  subways?: RegionItem[]
+}
+
+// contents/list — 목록에서 반환되는 motel은 간략형(StoreItem과 유사)
+export interface ContentsListResponse {
+  totalCount: number
+  nextCursor: string
+  motels: StoreItem[]
+  isDuringEvent?: string
+  priorityMotels?: StoreItem[]
+}
+
+// contents/total/list
+export interface SearchResult {
+  type: string
+  sub_type: string
+  entity_id: string
+  entity_name: string
+  location: Location
+  v2_entity_id: string
+  v2_keywords: string[]
+}
+
+export interface TotalListResponse {
+  total_count: number
+  keyword_lists?: {
+    type: string
+    keyword: string
+    count: number
+  }[]
+  search_results: SearchResult[]
+}
+
+// contents/filter
 export interface FilterResponse {
   total_count: number
   check_in: string
   check_out: string
   adult_count: number
   kids_count: number
-  tags: Tag[]
+  tags?: Tag[]
   filters: FilterKey[]
   banners: Banner[]
 }
 
+// contents/filter/list (POST body)
+export interface StoreKeys {
+  v2Key: string
+  v2RentKey: string
+  v2StayKey: string
+  filterBit: number
+  type?: string
+}
+
+// contents/myArea/list — motels는 StoreItem 형태 (간략)
 export interface MyAreaResponse {
   total_count: number
   tags: Tag[]
-  init_tag: Tag
-  motels: Motel[]
+  init_tag?: Tag
+  motels: StoreItem[]
 }
 
-export interface TotalListResponse {
-  total_count: number
-  keyword_lists: {
-    type: string
-    keyword: string
-    count: number
-  }
-  search_results: {
-    type: string
-    sub_type: string
-    entity_id: string
-    entity_name: string
-    location: Location
-    v2_entity_id: string
-    v2_keywords: string[]
-  }[]
-}
-
+// contents/details/list
 export interface DetailsResponse {
   motel: Motel
-}
-
-export interface RegionsResponse {
-  code: string
-  desc: string
-  result: unknown
 }
