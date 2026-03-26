@@ -462,3 +462,51 @@ export interface RefundPolicy {
 export interface RefundPolicyResponse {
   refund_policies: RefundPolicy[]
 }
+
+// ─── Reviews API 응답 ───
+
+// contents/reviews/list
+export interface ReviewListResponse {
+  totalCount: number
+  nextCursor?: string
+  avg_score?: string
+  available_count: number
+  reviews: Review[]
+}
+
+// contents/reviews/register (request body)
+export interface ReviewRegisterRequest {
+  book_id: string
+  motel_key: string
+  motel_name: string
+  score: string
+  description: string
+  images?: { oriUrl: string; thumbUrl: string }[]
+}
+
+// contents/reviews/update (request body)
+export interface ReviewUpdateRequest {
+  review_key: string
+  score: string
+  description: string
+  images?: { oriUrl: string; thumbUrl: string }[]
+}
+
+// contents/reviews/update (response)
+export interface ReviewUpdateResponse {
+  review: Review
+}
+
+// ─── Keyword API 응답 ───
+
+// contents/total/keywordList
+export interface KeywordItem {
+  type: string
+  keyword: string
+  count: number
+}
+
+export interface KeywordListResponse {
+  total_count: number
+  keyword_lists: KeywordItem[]
+}
