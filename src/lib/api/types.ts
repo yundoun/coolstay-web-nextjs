@@ -240,7 +240,110 @@ export interface Motel extends MotelBasic {
   cool_consecutive_popup: boolean
 }
 
-// ─── API 응답 ───
+// ─── Home API 응답 ───
+
+export interface RegionCategory {
+  type: string
+  view_type: string
+  open_yn: string
+  code: string
+  name: string
+  depth: number
+  priority: number
+}
+
+export interface StoreItemCategory {
+  code: string
+  name: string
+}
+
+export interface DailyExtra {
+  date: string
+  extras: { code: string; value: string }[]
+}
+
+export interface StoreRoomItem {
+  key: string
+  price: number
+  discount_price: number
+  consecutive_price: number
+  name: string
+  category: StoreItemCategory
+  coupons?: Coupon[]
+  daily_extras?: DailyExtra[]
+}
+
+export interface StoreItem {
+  key: string
+  filter_bit: number
+  name: string
+  like_count: number
+  consecutive_yn: string
+  user_like_yn: string
+  parking_yn: string
+  point_reward_type: string
+  images: ImageItem[]
+  items: StoreRoomItem[]
+  extra_services: { code: string; name: string; visible_yn: string; image_url: string }[]
+  area_cd1: number
+  area_cd2: number
+  cool_consecutive_popup: boolean
+}
+
+export interface HomeBanner {
+  key: number
+  view_count: number
+  image_urls: string[]
+  link: LinkItem
+  reg_dt: number
+}
+
+export interface Exhibition {
+  key: number
+  view_count: number
+  type: string
+  title: string
+  description: string
+  badge_image_url: string
+  banner_image_url: string
+  detail_banner_image_url: string
+  image_urls: string[]
+  reg_dt: number
+  start_dt: number
+  end_dt: number
+}
+
+export interface AiMagazineBanner {
+  key: number
+  title: string
+  description: string
+  image_url: string
+}
+
+export interface HomeMainResponse {
+  recommend_categories: RegionCategory[]
+  recommend_stores: StoreItem[]
+  item_buttons: LinkItem[]
+  new_item_categories: LinkItem[]
+  banners: HomeBanner[]
+  recent_stores: StoreItem[]
+  exhibitions: Exhibition[]
+  phrase: string
+  valid_book_yn: string
+  ai_magazines?: AiMagazineBanner[]
+  new_alarm_date?: number
+  new_coupon_date?: number
+  new_mileage_date?: number
+  popups?: Banner[]
+  item_categories?: RegionCategory[]
+}
+
+export interface RegionStoresResponse {
+  recommend_categories: RegionCategory[]
+  recommend_stores: StoreItem[]
+}
+
+// ─── Contents API 응답 (기존) ───
 export interface FilterResponse {
   total_count: number
   check_in: string

@@ -3,15 +3,19 @@
 import { useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { recentMotels } from "../data/mock"
+import type { StoreItem } from "@/lib/api/types"
 
-export function RecentlyViewed() {
+interface Props {
+  stores: StoreItem[]
+}
+
+export function RecentlyViewed({ stores }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  if (recentMotels.length === 0) return null
+  if (stores.length === 0) return null
 
   const scroll = (dir: "left" | "right") => {
     scrollRef.current?.scrollBy({
@@ -53,43 +57,48 @@ export function RecentlyViewed() {
         ref={scrollRef}
         className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0"
       >
-        {recentMotels.map((motel) => (
-          <Link
-            key={motel.id}
-            href={`/accommodations/${motel.id}`}
-            className={cn(
-              "shrink-0 w-44 snap-start group",
-              "rounded-xl overflow-hidden border bg-card",
-              "transition-all duration-300 hover:shadow-lg"
-            )}
-          >
-            <div className="relative aspect-[3/2] overflow-hidden">
-              <Image
-                src={motel.imageUrl}
-                alt={motel.name}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="176px"
-              />
-              {motel.mileageAvailable && (
-                <div className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[10px] font-medium px-1.5 py-0.5 rounded">
-                  무제한 {motel.mileageAvailable.toLocaleString()}원 사용가능
-                </div>
+        {stores.map((store) => {
+          const stayItem = store.items?.find((i) => i.category.code === "010102")
+          const rentItem = store.items?.find((i) => i.category.code === "010101")
+          const item = stayItem || rentItem
+          const price = item?.discount_price || item?.price || 0
+
+          return (
+            <Link
+              key={store.key}
+              href={`/accommodations/${store.key}`}
+              className={cn(
+                "shrink-0 w-44 snap-start group",
+                "rounded-xl overflow-hidden border bg-card",
+                "transition-all duration-300 hover:shadow-lg"
               )}
-            </div>
-            <div className="p-2.5">
-              <p className="text-sm font-medium line-clamp-1">{motel.name}</p>
-              <div className="flex items-center gap-1 mt-1">
-                <Star className="size-3 fill-primary text-primary" />
-                <span className="text-xs">{motel.rating}</span>
-                <span className="text-xs text-muted-foreground">{motel.location}</span>
+            >
+              <div className="relative aspect-[3/2] overflow-hidden">
+                {store.images?.[0] ? (
+                  <Image
+                    src={store.images[0].url || store.images[0].thumb_url}
+                    alt={store.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="176px"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full bg-muted text-xs text-muted-foreground">
+                    이미지 없음
+                  </div>
+                )}
               </div>
-              <p className="text-sm font-bold mt-1">
-                {motel.stayPrice.toLocaleString()}원
-              </p>
-            </div>
-          </Link>
-        ))}
+              <div className="p-2.5">
+                <p className="text-sm font-medium line-clamp-1">{store.name}</p>
+                {price > 0 && (
+                  <p className="text-sm font-bold mt-1">
+                    {price.toLocaleString()}원
+                  </p>
+                )}
+              </div>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

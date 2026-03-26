@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Search, MapPin, CalendarDays, Users } from "lucide-react"
 import { Container } from "@/components/layout"
-import { useSearchModal, type SearchStep } from "@/lib/stores/search-modal"
+import { useSearchModal } from "@/lib/stores/search-modal"
 import { cn } from "@/lib/utils"
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"]
@@ -17,9 +17,11 @@ function diffDays(a: Date, b: Date) {
   return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-// ─── 컴포넌트 ───────────────────────────────────────────────
+interface Props {
+  phrase?: string
+}
 
-export function HeroSection() {
+export function HeroSection({ phrase }: Props) {
   const router = useRouter()
   const {
     open,
@@ -31,7 +33,7 @@ export function HeroSection() {
     kids,
   } = useSearchModal()
 
-  const locationDisplay = selectedArea || selectedCity || "지역, 숙소명 검색"
+  const locationDisplay = selectedArea || selectedCity || phrase || "지역, 숙소명 검색"
   const locationLabel = selectedCity ? "선택된 지역" : "어디로 떠나시나요?"
 
   let dateDisplay = "날짜 선택"
@@ -83,7 +85,7 @@ export function HeroSection() {
         </Container>
       </div>
 
-      {/* 검색바 — 히어로 하단에 겹치게 배치 */}
+      {/* 검색바 */}
       <div className="relative -mt-7 z-10">
         <Container size="normal">
           <div id="hero-search-bar">
@@ -126,12 +128,9 @@ export function HeroSection() {
           </div>
         </Container>
       </div>
-
     </section>
   )
 }
-
-// ─── 검색 필드 ──────────────────────────────────────────────
 
 function SearchField({
   icon: Icon,

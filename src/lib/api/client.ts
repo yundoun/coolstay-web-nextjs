@@ -1,14 +1,16 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
-const INITIAL_APP_TOKEN = process.env.NEXT_PUBLIC_APP_TOKEN || ""
-const APP_SECRET_CODE = process.env.NEXT_PUBLIC_APP_SECRET_CODE || ""
 
 // ─── 토큰 관리 ───
-let cachedToken: string | null = null
-let tokenPromise: Promise<string> | null = null
+interface TokenPair {
+  accessToken: string
+  secret: string
+}
 
-async function getToken(): Promise<string> {
+let cachedToken: TokenPair | null = null
+let tokenPromise: Promise<TokenPair> | null = null
+
+async function getToken(): Promise<TokenPair> {
   if (cachedToken) return cachedToken
-  // 동시 호출 시 하나의 요청만 실행
   if (tokenPromise) return tokenPromise
 
   tokenPromise = fetchToken()
@@ -19,26 +21,19 @@ async function getToken(): Promise<string> {
   }
 }
 
-async function fetchToken(): Promise<string> {
-  try {
-    const authUrl = `${BASE_URL}/auth/sessions/temporary`
-    const res = await fetch(authUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "app-token": INITIAL_APP_TOKEN,
-        "app-secret-code": APP_SECRET_CODE,
-      },
-    })
-    const data = await res.json()
-    if (data.result?.token?.access_token) {
-      cachedToken = data.result.token.access_token
-      return cachedToken!
-    }
-  } catch {
-    // 토큰 발급 실패 시 초기 토큰 사용
+async function fetchToken(): Promise<TokenPair> {
+  const authUrl = `${BASE_URL}/auth/sessions/temporary`
+  const res = await fetch(authUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+  const data = await res.json()
+  const token = data.result?.token
+  if (token?.access_token && token?.secret) {
+    cachedToken = { accessToken: token.access_token, secret: token.secret }
+    return cachedToken
   }
-  return INITIAL_APP_TOKEN
+  throw new Error("토큰 발급 실패")
 }
 
 function clearToken() {
@@ -78,8 +73,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    "app-token": token,
-    "app-secret-code": APP_SECRET_CODE,
+    "app-token": token.accessToken,
+    "app-secret-code": token.secret,
     ...customHeaders as Record<string, string>,
   }
 
@@ -101,7 +96,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (data.code === "40000004") {
     clearToken()
     const newToken = await getToken()
-    headers["app-token"] = newToken
+    headers["app-token"] = newToken.accessToken
+    headers["app-secret-code"] = newToken.secret
 
     const retryResponse = await fetch(buildUrl(path, params), {
       ...rest,
