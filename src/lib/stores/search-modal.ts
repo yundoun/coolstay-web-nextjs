@@ -8,6 +8,7 @@ interface SearchModalStore {
   // 검색 조건 상태
   selectedCity: string | null
   selectedArea: string | null
+  regionCode: string | null  // API 지역 코드 (ex: MOTEL_1, MOTEL_9300001)
   checkIn: Date | null
   checkOut: Date | null
   adults: number
@@ -18,6 +19,7 @@ interface SearchModalStore {
   setStep: (step: SearchStep) => void
   setCity: (city: string | null) => void
   setArea: (area: string | null) => void
+  setRegionCode: (code: string | null) => void
   setCheckIn: (date: Date | null) => void
   setCheckOut: (date: Date | null) => void
   setAdults: (n: number) => void
@@ -30,6 +32,7 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
   step: null,
   selectedCity: null,
   selectedArea: null,
+  regionCode: null,
   checkIn: null,
   checkOut: null,
   adults: 2,
@@ -37,8 +40,9 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
   open: (step = "region") => set({ isOpen: true, step }),
   close: () => set({ isOpen: false, step: null }),
   setStep: (step) => set({ step }),
-  setCity: (city) => set({ selectedCity: city, selectedArea: null }),
+  setCity: (city) => set({ selectedCity: city, selectedArea: null, regionCode: null }),
   setArea: (area) => set({ selectedArea: area }),
+  setRegionCode: (code) => set({ regionCode: code }),
   setCheckIn: (date) => set({ checkIn: date }),
   setCheckOut: (date) => set({ checkOut: date }),
   setAdults: (n) => set({ adults: n }),
@@ -47,6 +51,7 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
     set({
       selectedCity: null,
       selectedArea: null,
+      regionCode: null,
       checkIn: null,
       checkOut: null,
       adults: 2,

@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-26 16:08** | 지역 필터 API 연동 [CA-4] | [`c079f8a`](.work-history/entries/2026-03-26_16-40_CA-4_regions-api.md)
 - **2026-03-26 16:05** | Contents API 타입/함수/Hook 기반 작성 [CA-1~3] | [`fdebe16`](.work-history/entries/2026-03-26_16-30_CA-1-3_contents-api-types-hooks.md)
 - **2026-03-26 15:54** | Contents API 연동 태스크 설정 | [`18fb954`](.work-history/entries/2026-03-26_16-00_CA-0_contents-api-tasks-setup.md)
 - **2026-03-26 15:43** | 홈 화면 API 연동 | [`85d82f3`](.work-history/entries/2026-03-26_15-45_home-api-integration.md)

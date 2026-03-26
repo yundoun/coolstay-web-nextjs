@@ -6,6 +6,7 @@ import { X, Minus, Plus, ChevronLeft, ChevronRight, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchModal } from "@/lib/stores/search-modal"
+import { useRegions } from "@/domains/search/hooks/useContentsData"
 import { cityRegions } from "@/domains/search/data/regions"
 
 const DAYS = ["일", "월", "화", "수", "목", "금", "토"]
@@ -69,22 +70,43 @@ export function SearchModal() {
 // ─── 지역 선택 패널 ─────────────────────────────────────────
 
 function RegionPanel() {
-  const { selectedCity, setCity, setArea, setStep, close } = useSearchModal()
-  const activeCity = selectedCity || cityRegions[0].city
-  const activeCityData = cityRegions.find((c) => c.city === activeCity)
+  const { selectedCity, setCity, setArea, setRegionCode, setStep, close } = useSearchModal()
+  const { data: apiRegions, isLoading } = useRegions("MOTEL")
 
-  const handleAreaClick = (area: string) => {
-    const city = cityRegions.find((c) => c.city === activeCity)
-    if (city) {
-      setCity(activeCity)
-      setArea(area)
-      setStep("date")
+  // API 데이터 → 도시/지역 목록 변환 (API 실패 시 mock 폴백)
+  const regionList = useMemo(() => {
+    if (!apiRegions?.regions?.length) {
+      return cityRegions.map((c) => ({
+        name: c.city,
+        code: "",
+        subRegions: c.areas.map((a) => ({ name: a.name, code: "" })),
+      }))
     }
+    return apiRegions.regions
+      .filter((r) => r.open_yn !== "N" || r.sub_regions?.some((s) => s.open_yn === "Y"))
+      .map((r) => ({
+        name: r.name,
+        code: r.code,
+        subRegions: (r.sub_regions || [])
+          .filter((s) => s.open_yn === "Y")
+          .map((s) => ({ name: s.name, code: s.code })),
+      }))
+  }, [apiRegions])
+
+  const activeCity = selectedCity || regionList[0]?.name || ""
+  const activeCityData = regionList.find((c) => c.name === activeCity)
+
+  const handleAreaClick = (area: { name: string; code: string }) => {
+    setCity(activeCity)
+    setArea(area.name)
+    setRegionCode(area.code || activeCityData?.code || null)
+    setStep("date")
   }
 
   const handleCityOnly = () => {
     setCity(activeCity)
     setArea(null)
+    setRegionCode(activeCityData?.code || null)
     setStep("date")
   }
 
@@ -101,54 +123,60 @@ function RegionPanel() {
         </button>
       </div>
 
-      {/* Body: 2-column */}
-      <div className="flex flex-1 min-h-0 md:min-h-[400px]">
-        {/* Left: City list */}
-        <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
-          {cityRegions.map((region) => (
-            <button
-              key={region.city}
-              onClick={() => setCity(region.city)}
-              className={cn(
-                "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
-                activeCity === region.city
-                  ? "text-primary font-semibold bg-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              )}
-            >
-              {activeCity === region.city && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
-              )}
-              {region.city}
-            </button>
-          ))}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
+      ) : (
+        /* Body: 2-column */
+        <div className="flex flex-1 min-h-0 md:min-h-[400px]">
+          {/* Left: City list */}
+          <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
+            {regionList.map((region) => (
+              <button
+                key={region.name}
+                onClick={() => setCity(region.name)}
+                className={cn(
+                  "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
+                  activeCity === region.name
+                    ? "text-primary font-semibold bg-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                {activeCity === region.name && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                )}
+                {region.name}
+              </button>
+            ))}
+          </div>
 
-        {/* Right: Area list */}
-        <div className="flex-1 py-2 overflow-y-auto">
-          {/* 전체 선택 */}
-          <button
-            onClick={handleCityOnly}
-            className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            <MapPin className="size-4 text-gray-400" />
-            <span className="font-medium">{activeCity} 전체</span>
-            <ChevronRight className="size-4 text-gray-300 ml-auto" />
-          </button>
-
-          {activeCityData?.areas.map((area) => (
+          {/* Right: Area list */}
+          <div className="flex-1 py-2 overflow-y-auto">
+            {/* 전체 선택 */}
             <button
-              key={area.name}
-              onClick={() => handleAreaClick(area.name)}
+              onClick={handleCityOnly}
               className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <MapPin className="size-4 text-gray-400" />
-              <span>{area.name}</span>
+              <span className="font-medium">{activeCity} 전체</span>
               <ChevronRight className="size-4 text-gray-300 ml-auto" />
             </button>
-          ))}
+
+            {activeCityData?.subRegions.map((area) => (
+              <button
+                key={area.code || area.name}
+                onClick={() => handleAreaClick(area)}
+                className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <MapPin className="size-4 text-gray-400" />
+                <span>{area.name}</span>
+                <ChevronRight className="size-4 text-gray-300 ml-auto" />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -437,6 +465,7 @@ function GuestPanel() {
     close,
     selectedCity,
     selectedArea,
+    regionCode,
     checkIn,
     checkOut,
   } = useSearchModal()
@@ -450,6 +479,9 @@ function GuestPanel() {
       const params = new URLSearchParams()
       if (selectedCity) {
         params.set("keyword", selectedArea || selectedCity)
+      }
+      if (regionCode) {
+        params.set("region", regionCode)
       }
       if (checkIn) {
         params.set(

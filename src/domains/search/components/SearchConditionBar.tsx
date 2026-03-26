@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchModal } from "@/lib/stores/search-modal"
+import { useRegions } from "../hooks/useContentsData"
 import { cityRegions } from "../data/regions"
 
 type DropdownType = "region" | "date" | "guest" | null
@@ -231,8 +232,36 @@ function RegionDropdown({
   onSelect: (keyword: string) => void
   onClose: () => void
 }) {
-  const [activeCity, setActiveCity] = useState(cityRegions[0].city)
-  const activeCityData = cityRegions.find((c) => c.city === activeCity)
+  const { data: apiRegions, isLoading } = useRegions("MOTEL")
+  const { setRegionCode } = useSearchModal()
+
+  // API 데이터 → 도시/지역 목록 변환 (API 실패 시 mock 폴백)
+  const regionList = useMemo(() => {
+    if (!apiRegions?.regions?.length) {
+      return cityRegions.map((c) => ({
+        name: c.city,
+        code: "",
+        subRegions: c.areas.map((a) => ({ name: a.name, code: "" })),
+      }))
+    }
+    return apiRegions.regions
+      .filter((r) => r.open_yn !== "N" || r.sub_regions?.some((s) => s.open_yn === "Y"))
+      .map((r) => ({
+        name: r.name,
+        code: r.code,
+        subRegions: (r.sub_regions || [])
+          .filter((s) => s.open_yn === "Y")
+          .map((s) => ({ name: s.name, code: s.code })),
+      }))
+  }, [apiRegions])
+
+  const [activeCity, setActiveCity] = useState(regionList[0]?.name || "")
+  const activeCityData = regionList.find((c) => c.name === activeCity)
+
+  const handleSelect = (name: string, code: string) => {
+    setRegionCode(code || null)
+    onSelect(name)
+  }
 
   return (
     <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-xl border w-[580px] max-h-[480px] overflow-hidden animate-fade-in-down">
@@ -242,50 +271,56 @@ function RegionDropdown({
           <X className="size-4 text-gray-400" />
         </button>
       </div>
-      <div className="flex h-[380px]">
-        {/* Cities */}
-        <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
-          {cityRegions.map((region) => (
-            <button
-              key={region.city}
-              onClick={() => setActiveCity(region.city)}
-              className={cn(
-                "w-full text-left px-4 py-2.5 text-sm relative",
-                activeCity === region.city
-                  ? "text-primary font-semibold bg-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              )}
-            >
-              {activeCity === region.city && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
-              )}
-              {region.city}
-            </button>
-          ))}
+      {isLoading ? (
+        <div className="flex items-center justify-center h-[380px]">
+          <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
-        {/* Areas */}
-        <div className="flex-1 py-1 overflow-y-auto">
-          <button
-            onClick={() => onSelect(activeCity)}
-            className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-          >
-            <MapPin className="size-3.5 text-gray-400" />
-            <span className="font-medium">{activeCity} 전체</span>
-            <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
-          </button>
-          {activeCityData?.areas.map((area) => (
+      ) : (
+        <div className="flex h-[380px]">
+          {/* Cities */}
+          <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
+            {regionList.map((region) => (
+              <button
+                key={region.name}
+                onClick={() => setActiveCity(region.name)}
+                className={cn(
+                  "w-full text-left px-4 py-2.5 text-sm relative",
+                  activeCity === region.name
+                    ? "text-primary font-semibold bg-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                {activeCity === region.name && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
+                )}
+                {region.name}
+              </button>
+            ))}
+          </div>
+          {/* Areas */}
+          <div className="flex-1 py-1 overflow-y-auto">
             <button
-              key={area.name}
-              onClick={() => onSelect(area.name)}
+              onClick={() => handleSelect(activeCity, activeCityData?.code || "")}
               className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
             >
               <MapPin className="size-3.5 text-gray-400" />
-              <span>{area.name}</span>
+              <span className="font-medium">{activeCity} 전체</span>
               <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
             </button>
-          ))}
+            {activeCityData?.subRegions.map((area) => (
+              <button
+                key={area.code || area.name}
+                onClick={() => handleSelect(area.name, area.code)}
+                className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <MapPin className="size-3.5 text-gray-400" />
+                <span>{area.name}</span>
+                <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
