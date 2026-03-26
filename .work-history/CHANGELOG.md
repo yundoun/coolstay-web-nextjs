@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-26 16:10** | 남은 Contents 검색 API 연동 [CA-6~8] | [`2543135`](.work-history/entries/2026-03-26_17-00_CA-6-8_remaining-apis.md)
 - **2026-03-26 16:10** | 숙소 목록 API 연동 [CA-5] | [`57c9305`](.work-history/entries/2026-03-26_16-50_CA-5_contents-list-api.md)
 - **2026-03-26 16:08** | 지역 필터 API 연동 [CA-4] | [`c079f8a`](.work-history/entries/2026-03-26_16-40_CA-4_regions-api.md)
 - **2026-03-26 16:05** | Contents API 타입/함수/Hook 기반 작성 [CA-1~3] | [`fdebe16`](.work-history/entries/2026-03-26_16-30_CA-1-3_contents-api-types-hooks.md)

@@ -8,7 +8,7 @@ import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
-import { useContentsList } from "../hooks/useContentsData"
+import { useContentsList, useMyAreaList } from "../hooks/useContentsData"
 import { useSearchModal } from "@/lib/stores/search-modal"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import { searchResultsData, totalSearchResults } from "../data/mock"
@@ -58,18 +58,30 @@ export function SearchPageLayout() {
     }
   }, [regionCode, checkIn, checkOut, adults, kids])
 
-  const { data: apiData, isLoading } = useContentsList(apiParams)
+  const { data: apiData, isLoading: isListLoading } = useContentsList(apiParams)
+
+  // 지역 미선택 시 내 주변 추천 숙소 (서울 좌표 기본값)
+  const myAreaParams = useMemo(() => {
+    if (regionCode) return undefined // 지역 선택됨 → myArea 불필요
+    return { latitude: "37.5665", longitude: "126.9780" }
+  }, [regionCode])
+  const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
+
+  const isLoading = isListLoading || isMyAreaLoading
 
   // API 데이터 → AccommodationCard 변환, 없으면 mock 폴백
   const accommodations: Accommodation[] = useMemo(() => {
     if (apiData?.motels?.length) {
       return apiData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
+    if (myAreaData?.motels?.length) {
+      return myAreaData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
+    }
     // API 결과 없으면 mock 데이터 폴백
     return searchResultsData
-  }, [apiData])
+  }, [apiData, myAreaData])
 
-  const totalCount = apiData?.totalCount ?? totalSearchResults
+  const totalCount = apiData?.totalCount ?? myAreaData?.total_count ?? totalSearchResults
 
   const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
     setCheckIn(newCheckIn)
