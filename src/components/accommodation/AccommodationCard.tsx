@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Heart } from "lucide-react"
+import { Heart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -13,11 +13,14 @@ export interface Accommodation {
   location: string
   price: number
   originalPrice?: number
-  rating: number
-  reviewCount: number
+  priceLabel?: string
+  likeCount?: number
+  isLiked?: boolean
   imageUrl: string
   tags?: string[]
   isSoldOut?: boolean
+  partnershipType?: string
+  consecutiveYn?: string
 }
 
 export interface AccommodationCardProps {
@@ -40,7 +43,7 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
       className="group block"
     >
       <article className="overflow-hidden rounded-xl bg-card transition-shadow hover:shadow-lg">
-        {/* Image Container */}
+        {/* Image */}
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
             src={accommodation.imageUrl}
@@ -52,7 +55,7 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
           />
 
           {/* Discount Badge */}
-          {discount && (
+          {discount && discount > 0 && (
             <Badge
               variant="default"
               className="absolute left-3 top-3 rounded-md font-bold"
@@ -67,15 +70,16 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             size="icon"
             className={cn(
               "absolute right-2 top-2 size-8 rounded-full",
-              "bg-black/20 text-white backdrop-blur-sm",
-              "hover:bg-black/30 hover:text-white"
+              "bg-black/20 backdrop-blur-sm",
+              accommodation.isLiked
+                ? "text-red-500 hover:bg-black/30 hover:text-red-500"
+                : "text-white hover:bg-black/30 hover:text-white"
             )}
             onClick={(e) => {
               e.preventDefault()
-              // TODO: Add wishlist functionality
             }}
           >
-            <Heart className="size-4" />
+            <Heart className={cn("size-4", accommodation.isLiked && "fill-current")} />
             <span className="sr-only">찜하기</span>
           </Button>
         </div>
@@ -85,7 +89,7 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
           {/* Tags */}
           {accommodation.tags && accommodation.tags.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1">
-              {accommodation.tags.slice(0, 2).map((tag) => (
+              {accommodation.tags.slice(0, 3).map((tag) => (
                 <Badge
                   key={tag}
                   variant="secondary"
@@ -101,18 +105,21 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
           <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
             {accommodation.name}
           </h3>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {accommodation.location}
-          </p>
+          {accommodation.location && (
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {accommodation.location}
+            </p>
+          )}
 
-          {/* Rating */}
-          <div className="mt-2 flex items-center gap-1">
-            <Star className="size-4 fill-primary text-primary" />
-            <span className="text-sm font-medium">{accommodation.rating}</span>
-            <span className="text-sm text-muted-foreground">
-              ({accommodation.reviewCount.toLocaleString()})
-            </span>
-          </div>
+          {/* Like Count */}
+          {accommodation.likeCount != null && accommodation.likeCount > 0 && (
+            <div className="mt-1.5 flex items-center gap-1">
+              <Heart className="size-3.5 fill-rose-400 text-rose-400" />
+              <span className="text-sm text-muted-foreground">
+                {accommodation.likeCount.toLocaleString()}
+              </span>
+            </div>
+          )}
 
           {/* Price */}
           <div className="mt-3 flex items-baseline gap-2">
@@ -124,7 +131,11 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             <span className="text-lg font-bold text-foreground">
               {accommodation.price.toLocaleString()}원
             </span>
-            <span className="text-sm text-muted-foreground">/박</span>
+            {accommodation.priceLabel && (
+              <span className="text-sm text-muted-foreground">
+                {accommodation.priceLabel}
+              </span>
+            )}
           </div>
         </div>
       </article>

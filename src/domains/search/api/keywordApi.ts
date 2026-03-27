@@ -24,7 +24,6 @@ export interface KeywordSearchParams {
   latitude?: string
   longitude?: string
   sort?: string
-  businessType?: string
 }
 
 export function getKeywordSearchKeys(params: KeywordSearchParams) {

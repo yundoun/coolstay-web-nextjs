@@ -14,6 +14,7 @@ import { sortOptions } from "../data/mock"
 interface SearchInfoBarProps {
   totalCount: number
   regionLabel?: string
+  keyword?: string
   sort: string
   onSortChange: (sort: string) => void
 }
@@ -21,6 +22,7 @@ interface SearchInfoBarProps {
 export function SearchInfoBar({
   totalCount,
   regionLabel,
+  keyword,
   sort,
   onSortChange,
 }: SearchInfoBarProps) {
@@ -35,10 +37,13 @@ export function SearchInfoBar({
     >
       <div className="flex items-center gap-2">
         <h2 className="text-sm md:text-base font-medium text-foreground">
-          {regionLabel && (
+          {keyword && (
+            <span className="text-primary font-semibold">&apos;{keyword}&apos;</span>
+          )}
+          {!keyword && regionLabel && (
             <span className="text-primary font-semibold">{regionLabel}</span>
           )}
-          {regionLabel ? " 검색 결과 " : "검색 결과 "}
+          {(keyword || regionLabel) ? " 검색 결과 " : "검색 결과 "}
           <span className="text-muted-foreground">
             {totalCount.toLocaleString()}개
           </span>

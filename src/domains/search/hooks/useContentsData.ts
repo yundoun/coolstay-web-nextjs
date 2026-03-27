@@ -4,6 +4,7 @@ import {
   getContentsList,
   getTotalList,
   getFilterKeys,
+  getFilterList,
   getMyAreaList,
   type ContentsListParams,
   type FilterParams,
@@ -19,7 +20,7 @@ export function useRegions(categoryCode?: string) {
   })
 }
 
-// 숙소 목록 (contents/list)
+// 숙소 목록 (contents/list) — 단일 호출
 export function useContentsList(params: ContentsListParams | undefined) {
   return useQuery({
     queryKey: ["contents", "list", params],
@@ -46,6 +47,42 @@ export function useFilterKeys(params: FilterParams | undefined) {
     enabled: !!params,
     retry: 1,
   })
+}
+
+// 2단계 지역 검색: filter keys 조회 → filter/list 숙소 목록 조회
+export function useFilterSearch(params: FilterParams | undefined) {
+  // 1단계: filter keys 조회
+  const keysQuery = useFilterKeys(params)
+
+  const filters = keysQuery.data?.filters
+  const hasFilters = !!filters && filters.length > 0
+
+  // 2단계: keys로 숙소 목록 조회
+  const listQuery = useQuery({
+    queryKey: ["contents", "filterList", params, filters],
+    queryFn: () =>
+      getFilterList(
+        {
+          checkIn: params!.checkIn!,
+          checkOut: params!.checkOut!,
+          adultCount: params!.adultCnt,
+          kidsCount: params!.kidCnt,
+          latitude: params!.latitude,
+          longitude: params!.longitude,
+        },
+        filters!,
+      ),
+    enabled: hasFilters,
+    retry: 1,
+  })
+
+  return {
+    data: listQuery.data,
+    totalCount: keysQuery.data?.total_count ?? 0,
+    isLoading: keysQuery.isLoading || (hasFilters && listQuery.isLoading),
+    isError: keysQuery.isError || listQuery.isError,
+    isEmpty: keysQuery.isSuccess && (!filters || filters.length === 0),
+  }
 }
 
 // 내 주변 추천 숙소

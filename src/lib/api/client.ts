@@ -51,7 +51,7 @@ function buildUrl(path: string, params?: Record<string, string | number | boolea
   if (params) {
     const searchParams = new URLSearchParams()
     Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== "") {
+      if (value !== undefined) {
         searchParams.set(key, String(value))
       }
     })

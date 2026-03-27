@@ -11,7 +11,11 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
   const priceItem = stayItem || rentItem
 
   const price = priceItem?.discount_price ?? priceItem?.price ?? 0
-  const originalPrice = priceItem?.price !== priceItem?.discount_price ? priceItem?.price : undefined
+  const originalPrice =
+    priceItem && priceItem.price > priceItem.discount_price
+      ? priceItem.price
+      : undefined
+  const priceLabel = stayItem ? "숙박" : rentItem ? "대실" : undefined
 
   // 대표 이미지
   const mainImage = store.images?.[0]
@@ -19,11 +23,13 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
 
   // 태그 생성
   const tags: string[] = []
+  if (store.partnership_type) tags.push("제휴")
+  if (store.consecutive_yn === "Y") tags.push("연박")
   if (store.parking_yn === "Y") tags.push("주차가능")
   if (store.extra_services?.length) {
-    store.extra_services.forEach((s) => {
-      if (s.visible_yn === "Y") tags.push(s.name)
-    })
+    store.extra_services
+      .filter((s) => s.visible_yn === "Y")
+      .forEach((s) => tags.push(s.name))
   }
 
   return {
@@ -32,9 +38,12 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
     location: store.distance ? `${store.distance}m` : "",
     price,
     originalPrice,
-    rating: 0,
-    reviewCount: store.like_count ?? 0,
+    priceLabel,
+    likeCount: store.like_count || undefined,
+    isLiked: store.user_like_yn === "Y",
     imageUrl,
     tags: tags.slice(0, 3),
+    partnershipType: store.partnership_type || undefined,
+    consecutiveYn: store.consecutive_yn,
   }
 }

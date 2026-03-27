@@ -19,19 +19,8 @@ export interface RegionOption extends FilterOption {
   accommodationCount?: number
 }
 
-// 숙소 데이터
-export interface SearchAccommodation {
-  id: string
-  name: string
-  location: string
-  price: number
-  originalPrice?: number
-  rating: number
-  reviewCount: number
-  imageUrl: string
-  tags?: string[]
-  isSoldOut?: boolean
-}
+// 숙소 데이터 (Accommodation과 동일 구조)
+export type { Accommodation as SearchAccommodation } from "@/components/accommodation"
 
 // 기본 필터 값
 export const DEFAULT_FILTERS: SearchFilters = {

@@ -8,12 +8,18 @@ import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
-import { useContentsList, useMyAreaList } from "../hooks/useContentsData"
+import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
+import { useKeywordSearch } from "../hooks/useKeywordData"
 import { useSearchModal } from "@/lib/stores/search-modal"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import { searchResultsData, totalSearchResults } from "../data/mock"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
+
+/** YYYY-MM-DD → yyyyMMdd (API 요구 포맷) */
+function toApiDate(date: string) {
+  return date.replace(/-/g, "")
+}
 
 function getDefaultDates() {
   const today = new Date()
@@ -41,47 +47,76 @@ export function SearchPageLayout() {
   const [adults, setAdults] = useState(2)
   const [kids, setKids] = useState(0)
 
+  // URL에서 keyword 읽기
+  const keyword = searchParams?.get("keyword") ?? ""
+
   // store에서 regionCode 가져오기 (API 지역 코드)
   const regionCode = useSearchModal((s) => s.regionCode)
 
-  // API 검색 파라미터
-  const apiParams = useMemo(() => {
+  // ─── 키워드 검색 (2단계: search/keyword → keyword/list) ───
+  const keywordParams = useMemo(() => {
+    if (!keyword || regionCode) return undefined
+    return {
+      type: "ST701",
+      extraType: keyword,
+      checkIn: toApiDate(checkIn),
+      checkOut: toApiDate(checkOut),
+      adultCnt: adults,
+      kidCnt: kids,
+      latitude: "",
+      longitude: "",
+      sort: "BENEFIT",
+    }
+  }, [keyword, regionCode, checkIn, checkOut, adults, kids])
+
+  const keywordSearch = useKeywordSearch(keywordParams)
+
+  // ─── 지역 검색 (2단계: filter → filter/list) ───
+  const filterParams = useMemo(() => {
     if (!regionCode) return undefined
     return {
-      search_type: "ST003" as const,
-      search_extra: regionCode,
-      search_start_date: checkIn,
-      search_end_date: checkOut,
-      search_adult_count: adults,
-      search_kids_count: kids,
-      count: 20,
+      type: "ST003",
+      extraType: regionCode,
+      checkIn: toApiDate(checkIn),
+      checkOut: toApiDate(checkOut),
+      adultCnt: adults,
+      kidCnt: kids,
+      latitude: "",
+      longitude: "",
+      sort: "BENEFIT",
     }
   }, [regionCode, checkIn, checkOut, adults, kids])
 
-  const { data: apiData, isLoading: isListLoading } = useContentsList(apiParams)
+  const filterSearch = useFilterSearch(filterParams)
 
-  // 지역 미선택 시 내 주변 추천 숙소 (서울 좌표 기본값)
+  // ─── 키워드·지역 모두 없을 때 내 주변 추천 숙소 ───
   const myAreaParams = useMemo(() => {
-    if (regionCode) return undefined // 지역 선택됨 → myArea 불필요
+    if (regionCode || keyword) return undefined
     return { latitude: "37.5665", longitude: "126.9780" }
-  }, [regionCode])
+  }, [regionCode, keyword])
   const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
 
-  const isLoading = isListLoading || isMyAreaLoading
+  const isLoading = keywordSearch.isLoading || filterSearch.isLoading || isMyAreaLoading
 
-  // API 데이터 → AccommodationCard 변환, 없으면 mock 폴백
+  // 우선순위: 키워드 검색 > 지역 검색 > myArea > mock 폴백
   const accommodations: Accommodation[] = useMemo(() => {
-    if (apiData?.motels?.length) {
-      return apiData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
+    if (keywordSearch.data?.motels?.length) {
+      return keywordSearch.data.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
+    }
+    if (filterSearch.data?.motels?.length) {
+      return filterSearch.data.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
     if (myAreaData?.motels?.length) {
       return myAreaData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
     // API 결과 없으면 mock 데이터 폴백
     return searchResultsData
-  }, [apiData, myAreaData])
+  }, [keywordSearch.data, filterSearch.data, myAreaData])
 
-  const totalCount = apiData?.totalCount ?? myAreaData?.total_count ?? totalSearchResults
+  const totalCount =
+    keywordSearch.totalCount ||
+    filterSearch.totalCount ||
+    (myAreaData?.total_count ?? totalSearchResults)
 
   const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
     setCheckIn(newCheckIn)
@@ -128,6 +163,7 @@ export function SearchPageLayout() {
         <SearchInfoBar
           totalCount={totalCount}
           regionLabel={selectedRegion || undefined}
+          keyword={keyword || undefined}
           sort={sort}
           onSortChange={setSort}
         />
