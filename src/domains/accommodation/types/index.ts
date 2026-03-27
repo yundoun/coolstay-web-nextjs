@@ -56,11 +56,18 @@ export interface Room {
   // 대실/숙박 구분 (모바일 앱 핵심)
   rentalPrice?: number // 대실 가격
   rentalOriginalPrice?: number
-  rentalTime?: string // 대실 이용 시간 (예: "최대 4시간")
+  rentalTime?: string // 대실 이용 시간 (예: "최대 3시간")
   rentalAvailable: boolean
+  rentalPackageKey?: string // 대실 패키지(sub_item) 키
+  rentalStartHour?: number // 대실 시작 가능 시간 (STIME)
+  rentalEndHour?: number   // 대실 종료 시간 (ETIME)
+  rentalUseHours?: number  // 대실 이용 시간 (UTIME)
   stayPrice: number // 숙박 가격
   stayOriginalPrice?: number
   stayAvailable: boolean
+  stayPackageKey?: string // 숙박 패키지(sub_item) 키
+  stayStartHour?: number  // 숙박 체크인 시간 (STIME)
+  stayEndHour?: number    // 숙박 체크아웃 시간 (ETIME, 다음날)
 }
 
 export interface ReviewSummary {

@@ -497,6 +497,183 @@ export interface ReviewUpdateResponse {
   review: Review
 }
 
+// ─── Reservation API 응답 ───
+
+// reserv/users/payments/list
+export interface PaymentMethodItem {
+  code: string
+  name: string
+  pg: string
+  method: string
+}
+
+export interface UserPaymentInfoResponse {
+  userSitePayCount: number
+  enableSitePayCount: number
+  isNoShowYn: string
+  noShowStartDt: number
+  noShowEndDt: number
+  stayNoShowBaseTime: string | null
+  paymentMethods: PaymentMethodItem[]
+  promotionBannerImgUrl: string | null
+}
+
+// reserv/ready (request body)
+export interface ReservReadyCouponItem {
+  code: string
+  title: string
+  description: string
+  category_code: string
+  category_description: string
+  type: string
+  discount_type: string
+  discount_amount: number
+  total_amount: number
+  remain_amount: number
+  dup_use_yn: string
+  usable_yn: string
+  status: string
+  start_dt: string
+  end_dt: string
+  usable_start_dt: string
+  usable_end_dt: string
+  day_codes?: string[]
+  constraints?: { code: string; value: string; description: string }[]
+}
+
+export interface ReservReadyRequest {
+  motel_key: string
+  item_key: string
+  item_type: string
+  book_start_dt: string
+  book_end_dt: string
+  book_user_name: string
+  book_user_number: string
+  sms_auth_key?: string
+  sms_auth_code?: string
+  vehicle_yn: string
+  price: number
+  discount_price: number
+  total_price: number
+  coupons?: ReservReadyCouponItem[]
+  benefit_mileage_rate: number
+  mileage?: number
+  payment_pg?: string
+  payment_method: string
+}
+
+// reserv/ready (response)
+export interface ReservReadyResponse {
+  book_id: string
+  status: string
+  pull?: unknown
+}
+
+// reserv/register (request body)
+export interface ReservRegisterRequest {
+  payment_pg?: string
+  payment_method?: string
+  payment_imp_uid?: string
+  merchant_uid: string
+  item_name?: string
+  price?: number
+  name?: string
+  email?: string
+  phone_number?: string
+}
+
+// reserv/register (response)
+export interface ReservRegisterResponse {
+  pull?: unknown
+}
+
+// reserv/users/list — BookItem 관련
+export interface BookMotelSimple {
+  key: string
+  name: string
+  phoneNumber: string
+  safeNumber: string
+  partnershipType: string
+  businessType: string
+  location: Location
+  images: ImageItem[]
+}
+
+export interface BookItemSimple {
+  key: string
+  name: string
+  category: string
+}
+
+export interface BookPaymentSimple {
+  pg: string
+  method: string
+  impUid?: string
+  cardName?: string
+}
+
+export interface BookRefundPolicyItem {
+  until: string
+  refundRate: number
+}
+
+export interface BookReviewItem {
+  key: number
+  score: string
+  text: string
+}
+
+export interface BookItem {
+  bookId: string
+  name: string
+  phoneNumber: string
+  safeNumber?: string
+  startDt: number
+  endDt: number
+  regDt: number
+  vehicleYn: string
+  status: string
+  partialCancelYn?: string
+  receiptYn?: string
+  refundYn?: string
+  originPriceTotal: number
+  discountPriceTotal: number
+  discountPrice: number
+  totalPrice: number
+  usedPoint: number
+  refundPoint: number
+  motel: BookMotelSimple
+  rooms: BookItemSimple[]
+  itemImages: ImageItem[]
+  usedCoupons?: Coupon[]
+  payment?: BookPaymentSimple
+  review?: BookReviewItem
+  refundPolicy?: BookRefundPolicyItem[]
+  reprImage?: string
+}
+
+export interface BookListResponse {
+  totalCount: number
+  nextCursor?: string
+  books: BookItem[]
+}
+
+// reserv/guest/list
+export interface GuestBookResponse {
+  book: BookItem
+}
+
+// reserv/delete (request body)
+export interface ReservDeleteRequest {
+  book_id: string
+}
+
+// reserv/users/delete (request body)
+export interface ReservUsersDeleteRequest {
+  book_id?: string
+  flag: "I" | "A"
+}
+
 // ─── Keyword API 응답 ───
 
 // contents/total/keywordList

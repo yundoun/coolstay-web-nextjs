@@ -21,7 +21,7 @@ export function useBookingForm(context: BookingContext) {
   const [hasVehicle, setHasVehicle] = useState(false)
   const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null)
   const [mileageUsed, setMileageUsed] = useState(0)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card")
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("onsite")
   const [agreements, setAgreements] = useState<AgreementItem[]>(DEFAULT_AGREEMENTS)
 
   // 쿠폰 할인 계산

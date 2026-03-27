@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -16,13 +16,14 @@ import {
   Share2,
   Trash2,
   ArrowLeft,
+  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { getBookingDetail } from "../data/mock"
-import type { BookingDetail, BookingStatus, PaymentMethod } from "../types"
+import { useBookingDetail } from "../hooks/useBookingDetail"
+import type { BookingStatus, PaymentMethod } from "../types"
 
 const STATUS_CONFIG: Record<
   BookingStatus,
@@ -57,6 +58,10 @@ function maskPhone(phone: string) {
   if (parts.length === 3) {
     return `${parts[0]}-****-${parts[2].slice(0, 2)}**`
   }
+  // 하이픈 없는 경우 (API 응답)
+  if (phone.length >= 10) {
+    return `${phone.slice(0, 3)}-****-${phone.slice(-4, -2)}**`
+  }
   return phone
 }
 
@@ -68,13 +73,26 @@ function formatDate(dateStr: string) {
 
 export function BookingDetailPage({ bookingId }: { bookingId: string }) {
   const router = useRouter()
-  const booking = useMemo(() => getBookingDetail(bookingId), [bookingId])
+  const { detail: booking, isLoading, error, cancel, hide } = useBookingDetail(bookingId)
+  const [cancelLoading, setCancelLoading] = useState(false)
 
-  if (!booking) {
+  if (isLoading) {
+    return (
+      <Container size="normal" padding="responsive" className="py-20">
+        <div className="flex items-center justify-center">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      </Container>
+    )
+  }
+
+  if (error || !booking) {
     return (
       <Container size="normal" padding="responsive" className="py-20">
         <div className="text-center">
-          <p className="text-lg font-semibold">예약 정보를 찾을 수 없습니다</p>
+          <p className="text-lg font-semibold">
+            {error || "예약 정보를 찾을 수 없습니다"}
+          </p>
           <p className="text-sm text-muted-foreground mt-2">
             올바른 예약 번호인지 확인해주세요
           </p>
@@ -88,6 +106,24 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
 
   const status = STATUS_CONFIG[booking.status]
   const isRental = booking.bookingType === "rental"
+
+  const handleCancel = async () => {
+    if (!confirm("예약을 취소하시겠습니까?")) return
+    setCancelLoading(true)
+    const ok = await cancel()
+    setCancelLoading(false)
+    if (ok) {
+      alert("예약이 취소되었습니다.")
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm("예약 내역을 삭제하시겠습니까?")) return
+    const ok = await hide()
+    if (ok) {
+      router.push("/bookings")
+    }
+  }
 
   return (
     <Container size="normal" padding="responsive" className="py-6 pb-24">
@@ -108,13 +144,17 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
       <section className="rounded-xl border bg-card overflow-hidden">
         <div className="flex gap-4 p-4">
           <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0">
-            <Image
-              src={booking.roomImageUrl}
-              alt={booking.roomName}
-              fill
-              className="object-cover"
-              sizes="96px"
-            />
+            {booking.roomImageUrl ? (
+              <Image
+                src={booking.roomImageUrl}
+                alt={booking.roomName}
+                fill
+                className="object-cover"
+                sizes="96px"
+              />
+            ) : (
+              <div className="w-full h-full bg-muted" />
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold truncate">{booking.accommodationName}</h2>
@@ -190,20 +230,14 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
           </InfoRow>
           <Separator />
           <PriceRow label="판매가" amount={booking.originalPrice} />
-          {booking.coupon1Discount > 0 && (
+          {booking.couponDiscounts.map((c, i) => (
             <PriceRow
-              label={booking.coupon1Name || "쿠폰1 할인"}
-              amount={-booking.coupon1Discount}
+              key={i}
+              label={c.name || `쿠폰${i + 1} 할인`}
+              amount={-c.amount}
               highlight
             />
-          )}
-          {booking.coupon2Discount > 0 && (
-            <PriceRow
-              label={booking.coupon2Name || "쿠폰2 할인"}
-              amount={-booking.coupon2Discount}
-              highlight
-            />
-          )}
+          ))}
           {booking.mileageDiscount > 0 && (
             <PriceRow
               label="마일리지 할인"
@@ -223,10 +257,15 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
 
       {/* 액션 버튼 */}
       <section className="mt-6 space-y-3">
-        {/* 상태별 메인 액션 */}
-        {booking.status === "confirmed" && (
-          <Button variant="destructive" className="w-full" size="lg">
-            예약 취소
+        {booking.status === "confirmed" && booking.refundYn === "Y" && (
+          <Button
+            variant="destructive"
+            className="w-full"
+            size="lg"
+            onClick={handleCancel}
+            disabled={cancelLoading}
+          >
+            {cancelLoading ? "취소 처리중..." : "예약 취소"}
           </Button>
         )}
         {booking.status === "checked_in" && !booking.hasReview && (
@@ -253,7 +292,12 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
             <Share2 className="size-4 mr-2" />
             공유
           </Button>
-          <Button variant="outline" className="flex-1 text-red-500 hover:text-red-600" size="lg">
+          <Button
+            variant="outline"
+            className="flex-1 text-red-500 hover:text-red-600"
+            size="lg"
+            onClick={handleDelete}
+          >
             <Trash2 className="size-4 mr-2" />
             삭제
           </Button>

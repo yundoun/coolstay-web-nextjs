@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { useBookingForm } from "../hooks/useBookingForm"
+import { useBookingSubmit } from "../hooks/useBookingSubmit"
 import { RoomSummaryCard } from "./RoomSummaryCard"
 import { TimeSlotSelector } from "./TimeSlotSelector"
 import { BookerInfoForm } from "./BookerInfoForm"
@@ -15,46 +15,30 @@ import { MileageInput } from "./MileageInput"
 import { PaymentMethodSelector } from "./PaymentMethodSelector"
 import { AgreementCheckboxes } from "./AgreementCheckboxes"
 import { PaymentSummaryCard } from "./PaymentSummaryCard"
-import type { BookingContext, BookingResult } from "../types"
+import type { BookingContext } from "../types"
 
 interface BookingPageLayoutProps {
   context: BookingContext
 }
 
 export function BookingPageLayout({ context }: BookingPageLayoutProps) {
-  const router = useRouter()
   const form = useBookingForm(context)
+  const { submit, isLoading, error } = useBookingSubmit()
   const [selectedTime, setSelectedTime] = useState("12:00")
   const isRental = context.bookingType === "rental"
 
   const handleSubmit = () => {
-    if (!form.isValid) return
-
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    const fmt = (d: Date) =>
-      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-
-    const result: BookingResult = {
-      bookingId: `CS${Date.now()}`,
-      accommodationName: context.accommodation.name,
-      roomName: context.room.name,
-      bookingType: context.bookingType,
-      checkIn: fmt(today),
-      checkOut: context.bookingType === "stay" ? fmt(tomorrow) : fmt(today),
-      usageTime: context.usageTime,
-      bookerName: form.bookerInfo.name,
-      bookerPhone: form.bookerInfo.phone,
+    if (!form.isValid || isLoading) return
+    submit({
+      context,
+      bookerInfo: form.bookerInfo,
+      hasVehicle: form.hasVehicle,
       paymentMethod: form.paymentMethod,
-      totalAmount: form.paymentSummary.totalAmount,
-      earnedMileage: Math.floor(
-        form.paymentSummary.totalAmount * (context.benefitPointRate / 100)
-      ),
-    }
-
-    sessionStorage.setItem("bookingResult", JSON.stringify(result))
-    router.push(`/booking/${context.accommodation.id}/complete`)
+      paymentSummary: form.paymentSummary,
+      mileageUsed: form.mileageUsed,
+      selectedCouponId: form.selectedCouponId,
+      selectedTime,
+    })
   }
 
   return (
@@ -149,12 +133,20 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
             <PaymentSummaryCard
               summary={form.paymentSummary}
               benefitPointRate={context.benefitPointRate}
-              isValid={form.isValid}
+              isValid={form.isValid && !isLoading}
               onSubmit={handleSubmit}
+              isLoading={isLoading}
             />
           </div>
         </div>
       </Container>
+
+      {/* Error Message */}
+      {error && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg text-sm max-w-md text-center">
+          {error}
+        </div>
+      )}
 
       {/* Mobile Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 lg:hidden z-40">
@@ -168,10 +160,10 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
           <Button
             size="lg"
             className="px-8"
-            disabled={!form.isValid}
+            disabled={!form.isValid || isLoading}
             onClick={handleSubmit}
           >
-            결제하기
+            {isLoading ? "처리중..." : "결제하기"}
           </Button>
         </div>
       </div>

@@ -51,6 +51,13 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     const stayItem = subItems.find((si: { category?: { code: string } }) => si.category?.code === "010102")
     const rentItem = subItems.find((si: { category?: { code: string } }) => si.category?.code === "010101")
 
+    // daily_extras에서 시간 정보 추출 헬퍼
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getExtra = (si: any, code: string): string | undefined => {
+      const todayExtras = si?.daily_extras?.[0]?.extras ?? []
+      return todayExtras.find((e: { code: string }) => e.code === code)?.value
+    }
+
     const stayPrice = stayItem?.discount_price ?? stayItem?.price ?? 0
     const stayOriginal = stayItem?.price !== stayItem?.discount_price ? stayItem?.price : undefined
     const rentPrice = rentItem?.discount_price ?? rentItem?.price
@@ -77,9 +84,17 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       rentalPrice: rentPrice,
       rentalOriginalPrice: rentOriginal,
       rentalAvailable: !!rentItem,
+      rentalPackageKey: rentItem?.key,
+      rentalStartHour: getExtra(rentItem, "STIME") ? parseInt(getExtra(rentItem, "STIME")!) : undefined,
+      rentalEndHour: getExtra(rentItem, "ETIME") ? parseInt(getExtra(rentItem, "ETIME")!) : undefined,
+      rentalUseHours: getExtra(rentItem, "UTIME") ? parseInt(getExtra(rentItem, "UTIME")!) : undefined,
+      rentalTime: getExtra(rentItem, "UTIME") ? `최대 ${getExtra(rentItem, "UTIME")}시간` : undefined,
       stayPrice,
       stayOriginalPrice: stayOriginal,
       stayAvailable: !!stayItem,
+      stayPackageKey: stayItem?.key,
+      stayStartHour: getExtra(stayItem, "STIME") ? parseInt(getExtra(stayItem, "STIME")!) : undefined,
+      stayEndHour: getExtra(stayItem, "ETIME") ? parseInt(getExtra(stayItem, "ETIME")!) : undefined,
     }
   })
 

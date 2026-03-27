@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-27 10:37** | 예약 API 연동 + 명세서 작성 | [`6a01942`](.work-history/entries/2026-03-27_19-30_reserv-api-integration.md)
 - **2026-03-27 09:40** | 검색 API 명세서 동기화 | [`cc6aa18`](.work-history/entries/2026-03-27_10-30_search-api-docs-sync.md)
 - **2026-03-27 09:38** | 검색 API 연동 + 카드 UI 개선 | [`7d495d9`](.work-history/entries/2026-03-27_10-00_search-api-card-ui.md)
 - **2026-03-26 17:02** | 숙소 상세 UI 플로우 개선 | [`a0142d7`](.work-history/entries/2026-03-26_18-20_UI-refine_detail-flow.md)

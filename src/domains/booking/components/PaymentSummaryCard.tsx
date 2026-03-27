@@ -8,6 +8,7 @@ interface PaymentSummaryCardProps {
   benefitPointRate: number
   isValid: boolean
   onSubmit: () => void
+  isLoading?: boolean
 }
 
 export function PaymentSummaryCard({
@@ -15,6 +16,7 @@ export function PaymentSummaryCard({
   benefitPointRate,
   isValid,
   onSubmit,
+  isLoading,
 }: PaymentSummaryCardProps) {
   const earnedMileage = Math.floor(summary.totalAmount * (benefitPointRate / 100))
 
@@ -63,7 +65,7 @@ export function PaymentSummaryCard({
         disabled={!isValid}
         onClick={onSubmit}
       >
-        결제하기
+        {isLoading ? "처리중..." : "결제하기"}
       </Button>
     </div>
   )

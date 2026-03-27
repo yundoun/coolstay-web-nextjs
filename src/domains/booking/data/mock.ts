@@ -67,7 +67,7 @@ export function getBookingContext(
   }
 }
 
-// ─── 예약 내역 목데이터 ──────────────────────────────────────
+// ─── 예약 내역 목데이터 (API 연동 후 fallback용) ──────────────
 
 const ROOM_IMAGE = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80"
 
@@ -88,6 +88,7 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     bookerPhone: "010-1234-5678",
     createdAt: "2026-03-20",
     hasReview: false,
+    refundYn: "Y",
   },
   {
     bookingId: "CS2026031501",
@@ -105,6 +106,7 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     bookerPhone: "010-1234-5678",
     createdAt: "2026-03-15",
     hasReview: false,
+    refundYn: "Y",
   },
   {
     bookingId: "CS2026031001",
@@ -122,6 +124,7 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     bookerPhone: "010-1234-5678",
     createdAt: "2026-03-08",
     hasReview: true,
+    refundYn: "N",
   },
   {
     bookingId: "CS2026030501",
@@ -140,6 +143,7 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     bookerPhone: "010-1234-5678",
     createdAt: "2026-03-05",
     hasReview: false,
+    refundYn: "N",
   },
   {
     bookingId: "CS2026022801",
@@ -157,10 +161,11 @@ export const bookingHistoryMock: BookingHistoryItem[] = [
     bookerPhone: "010-1234-5678",
     createdAt: "2026-02-28",
     hasReview: false,
+    refundYn: "N",
   },
 ]
 
-// ─── 예약 상세 목데이터 ──────────────────────────────────────
+// ─── 예약 상세 목데이터 (API 연동 후 fallback용) ──────────────
 
 const ROOM_IMAGE_DETAIL = "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80"
 
@@ -181,13 +186,14 @@ export const bookingDetailMock: Record<string, BookingDetail> = {
     transportation: "자가용",
     paymentMethod: "card",
     originalPrice: 180000,
-    coupon1Discount: 20000,
-    coupon1Name: "신규회원 할인 쿠폰",
-    coupon2Discount: 10000,
-    coupon2Name: "앱 첫결제 쿠폰",
+    couponDiscounts: [
+      { name: "신규회원 할인 쿠폰", amount: 20000 },
+      { name: "앱 첫결제 쿠폰", amount: 10000 },
+    ],
     mileageDiscount: 0,
     totalAmount: 150000,
     hasReview: false,
+    refundYn: "Y",
   },
   CS2026031001: {
     bookingId: "CS2026031001",
@@ -205,12 +211,13 @@ export const bookingDetailMock: Record<string, BookingDetail> = {
     transportation: "도보",
     paymentMethod: "transfer",
     originalPrice: 220000,
-    coupon1Discount: 12000,
-    coupon1Name: "주말 특가 쿠폰",
-    coupon2Discount: 0,
+    couponDiscounts: [
+      { name: "주말 특가 쿠폰", amount: 12000 },
+    ],
     mileageDiscount: 10000,
     totalAmount: 198000,
     hasReview: true,
+    refundYn: "N",
   },
   CS2026030501: {
     bookingId: "CS2026030501",
@@ -229,12 +236,13 @@ export const bookingDetailMock: Record<string, BookingDetail> = {
     transportation: "자가용",
     paymentMethod: "onsite",
     originalPrice: 60000,
-    coupon1Discount: 10000,
-    coupon1Name: "대실 할인 쿠폰",
-    coupon2Discount: 0,
+    couponDiscounts: [
+      { name: "대실 할인 쿠폰", amount: 10000 },
+    ],
     mileageDiscount: 0,
     totalAmount: 50000,
     hasReview: false,
+    refundYn: "N",
   },
   CS2026022801: {
     bookingId: "CS2026022801",
@@ -252,13 +260,14 @@ export const bookingDetailMock: Record<string, BookingDetail> = {
     transportation: "대중교통",
     paymentMethod: "card",
     originalPrice: 350000,
-    coupon1Discount: 20000,
-    coupon1Name: "제주 특별 할인",
-    coupon2Discount: 10000,
-    coupon2Name: "앱 전용 쿠폰",
+    couponDiscounts: [
+      { name: "제주 특별 할인", amount: 20000 },
+      { name: "앱 전용 쿠폰", amount: 10000 },
+    ],
     mileageDiscount: 0,
     totalAmount: 320000,
     hasReview: false,
+    refundYn: "N",
   },
 }
 

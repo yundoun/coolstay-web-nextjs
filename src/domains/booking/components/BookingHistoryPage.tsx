@@ -3,15 +3,22 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, Moon, Calendar, Search } from "lucide-react"
+import { Clock, Moon, Calendar, Search, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { bookingHistoryMock } from "../data/mock"
+import { useBookingList } from "../hooks/useBookingList"
 import type { BookingHistoryItem, BookingStatus } from "../types"
 
-type TabFilter = "all" | "upcoming"
+type TabFilter = "all" | "upcoming" | "used" | "cancelled"
+
+const TABS: { key: TabFilter; label: string; reserveType: "ALL" | "BEFORE" | "AFTER" | "CANCEL" }[] = [
+  { key: "all", label: "전체", reserveType: "ALL" },
+  { key: "upcoming", label: "예약", reserveType: "BEFORE" },
+  { key: "used", label: "이용완료", reserveType: "AFTER" },
+  { key: "cancelled", label: "취소", reserveType: "CANCEL" },
+]
 
 const STATUS_CONFIG: Record<
   BookingStatus,
@@ -44,12 +51,9 @@ function diffDays(a: string, b: string) {
 }
 
 export function BookingHistoryPage() {
-  const [tab, setTab] = useState<TabFilter>("all")
-
-  const filtered =
-    tab === "upcoming"
-      ? bookingHistoryMock.filter((b) => b.status === "confirmed")
-      : bookingHistoryMock
+  const [activeTab, setActiveTab] = useState<TabFilter>("all")
+  const currentTab = TABS.find((t) => t.key === activeTab)!
+  const { items, totalCount, isLoading, error, hasMore, loadMore } = useBookingList(currentTab.reserveType)
 
   return (
     <Container size="normal" padding="responsive" className="py-8">
@@ -57,28 +61,46 @@ export function BookingHistoryPage() {
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b">
-        <TabButton active={tab === "all"} onClick={() => setTab("all")}>
-          전체
-          <span className="ml-1.5 text-xs text-muted-foreground">
-            {bookingHistoryMock.length}
-          </span>
-        </TabButton>
-        <TabButton active={tab === "upcoming"} onClick={() => setTab("upcoming")}>
-          예약
-          <span className="ml-1.5 text-xs text-muted-foreground">
-            {bookingHistoryMock.filter((b) => b.status === "confirmed").length}
-          </span>
-        </TabButton>
+        {TABS.map((tab) => (
+          <TabButton
+            key={tab.key}
+            active={activeTab === tab.key}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            {tab.label}
+            {activeTab === tab.key && !isLoading && (
+              <span className="ml-1.5 text-xs text-muted-foreground">
+                {totalCount}
+              </span>
+            )}
+          </TabButton>
+        ))}
       </div>
 
-      {/* List */}
-      {filtered.length === 0 ? (
+      {/* Error */}
+      {error && (
+        <div className="text-center py-8 text-destructive text-sm">{error}</div>
+      )}
+
+      {/* Loading */}
+      {isLoading && items.length === 0 ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : items.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="space-y-4">
-          {filtered.map((booking) => (
+          {items.map((booking) => (
             <BookingCard key={booking.bookingId} booking={booking} />
           ))}
+          {hasMore && (
+            <div className="text-center pt-4">
+              <Button variant="outline" onClick={loadMore} disabled={isLoading}>
+                {isLoading ? "불러오는 중..." : "더보기"}
+              </Button>
+            </div>
+          )}
         </div>
       )}
     </Container>
@@ -120,16 +142,20 @@ function BookingCard({ booking }: { booking: BookingHistoryItem }) {
 
   return (
     <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow">
-      <div className="flex gap-4 p-4">
+      <Link href={`/bookings/${booking.bookingId}`} className="flex gap-4 p-4">
         {/* Image */}
         <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-lg overflow-hidden shrink-0">
-          <Image
-            src={booking.roomImageUrl}
-            alt={booking.roomName}
-            fill
-            className="object-cover"
-            sizes="112px"
-          />
+          {booking.roomImageUrl ? (
+            <Image
+              src={booking.roomImageUrl}
+              alt={booking.roomName}
+              fill
+              className="object-cover"
+              sizes="112px"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
           <div className="absolute bottom-0 left-0 right-0">
             <Badge
               variant={status.variant}
@@ -170,7 +196,7 @@ function BookingCard({ booking }: { booking: BookingHistoryItem }) {
             </span>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* Actions */}
       <div className="flex border-t">
