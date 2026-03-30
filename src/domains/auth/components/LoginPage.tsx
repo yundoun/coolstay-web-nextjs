@@ -3,32 +3,49 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { cn } from "@/lib/utils"
+import { loginWithEmail } from "../api/authApi"
+import { useAuthStore } from "@/lib/stores/auth"
 
 export function LoginPage() {
   const router = useRouter()
+  const setSession = useAuthStore((s) => s.setSession)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const isValid = email.trim() !== "" && password.trim() !== ""
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid) return
-    // 목 로그인
+    if (!isValid || loading) return
+
     setError("")
-    router.push("/")
+    setLoading(true)
+    try {
+      const result = await loginWithEmail({
+        user_id: email,
+        enc_password: password, // TODO: AES-256 암호화 적용 필요
+      })
+      setSession(result.token, result.user)
+      router.push("/")
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "로그인에 실패했습니다"
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSocialLogin = (provider: string) => {
+    // TODO: 카카오/네이버 SDK 연동
     router.push("/")
   }
 
@@ -86,8 +103,8 @@ export function LoginPage() {
             <p className="text-sm text-red-500">{error}</p>
           )}
 
-          <Button type="submit" className="w-full" size="lg" disabled={!isValid}>
-            로그인
+          <Button type="submit" className="w-full" size="lg" disabled={!isValid || loading}>
+            {loading ? <Loader2 className="size-4 animate-spin" /> : "로그인"}
           </Button>
         </form>
 

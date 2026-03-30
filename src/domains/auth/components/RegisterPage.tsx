@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Mail, Lock, Eye, EyeOff, User, CheckCircle } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, User, CheckCircle, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { PhoneVerificationStep } from "./PhoneVerificationStep"
+import { registerWithEmail } from "../api/authApi"
+import { useAuthStore } from "@/lib/stores/auth"
 import { cn } from "@/lib/utils"
 
 interface Agreement {
@@ -29,12 +31,18 @@ const INITIAL_AGREEMENTS: Agreement[] = [
 
 export function RegisterPage() {
   const router = useRouter()
+  const setSession = useAuthStore((s) => s.setSession)
   const [step, setStep] = useState<"terms" | "phone" | "info">("terms")
 
   // 약관
   const [agreements, setAgreements] = useState(INITIAL_AGREEMENTS)
   const allAgreed = agreements.every((a) => a.checked)
   const requiredAgreed = agreements.filter((a) => a.required).every((a) => a.checked)
+
+  // 인증 데이터 (PhoneVerificationStep에서 전달)
+  const [phoneData, setPhoneData] = useState<{
+    phone: string; smsAuthKey: string; smsAuthCode: string
+  } | null>(null)
 
   // 회원 정보
   const [email, setEmail] = useState("")
@@ -43,6 +51,8 @@ export function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const passwordMatch = password === confirmPassword && password.length > 0
   const passwordValid = password.length >= 8
@@ -64,10 +74,35 @@ export function RegisterPage() {
     )
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isFormValid) return
-    router.push("/login")
+    if (!isFormValid || !phoneData || loading) return
+
+    setLoading(true)
+    setError("")
+
+    const termCodes = agreements
+      .filter((a) => a.checked)
+      .map((a) => a.id === "terms" ? "100" : a.id === "privacy" ? "200" : a.id === "age" ? "300" : "400")
+      .join(",")
+
+    try {
+      const result = await registerWithEmail({
+        user_id: email,
+        enc_password: password, // TODO: AES-256 암호화 적용 필요
+        nickname,
+        term_codes: termCodes,
+        phone_number: phoneData.phone,
+        sms_auth_key: phoneData.smsAuthKey,
+        sms_auth_code: phoneData.smsAuthCode,
+      })
+      setSession(result.token, result.user)
+      router.push("/")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "회원가입에 실패했습니다")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -155,7 +190,10 @@ export function RegisterPage() {
         {/* Step 2: Phone Verification */}
         {step === "phone" && (
           <PhoneVerificationStep
-            onVerified={() => setStep("info")}
+            onVerified={(data) => {
+              setPhoneData(data)
+              setStep("info")
+            }}
             onBack={() => setStep("terms")}
           />
         )}
@@ -248,6 +286,10 @@ export function RegisterPage() {
               )}
             </div>
 
+            {error && (
+              <p className="text-sm text-red-500">{error}</p>
+            )}
+
             <div className="flex gap-3 mt-6">
               <Button
                 type="button"
@@ -262,9 +304,9 @@ export function RegisterPage() {
                 type="submit"
                 size="lg"
                 className="flex-[2]"
-                disabled={!isFormValid}
+                disabled={!isFormValid || loading}
               >
-                가입하기
+                {loading ? <Loader2 className="size-4 animate-spin" /> : "가입하기"}
               </Button>
             </div>
           </form>

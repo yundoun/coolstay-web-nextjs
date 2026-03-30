@@ -2,11 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Mail, Smartphone, CheckCircle, ArrowLeft } from "lucide-react"
+import { Mail, Smartphone, CheckCircle, ArrowLeft, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { getAuthMethods, sendAuthCode, checkAuthCode, findPassword } from "../api/authApi"
 import { cn } from "@/lib/utils"
 
 type Step = "email" | "method" | "complete"
@@ -52,14 +53,26 @@ export function ForgotPasswordPage() {
   const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
   const [selectedMethod, setSelectedMethod] = useState<"email" | "sms" | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  // API에서 조회한 인증수단 정보
+  const [authMethods, setAuthMethods] = useState<{ email: string; phone_number: string } | null>(null)
+  // SMS 인증 관련
+  const [smsAuthKey, setSmsAuthKey] = useState("")
+  const [smsCode, setSmsCode] = useState("")
+  // 결과
+  const [resultTarget, setResultTarget] = useState("")
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-  // Mock masked values based on email
-  const maskedEmail = email
-    ? `${email.slice(0, 3)}***@${email.split("@")[1] || "***"}`
-    : ""
-  const maskedPhone = "010-****-5678"
+  const maskEmail = (e: string) =>
+    e ? `${e.slice(0, 3)}***@${e.split("@")[1] || "***"}` : ""
+  const maskPhone = (p: string) =>
+    p ? `${p.slice(0, 3)}-****-${p.slice(-4)}` : ""
+
+  const maskedEmail = maskEmail(authMethods?.email || email)
+  const maskedPhone = maskPhone(authMethods?.phone_number || "")
 
   return (
     <Container size="tight" padding="responsive" className="py-12">
@@ -117,13 +130,27 @@ export function ForgotPasswordPage() {
               )}
             </div>
 
+            {error && <p className="text-xs text-red-500">{error}</p>}
+
             <Button
               className="w-full"
               size="lg"
-              disabled={!isEmailValid}
-              onClick={() => setStep("method")}
+              disabled={!isEmailValid || loading}
+              onClick={async () => {
+                setLoading(true)
+                setError("")
+                try {
+                  const result = await getAuthMethods(email)
+                  setAuthMethods(result.auth_method)
+                  setStep("method")
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : "계정을 찾을 수 없습니다")
+                } finally {
+                  setLoading(false)
+                }
+              }}
             >
-              다음
+              {loading ? <Loader2 className="size-4 animate-spin" /> : "다음"}
             </Button>
           </div>
         )}
@@ -177,22 +204,50 @@ export function ForgotPasswordPage() {
               </div>
             </button>
 
+            {error && <p className="text-xs text-red-500">{error}</p>}
+
             <div className="flex gap-3 mt-6">
               <Button
                 variant="outline"
                 size="lg"
                 className="flex-1"
-                onClick={() => setStep("email")}
+                onClick={() => { setStep("email"); setError("") }}
               >
                 이전
               </Button>
               <Button
                 size="lg"
                 className="flex-[2]"
-                disabled={!selectedMethod}
-                onClick={() => setStep("complete")}
+                disabled={!selectedMethod || loading}
+                onClick={async () => {
+                  if (!selectedMethod || !authMethods) return
+                  setLoading(true)
+                  setError("")
+                  try {
+                    // 1. 인증코드 발송
+                    const sendBody = selectedMethod === "email"
+                      ? { email: authMethods.email }
+                      : { phone_number: authMethods.phone_number }
+                    const sendResult = await sendAuthCode(sendBody)
+
+                    // 2. 비밀번호 찾기 (인증코드 없이 바로 처리 — 서버가 해당 수단으로 임시 비밀번호 발송)
+                    const findResult = await findPassword({
+                      user_id: email,
+                      phone_number: authMethods.phone_number,
+                      sms_auth_key: sendResult.sms_auth_key,
+                      sms_auth_code: "", // 서버에서 직접 발송하는 케이스
+                    })
+
+                    setResultTarget(findResult.target || (selectedMethod === "email" ? maskedEmail : maskedPhone))
+                    setStep("complete")
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "인증 요청에 실패했습니다")
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
               >
-                인증 요청
+                {loading ? <Loader2 className="size-4 animate-spin" /> : "인증 요청"}
               </Button>
             </div>
           </div>
@@ -209,9 +264,8 @@ export function ForgotPasswordPage() {
             <div>
               <p className="text-lg font-semibold">임시 비밀번호가 발송되었습니다</p>
               <p className="text-sm text-muted-foreground mt-2">
-                {selectedMethod === "email"
-                  ? `${maskedEmail}로 임시 비밀번호를 발송했습니다.`
-                  : `${maskedPhone}으로 임시 비밀번호를 발송했습니다.`}
+                {resultTarget || (selectedMethod === "email" ? maskedEmail : maskedPhone)}
+                {selectedMethod === "email" ? "로" : "으로"} 임시 비밀번호를 발송했습니다.
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 로그인 후 반드시 비밀번호를 변경해주세요.
