@@ -3,7 +3,7 @@ import { generateSecretCode, aesEncrypt } from "./encrypt"
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 // ─── 토큰 관리 ───
-interface TokenPair {
+export interface TokenPair {
   accessToken: string
   secret: string
 }
@@ -39,6 +39,16 @@ async function fetchToken(): Promise<TokenPair> {
 }
 
 function clearToken() {
+  cachedToken = null
+}
+
+/** 로그인 성공 시 호출 — 로그인 토큰으로 교체 */
+export function setClientToken(token: TokenPair) {
+  cachedToken = token
+}
+
+/** 로그아웃 시 호출 — 토큰 초기화 (다음 요청에서 임시 토큰 재발급) */
+export function clearClientToken() {
   cachedToken = null
 }
 

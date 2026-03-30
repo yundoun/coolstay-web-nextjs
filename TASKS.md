@@ -1,6 +1,6 @@
 # API 연동 — Mock → 실제 API 전환
 
-> **진행률**: 9 / 34 (26%)
+> **진행률**: 19 / 34 (55%)
 
 ---
 
@@ -33,43 +33,49 @@
 > **목표**: 임시 토큰 제거, 토큰 일원화, Route Group 기반 인증 가드
 
 #### Step 1 — 토큰 관리 일원화
-- [ ] `P1-11` client.ts 토큰 흐름 리팩토링
-  - 임시 토큰(`/auth/sessions/temporary`) 제거
-  - 비로그인 시: 임시 토큰 자동 발급 유지 (API 호출에 필요)
-  - 로그인 시: 사용자 토큰으로 교체 (`setSession` → client.ts 반영)
-  - `cachedToken`과 `auth store`를 단일 소스로 통합
-- [ ] `P1-12` auth store에 localStorage 영속화 추가 (zustand persist)
+- [x] `P1-11` client.ts 토큰 흐름 리팩토링
+  - setClientToken / clearClientToken export
+  - auth store → client 토큰 동기화
+  - ✅ `src/lib/api/__tests__/client.test.ts` (11 cases)
+  - ✅ `src/lib/stores/__tests__/auth.test.ts` (4 cases)
+- [x] `P1-12` auth store에 localStorage 영속화 추가 (zustand persist)
   - 새로고침 시 로그인 유지
-  - hydration mismatch 방지 처리
+  - hydration 완료 후 client 토큰 복원
+  - ✅ `src/lib/stores/__tests__/auth-persist.test.ts` (6 cases)
 
 #### Step 2 — Route Group 재구성
-- [ ] `P1-13` `(public)` Route Group 생성 — 파일 이동
-  - `login/`, `register/`, `forgot-password/`
-  - `search/`, `accommodations/[id]/`
-  - `events/`, `notices/`, `faq/`, `guide/`, `terms/`
-  - `page.tsx` (홈)
-- [ ] `P1-14` `(protected)` Route Group 생성 — 파일 이동
-  - `mypage/`, `bookings/`, `booking/`
-  - `favorites/`, `reviews/`, `inquiries/`
-  - `notifications/`, `coupons/`, `mileage/`, `settings/`
-- [ ] `P1-15` `(protected)/layout.tsx` — 인증 가드 레이아웃 작성
+- [x] `P1-13` `(public)` Route Group 생성 — 파일 이동
+  - `login/`, `register/`, `forgot-password/`, `search/`, `accommodations/[id]/`
+  - `events/`, `notices/`, `faq/`, `guide/`, `terms/`, `page.tsx` (홈)
+  - ✅ 빌드 성공으로 검증
+- [x] `P1-14` `(protected)` Route Group 생성 — 파일 이동
+  - `mypage/`, `bookings/`, `booking/`, `favorites/`, `reviews/`
+  - `inquiries/`, `notifications/`, `coupons/`, `mileage/`, `settings/`
+  - ✅ 빌드 성공으로 검증
+- [x] `P1-15` `(protected)/layout.tsx` — 인증 가드 레이아웃 작성
   - 비로그인 시 `/login?redirect=원래경로`로 리다이렉트
   - 로그인 시 children 렌더링
+  - ✅ `src/app/(protected)/__tests__/layout.test.tsx` (3 cases)
 
 #### Step 3 — UI 반영
-- [ ] `P1-16` Header 로그인 상태 반영
-  - 비로그인: "로그인" 버튼
-  - 로그인: 닉네임 표시 + 드롭다운 (마이페이지, 로그아웃)
-- [ ] `P1-17` BottomNav 로그인 상태 반영
-  - 비로그인: 마이페이지 → 로그인 페이지로 이동
-- [ ] `P1-18` MyPage mockUser → auth store 실제 유저 정보 연결
-- [ ] `P1-19` 로그아웃 기능 구현
-  - auth store 초기화 + localStorage 클리어 + 홈으로 이동
-  - client.ts 토큰을 임시 토큰으로 복원
+- [x] `P1-16` Header 로그인 상태 반영
+  - 비로그인: "로그인" 버튼 → /login
+  - 로그인: 닉네임 표시 → /mypage
+  - ✅ `src/components/layout/Header/__tests__/Header.test.tsx` (4 cases)
+- [x] `P1-17` BottomNav 로그인 상태 반영
+  - 비로그인: 마이페이지 → /login으로 이동
+  - ✅ `src/components/layout/__tests__/BottomNav.test.tsx` (2 cases)
+- [x] `P1-18` MyPage mockUser → auth store 실제 유저 정보 연결
+  - ✅ `src/domains/mypage/components/__tests__/MyPage.test.tsx` (3 cases)
+- [x] `P1-19` 로그아웃 기능 구현
+  - clearSession + 홈으로 이동
+  - ✅ `src/domains/mypage/components/__tests__/MyPage.test.tsx` (2 cases)
 
 #### Step 4 — 로그인 후 복귀
-- [ ] `P1-20` 로그인 성공 시 redirect 파라미터로 원래 페이지 복귀
+- [x] `P1-20` 로그인 성공 시 redirect 파라미터로 원래 페이지 복귀
   - `/login?redirect=/bookings` → 로그인 후 `/bookings`로 이동
+  - 외부 URL redirect 방지 (보안)
+  - ✅ `src/domains/auth/components/__tests__/LoginPage.test.tsx` (3 cases)
 
 ---
 

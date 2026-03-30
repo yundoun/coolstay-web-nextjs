@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,7 @@ import { encryptPassword } from "@/lib/api/client"
 
 export function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const setSession = useAuthStore((s) => s.setSession)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -37,7 +38,9 @@ export function LoginPage() {
         enc_password: encPw,
       })
       setSession(result.token, result.user)
-      router.push("/")
+      const redirect = searchParams.get("redirect")
+      const destination = redirect && redirect.startsWith("/") ? redirect : "/"
+      router.push(destination)
     } catch (err) {
       const message = err instanceof Error ? err.message : "로그인에 실패했습니다"
       setError(message)
