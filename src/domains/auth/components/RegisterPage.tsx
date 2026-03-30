@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { PhoneVerificationStep } from "./PhoneVerificationStep"
 import { registerWithEmail } from "../api/authApi"
 import { useAuthStore } from "@/lib/stores/auth"
+import { encryptPassword } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 
 interface Agreement {
@@ -87,9 +88,10 @@ export function RegisterPage() {
       .join(",")
 
     try {
+      const encPw = await encryptPassword(password)
       const result = await registerWithEmail({
         user_id: email,
-        enc_password: password, // TODO: AES-256 암호화 적용 필요
+        enc_password: encPw,
         nickname,
         term_codes: termCodes,
         phone_number: phoneData.phone,

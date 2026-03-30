@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { loginWithEmail } from "../api/authApi"
 import { useAuthStore } from "@/lib/stores/auth"
+import { encryptPassword } from "@/lib/api/client"
 
 export function LoginPage() {
   const router = useRouter()
@@ -30,9 +31,10 @@ export function LoginPage() {
     setError("")
     setLoading(true)
     try {
+      const encPw = await encryptPassword(password)
       const result = await loginWithEmail({
         user_id: email,
-        enc_password: password, // TODO: AES-256 암호화 적용 필요
+        enc_password: encPw,
       })
       setSession(result.token, result.user)
       router.push("/")
