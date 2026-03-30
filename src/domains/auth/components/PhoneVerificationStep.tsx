@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 
+import { sendAuthCode, checkAuthCode } from "../api/authApi"
+
 interface PhoneVerificationStepProps {
-  onVerified: () => void
+  onVerified: (data: { phone: string; smsAuthKey: string; smsAuthCode: string }) => void
   onBack: () => void
 }
 
@@ -21,8 +23,11 @@ export function PhoneVerificationStep({
   const [timeLeft, setTimeLeft] = useState(0)
   const [verified, setVerified] = useState(false)
   const [error, setError] = useState("")
+  const [smsAuthKey, setSmsAuthKey] = useState("")
   const [sendCount, setSendCount] = useState(0)
   const [cooldown, setCooldown] = useState(false)
+  const [sendLoading, setSendLoading] = useState(false)
+  const [verifyLoading, setVerifyLoading] = useState(false)
 
   // Format phone number as 010-XXXX-XXXX
   const formatPhone = (value: string) => {
@@ -53,22 +58,32 @@ export function PhoneVerificationStep({
     return `${m}:${String(s).padStart(2, "0")}`
   }, [])
 
-  const handleSendCode = () => {
-    if (!isPhoneValid || cooldown) return
-    setCodeSent(true)
-    setCode("")
-    setError("")
-    setTimeLeft(180) // 3 minutes
-    setSendCount((prev) => prev + 1)
+  const rawPhone = phone.replace(/\D/g, "")
 
-    // Cooldown for resend (simulated)
-    if (sendCount > 0) {
-      setCooldown(true)
-      setTimeout(() => setCooldown(false), 10000) // 10s cooldown for demo
+  const handleSendCode = async () => {
+    if (!isPhoneValid || cooldown || sendLoading) return
+    setSendLoading(true)
+    setError("")
+    try {
+      const result = await sendAuthCode({ phone_number: rawPhone })
+      setSmsAuthKey(result.sms_auth_key)
+      setCodeSent(true)
+      setCode("")
+      setTimeLeft(180)
+      setSendCount((prev) => prev + 1)
+
+      if (sendCount > 0) {
+        setCooldown(true)
+        setTimeout(() => setCooldown(false), 10000)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "인증번호 발송에 실패했습니다")
+    } finally {
+      setSendLoading(false)
     }
   }
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (code.length !== 6) {
       setError("인증번호 6자리를 입력해 주세요.")
       return
@@ -77,9 +92,24 @@ export function PhoneVerificationStep({
       setError("인증 시간이 만료되었습니다. 재발송해 주세요.")
       return
     }
-    // Mock: any 6-digit code succeeds
-    setVerified(true)
+    setVerifyLoading(true)
     setError("")
+    try {
+      const result = await checkAuthCode({
+        sms_auth_key: smsAuthKey,
+        sms_auth_code: code,
+        auth_method: rawPhone,
+      })
+      if (result.isVerified) {
+        setVerified(true)
+      } else {
+        setError(`인증번호가 올바르지 않습니다. (남은 횟수: ${result.remainTryCount})`)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "인증 확인에 실패했습니다")
+    } finally {
+      setVerifyLoading(false)
+    }
   }
 
   return (
@@ -103,11 +133,11 @@ export function PhoneVerificationStep({
           <Button
             type="button"
             variant={codeSent ? "outline" : "default"}
-            disabled={!isPhoneValid || verified || cooldown}
+            disabled={!isPhoneValid || verified || cooldown || sendLoading}
             onClick={handleSendCode}
             className="shrink-0"
           >
-            {codeSent ? "재발송" : "인증번호 발송"}
+            {sendLoading ? "발송 중..." : codeSent ? "재발송" : "인증번호 발송"}
           </Button>
         </div>
         {cooldown && (
@@ -145,11 +175,11 @@ export function PhoneVerificationStep({
             </div>
             <Button
               type="button"
-              disabled={code.length !== 6 || timeLeft <= 0}
+              disabled={code.length !== 6 || timeLeft <= 0 || verifyLoading}
               onClick={handleVerify}
               className="shrink-0"
             >
-              확인
+              {verifyLoading ? "확인 중..." : "확인"}
             </Button>
           </div>
           {error && <p className="text-xs text-red-500">{error}</p>}
@@ -194,7 +224,7 @@ export function PhoneVerificationStep({
           size="lg"
           className="flex-[2]"
           disabled={!verified}
-          onClick={onVerified}
+          onClick={() => onVerified({ phone: rawPhone, smsAuthKey, smsAuthCode: code })}
         >
           다음
         </Button>

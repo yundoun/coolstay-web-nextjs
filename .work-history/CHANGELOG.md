@@ -3,6 +3,10 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-30 17:31** | 로그인 상태 관리 + Route Group + TDD 도입 [P1-11~20] | [`266a337`](.work-history/entries/2026-03-30_17-15_P1-11-20_auth-state-route-group-tdd.md)
+- **2026-03-30 16:41** | 로그인 상태 관리 + Route Group 리팩토링 태스크 설계 | [`e1828ec`](.work-history/entries/2026-03-30_16-00_P1-auth-state-tasks.md)
+- **2026-03-30 16:29** | AES-128-CBC 암호화 구현 — app-secret-code + enc_password | [`a0ce29f`](.work-history/entries/2026-03-30_15-00_P1-encrypt-fix.md)
+- **2026-03-30 16:09** | Auth API 연동 — Phase 1 | [`f7f6342`](.work-history/entries/2026-03-30_14-00_P1-auth-api-integration.md)
 - **2026-03-27 10:37** | 예약 API 연동 + 명세서 작성 | [`6a01942`](.work-history/entries/2026-03-27_19-30_reserv-api-integration.md)
 - **2026-03-27 09:40** | 검색 API 명세서 동기화 | [`cc6aa18`](.work-history/entries/2026-03-27_10-30_search-api-docs-sync.md)
 - **2026-03-27 09:38** | 검색 API 연동 + 카드 UI 개선 | [`7d495d9`](.work-history/entries/2026-03-27_10-00_search-api-card-ui.md)

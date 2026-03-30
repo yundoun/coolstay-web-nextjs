@@ -1,7 +1,9 @@
+import { generateSecretCode, aesEncrypt } from "./encrypt"
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 // ─── 토큰 관리 ───
-interface TokenPair {
+export interface TokenPair {
   accessToken: string
   secret: string
 }
@@ -40,6 +42,16 @@ function clearToken() {
   cachedToken = null
 }
 
+/** 로그인 성공 시 호출 — 로그인 토큰으로 교체 */
+export function setClientToken(token: TokenPair) {
+  cachedToken = token
+}
+
+/** 로그아웃 시 호출 — 토큰 초기화 (다음 요청에서 임시 토큰 재발급) */
+export function clearClientToken() {
+  cachedToken = null
+}
+
 // ─── API 클라이언트 ───
 interface RequestOptions extends Omit<RequestInit, "body"> {
   params?: Record<string, string | number | boolean | undefined>
@@ -70,11 +82,12 @@ interface ApiResponse<T> {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { params, body, headers: customHeaders, ...rest } = options
   const token = await getToken()
+  const secretCode = await generateSecretCode(token.accessToken, token.secret)
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     "app-token": token.accessToken,
-    "app-secret-code": token.secret,
+    "app-secret-code": secretCode,
     ...customHeaders as Record<string, string>,
   }
 
@@ -96,8 +109,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (data.code === "40000004") {
     clearToken()
     const newToken = await getToken()
+    const newSecretCode = await generateSecretCode(newToken.accessToken, newToken.secret)
     headers["app-token"] = newToken.accessToken
-    headers["app-secret-code"] = newToken.secret
+    headers["app-secret-code"] = newSecretCode
 
     const retryResponse = await fetch(buildUrl(path, params), {
       ...rest,
@@ -116,6 +130,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   return data.result
+}
+
+/** 현재 토큰의 secret을 반환 (비밀번호 암호화용) */
+export async function getTokenSecret(): Promise<string> {
+  const token = await getToken()
+  return token.secret
+}
+
+/** 비밀번호를 AES 암호화 */
+export async function encryptPassword(password: string): Promise<string> {
+  const secret = await getTokenSecret()
+  return aesEncrypt(password, secret)
 }
 
 export const api = {

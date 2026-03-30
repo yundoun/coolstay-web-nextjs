@@ -18,21 +18,13 @@ import {
   PenLine,
   LogOut,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-
-// 목데이터
-const mockUser = {
-  nickname: "홍길동",
-  email: "hong@example.com",
-  phone: "010-1234-5678",
-  membership: "멤버",
-  couponCount: 3,
-  mileage: 12000,
-}
+import { useAuthStore } from "@/lib/stores/auth"
 
 interface MenuItem {
   icon: React.ElementType
@@ -58,6 +50,15 @@ const SUPPORT_MENU: MenuItem[] = [
 ]
 
 export function MyPage() {
+  const router = useRouter()
+  const user = useAuthStore((state) => state.user)
+  const clearSession = useAuthStore((state) => state.clearSession)
+
+  const handleLogout = () => {
+    clearSession()
+    router.push("/")
+  }
+
   return (
     <Container size="narrow" padding="responsive" className="py-8">
       {/* Profile Section */}
@@ -69,13 +70,13 @@ export function MyPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs">
-                {mockUser.membership}
+                멤버
               </Badge>
             </div>
             <Link href="/mypage/profile" className="hover:underline">
-              <h2 className="text-xl font-bold mt-1">{mockUser.nickname}</h2>
+              <h2 className="text-xl font-bold mt-1">{user?.nickname}</h2>
             </Link>
-            <p className="text-sm text-muted-foreground">{mockUser.email}</p>
+            <p className="text-sm text-muted-foreground">{user?.email}</p>
           </div>
           <Button variant="ghost" size="icon" className="shrink-0" asChild>
             <Link href="/settings">
@@ -93,7 +94,7 @@ export function MyPage() {
             <Ticket className="size-5 text-primary" />
             <div>
               <p className="text-xs text-muted-foreground">쿠폰</p>
-              <p className="text-lg font-bold">{mockUser.couponCount}장</p>
+              <p className="text-lg font-bold">{0}장</p>
             </div>
           </Link>
           <Link
@@ -104,7 +105,7 @@ export function MyPage() {
             <div>
               <p className="text-xs text-muted-foreground">마일리지</p>
               <p className="text-lg font-bold">
-                {mockUser.mileage.toLocaleString()}P
+                {(0).toLocaleString()}P
               </p>
             </div>
           </Link>
@@ -125,7 +126,7 @@ export function MyPage() {
 
       {/* Logout */}
       <div className="mt-4">
-        <button className="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors">
+        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm text-red-500 hover:bg-red-50 transition-colors">
           <LogOut className="size-5" />
           <span className="font-medium">로그아웃</span>
         </button>

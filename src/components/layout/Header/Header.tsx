@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import { CompactSearchBar } from "@/domains/search/components/CompactSearchBar"
+import { useAuthStore } from "@/lib/stores/auth"
 
 const NAV_ITEMS = [
   { label: "찜목록", href: "/favorites", icon: Heart },
@@ -25,6 +26,8 @@ export interface HeaderProps {
 
 export function Header({ variant }: HeaderProps) {
   const pathname = usePathname()
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+  const user = useAuthStore((state) => state.user)
   const [heroSearchVisible, setHeroSearchVisible] = useState(true)
   const isHome = pathname === "/"
   const isTransparentMode = variant
@@ -125,20 +128,37 @@ export function Header({ variant }: HeaderProps) {
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 shrink-0">
-              <Button
-                variant={showSolidHeader ? "outline" : "ghost"}
-                size="sm"
-                className={cn(
-                  "hidden md:inline-flex gap-2",
-                  !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
-                )}
-                asChild
-              >
-                <Link href="/login">
-                  <User className="size-4" />
-                  로그인
-                </Link>
-              </Button>
+              {isLoggedIn ? (
+                <Button
+                  variant={showSolidHeader ? "outline" : "ghost"}
+                  size="sm"
+                  className={cn(
+                    "hidden md:inline-flex gap-2",
+                    !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
+                  )}
+                  asChild
+                >
+                  <Link href="/mypage">
+                    <User className="size-4" />
+                    {user?.nickname}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  variant={showSolidHeader ? "outline" : "ghost"}
+                  size="sm"
+                  className={cn(
+                    "hidden md:inline-flex gap-2",
+                    !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
+                  )}
+                  asChild
+                >
+                  <Link href="/login">
+                    <User className="size-4" />
+                    로그인
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </Container>
