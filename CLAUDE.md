@@ -22,24 +22,58 @@
 - [ ] `UI-3` 예약 폼 리팩토링
 ```
 
-### 태스크 진행 순서
+### 태스크 진행 순서 (TDD 필수)
+
+모든 태스크는 **TDD(Test-Driven Development)** 사이클로 진행한다.
 
 ```
 1. 작업 시작 전 — 태스크 확인
    ./scripts/task-status.sh
 
-2. 코드 작업 수행
+2. 테스트 작성 (Red)
+   - 태스크의 동작 명세를 테스트 케이스로 먼저 작성
+   - `pnpm test:run`으로 실패 확인
+   - 테스트 파일 위치: 소스 파일 옆 `__tests__/` 디렉토리
 
-3. 태스크 완료 처리 — 체크박스 + 히스토리 엔트리 생성
-   ./scripts/complete-task.sh UI-1 "헤더 네비게이션 개선"
+3. 구현 (Green)
+   - 테스트를 통과하는 최소한의 코드 작성
+   - `pnpm test:run`으로 전체 통과 확인
 
-4. 히스토리 엔트리 내용 작성
-   .work-history/entries/YYYY-MM-DD_HH-MM_UI-1_제목.md
+4. TASKS.md 업데이트
+   - 체크박스 완료 처리
+   - 테스트 파일 경로 + 케이스 수 기록
+   예: ✅ `src/lib/api/__tests__/client.test.ts` (11 cases)
 
-5. 커밋
+5. 히스토리 엔트리 작성 + 커밋
    git add . && git commit -m "작업유형: 설명 [태스크ID]"
    → pre-commit: 히스토리 엔트리 확인
    → post-commit: TASKS.md 진행률 자동 업데이트
+```
+
+### 테스트 컨벤션
+
+```
+도구: Vitest + @testing-library/react (UI 컴포넌트)
+설정: vitest.config.ts (globals: true, @/ alias)
+
+파일 배치 (코로케이션):
+  src/lib/api/client.ts
+  src/lib/api/__tests__/client.test.ts
+
+테스트 구조:
+  describe("기능 그룹", () => {
+    describe("조건/상태", () => {
+      it("한글로 동작을 명세한다")
+    })
+  })
+
+모킹 원칙:
+  - 네트워크 경계(fetch)만 모킹, 내부 구현은 모킹하지 않음
+  - jsdom 환경 필요 시: 파일 상단에 // @vitest-environment jsdom
+  - 각 테스트 간 상태 격리 (beforeEach에서 초기화)
+
+커밋 전 필수:
+  - `pnpm test:run` 전체 통과 확인
 ```
 
 ### 커밋 메시지 컨벤션
@@ -71,7 +105,10 @@ type: `feat`, `fix`, `refactor`, `chore`, `docs`
 
 ```
 src/
-├── app/                    # Next.js App Router 페이지
+├── app/
+│   ├── (public)/           # 비로그인 접근 가능 라우트
+│   ├── (protected)/        # 로그인 필수 라우트 (layout.tsx 인증 가드)
+│   └── layout.tsx          # 루트 레이아웃
 ├── components/
 │   ├── layout/             # 공통 레이아웃 (Header, Footer)
 │   ├── ui/                 # shadcn/ui 컴포넌트
