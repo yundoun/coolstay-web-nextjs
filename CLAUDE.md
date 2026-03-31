@@ -76,6 +76,45 @@
   - `pnpm test:run` 전체 통과 확인
 ```
 
+### Phase 완료 후 E2E 검증 (필수)
+
+각 Phase 작업 완료 후, main 머지 전에 반드시 E2E API 연결 테스트를 수행한다.
+
+```
+1. Phase 작업 완료 → main 머지
+
+2. E2E 테스트 브랜치 생성
+   git checkout -b feat/e2e-<phase명>-test
+
+3. Playwright MCP로 실제 dev 서버 API 연결 검증
+   - pnpm dev 실행
+   - 브라우저로 각 페이지 탐색
+   - 네트워크 요청/응답 확인
+   - 로그인 필요 시 테스트 계정 사용
+
+4. 결과 문서화
+   docs/test-reports/e2e/YYYY-MM-DD_<목적>.md
+
+5. 발견된 이슈 → fix/<이슈명> 브랜치에서 수정
+   - 각 이슈별 별도 브랜치
+   - 수정 후 main 머지
+
+6. 이슈 없으면 테스트 브랜치 main 머지 후 삭제
+```
+
+### 브랜치 전략
+
+```
+main                        ← 안정 브랜치
+├── feat/phase<N>-<이름>    ← Phase 작업
+├── feat/e2e-<이름>-test    ← E2E 테스트 (Phase 완료 후)
+└── fix/<이슈명>            ← 버그 수정 (테스트에서 발견)
+
+브랜치 생명주기:
+  생성 → 작업 → main 머지 → 삭제
+  (머지 완료된 브랜치는 즉시 삭제)
+```
+
 ### 커밋 메시지 컨벤션
 
 ```
