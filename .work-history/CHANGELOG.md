@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 12:56** | Phase 4 부가 콘텐츠/설정 API 연동 [P4-1~7] | [`3b4a73f`](.work-history/entries/2026-03-31_13-00_P4-1-7_contents-settings-api.md)
 - **2026-03-31 11:43** | E2E Phase 3 테스트 실행 | [`e2873d4`](.work-history/entries/2026-03-31_12-45_E2E_phase3-test.md)
 - **2026-03-31 11:42** | Phase 3 소통/CS API 연동 + 명세서 [P3-1~7] | [`a405cb2`](.work-history/entries/2026-03-31_12-30_P3-1-7_cs-alarm-api.md)
 - **2026-03-31 11:31** | CLAUDE.md에 E2E 검증 + 브랜치 전략 명시 | [`f20747e`](.work-history/entries/2026-03-31_12-00_chore_e2e-branch-strategy.md)
