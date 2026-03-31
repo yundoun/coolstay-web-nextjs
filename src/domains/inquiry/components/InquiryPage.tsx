@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import {
   MessageSquare,
   Clock,
@@ -8,7 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   Send,
-  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { getInquiryList, registerInquiry } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
@@ -128,43 +130,25 @@ function InquiryForm() {
 }
 
 function InquiryList() {
-  const [items, setItems] = useState<BoardItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data, isLoading } = useQuery({
+    queryKey: ["inquiries"],
+    queryFn: () => getInquiryList(),
+    retry: 1,
+  })
+  const items = data?.board_items ?? []
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const fetchList = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getInquiryList()
-      setItems(res.board_items ?? [])
-    } catch {
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchList() }, [fetchList])
-
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
-      </div>
-    )
+    return <LoadingSpinner />
   }
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="rounded-full bg-muted p-6 mb-4">
-          <MessageSquare className="size-10 text-muted-foreground" />
-        </div>
-        <p className="text-lg font-semibold">문의 내역이 없습니다</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          궁금한 점이 있으시면 문의를 남겨주세요
-        </p>
-      </div>
+      <EmptyState
+        icon={MessageSquare}
+        title="문의 내역이 없습니다"
+        description="궁금한 점이 있으시면 문의를 남겨주세요"
+      />
     )
   }
 

@@ -83,7 +83,10 @@
   - 6개 훅 useState+useEffect → useQuery 교체
   - settings: optimistic update + rollback 유지
   ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
-- [ ] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
+- [x] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
+  - 4개 컴포넌트 내 useState+useEffect → useQuery 교체
+  - notification: optimistic update (읽음 처리), invalidate (삭제)
+  - inquiry: LoadingSpinner/EmptyState 공통 컴포넌트 적용
 
 ### API 타입 정합성
 - [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준)

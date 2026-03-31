@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { HelpCircle } from "lucide-react"
 import { Container } from "@/components/layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -17,22 +18,12 @@ import { getFaqList } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
 
 export function FaqPage() {
-  const [items, setItems] = useState<BoardItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  const fetchList = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getFaqList()
-      setItems(res.board_items ?? [])
-    } catch {
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchList() }, [fetchList])
+  const { data, isLoading } = useQuery({
+    queryKey: ["faq"],
+    queryFn: () => getFaqList(),
+    retry: 1,
+  })
+  const items = data?.board_items ?? []
 
   // 태그 기반 카테고리 추출
   const allTags = [...new Set(items.flatMap((item) => item.tags ?? []))]
