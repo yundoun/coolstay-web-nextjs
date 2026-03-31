@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import {
   MessageSquare,
   Clock,
@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronUp,
   Send,
+  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
@@ -23,10 +24,10 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { inquiriesMock } from "../data/mock"
-import type { InquiryCategory, InquiryItem } from "../types"
+import { getInquiryList, registerInquiry } from "@/domains/cs/api/csApi"
+import type { BoardItem } from "@/domains/cs/types"
 
-const CATEGORIES: InquiryCategory[] = ["예약", "결제", "취소/환불", "기타"]
+const CATEGORIES = ["예약", "결제", "취소/환불", "기타"]
 
 export function InquiryPage() {
   return (
@@ -61,11 +62,20 @@ function InquiryForm() {
 
   const isValid = category && content.trim().length >= 10
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid) return
-    alert("문의가 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.")
-    setCategory("")
-    setContent("")
+    try {
+      await registerInquiry({
+        board_type: "INQUIRY",
+        title: `[${category}] ${content.slice(0, 30)}`,
+        option_value: category,
+      })
+      alert("문의가 접수되었습니다. 빠른 시일 내에 답변드리겠습니다.")
+      setCategory("")
+      setContent("")
+    } catch {
+      alert("문의 접수에 실패했습니다")
+    }
   }
 
   return (
@@ -118,9 +128,33 @@ function InquiryForm() {
 }
 
 function InquiryList() {
+  const [items, setItems] = useState<BoardItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  if (inquiriesMock.length === 0) {
+  const fetchList = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await getInquiryList()
+      setItems(res.board_items ?? [])
+    } catch {
+      setItems([])
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => { fetchList() }, [fetchList])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="size-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="rounded-full bg-muted p-6 mb-4">
@@ -136,26 +170,19 @@ function InquiryList() {
 
   return (
     <div className="space-y-3">
-      {inquiriesMock.map((inquiry) => {
-        const expanded = expandedId === inquiry.id
+      {items.map((inquiry) => {
+        const expanded = expandedId === inquiry.key
+        const hasReply = !!inquiry.reply
         return (
-          <div
-            key={inquiry.id}
-            className="rounded-xl border bg-card overflow-hidden"
-          >
+          <div key={inquiry.key} className="rounded-xl border bg-card overflow-hidden">
             <button
-              onClick={() =>
-                setExpandedId(expanded ? null : inquiry.id)
-              }
+              onClick={() => setExpandedId(expanded ? null : inquiry.key)}
               className="w-full text-left p-4 hover:bg-muted/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="outline" className="text-[10px]">
-                      {inquiry.category}
-                    </Badge>
-                    {inquiry.status === "answered" ? (
+                    {hasReply ? (
                       <Badge className="text-[10px] bg-green-500">
                         <CheckCircle2 className="size-3 mr-0.5" />
                         답변완료
@@ -167,12 +194,7 @@ function InquiryList() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm line-clamp-1 mt-1">
-                    {inquiry.content}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {inquiry.createdAt}
-                  </p>
+                  <p className="text-sm line-clamp-1 mt-1">{inquiry.title}</p>
                 </div>
                 <div className="shrink-0 pt-1">
                   {expanded ? (
@@ -187,25 +209,15 @@ function InquiryList() {
             {expanded && (
               <div className="border-t px-4 py-4 space-y-4">
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground mb-1">
-                    문의 내용
-                  </p>
-                  <p className="text-sm leading-relaxed">{inquiry.content}</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">문의 내용</p>
+                  <p className="text-sm leading-relaxed">{inquiry.description}</p>
                 </div>
-
                 <div className="rounded-lg bg-muted/50 p-4">
-                  {inquiry.status === "answered" && inquiry.reply ? (
+                  {hasReply ? (
                     <>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-medium text-primary">
-                          관리자 답변
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {inquiry.repliedAt}
-                        </p>
-                      </div>
+                      <p className="text-xs font-medium text-primary mb-2">관리자 답변</p>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
-                        {inquiry.reply}
+                        {inquiry.reply!.text}
                       </p>
                     </>
                   ) : (

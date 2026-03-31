@@ -2,27 +2,31 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Ticket, Tag, ChevronDown, ChevronUp, Gift } from "lucide-react"
+import { Ticket, Tag, ChevronDown, ChevronUp, Gift, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { couponsMock } from "../data/mock"
-import type { CouponItem } from "../types"
+import { useCouponList } from "../hooks/useCouponList"
+import type { Coupon } from "../types"
 
 export function CouponListPage() {
+  const { coupons, isLoading, error, register } = useCouponList()
   const [couponCode, setCouponCode] = useState("")
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
 
-  const activeCoupons = couponsMock.filter((c) => !c.isUsed && !c.isExpired)
-  const inactiveCoupons = couponsMock.filter((c) => c.isUsed || c.isExpired)
+  const activeCoupons = coupons.filter((c) => c.dimmed_yn !== "Y")
+  const inactiveCoupons = coupons.filter((c) => c.dimmed_yn === "Y")
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!couponCode.trim()) return
-    // Mock behavior
-    alert("쿠폰이 등록되었습니다!")
-    setCouponCode("")
+    try {
+      await register(couponCode)
+      setCouponCode("")
+    } catch {
+      alert("쿠폰 등록에 실패했습니다")
+    }
   }
 
   return (
@@ -50,23 +54,28 @@ export function CouponListPage() {
         </span>
       </div>
 
-      {/* Active Coupons */}
-      {activeCoupons.length === 0 && inactiveCoupons.length === 0 ? (
+      {/* Loading */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-8 text-destructive text-sm">{error}</div>
+      ) : activeCoupons.length === 0 && inactiveCoupons.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="space-y-3">
           {activeCoupons.map((coupon) => (
             <CouponCard
-              key={coupon.id}
+              key={coupon.coupon_pk}
               coupon={coupon}
-              expanded={expandedId === coupon.id}
+              expanded={expandedId === coupon.coupon_pk}
               onToggle={() =>
-                setExpandedId(expandedId === coupon.id ? null : coupon.id)
+                setExpandedId(expandedId === coupon.coupon_pk ? null : coupon.coupon_pk)
               }
             />
           ))}
 
-          {/* Inactive Coupons */}
           {inactiveCoupons.length > 0 && (
             <>
               <div className="pt-4 pb-2">
@@ -76,11 +85,11 @@ export function CouponListPage() {
               </div>
               {inactiveCoupons.map((coupon) => (
                 <CouponCard
-                  key={coupon.id}
+                  key={coupon.coupon_pk}
                   coupon={coupon}
-                  expanded={expandedId === coupon.id}
+                  expanded={expandedId === coupon.coupon_pk}
                   onToggle={() =>
-                    setExpandedId(expandedId === coupon.id ? null : coupon.id)
+                    setExpandedId(expandedId === coupon.coupon_pk ? null : coupon.coupon_pk)
                   }
                   disabled
                 />
@@ -93,21 +102,27 @@ export function CouponListPage() {
   )
 }
 
+function formatDate(dt: string) {
+  return dt ? dt.slice(0, 10) : ""
+}
+
 function CouponCard({
   coupon,
   expanded,
   onToggle,
   disabled,
 }: {
-  coupon: CouponItem
+  coupon: Coupon
   expanded: boolean
   onToggle: () => void
   disabled?: boolean
 }) {
   const discountDisplay =
-    coupon.discountType === "percent"
-      ? `${coupon.discountValue}%`
-      : `${coupon.discountValue.toLocaleString()}원`
+    coupon.discount_type === "RATE"
+      ? `${coupon.discount_amount}%`
+      : `${coupon.discount_amount.toLocaleString()}원`
+
+  const isDimmed = coupon.dimmed_yn === "Y"
 
   return (
     <div
@@ -123,20 +138,16 @@ function CouponCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              {coupon.isExpired && (
-                <Badge variant="destructive" className="text-xs">만료</Badge>
-              )}
-              {coupon.isUsed && (
-                <Badge variant="secondary" className="text-xs">사용완료</Badge>
-              )}
-              {!coupon.isExpired && !coupon.isUsed && (
+              {isDimmed ? (
+                <Badge variant="secondary" className="text-xs">만료</Badge>
+              ) : (
                 <Badge variant="default" className="text-xs">사용가능</Badge>
               )}
             </div>
             <p className="font-semibold mt-1">{coupon.title}</p>
             <p className="text-2xl font-bold text-primary mt-1">{discountDisplay}</p>
             <p className="text-xs text-muted-foreground mt-2">
-              {coupon.validFrom} ~ {coupon.validTo}
+              {formatDate(coupon.usable_start_dt)} ~ {formatDate(coupon.usable_end_dt)}
             </p>
           </div>
           <div className="shrink-0 pt-1">
@@ -149,11 +160,11 @@ function CouponCard({
         </div>
       </button>
 
-      {/* Expanded Details */}
       {expanded && (
         <div className="border-t px-4 py-3 space-y-2 bg-muted/30">
-          <DetailRow icon={<Tag className="size-3.5" />} label="사용조건" value={coupon.usageCondition} />
-          <DetailRow icon={<Ticket className="size-3.5" />} label="적용 숙소" value={coupon.applicableAccommodations} />
+          {coupon.constraints?.map((c) => (
+            <DetailRow key={c.code} icon={<Tag className="size-3.5" />} label={c.code} value={c.description} />
+          ))}
           <p className="text-xs text-muted-foreground pt-1">{coupon.description}</p>
         </div>
       )}

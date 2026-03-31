@@ -183,6 +183,35 @@
 
 ---
 
+## Phase 5 — Mock → API 전환 `branch: feat/phase5-mock-to-api`
+
+> **목표**: API 함수가 준비된 도메인의 UI를 mock 데이터에서 실제 API 호출로 전환
+
+### Step 1 — API 함수 준비 완료, mock → API 전환 (6개)
+- [x] `P5-1` coupon — hook + CouponListPage API 전환 완료
+  - ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
+- [x] `P5-3` event — hook + EventListPage API 전환 완료
+- [x] `P5-4` settings — hook + SettingsPage API 전환 완료
+- [x] `P5-5` terms — API 전환 (약관 목록 API → iframe URL 표시)
+- [x] `P5-6` review — API 전환 (Review 타입 매핑, 삭제/사장님 답글 지원)
+- [x] `P5-2` mileage — hook 연결 (목록 API 없어 상세 조회만, 추후 마이페이지 연동 필요)
+
+### Step 2 — API 미존재, AOS/서버 코드 탐색 후 구현 (4개)
+- [x] `P5-7` notification → alarmApi로 전환 (목록 조회/읽음 처리/삭제)
+- [x] `P5-9` inquiry → csApi(board_type=INQUIRY)로 전환 (목록 조회/문의 등록)
+- [ ] `P5-8` favorites — V2에 목록 조회 API 없음, V1 전용 (보류)
+- [x] `P5-10` guide — API 없음, 정적 콘텐츠 유지
+
+### Step 3 — 컴포넌트 없는 도메인 UI 구현 (3개)
+- [x] `P5-11` alarm — NotificationPage가 alarmApi 사용 (P5-7에서 완료)
+- [x] `P5-12` cs(공지/FAQ) — NoticeListPage/FaqPage → csApi 전환 완료
+- [ ] `P5-13` friend — 페이지 라우트 미존재, API 준비만 완료 (보류)
+
+### 명세 + 마무리
+- [x] `P5-14` mock → API 전환 결과 명세서 (`docs/api/mock-to-api-migration.md`)
+
+---
+
 ## 제외 (웹 불필요 또는 별도 검토)
 
 - `POST /auth/users/refresh/push-token` — 푸시 토큰 갱신 (웹 푸시 도입 시 별도 검토)

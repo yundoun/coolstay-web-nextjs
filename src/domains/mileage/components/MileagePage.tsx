@@ -24,19 +24,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { mileageSummaryMock, storeMileagesMock } from "../data/mock"
-import type { StoreMileage, MileageStatus } from "../types"
-
-const STATUS_LABELS: Record<MileageStatus, { label: string; color: string }> = {
-  earned: { label: "적립", color: "text-blue-600" },
-  used: { label: "사용", color: "text-red-500" },
-  expired: { label: "소멸", color: "text-muted-foreground" },
-}
+import { useMileageDetail } from "../hooks/useMileage"
 
 export function MileagePage() {
   const [selectedStore, setSelectedStore] = useState<string | null>(null)
-  const summary = mileageSummaryMock
-  const stores = storeMileagesMock
+  // TODO: 마일리지 목록 API가 없어서 상세 조회만 가능
+  // 숙소별 목록은 마이페이지 API 연동 후 store_key 목록을 가져와야 함
+  const { data: mileageData, isLoading } = useMileageDetail(selectedStore || undefined)
+  const summary = {
+    currentBalance: mileageData?.amount ?? 0,
+    totalEarned: mileageData?.total_amount ?? 0,
+    expiringAmount: mileageData?.expire_amount ?? 0,
+  }
+  const stores: { id: string; name: string }[] = [] // 목록 API 연동 전까지 빈 배열
 
   const activeStore = stores.find((s) => s.id === selectedStore)
 

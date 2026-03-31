@@ -3,6 +3,12 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 14:24** | Phase 5 mock → API 전환 결과 명세서 [P5-14] | [`d6498c1`](.work-history/entries/2026-03-31_15-30_P5-14_migration-doc.md)
+- **2026-03-31 14:19** | Step 3 — 공지/FAQ csApi 전환 [P5-11,12] | [`838c2d0`](.work-history/entries/2026-03-31_15-15_P5-11-12_notice-faq-api.md)
+- **2026-03-31 14:17** | Step 2 — notification/inquiry API 전환 [P5-7,9] | [`a2ef63b`](.work-history/entries/2026-03-31_15-00_P5-7-9_notification-inquiry-api.md)
+- **2026-03-31 14:12** | UI 재설계 — terms/review/mileage API 전환 [P5-2,5,6] | [`86a892d`](.work-history/entries/2026-03-31_14-30_P5-2-5-6_ui-redesign.md)
+- **2026-03-31 14:05** | Settings 컴포넌트 API 전환 [P5-4] | [`c2497a6`](.work-history/entries/2026-03-31_14-00_P5-4_settings-api-switch.md)
+- **2026-03-31 14:02** | Phase 5 Step 1 — mock → API 전환 [P5-1~6] | [`413f9d7`](.work-history/entries/2026-03-31_13-30_P5-1-6_mock-to-api-step1.md)
 - **2026-03-31 13:16** | 이미지 Lightbox 및 UX 개선 | [`4bf2142`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
 - **2026-03-31 13:15** | 이미지 Lightbox 및 UX 개선 | [`dfccb3e`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
 - **2026-03-31 12:57** | E2E Phase 4 테스트 실행 | [`b8e17c3`](.work-history/entries/2026-03-31_13-15_E2E_phase4-test.md)

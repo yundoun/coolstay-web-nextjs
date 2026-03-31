@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import {
   Bell,
@@ -11,23 +11,21 @@ import {
   Info,
   Trash2,
   BellOff,
+  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { notificationsMock } from "../data/mock"
-import type { NotificationItem, NotificationType } from "../types"
+import { getAlarmList, deleteAlarms, updateAlarmCard } from "@/domains/alarm/api/alarmApi"
+import type { Alarm } from "@/domains/alarm/types"
 
-const typeConfig: Record<
-  NotificationType,
-  { icon: React.ElementType; color: string }
-> = {
-  booking: { icon: CalendarCheck, color: "text-blue-500 bg-blue-50" },
-  coupon: { icon: Ticket, color: "text-orange-500 bg-orange-50" },
-  review: { icon: PenLine, color: "text-green-500 bg-green-50" },
-  event: { icon: PartyPopper, color: "text-purple-500 bg-purple-50" },
-  system: { icon: Info, color: "text-gray-500 bg-gray-50" },
+const categoryIcons: Record<string, { icon: React.ElementType; color: string }> = {
+  RESERVATION: { icon: CalendarCheck, color: "text-blue-500 bg-blue-50" },
+  BENEFIT: { icon: Ticket, color: "text-orange-500 bg-orange-50" },
+  ACTIVITY: { icon: PenLine, color: "text-green-500 bg-green-50" },
+  EVENT: { icon: PartyPopper, color: "text-purple-500 bg-purple-50" },
 }
+const defaultIcon = { icon: Info, color: "text-gray-500 bg-gray-50" }
 
 function getRelativeTime(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -44,20 +42,40 @@ function getRelativeTime(dateStr: string) {
 }
 
 export function NotificationPage() {
-  const [notifications, setNotifications] = useState(notificationsMock)
+  const [alarms, setAlarms] = useState<Alarm[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length
-
-  const handleDeleteAll = () => {
-    if (confirm("모든 알림을 삭제하시겠습니까?")) {
-      setNotifications([])
+  const fetchAlarms = useCallback(async () => {
+    setIsLoading(true)
+    try {
+      const res = await getAlarmList({ count: 50 })
+      setAlarms(res.alarms ?? [])
+    } catch {
+      setAlarms([])
+    } finally {
+      setIsLoading(false)
     }
+  }, [])
+
+  useEffect(() => { fetchAlarms() }, [fetchAlarms])
+
+  const unreadCount = alarms.filter((a) => a.read_yn === "N").length
+
+  const handleDeleteAll = async () => {
+    if (!confirm("모든 알림을 삭제하시겠습니까?")) return
+    try {
+      await deleteAlarms({ delete_type: "ALL", alarm_key: alarms.map((a) => a.key) })
+      setAlarms([])
+    } catch { /* ignore */ }
   }
 
-  const handleClick = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    )
+  const handleClick = async (alarm: Alarm) => {
+    if (alarm.read_yn === "N") {
+      try {
+        await updateAlarmCard({ type: "READ", alarm_key: [alarm.key] })
+        setAlarms((prev) => prev.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a))
+      } catch { /* ignore */ }
+    }
   }
 
   return (
@@ -71,20 +89,19 @@ export function NotificationPage() {
             </span>
           )}
         </div>
-        {notifications.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleDeleteAll}
-            className="text-muted-foreground"
-          >
+        {alarms.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={handleDeleteAll} className="text-muted-foreground">
             <Trash2 className="size-4 mr-1" />
             전체 삭제
           </Button>
         )}
       </div>
 
-      {notifications.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : alarms.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="rounded-full bg-muted p-6 mb-4">
             <BellOff className="size-10 text-muted-foreground" />
@@ -96,12 +113,8 @@ export function NotificationPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {notifications.map((notification) => (
-            <NotificationCard
-              key={notification.id}
-              notification={notification}
-              onClick={() => handleClick(notification.id)}
-            />
+          {alarms.map((alarm) => (
+            <AlarmCard key={alarm.key} alarm={alarm} onClick={() => handleClick(alarm)} />
           ))}
         </div>
       )}
@@ -109,60 +122,37 @@ export function NotificationPage() {
   )
 }
 
-function NotificationCard({
-  notification,
-  onClick,
-}: {
-  notification: NotificationItem
-  onClick: () => void
-}) {
-  const config = typeConfig[notification.type]
+function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
+  const config = categoryIcons[alarm.category_code] || defaultIcon
   const Icon = config.icon
-  const [iconBg, iconColor] = config.color.split(" ")
+  const isRead = alarm.read_yn === "Y"
 
-  const Wrapper = notification.link ? Link : "div"
-  const wrapperProps = notification.link
-    ? { href: notification.link, onClick }
-    : { onClick }
+  const Wrapper = alarm.link ? Link : "div"
+  const wrapperProps = alarm.link ? { href: alarm.link, onClick } : { onClick }
+
+  const regDate = new Date(alarm.reg_dt < 1e12 ? alarm.reg_dt * 1000 : alarm.reg_dt)
+  const timeAgo = getRelativeTime(regDate.toISOString())
 
   return (
     <Wrapper
-      {...(wrapperProps as any)}
+      {...(wrapperProps as React.ComponentProps<"div"> & React.ComponentProps<typeof Link>)}
       className={cn(
         "flex gap-3 p-4 rounded-xl border transition-colors cursor-pointer",
-        notification.isRead
-          ? "bg-card hover:bg-muted/30"
-          : "bg-primary/5 border-primary/20 hover:bg-primary/10"
+        isRead ? "bg-card hover:bg-muted/30" : "bg-primary/5 border-primary/20 hover:bg-primary/10"
       )}
     >
-      <div
-        className={cn(
-          "flex items-center justify-center size-10 rounded-full shrink-0",
-          config.color
-        )}
-      >
+      <div className={cn("flex items-center justify-center size-10 rounded-full shrink-0", config.color)}>
         <Icon className="size-5" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <p
-            className={cn(
-              "text-sm leading-snug",
-              notification.isRead ? "font-medium" : "font-bold"
-            )}
-          >
-            {notification.title}
+          <p className={cn("text-sm leading-snug", isRead ? "font-medium" : "font-bold")}>
+            {alarm.title}
           </p>
-          {!notification.isRead && (
-            <span className="size-2 rounded-full bg-primary shrink-0 mt-1.5" />
-          )}
+          {!isRead && <span className="size-2 rounded-full bg-primary shrink-0 mt-1.5" />}
         </div>
-        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-          {notification.message}
-        </p>
-        <p className="text-xs text-muted-foreground/70 mt-1.5">
-          {getRelativeTime(notification.createdAt)}
-        </p>
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{alarm.summary || alarm.description}</p>
+        <p className="text-xs text-muted-foreground/70 mt-1.5">{timeAgo}</p>
       </div>
     </Wrapper>
   )

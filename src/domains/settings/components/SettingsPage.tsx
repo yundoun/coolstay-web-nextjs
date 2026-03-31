@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import {
   Bell,
@@ -11,18 +10,14 @@ import {
   ChevronRight,
   FileText,
   UserX,
+  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { settingsMock } from "../data/mock"
+import { useSettings } from "../hooks/useSettings"
 
 export function SettingsPage() {
-  const [emailNotif, setEmailNotif] = useState(settingsMock.emailNotification)
-  const [smsNotif, setSmsNotif] = useState(settingsMock.smsNotification)
-  const [marketingConsent, setMarketingConsent] = useState(
-    settingsMock.marketingConsent
-  )
+  const { getSettingValue, updateSetting, isLoading } = useSettings()
 
   const handleLogout = () => {
     if (confirm("로그아웃하시겠습니까?")) {
@@ -35,38 +30,44 @@ export function SettingsPage() {
       <h1 className="text-2xl font-bold mb-6">설정</h1>
 
       {/* Notification Settings */}
-      <div className="rounded-xl border bg-card overflow-hidden">
-        <div className="px-4 py-3 bg-muted/30">
-          <div className="flex items-center gap-2">
-            <Bell className="size-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">알림 설정</h2>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <div className="px-4 py-3 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Bell className="size-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">알림 설정</h2>
+            </div>
+          </div>
+
+          <div className="divide-y">
+            <SettingToggle
+              icon={<Mail className="size-5 text-muted-foreground" />}
+              label="이메일 알림 수신"
+              description="예약 확인, 이용 안내 등을 이메일로 받습니다"
+              checked={getSettingValue("EMAIL") === "Y"}
+              onCheckedChange={(v) => updateSetting("EMAIL", v ? "Y" : "N")}
+            />
+            <SettingToggle
+              icon={<Smartphone className="size-5 text-muted-foreground" />}
+              label="SMS 알림 수신"
+              description="예약 확인, 체크인 안내 등을 문자로 받습니다"
+              checked={getSettingValue("SMS") === "Y"}
+              onCheckedChange={(v) => updateSetting("SMS", v ? "Y" : "N")}
+            />
+            <SettingToggle
+              icon={<Megaphone className="size-5 text-muted-foreground" />}
+              label="마케팅 정보 수신 동의"
+              description="이벤트, 할인 쿠폰 등 마케팅 정보를 받습니다"
+              checked={getSettingValue("MARKETING") === "Y"}
+              onCheckedChange={(v) => updateSetting("MARKETING", v ? "Y" : "N")}
+            />
           </div>
         </div>
-
-        <div className="divide-y">
-          <SettingToggle
-            icon={<Mail className="size-5 text-muted-foreground" />}
-            label="이메일 알림 수신"
-            description="예약 확인, 이용 안내 등을 이메일로 받습니다"
-            checked={emailNotif}
-            onCheckedChange={setEmailNotif}
-          />
-          <SettingToggle
-            icon={<Smartphone className="size-5 text-muted-foreground" />}
-            label="SMS 알림 수신"
-            description="예약 확인, 체크인 안내 등을 문자로 받습니다"
-            checked={smsNotif}
-            onCheckedChange={setSmsNotif}
-          />
-          <SettingToggle
-            icon={<Megaphone className="size-5 text-muted-foreground" />}
-            label="마케팅 정보 수신 동의"
-            description="이벤트, 할인 쿠폰 등 마케팅 정보를 받습니다"
-            checked={marketingConsent}
-            onCheckedChange={setMarketingConsent}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Links */}
       <div className="mt-4 rounded-xl border bg-card overflow-hidden divide-y">
