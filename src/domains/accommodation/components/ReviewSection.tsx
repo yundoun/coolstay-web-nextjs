@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { Star, ChevronRight, Award } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ImageLightbox } from "@/components/ui/image-lightbox"
 import { cn } from "@/lib/utils"
 import type { ReviewSummary, Review } from "../types"
 
@@ -21,95 +23,122 @@ export function ReviewSection({
   accommodationId,
 }: ReviewSectionProps) {
   const maxCount = Math.max(...Object.values(reviews.ratingDistribution))
+  const [lightboxImages, setLightboxImages] = useState<string[]>([])
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  const openLightbox = (images: string[], index: number) => {
+    setLightboxImages(images)
+    setLightboxIndex(index)
+    setLightboxOpen(true)
+  }
 
   return (
-    <div>
-      <div className="flex items-end justify-between mb-6">
-        <h2 className="text-xl font-semibold">
-          리뷰{" "}
-          <span className="text-muted-foreground font-normal">
-            ({reviews.totalCount.toLocaleString()})
-          </span>
-        </h2>
-        <Button variant="ghost" size="sm" className="gap-1 text-primary" asChild>
-          <Link href={`/accommodations/${accommodationId}/reviews`}>
-            전체보기
-            <ChevronRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
+    <>
+      <div>
+        <div className="flex items-end justify-between mb-6">
+          <h2 className="text-xl font-semibold">
+            리뷰{" "}
+            <span className="text-muted-foreground font-normal">
+              ({reviews.totalCount.toLocaleString()})
+            </span>
+          </h2>
+          <Button variant="ghost" size="sm" className="gap-1 text-primary" asChild>
+            <Link href={`/accommodations/${accommodationId}/reviews`}>
+              전체보기
+              <ChevronRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
 
-      {/* Rating Summary */}
-      <div className="flex gap-8 items-center p-6 rounded-xl bg-muted/50 mb-6">
-        <div className="text-center shrink-0">
-          <div className="text-4xl font-bold">{reviews.averageRating}</div>
-          <div className="flex items-center gap-0.5 mt-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={cn(
-                  "size-4",
-                  star <= Math.round(reviews.averageRating)
-                    ? "fill-primary text-primary"
-                    : "text-muted-foreground/30"
-                )}
-              />
+        {/* Rating Summary */}
+        <div className="flex gap-8 items-center p-6 rounded-xl bg-muted/50 mb-6">
+          <div className="text-center shrink-0">
+            <div className="text-4xl font-bold">{reviews.averageRating}</div>
+            <div className="flex items-center gap-0.5 mt-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={cn(
+                    "size-4",
+                    star <= Math.round(reviews.averageRating)
+                      ? "fill-primary text-primary"
+                      : "text-muted-foreground/30"
+                  )}
+                />
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {reviews.totalCount.toLocaleString()}개 리뷰
+            </p>
+          </div>
+
+          <div className="flex-1 space-y-1.5">
+            {[5, 4, 3, 2, 1].map((rating) => {
+              const count = reviews.ratingDistribution[rating] || 0
+              const width = maxCount > 0 ? (count / maxCount) * 100 : 0
+              return (
+                <div key={rating} className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground w-3 text-right">{rating}</span>
+                  <Star className="size-3 fill-primary text-primary" />
+                  <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all"
+                      style={{ width: `${width}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground w-8">{count}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* 베스트 리뷰 하이라이트 */}
+        {bestReview && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Award className="size-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">베스트 리뷰</span>
+            </div>
+            <div className="p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+              <ReviewCard review={bestReview} onImageClick={openLightbox} />
+            </div>
+          </div>
+        )}
+
+        {/* 최근 리뷰 */}
+        {recentReviews.length > 0 && (
+          <div className="space-y-4">
+            {recentReviews.map((review) => (
+              <div key={review.id} className="p-4 rounded-xl border bg-card">
+                <ReviewCard review={review} onImageClick={openLightbox} />
+              </div>
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {reviews.totalCount.toLocaleString()}개 리뷰
-          </p>
-        </div>
-
-        <div className="flex-1 space-y-1.5">
-          {[5, 4, 3, 2, 1].map((rating) => {
-            const count = reviews.ratingDistribution[rating] || 0
-            const width = maxCount > 0 ? (count / maxCount) * 100 : 0
-            return (
-              <div key={rating} className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-3 text-right">{rating}</span>
-                <Star className="size-3 fill-primary text-primary" />
-                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all"
-                    style={{ width: `${width}%` }}
-                  />
-                </div>
-                <span className="text-xs text-muted-foreground w-8">{count}</span>
-              </div>
-            )
-          })}
-        </div>
+        )}
       </div>
 
-      {/* 베스트 리뷰 하이라이트 */}
-      {bestReview && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Award className="size-4 text-primary" />
-            <span className="text-sm font-semibold text-primary">베스트 리뷰</span>
-          </div>
-          <div className="p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
-            <ReviewCard review={bestReview} />
-          </div>
-        </div>
+      {lightboxImages.length > 0 && (
+        <ImageLightbox
+          images={lightboxImages}
+          initialIndex={lightboxIndex}
+          open={lightboxOpen}
+          onOpenChange={setLightboxOpen}
+          alt="리뷰 이미지"
+        />
       )}
-
-      {/* 최근 리뷰 */}
-      {recentReviews.length > 0 && (
-        <div className="space-y-4">
-          {recentReviews.map((review) => (
-            <div key={review.id} className="p-4 rounded-xl border bg-card">
-              <ReviewCard review={review} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   )
 }
 
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({
+  review,
+  onImageClick,
+}: {
+  review: Review
+  onImageClick: (images: string[], index: number) => void
+}) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -138,7 +167,11 @@ function ReviewCard({ review }: { review: Review }) {
       {review.images && review.images.length > 0 && (
         <div className="flex gap-2 mt-3">
           {review.images.map((image, index) => (
-            <div key={index} className="relative size-20 rounded-lg overflow-hidden">
+            <button
+              key={index}
+              className="relative size-20 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all"
+              onClick={() => onImageClick(review.images!, index)}
+            >
               <Image
                 src={image}
                 alt={`리뷰 이미지 ${index + 1}`}
@@ -146,7 +179,7 @@ function ReviewCard({ review }: { review: Review }) {
                 className="object-cover"
                 sizes="80px"
               />
-            </div>
+            </button>
           ))}
         </div>
       )}

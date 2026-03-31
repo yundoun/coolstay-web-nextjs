@@ -50,7 +50,7 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             alt={accommodation.name}
             fill
             priority={priority}
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
 
