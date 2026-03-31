@@ -1,4 +1,5 @@
 import { api } from "@/lib/api/client"
+import type { ContentsListResponse } from "@/lib/api/types"
 import type {
   MypageInfo,
   UserUpdateRequest,
@@ -43,4 +44,13 @@ export function registerDibs(body: DibsRegisterRequest) {
 /** 찜 삭제 */
 export function deleteDibs(body: DibsDeleteRequest) {
   return api.post<void>("/auth/dibs/delete", body)
+}
+
+/** 찜 목록 조회 (contents/list search_type=ST006) */
+export function getDibsList(params?: { count?: number; cursor?: string }) {
+  return api.get<ContentsListResponse>("/contents/list", {
+    search_type: "ST006",
+    count: params?.count ?? 20,
+    cursor: params?.cursor,
+  })
 }

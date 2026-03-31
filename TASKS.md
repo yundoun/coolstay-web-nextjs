@@ -23,22 +23,25 @@
 > 마이페이지 내 모든 기능을 실제 API로 연결
 
 ### 마이페이지 홈
-- [ ] `P7-1` MyPage 쿠폰/마일리지/예약 카운트 → `getMypageInfo()` 연동
-- [ ] `P7-2` MyPage 찜 목록 → V1 API 또는 대안 검토
+- [x] `P7-1` MyPage 쿠폰/마일리지/예약 카운트 → `getMypageInfo()` 연동
+- [x] `P7-2` 찜 목록 → `GET /contents/list?search_type=ST006` (AOS 코드에서 확인)
+  - `getDibsList()` 함수 추가
 
 ### 프로필 수정
-- [ ] `P7-3` ProfileEditPage → `updateUser()` 연동
-  - 닉네임 변경
-  - 전화번호 변경 (SMS 인증 필요)
-- [ ] `P7-4` PasswordChangePage → `checkPassword()` + `updateUser()` 연동
-  - 현재 비밀번호 확인 → 새 비밀번호 설정
+- [x] `P7-3` ProfileEditPage → `updateUser()` + auth store 연동
+  - mock 제거, auth store에서 유저 정보 표시
+  - 닉네임/이름 변경 → API 호출 → 세션 갱신
+  - 전화번호 변경 → SMS 인증 → API 호출 → 세션 갱신
+- [x] `P7-4` PasswordChangePage → `encryptPassword()` + `updateUser()` 연동
+  - 비밀번호 AES 암호화 → API 호출 → 세션 갱신
 
 ### 회원 탈퇴
-- [ ] `P7-5` WithdrawPage → `checkPassword()` + `deleteUser()` 연동
-  - 비밀번호 확인 → 탈퇴 사유 선택 → 탈퇴 → clearSession + 홈 이동
+- [x] `P7-5` WithdrawPage → `getMypageInfo()` + `deleteUser()` 연동
+  - 실제 쿠폰/마일리지/예약 카운트 표시
+  - 탈퇴 → clearSession + 홈 이동
 
 ### 친구추천
-- [ ] `P7-6` 친구추천 페이지 라우트 + UI 구현 → `friendApi` 연동
+- [ ] `P7-6` 친구추천 페이지 라우트 + UI 구현 → `friendApi` 연동 (보류)
 
 ---
 

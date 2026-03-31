@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 14:47** | Phase 7 마이페이지 API 연동 강화 [P7-1~5] | [`f782737`](.work-history/entries/2026-03-31_16-30_P7-1-5_mypage-api-connect.md)
 - **2026-03-31 14:31** | Phase 6~9 태스크 설계 | [`1ad065b`](.work-history/entries/2026-03-31_16-15_chore_phase6-9-design.md)
 - **2026-03-31 14:28** | TASKS.md 정리 — 완료 항목 삭제, 다음 작업 설계 | [`e117433`](.work-history/entries/2026-03-31_16-00_chore_tasks-cleanup.md)
 - **2026-03-31 14:26** | E2E Phase 5 테스트 + 쿠폰 날짜 버그 수정 | [`1dc8191`](.work-history/entries/2026-03-31_15-45_E2E_phase5-test.md)
