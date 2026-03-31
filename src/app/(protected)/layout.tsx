@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { usePathname, redirect } from "next/navigation"
 import { useAuthStore } from "@/lib/stores/auth"
 
@@ -9,11 +10,23 @@ export default function ProtectedLayout({
   children: React.ReactNode
 }) {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
-  const hasHydrated = useAuthStore.persist.hasHydrated()
   const pathname = usePathname()
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    // persist hydration 완료 대기
+    if (useAuthStore.persist?.hasHydrated?.()) {
+      setHydrated(true)
+    } else {
+      const unsub = useAuthStore.persist?.onFinishHydration?.(() => {
+        setHydrated(true)
+      })
+      return () => unsub?.()
+    }
+  }, [])
 
   // hydration 완료 전에는 판단하지 않음
-  if (!hasHydrated) {
+  if (!hydrated) {
     return null
   }
 

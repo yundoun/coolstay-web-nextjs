@@ -587,34 +587,38 @@ export interface ReservRegisterResponse {
   pull?: unknown
 }
 
-// reserv/users/list — BookItem 관련
+// reserv/users/list — BookItem 관련 (snake_case: 실제 API 응답 형식)
 export interface BookMotelSimple {
   key: string
   name: string
-  phoneNumber: string
-  safeNumber: string
-  partnershipType: string
-  businessType: string
-  location: Location
-  images: ImageItem[]
+  phone_number?: string
+  safe_number?: string
+  partnership_type?: string
+  business_type?: string
+  location?: Location
+  images?: ImageItem[]
 }
 
 export interface BookItemSimple {
   key: string
   name: string
-  category: string
+  category: { code: string; name: string }
 }
 
 export interface BookPaymentSimple {
-  pg: string
-  method: string
-  impUid?: string
-  cardName?: string
+  pg_code?: string
+  method?: string
+  imp_uid?: string
+  card_name?: string
+  charge?: number
+  status?: string
+  paid_dt?: number
+  refund_charge?: number
 }
 
 export interface BookRefundPolicyItem {
   until: string
-  refundRate: number
+  refund_rate: number
 }
 
 export interface BookReviewItem {
@@ -624,37 +628,38 @@ export interface BookReviewItem {
 }
 
 export interface BookItem {
-  bookId: string
+  book_id: string
   name: string
-  phoneNumber: string
-  safeNumber?: string
-  startDt: number
-  endDt: number
-  regDt: number
-  vehicleYn: string
+  phone_number: string
+  safe_number?: string
+  start_dt: number
+  end_dt: number
+  reg_dt: number
+  vehicle_yn: string
   status: string
-  partialCancelYn?: string
-  receiptYn?: string
-  refundYn?: string
-  originPriceTotal: number
-  discountPriceTotal: number
-  discountPrice: number
-  totalPrice: number
-  usedPoint: number
-  refundPoint: number
+  partial_cancel_yn?: string
+  partial_refund_yn?: string
+  receipt_yn?: string
+  refund_yn?: string
+  origin_price_total: number
+  discount_price_total: number
+  discount_price: number
+  total_price: number
+  used_point?: number
+  refund_point?: number
   motel: BookMotelSimple
-  rooms: BookItemSimple[]
-  itemImages: ImageItem[]
-  usedCoupons?: Coupon[]
+  items?: BookItemSimple[]
+  item_images?: ImageItem[]
+  used_coupons?: Coupon[]
   payment?: BookPaymentSimple
   review?: BookReviewItem
-  refundPolicy?: BookRefundPolicyItem[]
-  reprImage?: string
+  refund_policies?: BookRefundPolicyItem[]
+  repr_image?: string
 }
 
 export interface BookListResponse {
-  totalCount: number
-  nextCursor?: string
+  total_count: number
+  next_cursor?: string
   books: BookItem[]
 }
 

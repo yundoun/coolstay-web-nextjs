@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { render, screen } from "@testing-library/react"
+import { render, screen, act } from "@testing-library/react"
 
 // next/navigation 모킹
 const mockRedirect = vi.fn()
@@ -15,6 +15,8 @@ vi.mock("next/navigation", () => ({
 // auth store 모킹 — hydration 상태 포함
 let mockIsLoggedIn = false
 let mockHasHydrated = true
+let onFinishCallback: (() => void) | null = null
+
 vi.mock("@/lib/stores/auth", () => ({
   useAuthStore: Object.assign(
     (selector: (state: { isLoggedIn: boolean }) => unknown) =>
@@ -26,9 +28,8 @@ vi.mock("@/lib/stores/auth", () => ({
       persist: {
         hasHydrated: () => mockHasHydrated,
         onFinishHydration: (fn: () => void) => {
-          // 즉시 호출하여 테스트 진행
-          if (mockHasHydrated) fn()
-          return () => {}
+          onFinishCallback = fn
+          return () => { onFinishCallback = null }
         },
       },
     }
@@ -39,6 +40,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockIsLoggedIn = false
   mockHasHydrated = true
+  onFinishCallback = null
 })
 
 async function loadLayout() {
@@ -109,7 +111,6 @@ describe("(protected) layout", () => {
       </ProtectedLayout>
     )
 
-    // hydration 전이므로 redirect 호출 없음
     expect(mockRedirect).not.toHaveBeenCalled()
   })
 
@@ -125,7 +126,6 @@ describe("(protected) layout", () => {
       </ProtectedLayout>
     )
 
-    // children이 렌더링되지 않음
     expect(screen.queryByTestId("protected-content")).toBeNull()
   })
 })
