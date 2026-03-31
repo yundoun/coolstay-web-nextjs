@@ -2,49 +2,86 @@
 
 ---
 
-## 미완료 항목
+## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth`
 
-### API 연동 보류
+> 카카오/네이버 SDK 세팅 + 소셜 로그인/회원가입 연동
 
-- [ ] `P1-2` 소셜 로그인 API — `POST /auth/sessions/users/sns` (카카오/네이버 SDK 세팅 필요)
-- [ ] `P1-7` 소셜 회원가입 API — `POST /auth/users/sns/register` (SDK 세팅 후)
-- [ ] `P5-8` favorites 찜 목록 조회 — V2에 목록 API 없음 (V1 `GET /users/motels`만 존재)
-- [ ] `P5-13` friend 친구추천 페이지 — 라우트 미존재, API 함수만 준비됨
-
-### 제한사항
-
-- mileage 숙소별 목록 API 없음 — store_key별 상세 조회만 가능, 마이페이지 연동 후 보완 필요
-- terms API가 URL 기반 — iframe 표시, CORS 이슈 가능성
-- review API 응답 snake_case/camelCase 매핑 — 실제 응답으로 검증 필요
+- [ ] `P6-1` 카카오 SDK 세팅 (JavaScript SDK 초기화, 앱 키 설정)
+- [ ] `P6-2` 네이버 SDK 세팅 (네이버 로그인 API 초기화)
+- [ ] `P6-3` 소셜 로그인 API 연동 — `POST /auth/sessions/users/sns`
+  - 카카오 토큰 → enc_sns_uid 암호화 → API 호출
+  - 네이버 토큰 → enc_sns_uid 암호화 → API 호출
+- [ ] `P6-4` 소셜 회원가입 API 연동 — `POST /auth/users/sns/register`
+  - 미가입 유저 → 약관 동의 + 전화번호 인증 → 가입
+- [ ] `P6-5` LoginPage 소셜 버튼 실제 동작 연결
+- [ ] `P6-6` RegisterPage 소셜 가입 플로우 연결
 
 ---
 
-## 다음 작업 후보
+## Phase 7 — 마이페이지 API 연동 강화 `branch: feat/phase7-mypage`
 
-### A. 소셜 로그인 (카카오/네이버)
-- 카카오/네이버 SDK 세팅
-- P1-2, P1-7 완료
-- 우선순위: 높음 (사용자 유입 채널)
+> 마이페이지 내 모든 기능을 실제 API로 연결
 
-### B. 마이페이지 API 연동 강화
-- `getMypageInfo()` → 마이페이지 쿠폰/마일리지/예약 카운트 표시
-- `updateUser()` → 프로필 수정 페이지 연결
-- `checkPassword()` → 비밀번호 확인 후 정보 수정
-- `deleteUser()` → 회원 탈퇴 플로우
-- 우선순위: 중간
+### 마이페이지 홈
+- [ ] `P7-1` MyPage 쿠폰/마일리지/예약 카운트 → `getMypageInfo()` 연동
+- [ ] `P7-2` MyPage 찜 목록 → V1 API 또는 대안 검토
 
-### C. UI/UX 개선
-- 반응형 디자인 검수
-- 로딩/에러 상태 통일
-- 빈 상태 디자인 일관성
-- 숙소 상세 페이지 UI 보강
-- 우선순위: 중간
+### 프로필 수정
+- [ ] `P7-3` ProfileEditPage → `updateUser()` 연동
+  - 닉네임 변경
+  - 전화번호 변경 (SMS 인증 필요)
+- [ ] `P7-4` PasswordChangePage → `checkPassword()` + `updateUser()` 연동
+  - 현재 비밀번호 확인 → 새 비밀번호 설정
 
-### D. 성능/품질
-- React Query 도입 (현재 useState+useEffect → 캐싱/재검증)
-- API 응답 타입 snake_case 통일 검증
-- 불필요한 mock 데이터 파일 정리
-- 우선순위: 낮음
+### 회원 탈퇴
+- [ ] `P7-5` WithdrawPage → `checkPassword()` + `deleteUser()` 연동
+  - 비밀번호 확인 → 탈퇴 사유 선택 → 탈퇴 → clearSession + 홈 이동
+
+### 친구추천
+- [ ] `P7-6` 친구추천 페이지 라우트 + UI 구현 → `friendApi` 연동
+
+---
+
+## Phase 8 — UI/UX 개선 `branch: feat/phase8-ui`
+
+> 전체 앱 품질 개선
+
+### 상태 표시 통일
+- [ ] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
+- [ ] `P8-2` 에러 상태 통일 (공통 ErrorBoundary 또는 에러 컴포넌트)
+- [ ] `P8-3` 빈 상태 디자인 일관성 검수
+
+### 페이지별 개선
+- [ ] `P8-4` 숙소 상세 페이지 UI 보강 (객실 목록, 편의시설 등)
+- [ ] `P8-5` 검색 결과 페이지 무한 스크롤 / 필터 UX
+- [ ] `P8-6` 예약 상세 페이지 UI 검수
+- [ ] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
+
+---
+
+## Phase 9 — 성능/품질 `branch: feat/phase9-quality`
+
+> 코드 품질 + 성능 최적화
+
+### React Query 확대
+- [ ] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
+  - 현재 useState+useEffect → useQuery로 교체
+  - 캐싱/재검증/로딩 상태 자동 관리
+- [ ] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
+
+### API 타입 정합성
+- [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준)
+  - booking 외 다른 도메인도 camelCase/snake_case 불일치 점검
+- [ ] `P9-4` 불필요한 mock 데이터 파일 정리 (11개 미사용 mock 삭제)
+- [ ] `P9-5` 아직 mock 사용 중인 컴포넌트 4개 전환
+  - search (SearchPageLayout, SearchInfoBar)
+  - accommodation (AccommodationDetailPage — mock fallback 제거)
+  - guide (정적 콘텐츠 유지 또는 board API)
+  - favorites (V1 API 검토)
+
+### 빌드/린트
+- [ ] `P9-6` LoginPage `useSearchParams` Suspense boundary 수정 (빌드 경고)
+- [ ] `P9-7` TypeScript strict 모드 점검
 
 ---
 
@@ -59,15 +96,6 @@
 | Phase 5 | Mock → API 전환 (10개 도메인) | 5 cases | 완료 |
 | **합계** | | **77 tests** | |
 
-### E2E 검증 이력
-
-| 테스트 | 이슈 | 상태 |
-|--------|------|------|
-| API 연결 (Phase 1~2) | ISSUE-1 hydration, ISSUE-2 예약 매핑 | 수정 완료 |
-| Phase 3 | 없음 | 완료 |
-| Phase 4 | 없음 | 완료 |
-| Phase 5 mock→API | ISSUE-3 쿠폰 날짜 포맷 | 수정 완료 |
-
 ### 문서
 
 - `docs/api/auth.md` — 인증 API 명세
@@ -75,4 +103,4 @@
 - `docs/api/cs.md` — 알림/공지/FAQ/문의 API 명세
 - `docs/api/contents.md` — 설정/이벤트/약관/친구추천 API 명세
 - `docs/api/mock-to-api-migration.md` — Mock→API 전환 결과
-- `docs/test-reports/e2e/` — E2E 테스트 결과 4건
+- `docs/test-reports/e2e/` — E2E 테스트 결과 5건
