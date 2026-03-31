@@ -4,6 +4,31 @@
 
 ---
 
+## E2E API 연결 테스트 `branch: feat/e2e-api-test`
+
+> **목표**: Playwright로 실제 dev 서버 API 연결 상태 검증
+> **방식**: `request` context로 직접 API 호출 (UI 불필요)
+> **서버**: `http://dev.server.coolstay.co.kr:9000`
+
+### 결과: Playwright MCP 직접 조작으로 검증 (2026-03-31)
+
+- [x] 임시 토큰 발급 `POST /auth/sessions/temporary` → 200 OK
+- [x] 이메일 로그인 `POST /auth/sessions/users` → 200 OK
+- [x] 홈 메인 `POST /home/main` → 200 OK
+- [x] 검색 `GET /contents/myArea/list` → 200 OK (248건)
+- [x] 숙소 상세 `GET /contents/details/list` → 200 OK
+- [x] 예약 목록 `GET /reserv/users/list` → 200 OK (렌더링 에러 있음)
+- [ ] MyPage/Dibs/Coupon/Mileage — UI 미연결 (API 함수만 존재, mock 사용 중)
+
+### 발견된 이슈
+
+- **ISSUE-1** Protected Route Hydration 리다이렉트 → `fix/hydration-guard`
+- **ISSUE-2** 예약 목록 렌더링 에러 (bookingId undefined) → `fix/booking-list-mapping`
+
+> 상세: `docs/test-reports/e2e/2026-03-31_api-connection.md`
+
+---
+
 ## Phase 1 — 인증/회원 `branch: feat/phase1-auth`
 
 > Swagger `/api/v2/mobile/auth` 도메인 중 인증 핵심 플로우
