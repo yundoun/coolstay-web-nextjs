@@ -191,10 +191,10 @@
 - [x] `P5-1` coupon — hook + CouponListPage API 전환 완료
   - ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
 - [x] `P5-3` event — hook + EventListPage API 전환 완료
-- [ ] `P5-2` mileage — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
-- [ ] `P5-4` settings — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
-- [ ] `P5-5` terms — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
-- [ ] `P5-6` review — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
+- [x] `P5-4` settings — hook + SettingsPage API 전환 완료
+- [ ] `P5-2` mileage — hook 준비, 컴포넌트 구조 변경 필요 (mock과 API 타입 불일치)
+- [ ] `P5-5` terms — hook 준비, API가 URL 기반이라 UI 재설계 필요
+- [ ] `P5-6` review — hook 준비, 컴포넌트 구조 변경 필요 (mock과 API 타입 불일치)
 
 ### Step 2 — API 미존재, AOS/서버 코드 탐색 후 구현 (4개)
 - [ ] `P5-7` notification → alarm API로 전환 (alarmApi 활용)

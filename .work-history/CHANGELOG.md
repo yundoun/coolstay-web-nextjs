@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 14:05** | Settings 컴포넌트 API 전환 [P5-4] | [`c2497a6`](.work-history/entries/2026-03-31_14-00_P5-4_settings-api-switch.md)
 - **2026-03-31 14:02** | Phase 5 Step 1 — mock → API 전환 [P5-1~6] | [`413f9d7`](.work-history/entries/2026-03-31_13-30_P5-1-6_mock-to-api-step1.md)
 - **2026-03-31 13:16** | 이미지 Lightbox 및 UX 개선 | [`4bf2142`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
 - **2026-03-31 13:15** | 이미지 Lightbox 및 UX 개선 | [`dfccb3e`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
