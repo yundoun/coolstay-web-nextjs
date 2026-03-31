@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { renderHook, waitFor } from "@testing-library/react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { createElement } from "react"
 
 const { mockGetCouponList, mockRegisterCoupon } = vi.hoisted(() => ({
   mockGetCouponList: vi.fn(),
@@ -12,6 +14,14 @@ vi.mock("../../api/couponApi", () => ({
 }))
 
 import { useCouponList } from "../useCouponList"
+
+function createWrapper() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  })
+  return ({ children }: { children: React.ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children)
+}
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -29,7 +39,7 @@ describe("useCouponList", () => {
       ],
     })
 
-    const { result } = renderHook(() => useCouponList())
+    const { result } = renderHook(() => useCouponList(), { wrapper: createWrapper() })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -41,13 +51,13 @@ describe("useCouponList", () => {
   })
 
   it("에러 발생 시 error를 반환한다", async () => {
-    mockGetCouponList.mockRejectedValueOnce(new Error("서버 에러"))
+    mockGetCouponList.mockRejectedValue(new Error("서버 에러"))
 
-    const { result } = renderHook(() => useCouponList())
+    const { result } = renderHook(() => useCouponList(), { wrapper: createWrapper() })
 
     await waitFor(() => {
-      expect(result.current.isLoading).toBe(false)
-    })
+      expect(result.current.error).not.toBeNull()
+    }, { timeout: 5000 })
 
     expect(result.current.error).toBe("서버 에러")
     expect(result.current.coupons).toEqual([])

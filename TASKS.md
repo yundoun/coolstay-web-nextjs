@@ -79,24 +79,28 @@
 > 코드 품질 + 성능 최적화
 
 ### React Query 확대
-- [ ] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
-  - 현재 useState+useEffect → useQuery로 교체
-  - 캐싱/재검증/로딩 상태 자동 관리
-- [ ] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
+- [x] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
+  - 6개 훅 useState+useEffect → useQuery 교체
+  - settings: optimistic update + rollback 유지
+  ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
+- [x] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
+  - 4개 컴포넌트 내 useState+useEffect → useQuery 교체
+  - notification: optimistic update (읽음 처리), invalidate (삭제)
+  - inquiry: LoadingSpinner/EmptyState 공통 컴포넌트 적용
 
 ### API 타입 정합성
-- [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준)
+- [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준) — E2E 단계로 이관
   - booking 외 다른 도메인도 camelCase/snake_case 불일치 점검
-- [ ] `P9-4` 불필요한 mock 데이터 파일 정리 (11개 미사용 mock 삭제)
-- [ ] `P9-5` 아직 mock 사용 중인 컴포넌트 4개 전환
+- [x] `P9-4` 불필요한 mock 데이터 파일 정리 (11개 미사용 mock 삭제)
+- [ ] `P9-5` 아직 mock 사용 중인 컴포넌트 4개 전환 — API fallback/미존재로 보류
   - search (SearchPageLayout, SearchInfoBar)
   - accommodation (AccommodationDetailPage — mock fallback 제거)
   - guide (정적 콘텐츠 유지 또는 board API)
   - favorites (V1 API 검토)
 
 ### 빌드/린트
-- [ ] `P9-6` LoginPage `useSearchParams` Suspense boundary 수정 (빌드 경고)
-- [ ] `P9-7` TypeScript strict 모드 점검
+- [x] `P9-6` LoginPage `useSearchParams` Suspense boundary 수정 (빌드 성공)
+- [x] `P9-7` TypeScript strict 모드 점검 — strict: true 확인, 에러 0개
 
 ---
 

@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
 import Link from "next/link"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Bell,
   CalendarCheck,
@@ -43,30 +44,21 @@ function getRelativeTime(dateStr: string) {
 }
 
 export function NotificationPage() {
-  const [alarms, setAlarms] = useState<Alarm[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery({
+    queryKey: ["alarms"],
+    queryFn: () => getAlarmList({ count: 50 }),
+    retry: 1,
+  })
 
-  const fetchAlarms = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getAlarmList({ count: 50 })
-      setAlarms(res.alarms ?? [])
-    } catch {
-      setAlarms([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchAlarms() }, [fetchAlarms])
-
+  const alarms = data?.alarms ?? []
   const unreadCount = alarms.filter((a) => a.read_yn === "N").length
 
   const handleDeleteAll = async () => {
     if (!confirm("모든 알림을 삭제하시겠습니까?")) return
     try {
       await deleteAlarms({ delete_type: "ALL", alarm_key: alarms.map((a) => a.key) })
-      setAlarms([])
+      queryClient.invalidateQueries({ queryKey: ["alarms"] })
     } catch { /* ignore */ }
   }
 
@@ -74,7 +66,11 @@ export function NotificationPage() {
     if (alarm.read_yn === "N") {
       try {
         await updateAlarmCard({ type: "READ", alarm_key: [alarm.key] })
-        setAlarms((prev) => prev.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a))
+        // Optimistic update
+        queryClient.setQueryData(["alarms"], {
+          ...data,
+          alarms: alarms.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a),
+        })
       } catch { /* ignore */ }
     }
   }

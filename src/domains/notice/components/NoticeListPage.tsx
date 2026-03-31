@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Megaphone, ChevronDown, ChevronUp } from "lucide-react"
 import { Container } from "@/components/layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -11,23 +12,13 @@ import { getNoticeList } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
 
 export function NoticeListPage() {
-  const [items, setItems] = useState<BoardItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { data, isLoading } = useQuery({
+    queryKey: ["notices"],
+    queryFn: () => getNoticeList(),
+    retry: 1,
+  })
+  const items = data?.board_items ?? []
   const [expandedId, setExpandedId] = useState<string | null>(null)
-
-  const fetchList = useCallback(async () => {
-    setIsLoading(true)
-    try {
-      const res = await getNoticeList()
-      setItems(res.board_items ?? [])
-    } catch {
-      setItems([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchList() }, [fetchList])
 
   return (
     <Container size="narrow" padding="responsive" className="py-8">

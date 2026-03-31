@@ -1,32 +1,19 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { getMileageDetail } from "../api/mileageApi"
-import type { MileageDetailResponse } from "../types"
 
 export function useMileageDetail(storeKey?: string) {
-  const [data, setData] = useState<MileageDetailResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["mileage", storeKey],
+    queryFn: () => getMileageDetail({ store_key: storeKey! }),
+    enabled: !!storeKey,
+    retry: 1,
+  })
 
-  const fetch = useCallback(async () => {
-    if (!storeKey) {
-      setIsLoading(false)
-      return
-    }
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getMileageDetail({ store_key: storeKey })
-      setData(res)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "마일리지를 불러올 수 없습니다")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [storeKey])
-
-  useEffect(() => { fetch() }, [fetch])
-
-  return { data, isLoading, error }
+  return {
+    data: data ?? null,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : "마일리지를 불러올 수 없습니다") : null,
+  }
 }
