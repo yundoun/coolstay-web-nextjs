@@ -1,32 +1,30 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback } from "react"
 import { getReviewList } from "../api/reviewApi"
-import type { ReviewListResponse } from "@/lib/api/types"
 
 export function useMyReviews() {
-  const [data, setData] = useState<ReviewListResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
-  const fetchList = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getReviewList({
-        search_type: "ST302",
-        search_extra: "",
-        count: 20,
-      })
-      setData(res)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "리뷰를 불러올 수 없습니다")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["myReviews"],
+    queryFn: () => getReviewList({
+      search_type: "ST302",
+      search_extra: "",
+      count: 20,
+    }),
+    retry: 1,
+  })
 
-  useEffect(() => { fetchList() }, [fetchList])
+  const refresh = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["myReviews"] })
+  }, [queryClient])
 
-  return { data, isLoading, error, refresh: fetchList }
+  return {
+    data: data ?? null,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : "리뷰를 불러올 수 없습니다") : null,
+    refresh,
+  }
 }

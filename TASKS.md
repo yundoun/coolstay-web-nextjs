@@ -79,9 +79,10 @@
 > 코드 품질 + 성능 최적화
 
 ### React Query 확대
-- [ ] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
-  - 현재 useState+useEffect → useQuery로 교체
-  - 캐싱/재검증/로딩 상태 자동 관리
+- [x] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
+  - 6개 훅 useState+useEffect → useQuery 교체
+  - settings: optimistic update + rollback 유지
+  ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
 - [ ] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
 
 ### API 타입 정합성

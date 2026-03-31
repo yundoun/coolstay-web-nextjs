@@ -1,42 +1,41 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback } from "react"
 import { getUserSettings, updateUserSettings } from "../api/settingsApi"
-import type { SettingCode } from "../types"
 
 export function useSettings() {
-  const [settings, setSettings] = useState<SettingCode[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const queryClient = useQueryClient()
 
-  const fetchSettings = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getUserSettings()
-      setSettings(res.settings || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "설정을 불러올 수 없습니다")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["settings"],
+    queryFn: getUserSettings,
+    retry: 1,
+  })
 
-  useEffect(() => { fetchSettings() }, [fetchSettings])
+  const settings = data?.settings ?? []
 
   const updateSetting = useCallback(async (code: string, value: string) => {
     const updated = settings.map((s) => s.code === code ? { ...s, value } : s)
-    setSettings(updated)
+    // Optimistic update
+    queryClient.setQueryData(["settings"], { ...data, settings: updated })
     try {
       await updateUserSettings({ settings: updated })
     } catch {
-      setSettings(settings) // rollback
+      // Rollback
+      queryClient.setQueryData(["settings"], data)
     }
-  }, [settings])
+  }, [settings, data, queryClient])
 
   const getSettingValue = useCallback((code: string) => {
     return settings.find((s) => s.code === code)?.value ?? ""
   }, [settings])
 
-  return { settings, isLoading, error, updateSetting, getSettingValue, refresh: fetchSettings }
+  return {
+    settings,
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : "설정을 불러올 수 없습니다") : null,
+    updateSetting,
+    getSettingValue,
+  }
 }

@@ -1,28 +1,18 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { getTermList } from "../api/termsApi"
-import type { Term } from "../types"
 
 export function useTerms() {
-  const [terms, setTerms] = useState<Term[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["terms"],
+    queryFn: () => getTermList(),
+    retry: 1,
+  })
 
-  const fetchTerms = useCallback(async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const res = await getTermList()
-      setTerms(res.terms || [])
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "약관을 불러올 수 없습니다")
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
-
-  useEffect(() => { fetchTerms() }, [fetchTerms])
-
-  return { terms, isLoading, error }
+  return {
+    terms: data?.terms ?? [],
+    isLoading,
+    error: error ? (error instanceof Error ? error.message : "약관을 불러올 수 없습니다") : null,
+  }
 }
