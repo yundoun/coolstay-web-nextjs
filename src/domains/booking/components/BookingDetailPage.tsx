@@ -16,10 +16,12 @@ import {
   Share2,
   Trash2,
   ArrowLeft,
-  Loader2,
+  FileSearch,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useBookingDetail } from "../hooks/useBookingDetail"
@@ -79,9 +81,7 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
   if (isLoading) {
     return (
       <Container size="normal" padding="responsive" className="py-20">
-        <div className="flex items-center justify-center">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner fullPage />
       </Container>
     )
   }
@@ -89,17 +89,12 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
   if (error || !booking) {
     return (
       <Container size="normal" padding="responsive" className="py-20">
-        <div className="text-center">
-          <p className="text-lg font-semibold">
-            {error || "예약 정보를 찾을 수 없습니다"}
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            올바른 예약 번호인지 확인해주세요
-          </p>
-          <Button className="mt-4" asChild>
-            <Link href="/bookings">예약 내역으로</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={FileSearch}
+          title={error || "예약 정보를 찾을 수 없습니다"}
+          description="올바른 예약 번호인지 확인해주세요"
+          action={{ label: "예약 내역으로", href: "/bookings" }}
+        />
       </Container>
     )
   }

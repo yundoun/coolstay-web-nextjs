@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 15:24** | P8-6: 예약 상세 페이지 UI 검수 | [`580cfbe`](.work-history/entries/2026-03-31_18-00_P8-6_booking-detail-ui.md)
 - **2026-03-31 15:23** | P8-5: 검색 결과 페이지 무한 스크롤 / 필터 UX | [`3db5ab5`](.work-history/entries/2026-03-31_17-45_P8-5_search-infinite-scroll.md)
 - **2026-03-31 15:20** | P8-4: 숙소 상세 페이지 UI 보강 | [`34cbbfa`](.work-history/entries/2026-03-31_17-30_P8-4_accommodation-detail-ui.md)
 - **2026-03-31 15:19** | P8-1~3: 공통 상태 컴포넌트 통일 | [`5f1f9f5`](.work-history/entries/2026-03-31_17-00_P8-1-3_common-state-components.md)

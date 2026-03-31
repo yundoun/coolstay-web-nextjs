@@ -66,7 +66,8 @@
   - IntersectionObserver 기반 무한 스크롤 구현 (12개씩 로드)
   - 공통 LoadingSpinner/EmptyState 적용
   - 결과 표시 완료 메시지 추가
-- [ ] `P8-6` 예약 상세 페이지 UI 검수
+- [x] `P8-6` 예약 상세 페이지 UI 검수
+  - BookingDetailPage, BookingPageClient에 공통 LoadingSpinner/EmptyState 적용
 - [ ] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
 
 ---
