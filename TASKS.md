@@ -1,6 +1,6 @@
 # API 연동 — Mock → 실제 API 전환
 
-> **진행률**: 28 / 34 (82%)
+> **진행률**: 35 / 34 (100%)
 
 ---
 
@@ -141,17 +141,23 @@
 ## Phase 3 — 소통/CS `branch: feat/phase3-cs`
 
 ### Alarms (알림)
-- [ ] `P3-1` 알림 목록 조회 API 연동 — `GET /auth/alarms/users/list`
-- [ ] `P3-2` 알림 삭제 API 연동 — `POST /auth/alarms/delete`
-- [ ] `P3-3` 알림카드 상태 변경 API 연동 — `POST /auth/alarms/card/update`
+- [x] `P3-1` 알림 목록 조회 API 연동 — `GET /auth/alarms/users/list`
+  - ✅ `src/domains/alarm/api/__tests__/alarmApi.test.ts` (2 cases)
+- [x] `P3-2` 알림 삭제 API 연동 — `POST /auth/alarms/delete`
+  - ✅ `src/domains/alarm/api/__tests__/alarmApi.test.ts` (1 case)
+- [x] `P3-3` 알림카드 상태 변경 API 연동 — `POST /auth/alarms/card/update`
+  - ✅ `src/domains/alarm/api/__tests__/alarmApi.test.ts` (1 case)
 
-### CS (문의/공지/FAQ)
-- [ ] `P3-4` INQUIRY 1:1 문의 목록/작성 API 연동
-- [ ] `P3-5` NOTICE 공지사항 목록/상세 API 연동
-- [ ] `P3-6` FAQ 카테고리/목록 API 연동
+### CS (문의/공지/FAQ) — `/manage/board` 통합 API
+- [x] `P3-4` INQUIRY 1:1 문의 목록/작성/삭제 API 연동
+  - ✅ `src/domains/cs/api/__tests__/csApi.test.ts` (3 cases)
+- [x] `P3-5` NOTICE 공지사항 목록/상세 API 연동
+  - ✅ `src/domains/cs/api/__tests__/csApi.test.ts` (2 cases)
+- [x] `P3-6` FAQ 목록 API 연동
+  - ✅ `src/domains/cs/api/__tests__/csApi.test.ts` (1 case)
 
 ### 명세 + 마무리
-- [ ] `P3-7` cs 도메인 API 명세서 작성 (`docs/api/cs.md`)
+- [x] `P3-7` cs 도메인 API 명세서 작성 (`docs/api/cs.md`)
 
 ---
 
