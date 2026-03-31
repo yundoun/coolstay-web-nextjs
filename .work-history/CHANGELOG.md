@@ -3,6 +3,8 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 13:16** | 이미지 Lightbox 및 UX 개선 | [`4bf2142`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
+- **2026-03-31 13:15** | 이미지 Lightbox 및 UX 개선 | [`dfccb3e`](.work-history/entries/2026-03-31_13-30_UI_image-lightbox-ux.md)
 - **2026-03-31 12:57** | E2E Phase 4 테스트 실행 | [`b8e17c3`](.work-history/entries/2026-03-31_13-15_E2E_phase4-test.md)
 - **2026-03-31 12:56** | Phase 4 부가 콘텐츠/설정 API 연동 [P4-1~7] | [`3b4a73f`](.work-history/entries/2026-03-31_13-00_P4-1-7_contents-settings-api.md)
 - **2026-03-31 11:43** | E2E Phase 3 테스트 실행 | [`e2873d4`](.work-history/entries/2026-03-31_12-45_E2E_phase3-test.md)

@@ -370,6 +370,16 @@
   to { transform: translateX(0); }
 }
 
+@keyframes slide-in-from-right {
+  from { opacity: 0.5; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-from-left {
+  from { opacity: 0.5; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @keyframes scale-in {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
@@ -409,5 +419,11 @@
   }
   .animate-float {
     animation: float 3s ease-in-out infinite;
+  }
+  .animate-slide-in-from-right {
+    animation: slide-in-from-right 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  .animate-slide-in-from-left {
+    animation: slide-in-from-left 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
 }
