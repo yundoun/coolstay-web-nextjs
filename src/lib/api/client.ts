@@ -145,10 +145,10 @@ export async function encryptPassword(password: string): Promise<string> {
 }
 
 export const api = {
-  get<T>(path: string, params?: Record<string, string | number | boolean | undefined>) {
-    return request<T>(path, { method: "GET", params })
+  get<T>(path: string, params?: Record<string, string | number | boolean | undefined> | object) {
+    return request<T>(path, { method: "GET", params: params as Record<string, string | number | boolean | undefined> })
   },
-  post<T>(path: string, body?: unknown, params?: Record<string, string | number | boolean | undefined>) {
-    return request<T>(path, { method: "POST", body, params })
+  post<T>(path: string, body?: unknown, params?: Record<string, string | number | boolean | undefined> | object) {
+    return request<T>(path, { method: "POST", body, params: params as Record<string, string | number | boolean | undefined> })
   },
 }

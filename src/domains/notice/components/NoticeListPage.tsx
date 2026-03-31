@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Megaphone, ChevronDown, ChevronUp, Loader2 } from "lucide-react"
+import { Megaphone, ChevronDown, ChevronUp } from "lucide-react"
 import { Container } from "@/components/layout"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getNoticeList } from "@/domains/cs/api/csApi"
@@ -32,16 +34,9 @@ export function NoticeListPage() {
       <h1 className="text-2xl font-bold mb-6">공지사항</h1>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-full bg-muted p-6 mb-4">
-            <Megaphone className="size-10 text-muted-foreground" />
-          </div>
-          <p className="text-lg font-semibold">공지사항이 없습니다</p>
-        </div>
+        <EmptyState icon={Megaphone} title="공지사항이 없습니다" />
       ) : (
         <div className="divide-y rounded-xl border bg-card overflow-hidden">
           {items.map((notice) => {

@@ -3,9 +3,12 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, Moon, Calendar, Search, Loader2 } from "lucide-react"
+import { Clock, Moon, Calendar, Search } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorState } from "@/components/ui/error-state"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useBookingList } from "../hooks/useBookingList"
@@ -78,17 +81,18 @@ export function BookingHistoryPage() {
       </div>
 
       {/* Error */}
-      {error && (
-        <div className="text-center py-8 text-destructive text-sm">{error}</div>
-      )}
+      {error && <ErrorState message={error} />}
 
       {/* Loading */}
       {isLoading && items.length === 0 ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : items.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Search}
+          title="예약 내역이 없습니다"
+          description="꿀스테이에서 특별한 숙소를 찾아보세요"
+          action={{ label: "숙소 둘러보기", href: "/search" }}
+        />
       ) : (
         <div className="space-y-4">
           {items.map((booking) => (
@@ -235,19 +239,3 @@ function BookingCard({ booking }: { booking: BookingHistoryItem }) {
   )
 }
 
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="rounded-full bg-muted p-6 mb-4">
-        <Search className="size-10 text-muted-foreground" />
-      </div>
-      <p className="text-lg font-semibold">예약 내역이 없습니다</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        꿀스테이에서 특별한 숙소를 찾아보세요
-      </p>
-      <Button className="mt-4" asChild>
-        <Link href="/search">숙소 둘러보기</Link>
-      </Button>
-    </div>
-  )
-}

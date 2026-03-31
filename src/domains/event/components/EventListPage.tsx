@@ -2,10 +2,13 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { Calendar, Gift, ArrowLeft, Loader2 } from "lucide-react"
+import { Calendar, Gift, ArrowLeft } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorState } from "@/components/ui/error-state"
+import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { useEventList } from "../hooks/useEventList"
 import type { EventBoardItem } from "../types"
@@ -40,9 +43,7 @@ export function EventListPage() {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">이벤트</h1>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       </Container>
     )
   }
@@ -51,7 +52,7 @@ export function EventListPage() {
     <Container size="narrow" padding="responsive" className="py-8">
       <h1 className="text-2xl font-bold mb-6">이벤트</h1>
 
-      {error && <div className="text-center py-8 text-destructive text-sm">{error}</div>}
+      {error && <ErrorState message={error} />}
 
       <div className="space-y-4">
         {events.map((event) => {
@@ -91,12 +92,7 @@ export function EventListPage() {
       </div>
 
       {events.length === 0 && !error && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-full bg-muted p-6 mb-4">
-            <Gift className="size-10 text-muted-foreground" />
-          </div>
-          <p className="text-lg font-semibold">진행 중인 이벤트가 없습니다</p>
-        </div>
+        <EmptyState icon={Gift} title="진행 중인 이벤트가 없습니다" />
       )}
     </Container>
   )

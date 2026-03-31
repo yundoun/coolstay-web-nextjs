@@ -50,9 +50,12 @@
 > 전체 앱 품질 개선
 
 ### 상태 표시 통일
-- [ ] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
-- [ ] `P8-2` 에러 상태 통일 (공통 ErrorBoundary 또는 에러 컴포넌트)
-- [ ] `P8-3` 빈 상태 디자인 일관성 검수
+- [x] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
+  ✅ `src/components/ui/__tests__/loading-spinner.test.tsx` (6 cases)
+- [x] `P8-2` 에러 상태 통일 (공통 ErrorState 컴포넌트)
+  ✅ `src/components/ui/__tests__/error-state.test.tsx` (5 cases)
+- [x] `P8-3` 빈 상태 디자인 일관성 검수 (공통 EmptyState 컴포넌트)
+  ✅ `src/components/ui/__tests__/empty-state.test.tsx` (5 cases)
 
 ### 페이지별 개선
 - [ ] `P8-4` 숙소 상세 페이지 UI 보강 (객실 목록, 편의시설 등)

@@ -1,7 +1,8 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorState } from "@/components/ui/error-state"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTerms } from "../hooks/useTerms"
 
@@ -12,9 +13,7 @@ export function TermsPage() {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">이용약관</h1>
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       </Container>
     )
   }
@@ -23,9 +22,7 @@ export function TermsPage() {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">이용약관</h1>
-        <div className="text-center py-8 text-muted-foreground text-sm">
-          {error || "약관 정보를 불러올 수 없습니다"}
-        </div>
+        <ErrorState message={error || "약관 정보를 불러올 수 없습니다"} />
       </Container>
     )
   }

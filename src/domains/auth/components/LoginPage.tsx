@@ -38,7 +38,7 @@ export function LoginPage() {
         enc_password: encPw,
       })
       setSession(result.token, result.user)
-      const redirect = searchParams.get("redirect")
+      const redirect = searchParams?.get("redirect")
       const destination = redirect && redirect.startsWith("/") ? redirect : "/"
       router.push(destination)
     } catch (err) {

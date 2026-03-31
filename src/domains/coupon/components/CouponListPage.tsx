@@ -2,9 +2,12 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Ticket, Tag, ChevronDown, ChevronUp, Gift, Loader2 } from "lucide-react"
+import { Ticket, Tag, ChevronDown, ChevronUp, Gift } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorState } from "@/components/ui/error-state"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -56,13 +59,16 @@ export function CouponListPage() {
 
       {/* Loading */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : error ? (
-        <div className="text-center py-8 text-destructive text-sm">{error}</div>
+        <ErrorState message={error} />
       ) : activeCoupons.length === 0 && inactiveCoupons.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Gift}
+          title="보유한 쿠폰이 없습니다"
+          description="이벤트에서 다양한 쿠폰을 받아보세요"
+          action={{ label: "이벤트 보러가기", href: "/events" }}
+        />
       ) : (
         <div className="space-y-3">
           {activeCoupons.map((coupon) => (
@@ -197,19 +203,3 @@ function DetailRow({
   )
 }
 
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="rounded-full bg-muted p-6 mb-4">
-        <Gift className="size-10 text-muted-foreground" />
-      </div>
-      <p className="text-lg font-semibold">보유한 쿠폰이 없습니다</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        이벤트에서 다양한 쿠폰을 받아보세요
-      </p>
-      <Button className="mt-4" asChild>
-        <Link href="/events">이벤트 보러가기</Link>
-      </Button>
-    </div>
-  )
-}

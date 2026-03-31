@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Heart, Clock, Star, MapPin, Pencil, Trash2, Search } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
@@ -119,7 +120,7 @@ export function FavoritesPage() {
 
       {/* Content */}
       {currentItems.length === 0 ? (
-        <EmptyState tab={tab} />
+        <FavoritesEmptyState tab={tab} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentItems.map((item) => (
@@ -240,28 +241,17 @@ function AccommodationCard({
   )
 }
 
-function EmptyState({ tab }: { tab: Tab }) {
-  const message = tab === "recent"
-    ? { title: "최근 본 숙소가 없습니다", sub: "다양한 숙소를 둘러보세요" }
-    : { title: "찜한 숙소가 없습니다", sub: "마음에 드는 숙소를 찜해보세요" }
+function FavoritesEmptyState({ tab }: { tab: Tab }) {
+  const config = tab === "recent"
+    ? { icon: Clock, title: "최근 본 숙소가 없습니다", description: "다양한 숙소를 둘러보세요" }
+    : { icon: Heart, title: "찜한 숙소가 없습니다", description: "마음에 드는 숙소를 찜해보세요" }
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="rounded-full bg-muted p-6 mb-4">
-        {tab === "recent" ? (
-          <Clock className="size-10 text-muted-foreground" />
-        ) : (
-          <Heart className="size-10 text-muted-foreground" />
-        )}
-      </div>
-      <p className="text-lg font-semibold">{message.title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{message.sub}</p>
-      <Button className="mt-4" asChild>
-        <Link href="/search">
-          <Search className="size-4 mr-2" />
-          숙소 둘러보기
-        </Link>
-      </Button>
-    </div>
+    <EmptyState
+      icon={config.icon}
+      title={config.title}
+      description={config.description}
+      action={{ label: "숙소 둘러보기", href: "/search" }}
+    />
   )
 }

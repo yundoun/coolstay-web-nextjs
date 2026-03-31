@@ -10,10 +10,12 @@ import {
   Trash2,
   Camera,
   X,
-  Search,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ErrorState } from "@/components/ui/error-state"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -90,13 +92,16 @@ export function MyReviewsPage() {
 
       {/* Review List */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
-        </div>
+        <LoadingSpinner />
       ) : error ? (
-        <div className="text-center py-8 text-destructive text-sm">{error}</div>
+        <ErrorState message={error} />
       ) : reviews.length === 0 ? (
-        <EmptyState />
+        <EmptyState
+          icon={Pencil}
+          title="작성한 리뷰가 없습니다"
+          description="이용한 숙소의 후기를 남겨보세요"
+          action={{ label: "예약내역 보러가기", href: "/bookings" }}
+        />
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
@@ -342,19 +347,3 @@ function ReviewWriteModal({
   )
 }
 
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="rounded-full bg-muted p-6 mb-4">
-        <Pencil className="size-10 text-muted-foreground" />
-      </div>
-      <p className="text-lg font-semibold">작성한 리뷰가 없습니다</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        이용한 숙소의 후기를 남겨보세요
-      </p>
-      <Button className="mt-4" asChild>
-        <Link href="/bookings">예약내역 보러가기</Link>
-      </Button>
-    </div>
-  )
-}
