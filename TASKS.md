@@ -89,10 +89,10 @@
   - inquiry: LoadingSpinner/EmptyState 공통 컴포넌트 적용
 
 ### API 타입 정합성
-- [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준)
+- [ ] `P9-3` API 응답 snake_case 통일 검증 (dev 서버 실제 응답 기준) — E2E 단계로 이관
   - booking 외 다른 도메인도 camelCase/snake_case 불일치 점검
 - [x] `P9-4` 불필요한 mock 데이터 파일 정리 (11개 미사용 mock 삭제)
-- [ ] `P9-5` 아직 mock 사용 중인 컴포넌트 4개 전환
+- [ ] `P9-5` 아직 mock 사용 중인 컴포넌트 4개 전환 — API fallback/미존재로 보류
   - search (SearchPageLayout, SearchInfoBar)
   - accommodation (AccommodationDetailPage — mock fallback 제거)
   - guide (정적 콘텐츠 유지 또는 board API)
@@ -100,7 +100,7 @@
 
 ### 빌드/린트
 - [x] `P9-6` LoginPage `useSearchParams` Suspense boundary 수정 (빌드 성공)
-- [ ] `P9-7` TypeScript strict 모드 점검
+- [x] `P9-7` TypeScript strict 모드 점검 — strict: true 확인, 에러 0개
 
 ---
 
