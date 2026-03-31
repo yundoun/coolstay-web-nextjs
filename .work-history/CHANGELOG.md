@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 11:18** | E2E API 연결 테스트 실행 + 결과 문서화 | [`becf5df`](.work-history/entries/2026-03-31_11-00_E2E_api-connection-test.md)
 - **2026-03-31 10:56** | 마일리지 상세 조회 API 추가 연동 [P2-8] | [`138800e`](.work-history/entries/2026-03-31_10-30_P2-8_mileage-detail-api.md)
 - **2026-03-31 10:49** | Phase 2 마이페이지/회원관리 API 연동 [P2-1~9] | [`416e733`](.work-history/entries/2026-03-31_10-00_P2-1-9_mypage-api-integration.md)
 - **2026-03-30 17:32** | CLAUDE.md에 TDD 워크플로우 명시 | [`7c27920`](.work-history/entries/2026-03-30_17-25_chore_tdd-workflow-rules.md)
