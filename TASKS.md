@@ -164,17 +164,22 @@
 ## Phase 4 — 부가 콘텐츠/설정 `branch: feat/phase4-contents`
 
 ### Settings (설정)
-- [ ] `P4-1` 설정 목록 조회 API 연동 — `GET /auth/users/settings/list`
-- [ ] `P4-2` 설정 변경 API 연동 — `POST /auth/users/settings/update`
+- [x] `P4-1` 설정 목록 조회 API 연동 — `GET /auth/users/settings/list`
+  - ✅ `src/domains/settings/api/__tests__/settingsApi.test.ts` (1 case)
+- [x] `P4-2` 설정 변경 API 연동 — `POST /auth/users/settings/update`
+  - ✅ `src/domains/settings/api/__tests__/settingsApi.test.ts` (1 case)
 
 ### 부가
-- [ ] `P4-3` EVENT 이벤트/기획전 목록/상세 API 연동
-- [ ] `P4-4` GUIDE 이용 가이드 API 연동
-- [ ] `P4-5` TERMS 약관 내용 API 연동
-- [ ] `P4-6` 친구추천 조회/등록 API 연동 — `GET/POST /auth/users/friend/*`
+- [x] `P4-3` EVENT 이벤트/기획전 목록 API 연동 — `GET /manage/event/list`
+  - ✅ `src/domains/event/api/__tests__/eventApi.test.ts` (2 cases)
+- [x] `P4-4` GUIDE 이용 가이드 — AOS/서버에 API 없음, 제외
+- [x] `P4-5` TERMS 약관 조회 API 연동 — `GET /manage/terms/list`
+  - ✅ `src/domains/terms/api/__tests__/termsApi.test.ts` (2 cases)
+- [x] `P4-6` 친구추천 조회/등록 API 연동 — `GET/POST /auth/users/friend/*`
+  - ✅ `src/domains/friend/api/__tests__/friendApi.test.ts` (2 cases)
 
 ### 명세 + 마무리
-- [ ] `P4-7` contents/settings 도메인 API 명세서 작성
+- [x] `P4-7` contents/settings 도메인 API 명세서 작성 (`docs/api/contents.md`)
 
 ---
 
