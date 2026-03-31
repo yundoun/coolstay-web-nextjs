@@ -2,42 +2,94 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { User, Eye, EyeOff } from "lucide-react"
+import { User } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { useAuthStore } from "@/lib/stores/auth"
+import { updateUser } from "../api/mypageApi"
+import { sendAuthCode, checkAuthCode } from "@/domains/auth/api/authApi"
 
-const mockProfile = {
-  loginType: "이메일" as const,
-  email: "hong@example.com",
-  nickname: "홍길동",
-  name: "홍길동",
-  phone: "010-1234-5678",
+const LOGIN_TYPE_LABELS: Record<string, string> = {
+  U: "이메일",
+  SK: "카카오",
+  SN: "네이버",
 }
 
 export function ProfileEditPage() {
-  const [nickname, setNickname] = useState(mockProfile.nickname)
-  const [name, setName] = useState(mockProfile.name)
-  const [phone, setPhone] = useState(mockProfile.phone)
+  const authUser = useAuthStore((s) => s.user)
+  const setSession = useAuthStore((s) => s.setSession)
+
+  const [nickname, setNickname] = useState(authUser?.nickname ?? "")
+  const [name, setName] = useState(authUser?.name ?? "")
+  const [phone, setPhone] = useState(authUser?.phone_number ?? "")
   const [showPhoneVerify, setShowPhoneVerify] = useState(false)
   const [verifyCode, setVerifyCode] = useState("")
+  const [smsAuthKey, setSmsAuthKey] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSave = () => {
-    alert("회원정보가 저장되었습니다.")
+  const handleSave = async () => {
+    if (isSaving) return
+    setIsSaving(true)
+    setError("")
+    try {
+      const body: Record<string, string> = {}
+      if (nickname !== authUser?.nickname) body.nickname = nickname
+      if (name !== authUser?.name) body.name = name
+      if (Object.keys(body).length === 0) {
+        alert("변경된 내용이 없습니다.")
+        setIsSaving(false)
+        return
+      }
+      const result = await updateUser(body)
+      setSession(result.token, result.user)
+      alert("회원정보가 저장되었습니다.")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "저장에 실패했습니다")
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handlePhoneChange = () => {
-    setShowPhoneVerify(true)
-    alert("인증번호가 발송되었습니다.")
+  const handlePhoneChange = async () => {
+    const rawPhone = phone.replace(/-/g, "")
+    try {
+      const res = await sendAuthCode({ phone_number: rawPhone })
+      setSmsAuthKey(res.sms_auth_key)
+      setShowPhoneVerify(true)
+    } catch {
+      alert("인증번호 발송에 실패했습니다")
+    }
   }
 
-  const handleVerifyCode = () => {
-    alert("전화번호가 변경되었습니다.")
-    setShowPhoneVerify(false)
-    setVerifyCode("")
+  const handleVerifyCode = async () => {
+    const rawPhone = phone.replace(/-/g, "")
+    try {
+      const res = await checkAuthCode({
+        sms_auth_key: smsAuthKey,
+        sms_auth_code: verifyCode,
+        auth_method: rawPhone,
+      })
+      if (!res.isVerified) {
+        alert("인증번호가 일치하지 않습니다")
+        return
+      }
+      const result = await updateUser({
+        phone_number: rawPhone,
+        sms_auth_key: smsAuthKey,
+        sms_auth_code: verifyCode,
+      })
+      setSession(result.token, result.user)
+      alert("전화번호가 변경되었습니다.")
+      setShowPhoneVerify(false)
+      setVerifyCode("")
+    } catch {
+      alert("전화번호 변경에 실패했습니다")
+    }
   }
 
   return (
@@ -56,14 +108,16 @@ export function ProfileEditPage() {
         <div className="space-y-2">
           <Label>로그인 유형</Label>
           <div>
-            <Badge variant="outline">{mockProfile.loginType}</Badge>
+            <Badge variant="outline">
+              {LOGIN_TYPE_LABELS[authUser?.type ?? "U"] ?? "이메일"}
+            </Badge>
           </div>
         </div>
 
         {/* Email (readonly) */}
         <div className="space-y-2">
           <Label>이메일</Label>
-          <Input value={mockProfile.email} disabled className="bg-muted" />
+          <Input value={authUser?.email ?? ""} disabled className="bg-muted" />
         </div>
 
         <Separator />
@@ -130,18 +184,19 @@ export function ProfileEditPage() {
         <div className="space-y-2">
           <Label>비밀번호</Label>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              ••••••••
-            </span>
+            <span className="text-sm text-muted-foreground">••••••••</span>
             <Button variant="link" size="sm" className="text-primary p-0 h-auto" asChild>
               <Link href="/mypage/password">변경</Link>
             </Button>
           </div>
         </div>
 
+        {/* Error */}
+        {error && <p className="text-sm text-destructive">{error}</p>}
+
         {/* Save Button */}
-        <Button onClick={handleSave} className="w-full" size="lg">
-          저장
+        <Button onClick={handleSave} disabled={isSaving} className="w-full" size="lg">
+          {isSaving ? "저장 중..." : "저장"}
         </Button>
       </div>
     </Container>

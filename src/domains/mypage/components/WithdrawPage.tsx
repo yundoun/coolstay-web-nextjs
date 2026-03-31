@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import {
   AlertTriangle,
   Ticket,
@@ -25,11 +26,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-const LOSS_ITEMS = [
-  { icon: Ticket, label: "보유 쿠폰", value: "3개" },
-  { icon: Coins, label: "마일리지", value: "12,000원" },
-  { icon: Heart, label: "찜한 숙소", value: "5개" },
-]
+import { deleteUser } from "../api/mypageApi"
+import { useMypageInfo } from "../hooks/useMypageInfo"
+import { useAuthStore } from "@/lib/stores/auth"
 
 const REASONS = [
   "사용이 어려워요",
@@ -42,15 +41,34 @@ const REASONS = [
 ]
 
 export function WithdrawPage() {
+  const router = useRouter()
+  const clearSession = useAuthStore((s) => s.clearSession)
+  const { info } = useMypageInfo()
   const [reason, setReason] = useState("")
   const [customReason, setCustomReason] = useState("")
   const [agreed, setAgreed] = useState(false)
 
+  const lossItems = [
+    { icon: Ticket, label: "보유 쿠폰", value: `${info?.coupon_count ?? 0}개` },
+    { icon: Coins, label: "마일리지", value: `${(info?.mileage_store_count ?? 0).toLocaleString()}P` },
+    { icon: Heart, label: "예약 내역", value: `${info?.reservation_count ?? 0}건` },
+  ]
+
   const isReasonSelected = reason !== ""
   const isFormValid = isReasonSelected && agreed
 
-  const handleWithdraw = () => {
-    alert("회원 탈퇴가 완료되었습니다.")
+  const handleWithdraw = async () => {
+    try {
+      await deleteUser({
+        reason_type: reason,
+        reason_description: reason === "기타 (직접 입력)" ? customReason : undefined,
+      })
+      clearSession()
+      alert("회원 탈퇴가 완료되었습니다.")
+      router.push("/")
+    } catch {
+      alert("탈퇴 처리에 실패했습니다")
+    }
   }
 
   return (
@@ -64,7 +82,7 @@ export function WithdrawPage() {
           <h2 className="font-bold text-destructive">탈퇴 시 아래 정보가 모두 삭제됩니다</h2>
         </div>
         <div className="space-y-3">
-          {LOSS_ITEMS.map((item) => (
+          {lossItems.map((item) => (
             <div
               key={item.label}
               className="flex items-center justify-between px-4 py-3 rounded-lg bg-background"

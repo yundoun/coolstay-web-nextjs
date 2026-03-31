@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
+import { encryptPassword } from "@/lib/api/client"
+import { updateUser } from "../api/mypageApi"
+import { useAuthStore } from "@/lib/stores/auth"
 
 export function PasswordChangePage() {
   const router = useRouter()
@@ -22,10 +25,29 @@ export function PasswordChangePage() {
   const isConfirmMatch = newPw === confirmPw && confirmPw.length > 0
   const isFormValid = currentPw.length > 0 && isNewPwValid && isConfirmMatch
 
-  const handleSubmit = () => {
-    if (!isFormValid) return
-    alert("비밀번호가 변경되었습니다.")
-    router.push("/mypage/profile")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState("")
+  const setSession = useAuthStore((s) => s.setSession)
+
+  const handleSubmit = async () => {
+    if (!isFormValid || isSubmitting) return
+    setIsSubmitting(true)
+    setSubmitError("")
+    try {
+      const encOld = await encryptPassword(currentPw)
+      const encNew = await encryptPassword(newPw)
+      const result = await updateUser({
+        enc_old_password: encOld,
+        enc_new_password: encNew,
+      })
+      setSession(result.token, result.user)
+      alert("비밀번호가 변경되었습니다.")
+      router.push("/mypage/profile")
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "비밀번호 변경에 실패했습니다")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -133,14 +155,19 @@ export function PasswordChangePage() {
           )}
         </div>
 
+        {/* Error */}
+        {submitError && (
+          <p className="text-sm text-destructive">{submitError}</p>
+        )}
+
         {/* Submit */}
         <Button
           onClick={handleSubmit}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isSubmitting}
           className="w-full"
           size="lg"
         >
-          변경하기
+          {isSubmitting ? "변경 중..." : "변경하기"}
         </Button>
       </div>
     </Container>

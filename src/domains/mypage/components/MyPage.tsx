@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth"
+import { useMypageInfo } from "../hooks/useMypageInfo"
 
 interface MenuItem {
   icon: React.ElementType
@@ -53,6 +54,7 @@ export function MyPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const clearSession = useAuthStore((state) => state.clearSession)
+  const { info } = useMypageInfo()
 
   const handleLogout = () => {
     clearSession()
@@ -94,7 +96,7 @@ export function MyPage() {
             <Ticket className="size-5 text-primary" />
             <div>
               <p className="text-xs text-muted-foreground">쿠폰</p>
-              <p className="text-lg font-bold">{0}장</p>
+              <p className="text-lg font-bold">{info?.coupon_count ?? 0}장</p>
             </div>
           </Link>
           <Link
@@ -105,7 +107,7 @@ export function MyPage() {
             <div>
               <p className="text-xs text-muted-foreground">마일리지</p>
               <p className="text-lg font-bold">
-                {(0).toLocaleString()}P
+                {(info?.mileage_store_count ?? 0).toLocaleString()}P
               </p>
             </div>
           </Link>
