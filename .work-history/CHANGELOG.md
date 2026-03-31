@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 11:42** | Phase 3 소통/CS API 연동 + 명세서 [P3-1~7] | [`a405cb2`](.work-history/entries/2026-03-31_12-30_P3-1-7_cs-alarm-api.md)
 - **2026-03-31 11:31** | CLAUDE.md에 E2E 검증 + 브랜치 전략 명시 | [`f20747e`](.work-history/entries/2026-03-31_12-00_chore_e2e-branch-strategy.md)
 - **2026-03-31 11:28** | 예약 목록 API 응답 매핑 수정 [ISSUE-2] | [`bafb21d`](.work-history/entries/2026-03-31_11-45_fix_booking-list-mapping.md)
 - **2026-03-31 11:20** | Protected Route Hydration 리다이렉트 수정 | [`1c878e4`](.work-history/entries/2026-03-31_11-30_fix_hydration-guard.md)
