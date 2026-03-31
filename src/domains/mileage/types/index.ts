@@ -1,3 +1,31 @@
+// ─── API 타입 ───
+
+export interface MileageDetailParams {
+  store_key: string
+}
+
+export interface MileagePoint {
+  key: string
+  amount: number
+  remained_point: number
+  status: string
+  reason: string | null
+}
+
+export interface MileageDetailResponse {
+  amount: number            // 현재 잔액
+  total_amount: number      // 총 적립액
+  expire_amount: number     // 만료 예정 금액
+  points: MileagePoint[]
+}
+
+export interface MileageDeleteRequest {
+  store_keys: string[]
+  flag?: string
+}
+
+// ─── Legacy (mock용, API 연동 후 제거) ───
+
 export type MileageStatus = "earned" | "used" | "expired"
 
 export interface MileageHistoryEntry {
