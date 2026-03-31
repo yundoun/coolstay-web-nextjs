@@ -183,6 +183,35 @@
 
 ---
 
+## Phase 5 — Mock → API 전환 `branch: feat/phase5-mock-to-api`
+
+> **목표**: API 함수가 준비된 도메인의 UI를 mock 데이터에서 실제 API 호출로 전환
+
+### Step 1 — API 함수 준비 완료, mock → API 전환 (6개)
+- [x] `P5-1` coupon — hook + CouponListPage API 전환 완료
+  - ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
+- [x] `P5-3` event — hook + EventListPage API 전환 완료
+- [ ] `P5-2` mileage — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
+- [ ] `P5-4` settings — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
+- [ ] `P5-5` terms — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
+- [ ] `P5-6` review — hook 준비, 컴포넌트 전환 대기 (API 응답 확인 필요)
+
+### Step 2 — API 미존재, AOS/서버 코드 탐색 후 구현 (4개)
+- [ ] `P5-7` notification → alarm API로 전환 (alarmApi 활용)
+- [ ] `P5-8` favorites → dibs API 목록 조회 추가 (AOS 코드 탐색 필요)
+- [ ] `P5-9` inquiry → csApi(board_type=INQUIRY)로 전환
+- [ ] `P5-10` guide — API 없음, 정적 콘텐츠 유지 또는 board API 확인
+
+### Step 3 — 컴포넌트 없는 도메인 UI 구현 (3개)
+- [ ] `P5-11` alarm — 알림 페이지 UI + alarmApi 연동
+- [ ] `P5-12` cs(공지/FAQ) — csApi(board_type=NOTICE/FAQ)로 전환
+- [ ] `P5-13` friend — 친구추천 페이지 UI + friendApi 연동
+
+### 명세 + 마무리
+- [ ] `P5-14` mock → API 전환 결과 명세서 업데이트
+
+---
+
 ## 제외 (웹 불필요 또는 별도 검토)
 
 - `POST /auth/users/refresh/push-token` — 푸시 토큰 갱신 (웹 푸시 도입 시 별도 검토)
