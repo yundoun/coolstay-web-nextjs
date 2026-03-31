@@ -208,7 +208,7 @@
 - [ ] `P5-13` friend — 페이지 라우트 미존재, API 준비만 완료 (보류)
 
 ### 명세 + 마무리
-- [ ] `P5-14` mock → API 전환 결과 명세서 업데이트
+- [x] `P5-14` mock → API 전환 결과 명세서 (`docs/api/mock-to-api-migration.md`)
 
 ---
 

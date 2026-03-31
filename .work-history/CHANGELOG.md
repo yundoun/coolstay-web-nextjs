@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 14:24** | Phase 5 mock → API 전환 결과 명세서 [P5-14] | [`d6498c1`](.work-history/entries/2026-03-31_15-30_P5-14_migration-doc.md)
 - **2026-03-31 14:19** | Step 3 — 공지/FAQ csApi 전환 [P5-11,12] | [`838c2d0`](.work-history/entries/2026-03-31_15-15_P5-11-12_notice-faq-api.md)
 - **2026-03-31 14:17** | Step 2 — notification/inquiry API 전환 [P5-7,9] | [`a2ef63b`](.work-history/entries/2026-03-31_15-00_P5-7-9_notification-inquiry-api.md)
 - **2026-03-31 14:12** | UI 재설계 — terms/review/mileage API 전환 [P5-2,5,6] | [`86a892d`](.work-history/entries/2026-03-31_14-30_P5-2-5-6_ui-redesign.md)
