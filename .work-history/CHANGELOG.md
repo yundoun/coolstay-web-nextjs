@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 11:28** | 예약 목록 API 응답 매핑 수정 [ISSUE-2] | [`bafb21d`](.work-history/entries/2026-03-31_11-45_fix_booking-list-mapping.md)
 - **2026-03-31 11:20** | Protected Route Hydration 리다이렉트 수정 | [`1c878e4`](.work-history/entries/2026-03-31_11-30_fix_hydration-guard.md)
 - **2026-03-31 11:18** | E2E API 연결 테스트 실행 + 결과 문서화 | [`becf5df`](.work-history/entries/2026-03-31_11-00_E2E_api-connection-test.md)
 - **2026-03-31 10:56** | 마일리지 상세 조회 API 추가 연동 [P2-8] | [`138800e`](.work-history/entries/2026-03-31_10-30_P2-8_mileage-detail-api.md)

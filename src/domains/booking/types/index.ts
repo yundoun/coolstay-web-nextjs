@@ -184,50 +184,52 @@ function tsToDateTime(ts: number): string {
 }
 
 /** 객실 카테고리로 대실/숙박 추론 */
-function inferBookingType(rooms: { category: string }[]): BookingType {
-  const cat = rooms[0]?.category?.toLowerCase() || ""
-  if (cat.includes("rent") || cat.includes("대실")) return "rental"
+function inferBookingType(items: { category: { code: string; name: string } }[]): BookingType {
+  const cat = items[0]?.category
+  if (!cat) return "stay"
+  // 010101 = 대실, 010102 = 숙박
+  if (cat.code === "010101" || cat.name?.includes("대실")) return "rental"
   return "stay"
 }
 
 /** 대표 이미지 URL 추출 */
 function pickImageUrl(item: BookItem): string {
-  if (item.itemImages?.[0]?.url) return item.itemImages[0].url
-  if (item.reprImage) return item.reprImage
+  if (item.item_images?.[0]?.url) return item.item_images[0].url
+  if (item.repr_image) return item.repr_image
   if (item.motel?.images?.[0]?.url) return item.motel.images[0].url
   return ""
 }
 
 /** BookItem → BookingHistoryItem */
 export function toBookingHistoryItem(b: BookItem): BookingHistoryItem {
-  const bookingType = inferBookingType(b.rooms || [])
+  const bookingType = inferBookingType(b.items || [])
   return {
-    bookingId: b.bookId,
+    bookingId: b.book_id,
     status: mapStatus(b.status),
     accommodationId: b.motel?.key || "",
     accommodationName: b.motel?.name || "",
-    roomName: b.rooms?.[0]?.name || "",
+    roomName: b.items?.[0]?.name || "",
     roomImageUrl: pickImageUrl(b),
     bookingType,
-    checkIn: tsToDate(b.startDt),
-    checkOut: tsToDate(b.endDt),
+    checkIn: tsToDate(b.start_dt),
+    checkOut: tsToDate(b.end_dt),
     usageTime: bookingType === "rental" ? undefined : undefined,
-    totalAmount: b.totalPrice,
+    totalAmount: b.total_price,
     paymentMethod: mapPaymentMethod(b.payment?.method),
     bookerName: b.name,
-    bookerPhone: b.phoneNumber,
-    createdAt: tsToDate(b.regDt),
+    bookerPhone: b.phone_number,
+    createdAt: tsToDate(b.reg_dt),
     hasReview: !!b.review,
-    refundYn: b.refundYn || "N",
+    refundYn: b.refund_yn || "N",
   }
 }
 
 /** BookItem → BookingDetail */
 export function toBookingDetail(b: BookItem): BookingDetail {
-  const bookingType = inferBookingType(b.rooms || [])
+  const bookingType = inferBookingType(b.items || [])
   const couponDiscounts: { name: string; amount: number }[] = []
-  if (b.usedCoupons) {
-    for (const c of b.usedCoupons) {
+  if (b.used_coupons) {
+    for (const c of b.used_coupons) {
       if (c.discount_amount > 0) {
         couponDiscounts.push({ name: c.title, amount: c.discount_amount })
       }
@@ -235,25 +237,25 @@ export function toBookingDetail(b: BookItem): BookingDetail {
   }
 
   return {
-    bookingId: b.bookId,
+    bookingId: b.book_id,
     status: mapStatus(b.status),
     accommodationId: b.motel?.key || "",
     accommodationName: b.motel?.name || "",
-    roomName: b.rooms?.[0]?.name || "",
+    roomName: b.items?.[0]?.name || "",
     roomImageUrl: pickImageUrl(b),
     bookingType,
-    checkIn: tsToDate(b.startDt),
-    checkOut: tsToDate(b.endDt),
+    checkIn: tsToDate(b.start_dt),
+    checkOut: tsToDate(b.end_dt),
     bookerName: b.name,
-    bookerPhone: b.phoneNumber,
-    bookingDate: tsToDateTime(b.regDt),
-    transportation: b.vehicleYn === "Y" ? "자가용" : "도보",
+    bookerPhone: b.phone_number,
+    bookingDate: tsToDateTime(b.reg_dt),
+    transportation: b.vehicle_yn === "Y" ? "자가용" : "도보",
     paymentMethod: mapPaymentMethod(b.payment?.method),
-    originalPrice: b.originPriceTotal,
+    originalPrice: b.origin_price_total,
     couponDiscounts,
-    mileageDiscount: b.usedPoint,
-    totalAmount: b.totalPrice,
+    mileageDiscount: b.used_point || 0,
+    totalAmount: b.total_price,
     hasReview: !!b.review,
-    refundYn: b.refundYn || "N",
+    refundYn: b.refund_yn || "N",
   }
 }

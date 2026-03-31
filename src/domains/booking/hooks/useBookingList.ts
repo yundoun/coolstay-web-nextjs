@@ -26,8 +26,8 @@ export function useBookingList(reserveType: ReserveType = "ALL") {
       })
       const mapped = res.books.map(toBookingHistoryItem)
       setItems((prev) => (append ? [...prev, ...mapped] : mapped))
-      setTotalCount(res.totalCount)
-      setNextCursor(res.nextCursor || undefined)
+      setTotalCount(res.total_count)
+      setNextCursor(res.next_cursor || undefined)
     } catch (err) {
       setError(err instanceof Error ? err.message : "예약 목록을 불러올 수 없습니다")
     } finally {
