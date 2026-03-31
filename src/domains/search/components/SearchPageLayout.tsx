@@ -15,7 +15,6 @@ import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
 import { useKeywordSearch } from "../hooks/useKeywordData"
 import { useSearchModal } from "@/lib/stores/search-modal"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
-import { searchResultsData, totalSearchResults } from "../data/mock"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
 
@@ -101,7 +100,7 @@ export function SearchPageLayout() {
 
   const isLoading = keywordSearch.isLoading || filterSearch.isLoading || isMyAreaLoading
 
-  // 우선순위: 키워드 검색 > 지역 검색 > myArea > mock 폴백
+  // 우선순위: 키워드 검색 > 지역 검색 > myArea
   const accommodations: Accommodation[] = useMemo(() => {
     if (keywordSearch.data?.motels?.length) {
       return keywordSearch.data.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
@@ -112,14 +111,13 @@ export function SearchPageLayout() {
     if (myAreaData?.motels?.length) {
       return myAreaData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
-    // API 결과 없으면 mock 데이터 폴백
-    return searchResultsData
+    return []
   }, [keywordSearch.data, filterSearch.data, myAreaData])
 
   const totalCount =
     keywordSearch.totalCount ||
     filterSearch.totalCount ||
-    (myAreaData?.total_count ?? totalSearchResults)
+    (myAreaData?.total_count ?? 0)
 
   const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
     setCheckIn(newCheckIn)

@@ -368,11 +368,11 @@ export interface RegionsResponse {
 
 // contents/list — 목록에서 반환되는 motel은 간략형(StoreItem과 유사)
 export interface ContentsListResponse {
-  totalCount: number
-  nextCursor: string
+  total_count: number
+  next_cursor: string
   motels: StoreItem[]
-  isDuringEvent?: string
-  priorityMotels?: StoreItem[]
+  is_during_event?: string
+  priority_motels?: StoreItem[]
 }
 
 // contents/total/list
@@ -467,8 +467,8 @@ export interface RefundPolicyResponse {
 
 // contents/reviews/list
 export interface ReviewListResponse {
-  totalCount: number
-  nextCursor?: string
+  total_count: number
+  next_cursor?: string
   avg_score?: string
   available_count: number
   reviews: Review[]
