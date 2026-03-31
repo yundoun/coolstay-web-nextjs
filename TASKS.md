@@ -103,9 +103,10 @@
 - [x] `P2-7` COUPON 쿠폰 목록/등록/다운로드/삭제 API 연동
   - GET /benefit/coupons/list, POST register/download/delete
   - ✅ `src/domains/coupon/api/__tests__/couponApi.test.ts` (7 cases)
-- [x] `P2-8` MILEAGE 마일리지 API 연동 (delete만, 목록 조회는 AOS/서버 확인 필요)
+- [x] `P2-8` MILEAGE 마일리지 API 연동
+  - GET /benefit/users/mileage/list (AOS 코드에서 확인, Swagger 미등록)
   - POST /benefit/mileage/delete
-  - ✅ `src/domains/mileage/api/__tests__/mileageApi.test.ts` (2 cases)
+  - ✅ `src/domains/mileage/api/__tests__/mileageApi.test.ts` (3 cases)
 
 ### 명세 + 마무리
 - [x] `P2-9` mypage 도메인 API 명세서 작성 (`docs/api/mypage.md`)

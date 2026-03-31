@@ -324,10 +324,55 @@ POST /benefit/coupons/delete
 
 ## 7. 마일리지
 
-> **Base Path**: `/benefit/mileage`
-> **참고**: Swagger에 delete만 존재. 목록 조회 API는 AOS 앱/서버 코드 확인 후 추가 예정.
+> **Base Path**: `/benefit`
+> **참고**: Swagger에 delete만 존재. 상세 조회는 AOS 앱 코드에서 확인하여 추가.
 
-### 7-1. 마일리지 적립 모텔 삭제
+### 7-1. 마일리지 상세 조회 (숙소별 적립 내역)
+
+> Swagger 미등록 — AOS `CoolStayAPIInterface.kt` → `getMileageDetail()` 에서 확인
+
+```
+GET /benefit/users/mileage/list?store_key=store-123
+```
+
+#### 파라미터
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `store_key` | string | O | 숙소 키 |
+
+#### 응답
+
+```json
+{
+  "amount": 5000,
+  "total_amount": 12000,
+  "expire_amount": 2000,
+  "points": [
+    {
+      "key": "p1",
+      "amount": 3000,
+      "remained_point": 3000,
+      "status": "ACTIVE",
+      "reason": "숙박 적립"
+    }
+  ]
+}
+```
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `amount` | number | 현재 잔액 |
+| `total_amount` | number | 총 적립액 |
+| `expire_amount` | number | 만료 예정 금액 |
+| `points` | array | 적립/사용 내역 |
+| `points[].key` | string | 포인트 키 |
+| `points[].amount` | number | 금액 |
+| `points[].remained_point` | number | 잔여 포인트 |
+| `points[].status` | string | 상태 |
+| `points[].reason` | string\|null | 사유 |
+
+### 7-2. 마일리지 적립 모텔 삭제
 
 ```
 POST /benefit/mileage/delete
@@ -349,8 +394,8 @@ POST /benefit/mileage/delete
 
 ### 연동 파일
 
-- 타입: `src/domains/mileage/types/index.ts` → `MileageDeleteRequest`
-- API: `src/domains/mileage/api/mileageApi.ts` → `deleteMileageStores()`
+- 타입: `src/domains/mileage/types/index.ts` → `MileageDetailParams`, `MileageDetailResponse`, `MileageDeleteRequest`
+- API: `src/domains/mileage/api/mileageApi.ts` → `getMileageDetail()`, `deleteMileageStores()`
 
 ---
 
@@ -361,4 +406,4 @@ POST /benefit/mileage/delete
 | Users (P2-1~4) | `src/domains/mypage/api/__tests__/mypageApi.test.ts` | 5 |
 | Dibs (P2-5~6) | `src/domains/mypage/api/__tests__/mypageApi.test.ts` | 2 |
 | Coupon (P2-7) | `src/domains/coupon/api/__tests__/couponApi.test.ts` | 7 |
-| Mileage (P2-8) | `src/domains/mileage/api/__tests__/mileageApi.test.ts` | 2 |
+| Mileage (P2-8) | `src/domains/mileage/api/__tests__/mileageApi.test.ts` | 3 |
