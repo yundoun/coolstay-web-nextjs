@@ -102,8 +102,13 @@ export function CouponListPage() {
   )
 }
 
-function formatDate(dt: string) {
-  return dt ? dt.slice(0, 10) : ""
+function formatDate(dt: string | number | undefined) {
+  if (!dt) return ""
+  if (typeof dt === "number") {
+    const ms = dt < 1e12 ? dt * 1000 : dt
+    return new Date(ms).toISOString().slice(0, 10)
+  }
+  return String(dt).slice(0, 10)
 }
 
 function CouponCard({
