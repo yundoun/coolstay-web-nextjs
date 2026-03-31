@@ -203,9 +203,9 @@
 - [x] `P5-10` guide — API 없음, 정적 콘텐츠 유지
 
 ### Step 3 — 컴포넌트 없는 도메인 UI 구현 (3개)
-- [ ] `P5-11` alarm — 알림 페이지 UI + alarmApi 연동
-- [ ] `P5-12` cs(공지/FAQ) — csApi(board_type=NOTICE/FAQ)로 전환
-- [ ] `P5-13` friend — 친구추천 페이지 UI + friendApi 연동
+- [x] `P5-11` alarm — NotificationPage가 alarmApi 사용 (P5-7에서 완료)
+- [x] `P5-12` cs(공지/FAQ) — NoticeListPage/FaqPage → csApi 전환 완료
+- [ ] `P5-13` friend — 페이지 라우트 미존재, API 준비만 완료 (보류)
 
 ### 명세 + 마무리
 - [ ] `P5-14` mock → API 전환 결과 명세서 업데이트
