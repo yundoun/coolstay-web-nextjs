@@ -29,16 +29,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
-import { reviewSummaryMock, myReviewsMock } from "../data/mock"
-import type { ReviewItem } from "../types"
+import { useMyReviews } from "../hooks/useMyReviews"
+import { deleteReview } from "../api/reviewApi"
+import type { Review } from "@/lib/api/types"
 
 export function MyReviewsPage() {
-  const [reviews, setReviews] = useState(myReviewsMock)
+  const { data, isLoading, error, refresh } = useMyReviews()
   const [writeModalOpen, setWriteModalOpen] = useState(false)
-  const summary = reviewSummaryMock
 
-  const handleDelete = (id: string) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id))
+  const reviews = data?.reviews ?? []
+  const avgScore = data?.avg_score ? parseFloat(data.avg_score) : 0
+  const totalCount = data?.totalCount ?? 0
+  const writableCount = data?.available_count ?? 0
+
+  const handleDelete = async (key: number) => {
+    try {
+      await deleteReview(String(key))
+      refresh()
+    } catch {
+      alert("삭제에 실패했습니다")
+    }
   }
 
   return (
@@ -51,23 +61,23 @@ export function MyReviewsPage() {
           <div className="text-center">
             <div className="flex items-center gap-1">
               <Star className="size-6 fill-yellow-400 text-yellow-400" />
-              <span className="text-3xl font-bold">{summary.averageRating}</span>
+              <span className="text-3xl font-bold">{avgScore.toFixed(1)}</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1">평균 평점</p>
           </div>
           <div className="h-10 w-px bg-border" />
           <div className="flex gap-6">
             <div className="text-center">
-              <p className="text-xl font-bold">{summary.totalReviews}</p>
+              <p className="text-xl font-bold">{totalCount}</p>
               <p className="text-xs text-muted-foreground">작성 리뷰</p>
             </div>
             <div className="text-center">
-              <p className="text-xl font-bold text-primary">{summary.writableCount}</p>
+              <p className="text-xl font-bold text-primary">{writableCount}</p>
               <p className="text-xs text-muted-foreground">작성 가능</p>
             </div>
           </div>
         </div>
-        {summary.writableCount > 0 && (
+        {writableCount > 0 && (
           <Button
             className="w-full mt-4"
             onClick={() => setWriteModalOpen(true)}
@@ -79,15 +89,21 @@ export function MyReviewsPage() {
       </div>
 
       {/* Review List */}
-      {reviews.length === 0 ? (
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="size-8 animate-spin rounded-full border-4 border-muted border-t-primary" />
+        </div>
+      ) : error ? (
+        <div className="text-center py-8 text-destructive text-sm">{error}</div>
+      ) : reviews.length === 0 ? (
         <EmptyState />
       ) : (
         <div className="space-y-4">
           {reviews.map((review) => (
             <ReviewCard
-              key={review.id}
+              key={review.key}
               review={review}
-              onDelete={() => handleDelete(review.id)}
+              onDelete={() => handleDelete(review.key)}
               onEdit={() => setWriteModalOpen(true)}
             />
           ))}
@@ -108,26 +124,20 @@ function ReviewCard({
   onDelete,
   onEdit,
 }: {
-  review: ReviewItem
+  review: Review
   onDelete: () => void
   onEdit: () => void
 }) {
+  const score = parseFloat(review.score) || 0
+  const motelName = review.motel?.name || ""
+
   return (
     <div className="rounded-xl border bg-card overflow-hidden">
       {/* Accommodation Info */}
       <div className="flex items-center gap-3 p-4 border-b bg-muted/30">
-        <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
-          <Image
-            src={review.roomImageUrl}
-            alt={review.roomName}
-            fill
-            className="object-cover"
-            sizes="48px"
-          />
-        </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{review.accommodationName}</p>
-          <p className="text-xs text-muted-foreground">{review.roomName}</p>
+          <p className="font-semibold text-sm truncate">{motelName}</p>
+          <p className="text-xs text-muted-foreground">{review.item_description}</p>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -154,13 +164,13 @@ function ReviewCard({
       {/* Review Content */}
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
-          <StarRating rating={review.rating} size="sm" />
-          <span className="text-xs text-muted-foreground">{review.createdAt}</span>
+          <StarRating rating={score} size="sm" />
+          <span className="text-xs text-muted-foreground">{review.reg_dt}</span>
         </div>
-        <p className="text-sm leading-relaxed">{review.content}</p>
+        <p className="text-sm leading-relaxed">{review.text}</p>
 
         {/* Images */}
-        {review.images.length > 0 && (
+        {review.images && review.images.length > 0 && (
           <div className="flex gap-2 mt-3">
             {review.images.map((img, i) => (
               <div
@@ -168,7 +178,7 @@ function ReviewCard({
                 className="relative w-20 h-20 rounded-lg overflow-hidden"
               >
                 <Image
-                  src={img}
+                  src={img.url}
                   alt={`리뷰 이미지 ${i + 1}`}
                   fill
                   className="object-cover"
@@ -176,6 +186,14 @@ function ReviewCard({
                 />
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Reply */}
+        {review.comment && (
+          <div className="mt-3 p-3 bg-muted/50 rounded-lg">
+            <p className="text-xs font-medium text-muted-foreground mb-1">사장님 답글</p>
+            <p className="text-sm">{review.comment.text}</p>
           </div>
         )}
       </div>
