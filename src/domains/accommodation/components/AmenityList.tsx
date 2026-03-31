@@ -11,6 +11,14 @@ import {
   Tv,
   Check,
   X,
+  Wind,
+  ShowerHead,
+  Snowflake,
+  Flame,
+  Bath,
+  BedDouble,
+  Shirt,
+  Gamepad2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { AmenityItem } from "../types"
@@ -24,6 +32,14 @@ const iconMap: Record<string, React.ElementType> = {
   fitness: Dumbbell,
   lounge: Coffee,
   vod: Tv,
+  dryer: Wind,
+  shower: ShowerHead,
+  aircon: Snowflake,
+  heating: Flame,
+  bath: Bath,
+  bed: BedDouble,
+  laundry: Shirt,
+  game: Gamepad2,
 }
 
 interface AmenityListProps {

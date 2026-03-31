@@ -1,8 +1,10 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { HelpCircle, Loader2 } from "lucide-react"
+import { HelpCircle } from "lucide-react"
 import { Container } from "@/components/layout"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import {
   Accordion,
@@ -47,9 +49,7 @@ export function FaqPage() {
       <h1 className="text-2xl font-bold mb-6">자주 묻는 질문</h1>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : (
         <>
           {/* Category Filter */}
@@ -104,12 +104,7 @@ export function FaqPage() {
               </Accordion>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="rounded-full bg-muted p-6 mb-4">
-                <HelpCircle className="size-10 text-muted-foreground" />
-              </div>
-              <p className="text-lg font-semibold">FAQ가 없습니다</p>
-            </div>
+            <EmptyState icon={HelpCircle} title="FAQ가 없습니다" />
           )}
         </>
       )}

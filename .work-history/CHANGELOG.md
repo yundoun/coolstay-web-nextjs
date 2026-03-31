@@ -3,6 +3,11 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-03-31 15:27** | P8-7: 반응형 디자인 검수 | [`ec8d2bc`](.work-history/entries/2026-03-31_18-15_P8-7_responsive-design-review.md)
+- **2026-03-31 15:24** | P8-6: 예약 상세 페이지 UI 검수 | [`580cfbe`](.work-history/entries/2026-03-31_18-00_P8-6_booking-detail-ui.md)
+- **2026-03-31 15:23** | P8-5: 검색 결과 페이지 무한 스크롤 / 필터 UX | [`3db5ab5`](.work-history/entries/2026-03-31_17-45_P8-5_search-infinite-scroll.md)
+- **2026-03-31 15:20** | P8-4: 숙소 상세 페이지 UI 보강 | [`34cbbfa`](.work-history/entries/2026-03-31_17-30_P8-4_accommodation-detail-ui.md)
+- **2026-03-31 15:19** | P8-1~3: 공통 상태 컴포넌트 통일 | [`5f1f9f5`](.work-history/entries/2026-03-31_17-00_P8-1-3_common-state-components.md)
 - **2026-03-31 14:47** | Phase 7 마이페이지 API 연동 강화 [P7-1~5] | [`f782737`](.work-history/entries/2026-03-31_16-30_P7-1-5_mypage-api-connect.md)
 - **2026-03-31 14:31** | Phase 6~9 태스크 설계 | [`1ad065b`](.work-history/entries/2026-03-31_16-15_chore_phase6-9-design.md)
 - **2026-03-31 14:28** | TASKS.md 정리 — 완료 항목 삭제, 다음 작업 설계 | [`e117433`](.work-history/entries/2026-03-31_16-00_chore_tasks-cleanup.md)

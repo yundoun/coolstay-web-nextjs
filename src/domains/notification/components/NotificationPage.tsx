@@ -11,10 +11,11 @@ import {
   Info,
   Trash2,
   BellOff,
-  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { getAlarmList, deleteAlarms, updateAlarmCard } from "@/domains/alarm/api/alarmApi"
 import type { Alarm } from "@/domains/alarm/types"
@@ -98,19 +99,13 @@ export function NotificationPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : alarms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="rounded-full bg-muted p-6 mb-4">
-            <BellOff className="size-10 text-muted-foreground" />
-          </div>
-          <p className="text-lg font-semibold">알림이 없습니다</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            새로운 알림이 도착하면 여기에 표시됩니다
-          </p>
-        </div>
+        <EmptyState
+          icon={BellOff}
+          title="알림이 없습니다"
+          description="새로운 알림이 도착하면 여기에 표시됩니다"
+        />
       ) : (
         <div className="space-y-2">
           {alarms.map((alarm) => (

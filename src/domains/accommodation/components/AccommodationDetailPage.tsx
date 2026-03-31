@@ -1,16 +1,19 @@
 "use client"
 
+import { Building2 } from "lucide-react"
 import { useStoreDetail } from "../hooks/useDetailData"
 import { mapMotelToDetail } from "../utils/mapMotelToDetail"
 import { AccommodationDetailLayout } from "./AccommodationDetailLayout"
 import { getAccommodationDetail } from "../data/mock"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 
 interface Props {
   storeKey: string
 }
 
 export function AccommodationDetailPage({ storeKey }: Props) {
-  const { data: apiData, isLoading, error } = useStoreDetail(storeKey)
+  const { data: apiData, isLoading } = useStoreDetail(storeKey)
 
   // API 데이터 → AccommodationDetail 변환
   const accommodation = apiData?.motel
@@ -21,23 +24,20 @@ export function AccommodationDetailPage({ storeKey }: Props) {
   const mockData = getAccommodationDetail(storeKey)
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
+    return <LoadingSpinner fullPage />
   }
 
   const detail = accommodation || mockData
 
   if (!detail) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">숙소를 찾을 수 없습니다</h1>
-          <p className="text-muted-foreground">요청하신 숙소 정보가 존재하지 않습니다.</p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Building2}
+        title="숙소를 찾을 수 없습니다"
+        description="요청하신 숙소 정보가 존재하지 않습니다."
+        action={{ label: "숙소 둘러보기", href: "/search" }}
+        className="min-h-[50vh]"
+      />
     )
   }
 

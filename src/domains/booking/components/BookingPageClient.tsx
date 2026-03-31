@@ -1,10 +1,12 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Loader2 } from "lucide-react"
+import { FileSearch } from "lucide-react"
 import Link from "next/link"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { getStoreDetail } from "@/domains/accommodation/api/detailApi"
 import { mapMotelToDetail } from "@/domains/accommodation/utils/mapMotelToDetail"
 import { BookingPageLayout } from "./BookingPageLayout"
@@ -86,23 +88,18 @@ export function BookingPageClient({
   }, [accommodationId, roomId, type])
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
-      </div>
-    )
+    return <LoadingSpinner fullPage />
   }
 
   if (error || !context) {
     return (
       <Container size="normal" padding="responsive" className="py-20">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">예약 정보를 찾을 수 없습니다</h1>
-          <p className="text-muted-foreground">{error || "숙소 또는 객실 정보가 존재하지 않습니다."}</p>
-          <Button className="mt-4" asChild>
-            <Link href={`/accommodations/${accommodationId}`}>숙소로 돌아가기</Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={FileSearch}
+          title="예약 정보를 찾을 수 없습니다"
+          description={error || "숙소 또는 객실 정보가 존재하지 않습니다."}
+          action={{ label: "숙소로 돌아가기", href: `/accommodations/${accommodationId}` }}
+        />
       </Container>
     )
   }

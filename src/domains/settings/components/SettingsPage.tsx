@@ -10,9 +10,9 @@ import {
   ChevronRight,
   FileText,
   UserX,
-  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { useSettings } from "../hooks/useSettings"
 
@@ -31,9 +31,7 @@ export function SettingsPage() {
 
       {/* Notification Settings */}
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-8 animate-spin text-muted-foreground" />
-        </div>
+        <LoadingSpinner />
       ) : (
         <div className="rounded-xl border bg-card overflow-hidden">
           <div className="px-4 py-3 bg-muted/30">

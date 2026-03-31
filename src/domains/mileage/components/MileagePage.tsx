@@ -10,10 +10,10 @@ import {
   ChevronRight,
   ArrowLeft,
   MapPin,
-  Home,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
+import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -25,18 +25,25 @@ import {
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { useMileageDetail } from "../hooks/useMileage"
+import type { StoreMileage, MileageStatus } from "../types"
+
+const STATUS_LABELS: Record<MileageStatus, { label: string; color: string }> = {
+  earned: { label: "적립", color: "text-blue-600" },
+  used: { label: "사용", color: "text-red-500" },
+  expired: { label: "소멸", color: "text-muted-foreground" },
+}
 
 export function MileagePage() {
   const [selectedStore, setSelectedStore] = useState<string | null>(null)
   // TODO: 마일리지 목록 API가 없어서 상세 조회만 가능
   // 숙소별 목록은 마이페이지 API 연동 후 store_key 목록을 가져와야 함
   const { data: mileageData, isLoading } = useMileageDetail(selectedStore || undefined)
-  const summary = {
+  const summary: { currentBalance: number; totalEarned: number; expiringAmount: number; expiringDate?: string } = {
     currentBalance: mileageData?.amount ?? 0,
     totalEarned: mileageData?.total_amount ?? 0,
     expiringAmount: mileageData?.expire_amount ?? 0,
   }
-  const stores: { id: string; name: string }[] = [] // 목록 API 연동 전까지 빈 배열
+  const stores: StoreMileage[] = [] // 목록 API 연동 전까지 빈 배열
 
   const activeStore = stores.find((s) => s.id === selectedStore)
 
@@ -44,7 +51,12 @@ export function MileagePage() {
     return (
       <Container size="normal" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">마일리지</h1>
-        <EmptyState />
+        <EmptyState
+          icon={Coins}
+          title="마일리지가 없습니다"
+          description="숙소 예약 시 마일리지가 적립됩니다"
+          action={{ label: "홈으로", href: "/" }}
+        />
       </Container>
     )
   }
@@ -241,22 +253,3 @@ function StoreDetail({
   )
 }
 
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="rounded-full bg-muted p-6 mb-4">
-        <Coins className="size-10 text-muted-foreground" />
-      </div>
-      <p className="text-lg font-semibold">마일리지가 없습니다</p>
-      <p className="mt-1 text-sm text-muted-foreground">
-        숙소 예약 시 마일리지가 적립됩니다
-      </p>
-      <Button className="mt-4" asChild>
-        <Link href="/">
-          <Home className="size-4 mr-2" />
-          홈으로
-        </Link>
-      </Button>
-    </div>
-  )
-}

@@ -1,9 +1,12 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useState, useCallback, useMemo, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { Search } from "lucide-react"
 import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { KeywordSearchSection } from "./KeywordSearchSection"
@@ -171,9 +174,7 @@ export function SearchPageLayout() {
         {/* 검색 결과 */}
         <div className="pt-4">
           {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            </div>
+            <LoadingSpinner />
           ) : (
             <SearchResultGrid accommodations={accommodations} />
           )}
@@ -183,54 +184,76 @@ export function SearchPageLayout() {
   )
 }
 
+const PAGE_SIZE = 12
+
 function SearchResultGrid({
   accommodations,
 }: {
   accommodations: Accommodation[]
 }) {
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  // Reset on new search results
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE)
+  }, [accommodations])
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, accommodations.length))
+        }
+      },
+      { rootMargin: "200px" }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [accommodations.length])
+
   if (accommodations.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="rounded-full bg-muted p-6 mb-4">
-          <svg
-            className="size-12 text-muted-foreground"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
-        <p className="text-lg font-semibold text-foreground">
-          검색 결과가 없습니다
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground max-w-sm">
-          다른 조건이나 지역으로 검색해 보세요.
-        </p>
-      </div>
+      <EmptyState
+        icon={Search}
+        title="검색 결과가 없습니다"
+        description="다른 조건이나 지역으로 검색해 보세요."
+      />
     )
   }
 
-  return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-12">
-      {accommodations.map((accommodation, index) => (
-        <AccommodationCard
-          key={accommodation.id}
-          accommodation={accommodation}
-          priority={index < 6}
-        />
-      ))}
+  const visibleItems = accommodations.slice(0, visibleCount)
+  const hasMore = visibleCount < accommodations.length
 
-      <div className="col-span-full flex justify-center py-8">
-        <p className="text-sm text-muted-foreground">
-          더 많은 숙소를 보려면 스크롤하세요
-        </p>
+  return (
+    <div className="pb-12">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {visibleItems.map((accommodation, index) => (
+          <AccommodationCard
+            key={accommodation.id}
+            accommodation={accommodation}
+            priority={index < 6}
+          />
+        ))}
       </div>
+
+      {hasMore && (
+        <div ref={sentinelRef} className="flex justify-center py-8">
+          <LoadingSpinner size="sm" className="py-4" />
+        </div>
+      )}
+
+      {!hasMore && accommodations.length > PAGE_SIZE && (
+        <div className="flex justify-center py-8">
+          <p className="text-sm text-muted-foreground">
+            총 {accommodations.length}개의 숙소를 모두 보여드렸습니다
+          </p>
+        </div>
+      )}
     </div>
   )
 }

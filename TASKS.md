@@ -50,15 +50,27 @@
 > 전체 앱 품질 개선
 
 ### 상태 표시 통일
-- [ ] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
-- [ ] `P8-2` 에러 상태 통일 (공통 ErrorBoundary 또는 에러 컴포넌트)
-- [ ] `P8-3` 빈 상태 디자인 일관성 검수
+- [x] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
+  ✅ `src/components/ui/__tests__/loading-spinner.test.tsx` (6 cases)
+- [x] `P8-2` 에러 상태 통일 (공통 ErrorState 컴포넌트)
+  ✅ `src/components/ui/__tests__/error-state.test.tsx` (5 cases)
+- [x] `P8-3` 빈 상태 디자인 일관성 검수 (공통 EmptyState 컴포넌트)
+  ✅ `src/components/ui/__tests__/empty-state.test.tsx` (5 cases)
 
 ### 페이지별 개선
-- [ ] `P8-4` 숙소 상세 페이지 UI 보강 (객실 목록, 편의시설 등)
-- [ ] `P8-5` 검색 결과 페이지 무한 스크롤 / 필터 UX
-- [ ] `P8-6` 예약 상세 페이지 UI 검수
-- [ ] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
+- [x] `P8-4` 숙소 상세 페이지 UI 보강 (객실 목록, 편의시설 등)
+  - 공통 LoadingSpinner/EmptyState 적용
+  - 편의시설 아이콘 8→16개 확장 (에어컨, 난방, 욕조, 드라이어 등)
+  - 객실 카드에 체크인/아웃 시간 표시 추가
+- [x] `P8-5` 검색 결과 페이지 무한 스크롤 / 필터 UX
+  - IntersectionObserver 기반 무한 스크롤 구현 (12개씩 로드)
+  - 공통 LoadingSpinner/EmptyState 적용
+  - 결과 표시 완료 메시지 추가
+- [x] `P8-6` 예약 상세 페이지 UI 검수
+  - BookingDetailPage, BookingPageClient에 공통 LoadingSpinner/EmptyState 적용
+- [x] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
+  - MyPage 쿠폰/마일리지 그리드 반응형 수정 (cols-2 → cols-1 sm:cols-2)
+  - RentalTimeModal 시간 그리드 반응형 수정 (cols-4 → cols-3 sm:cols-4)
 
 ---
 
