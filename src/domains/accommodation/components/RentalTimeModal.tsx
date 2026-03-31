@@ -86,7 +86,7 @@ export function RentalTimeModal({
             <p className="text-sm font-medium text-muted-foreground mb-3">
               입실 시간을 선택해 주세요
             </p>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {timeSlots.map((slot) => (
                 <button
                   key={slot.value}

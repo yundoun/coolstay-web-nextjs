@@ -68,7 +68,9 @@
   - 결과 표시 완료 메시지 추가
 - [x] `P8-6` 예약 상세 페이지 UI 검수
   - BookingDetailPage, BookingPageClient에 공통 LoadingSpinner/EmptyState 적용
-- [ ] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
+- [x] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
+  - MyPage 쿠폰/마일리지 그리드 반응형 수정 (cols-2 → cols-1 sm:cols-2)
+  - RentalTimeModal 시간 그리드 반응형 수정 (cols-4 → cols-3 sm:cols-4)
 
 ---
 

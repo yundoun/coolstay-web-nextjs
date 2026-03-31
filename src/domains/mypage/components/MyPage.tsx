@@ -88,7 +88,7 @@ export function MyPage() {
         </div>
 
         {/* Coupon & Mileage */}
-        <div className="grid grid-cols-2 gap-3 mt-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
           <Link
             href="/coupons"
             className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
