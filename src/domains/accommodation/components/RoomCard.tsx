@@ -60,11 +60,17 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
             {room.description}
           </p>
 
-          <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground">
+          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Users className="size-4" />
               <span>최대 {room.maxGuests}인</span>
             </div>
+            {room.stayStartHour != null && room.stayEndHour != null && (
+              <div className="flex items-center gap-1">
+                <Clock className="size-4" />
+                <span>체크인 {room.stayStartHour}시 / 체크아웃 {room.stayEndHour}시</span>
+              </div>
+            )}
           </div>
 
           {/* Keywords */}
