@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { LoginPage } from "@/domains/auth/components"
 
 export function generateMetadata() {
@@ -7,5 +8,9 @@ export function generateMetadata() {
 }
 
 export default function LoginRoute() {
-  return <LoginPage />
+  return (
+    <Suspense>
+      <LoginPage />
+    </Suspense>
+  )
 }
