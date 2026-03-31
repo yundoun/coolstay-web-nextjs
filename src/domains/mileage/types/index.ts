@@ -1,3 +1,12 @@
+// ─── API 타입 ───
+
+export interface MileageDeleteRequest {
+  store_keys: string[]
+  flag?: string
+}
+
+// ─── Legacy (mock용, API 연동 후 제거) ───
+
 export type MileageStatus = "earned" | "used" | "expired"
 
 export interface MileageHistoryEntry {

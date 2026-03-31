@@ -1,6 +1,6 @@
 # API 연동 — Mock → 실제 API 전환
 
-> **진행률**: 19 / 34 (55%)
+> **진행률**: 28 / 34 (82%)
 
 ---
 
@@ -79,26 +79,36 @@
 
 ---
 
-## Phase 2 — 마이페이지/회원관리 `branch: feat/phase2-mypage`
+## Phase 2 — 마이페이지/회원관리 `branch: feat/phase2`
 
 > Swagger `/api/v2/mobile/auth/users` 중 회원정보 + 마이페이지 + 찜 + 쿠폰 + 마일리지
 
 ### Users (회원정보 관리)
-- [ ] `P2-1` 마이페이지 정보 조회 API 연동 — `GET /auth/users/mypage/list`
-- [ ] `P2-2` 회원정보 변경 API 연동 — `POST /auth/users/update`
-- [ ] `P2-3` 비밀번호 확인 API 연동 — `POST /auth/users/pw/check`
-- [ ] `P2-4` 회원 탈퇴 API 연동 — `POST /auth/users/delete`
+- [x] `P2-1` 마이페이지 정보 조회 API 연동 — `GET /auth/users/mypage/list`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (1 case)
+- [x] `P2-2` 회원정보 변경 API 연동 — `POST /auth/users/update`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (1 case)
+- [x] `P2-3` 비밀번호 확인 API 연동 — `POST /auth/users/pw/check`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (2 cases)
+- [x] `P2-4` 회원 탈퇴 API 연동 — `POST /auth/users/delete`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (1 case)
 
 ### Dibs (찜/즐겨찾기)
-- [ ] `P2-5` 찜 등록 API 연동 — `POST /auth/dibs/register`
-- [ ] `P2-6` 찜 삭제 API 연동 — `POST /auth/dibs/delete`
+- [x] `P2-5` 찜 등록 API 연동 — `POST /auth/dibs/register`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (1 case)
+- [x] `P2-6` 찜 삭제 API 연동 — `POST /auth/dibs/delete`
+  - ✅ `src/domains/mypage/api/__tests__/mypageApi.test.ts` (1 case)
 
 ### 쿠폰 / 마일리지
-- [ ] `P2-7` COUPON 쿠폰 목록/등록 API 연동
-- [ ] `P2-8` MILEAGE 마일리지 내역 API 연동
+- [x] `P2-7` COUPON 쿠폰 목록/등록/다운로드/삭제 API 연동
+  - GET /benefit/coupons/list, POST register/download/delete
+  - ✅ `src/domains/coupon/api/__tests__/couponApi.test.ts` (7 cases)
+- [x] `P2-8` MILEAGE 마일리지 API 연동 (delete만, 목록 조회는 AOS/서버 확인 필요)
+  - POST /benefit/mileage/delete
+  - ✅ `src/domains/mileage/api/__tests__/mileageApi.test.ts` (2 cases)
 
 ### 명세 + 마무리
-- [ ] `P2-9` mypage 도메인 API 명세서 작성 (`docs/api/mypage.md`)
+- [x] `P2-9` mypage 도메인 API 명세서 작성 (`docs/api/mypage.md`)
 
 ---
 
