@@ -197,10 +197,10 @@
 - [x] `P5-2` mileage — hook 연결 (목록 API 없어 상세 조회만, 추후 마이페이지 연동 필요)
 
 ### Step 2 — API 미존재, AOS/서버 코드 탐색 후 구현 (4개)
-- [ ] `P5-7` notification → alarm API로 전환 (alarmApi 활용)
-- [ ] `P5-8` favorites → dibs API 목록 조회 추가 (AOS 코드 탐색 필요)
-- [ ] `P5-9` inquiry → csApi(board_type=INQUIRY)로 전환
-- [ ] `P5-10` guide — API 없음, 정적 콘텐츠 유지 또는 board API 확인
+- [x] `P5-7` notification → alarmApi로 전환 (목록 조회/읽음 처리/삭제)
+- [x] `P5-9` inquiry → csApi(board_type=INQUIRY)로 전환 (목록 조회/문의 등록)
+- [ ] `P5-8` favorites — V2에 목록 조회 API 없음, V1 전용 (보류)
+- [x] `P5-10` guide — API 없음, 정적 콘텐츠 유지
 
 ### Step 3 — 컴포넌트 없는 도메인 UI 구현 (3개)
 - [ ] `P5-11` alarm — 알림 페이지 UI + alarmApi 연동
