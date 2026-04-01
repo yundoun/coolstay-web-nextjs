@@ -306,10 +306,12 @@ export interface Exhibition {
   type: string
   title: string
   description: string
+  thumb_description?: string
   badge_image_url: string
   banner_image_url: string
   detail_banner_image_url: string
   image_urls: string[]
+  link?: { type: string; sub_type: string; target: string; btn_name: string }
   reg_dt: number
   start_dt: number
   end_dt: number

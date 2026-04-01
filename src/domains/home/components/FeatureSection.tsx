@@ -36,7 +36,11 @@ export function FeatureSection({ exhibitions }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6">
-            <p className="text-xs text-white/70 mb-1">{item.description}</p>
+            {(item.thumb_description || item.title) && (
+              <p className="text-xs text-white/70 mb-1">
+                {item.thumb_description || ""}
+              </p>
+            )}
             <div className="flex items-center gap-2">
               <h3 className="text-base md:text-lg font-bold text-white">
                 {item.title}
