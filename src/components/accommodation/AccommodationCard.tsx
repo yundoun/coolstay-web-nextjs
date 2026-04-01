@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Heart } from "lucide-react"
+import { Heart, Star, Ticket } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -21,6 +21,11 @@ export interface Accommodation {
   isSoldOut?: boolean
   partnershipType?: string
   consecutiveYn?: string
+  rating?: number
+  reviewCount?: number
+  mileageRate?: number
+  hasCoupon?: boolean
+  address?: string
 }
 
 export interface AccommodationCardProps {
@@ -109,6 +114,32 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             <p className="mt-0.5 text-sm text-muted-foreground">
               {accommodation.location}
             </p>
+          )}
+
+          {/* Rating · Mileage · Coupon */}
+          {(accommodation.rating || accommodation.mileageRate || accommodation.hasCoupon) && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
+              {accommodation.rating != null && accommodation.rating > 0 && (
+                <span className="inline-flex items-center gap-0.5">
+                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                  <span className="font-medium text-foreground">{accommodation.rating.toFixed(1)}</span>
+                  {accommodation.reviewCount != null && accommodation.reviewCount > 0 && (
+                    <span>({accommodation.reviewCount.toLocaleString()})</span>
+                  )}
+                </span>
+              )}
+              {accommodation.mileageRate != null && accommodation.mileageRate > 0 && (
+                <span className="inline-flex items-center gap-0.5 text-emerald-600">
+                  <span className="font-medium">+{accommodation.mileageRate}% 적립</span>
+                </span>
+              )}
+              {accommodation.hasCoupon && (
+                <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-px text-primary font-medium">
+                  <Ticket className="size-3" />
+                  쿠폰
+                </span>
+              )}
+            </div>
           )}
 
           {/* Like Count */}
