@@ -2,106 +2,61 @@
 
 ---
 
-## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth`
+## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth` (보류)
 
-> 카카오/네이버 SDK 세팅 + 소셜 로그인/회원가입 연동
+> 카카오/네이버 SDK 세팅 + 소셜 로그인/회원가입 연동 (개발자 콘솔 준비 중)
 
 - [ ] `P6-1` 카카오 SDK 세팅 (JavaScript SDK 초기화, 앱 키 설정)
 - [ ] `P6-2` 네이버 SDK 세팅 (네이버 로그인 API 초기화)
 - [ ] `P6-3` 소셜 로그인 API 연동 — `POST /auth/sessions/users/sns`
-  - 카카오 토큰 → enc_sns_uid 암호화 → API 호출
-  - 네이버 토큰 → enc_sns_uid 암호화 → API 호출
 - [ ] `P6-4` 소셜 회원가입 API 연동 — `POST /auth/users/sns/register`
-  - 미가입 유저 → 약관 동의 + 전화번호 인증 → 가입
 - [ ] `P6-5` LoginPage 소셜 버튼 실제 동작 연결
 - [ ] `P6-6` RegisterPage 소셜 가입 플로우 연결
 
 ---
 
-## Phase 7 — 마이페이지 API 연동 강화 `branch: feat/phase7-mypage`
+## Phase 10 — API 응답 구조 재설계 `branch: feat/phase10-api-redesign`
 
-> 마이페이지 내 모든 기능을 실제 API로 연결
+> API 연동 도메인의 타입/컴포넌트를 실제 응답 구조에 맞게 재정비
 
-### 마이페이지 홈
-- [x] `P7-1` MyPage 쿠폰/마일리지/예약 카운트 → `getMypageInfo()` 연동
-- [x] `P7-2` 찜 목록 → `GET /contents/list?search_type=ST006` (AOS 코드에서 확인)
-  - `getDibsList()` 함수 추가
+### 10-A. 이용가이드 재설계
 
-### 프로필 수정
-- [x] `P7-3` ProfileEditPage → `updateUser()` + auth store 연동
-  - mock 제거, auth store에서 유저 정보 표시
-  - 닉네임/이름 변경 → API 호출 → 세션 갱신
-  - 전화번호 변경 → SMS 인증 → API 호출 → 세션 갱신
-- [x] `P7-4` PasswordChangePage → `encryptPassword()` + `updateUser()` 연동
-  - 비밀번호 AES 암호화 → API 호출 → 세션 갱신
+- [ ] `P10-1` Legacy 타입 삭제 — `GuideItem`, `GuideStep` (guide/types/index.ts)
+- [ ] `P10-2` GuidePage 에러 상태 보강 — isError 시 ErrorState 표시, 재시도 버튼
+- [ ] `P10-3` 가이드 상세 → `board_item_key` 파라미터로 개별 조회 API 연동
+- [ ] `P10-4` 가이드 테스트 작성
 
-### 회원 탈퇴
-- [x] `P7-5` WithdrawPage → `getMypageInfo()` + `deleteUser()` 연동
-  - 실제 쿠폰/마일리지/예약 카운트 표시
-  - 탈퇴 → clearSession + 홈 이동
+### 10-B. 쿠폰 재설계
 
-### 친구추천
-- [ ] `P7-6` 친구추천 페이지 라우트 + UI 구현 → `friendApi` 연동 (보류)
+- [ ] `P10-5` Legacy 타입 삭제 — `CouponItem`, `CouponDiscountType` (coupon/types/index.ts)
+- [ ] `P10-6` `Coupon` 타입 정비 — API 실제 반환 필드만 유지, 미반환 필드 제거 또는 optional 처리
+- [ ] `P10-7` `discount_type` 분기 검증 — `"FIXED"` / `"RATE"` 값 확인 후 컴포넌트 로직 수정
+- [ ] `P10-8` `formatDate` 타임스탬프 처리 통일 — 휴리스틱(1e12) 제거, 일관된 단위 사용
+- [ ] `P10-9` 쿠폰 테스트 작성
 
----
+### 10-C. 기획전(Event) 재설계
 
-## Phase 8 — UI/UX 개선 `branch: feat/phase8-ui`
+- [ ] `P10-10` Legacy 타입 삭제 — `EventItem`, `EventStatus` (event/types/index.ts)
+- [ ] `P10-11` `EventBoardItem` → `BoardItem` 공통 타입 전환 (CS 도메인과 통일)
+- [ ] `P10-12` status 로직 수정 — 클라이언트 재계산 제거, API `status` 필드 직접 사용
+- [ ] `P10-13` `formatTs` 타임스탬프 처리 통일 — 쿠폰과 동일 방식 적용
+- [ ] `P10-14` `web_view_link` 활용 — link/web_view_link 사용 정책 정리
+- [ ] `P10-15` 기획전 테스트 작성
 
-> 전체 앱 품질 개선
+### 10-D. 찜(Favorites) API 연동
 
-### 상태 표시 통일
-- [x] `P8-1` 로딩 컴포넌트 통일 (공통 Skeleton/Spinner)
-  ✅ `src/components/ui/__tests__/loading-spinner.test.tsx` (6 cases)
-- [x] `P8-2` 에러 상태 통일 (공통 ErrorState 컴포넌트)
-  ✅ `src/components/ui/__tests__/error-state.test.tsx` (5 cases)
-- [x] `P8-3` 빈 상태 디자인 일관성 검수 (공통 EmptyState 컴포넌트)
-  ✅ `src/components/ui/__tests__/empty-state.test.tsx` (5 cases)
+- [ ] `P10-16` `FavoriteAccommodation` 타입 → API 응답 기반 재정의 (contents/list 응답 구조)
+- [ ] `P10-17` 찜 목록 API 연동 — `getDibsList()` 호출 → React Query 훅 생성
+- [ ] `P10-18` 찜 등록/삭제 API 연동 — `POST /auth/dibs/register`, `/auth/dibs/delete`
+- [ ] `P10-19` 최근 본 숙소 — 로컬스토리지 기반 구현 (API 없음)
+- [ ] `P10-20` FavoritesPage 컴포넌트 재설계 — API 데이터 바인딩 + 편집 모드 동작
+- [ ] `P10-21` 찜 테스트 작성
 
-### 페이지별 개선
-- [x] `P8-4` 숙소 상세 페이지 UI 보강 (객실 목록, 편의시설 등)
-  - 공통 LoadingSpinner/EmptyState 적용
-  - 편의시설 아이콘 8→16개 확장 (에어컨, 난방, 욕조, 드라이어 등)
-  - 객실 카드에 체크인/아웃 시간 표시 추가
-- [x] `P8-5` 검색 결과 페이지 무한 스크롤 / 필터 UX
-  - IntersectionObserver 기반 무한 스크롤 구현 (12개씩 로드)
-  - 공통 LoadingSpinner/EmptyState 적용
-  - 결과 표시 완료 메시지 추가
-- [x] `P8-6` 예약 상세 페이지 UI 검수
-  - BookingDetailPage, BookingPageClient에 공통 LoadingSpinner/EmptyState 적용
-- [x] `P8-7` 반응형 디자인 검수 (모바일/태블릿/데스크톱)
-  - MyPage 쿠폰/마일리지 그리드 반응형 수정 (cols-2 → cols-1 sm:cols-2)
-  - RentalTimeModal 시간 그리드 반응형 수정 (cols-4 → cols-3 sm:cols-4)
+### 10-E. 공통 정리
 
----
-
-## Phase 9 — 성능/품질 `branch: feat/phase9-quality`
-
-> 코드 품질 + 성능 최적화
-
-### React Query 확대
-- [x] `P9-1` coupon/event/settings/terms/review/mileage hook → React Query 전환
-  - 6개 훅 useState+useEffect → useQuery 교체
-  - settings: optimistic update + rollback 유지
-  ✅ `src/domains/coupon/hooks/__tests__/useCouponList.test.ts` (2 cases)
-- [x] `P9-2` notification/notice/faq/inquiry 직접 호출 → React Query 전환
-  - 4개 컴포넌트 내 useState+useEffect → useQuery 교체
-  - notification: optimistic update (읽음 처리), invalidate (삭제)
-  - inquiry: LoadingSpinner/EmptyState 공통 컴포넌트 적용
-
-### API 타입 정합성
-- [x] `P9-3` API 응답 snake_case 통일 검증
-  - ContentsListResponse, ReviewListResponse camelCase → snake_case 수정
-  - MyReviewsPage 참조 코드 수정
-- [x] `P9-4` 불필요한 mock 데이터 파일 정리 (11개 → 13개 삭제)
-- [x] `P9-5` mock 사용 컴포넌트 전환
-  - search: sortOptions → constants.ts 분리, mock fallback → 빈 배열
-  - accommodation: mock fallback 제거 → API 전용
-  - accommodation/search mock.ts 삭제 (추가 2개)
-  - guide/favorites: API 미존재로 정적 데이터 유지
-
-### 빌드/린트
-- [x] `P9-6` LoginPage `useSearchParams` Suspense boundary 수정 (빌드 성공)
-- [x] `P9-7` TypeScript strict 모드 점검 — strict: true 확인, 에러 0개
+- [ ] `P10-22` Legacy 타입 일괄 삭제 — `notice/types/index.ts` NoticeItem
+- [ ] `P10-23` 타임스탬프 포맷 유틸 공통화 — `formatTimestamp()` 함수 1개로 통일
+- [ ] `P10-24` 빌드 + 전체 테스트 통과 확인
 
 ---
 
@@ -114,6 +69,9 @@
 | Phase 3 | 소통/CS (알림/공지/FAQ/문의) API | 10 cases | 완료 |
 | Phase 4 | 부가 콘텐츠/설정 API | 8 cases | 완료 |
 | Phase 5 | Mock → API 전환 (10개 도메인) | 5 cases | 완료 |
+| Phase 7 | 마이페이지 API 연동 강화 | — | 완료 (P7-6 보류) |
+| Phase 8 | UI/UX 개선 | — | 완료 |
+| Phase 9 | 성능/품질 | — | 완료 |
 | **합계** | | **77 tests** | |
 
 ### 문서

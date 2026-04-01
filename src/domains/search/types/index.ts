@@ -27,4 +27,4 @@ export const DEFAULT_FILTERS: SearchFilters = {
   regions: [],
 }
 
-export const DEFAULT_SORT = "recommend"
+export const DEFAULT_SORT = "BENEFIT"

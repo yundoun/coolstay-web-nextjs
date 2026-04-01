@@ -39,3 +39,11 @@ export function registerInquiry(body: BoardRegisterRequest) {
 export function deleteInquiry(body: BoardDeleteRequest) {
   return api.post<void>("/manage/board/delete", body)
 }
+
+/** 꿀팁 가이드 목록 조회 */
+export function getGuideList(params?: Omit<BoardListParams, "board_type">) {
+  return api.get<BoardListResponse>("/manage/board/list", {
+    board_type: "GUIDE",
+    ...params,
+  })
+}

@@ -1,29 +1,29 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import {
-  CalendarDays,
-  Ticket,
-  Coins,
-  PenLine,
   ArrowLeft,
   BookOpen,
   ChevronRight,
+  ExternalLink,
 } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Container } from "@/components/layout"
-import { cn } from "@/lib/utils"
-import { guidesMock } from "../data/mock"
-import type { GuideItem } from "../types"
-
-const iconMap: Record<string, React.ElementType> = {
-  calendar: CalendarDays,
-  ticket: Ticket,
-  coins: Coins,
-  pen: PenLine,
-}
+import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EmptyState } from "@/components/ui/empty-state"
+import { getGuideList } from "@/domains/cs/api/csApi"
+import type { BoardItem } from "@/domains/cs/types"
 
 export function GuidePage() {
-  const [selectedGuide, setSelectedGuide] = useState<GuideItem | null>(null)
+  const [selectedGuide, setSelectedGuide] = useState<BoardItem | null>(null)
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ["guide", "list"],
+    queryFn: () => getGuideList({ count: 20 }),
+  })
+
+  const guides = data?.board_items ?? []
 
   if (selectedGuide) {
     return (
@@ -36,31 +36,52 @@ export function GuidePage() {
 
   return (
     <Container size="narrow" padding="responsive" className="py-8">
-      <h1 className="text-2xl font-bold mb-6">이용 가이드</h1>
+      <h1 className="text-2xl font-bold mb-6">꿀팁 가이드</h1>
 
-      <div className="space-y-3">
-        {guidesMock.map((guide) => {
-          const Icon = iconMap[guide.icon] || BookOpen
-          return (
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : isError || guides.length === 0 ? (
+        <EmptyState
+          icon={BookOpen}
+          title="등록된 가이드가 없습니다"
+          description="새로운 가이드가 곧 업데이트됩니다."
+        />
+      ) : (
+        <div className="space-y-3">
+          {guides.map((guide) => (
             <button
-              key={guide.id}
+              key={guide.key}
               onClick={() => setSelectedGuide(guide)}
               className="w-full text-left flex items-center gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-shadow"
             >
-              <div className="flex items-center justify-center size-12 rounded-full bg-primary/10 shrink-0">
-                <Icon className="size-6 text-primary" />
-              </div>
+              {guide.banner_image_url ? (
+                <div className="relative size-12 rounded-full overflow-hidden shrink-0">
+                  <Image
+                    src={guide.banner_image_url}
+                    alt={guide.title}
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center size-12 rounded-full bg-primary/10 shrink-0">
+                  <BookOpen className="size-6 text-primary" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-sm">{guide.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                  {guide.summary}
-                </p>
+                {guide.description && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                    {guide.description}
+                  </p>
+                )}
               </div>
               <ChevronRight className="size-4 text-muted-foreground/50 shrink-0" />
             </button>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </Container>
   )
 }
@@ -69,11 +90,9 @@ function GuideDetail({
   guide,
   onBack,
 }: {
-  guide: GuideItem
+  guide: BoardItem
   onBack: () => void
 }) {
-  const Icon = iconMap[guide.icon] || BookOpen
-
   return (
     <Container size="narrow" padding="responsive" className="py-8">
       <button
@@ -84,41 +103,54 @@ function GuideDetail({
         가이드 목록
       </button>
 
-      <div className="rounded-xl border bg-card p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center justify-center size-10 rounded-full bg-primary/10">
-            <Icon className="size-5 text-primary" />
+      <div className="rounded-xl border bg-card overflow-hidden">
+        {guide.banner_image_url && (
+          <div className="relative aspect-[2/1] w-full">
+            <Image
+              src={guide.banner_image_url}
+              alt={guide.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 560px"
+            />
           </div>
-          <div>
-            <h2 className="text-lg font-bold">{guide.title}</h2>
-            <p className="text-sm text-muted-foreground">{guide.summary}</p>
-          </div>
-        </div>
+        )}
 
-        <div className="space-y-4 mt-6">
-          {guide.steps.map((step, idx) => (
-            <div key={step.step} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div
-                  className={cn(
-                    "flex items-center justify-center size-8 rounded-full text-sm font-bold shrink-0",
-                    "bg-primary text-primary-foreground"
-                  )}
-                >
-                  {step.step}
+        <div className="p-5">
+          <h2 className="text-lg font-bold">{guide.title}</h2>
+          {guide.description && (
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line">
+              {guide.description}
+            </p>
+          )}
+
+          {guide.images && guide.images.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {guide.images.map((img, idx) => (
+                <div key={img.url || idx} className="relative w-full aspect-[3/2] rounded-lg overflow-hidden">
+                  <Image
+                    src={img.url}
+                    alt={`${guide.title} ${idx + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 560px"
+                  />
                 </div>
-                {idx < guide.steps.length - 1 && (
-                  <div className="w-px flex-1 bg-border mt-2" />
-                )}
-              </div>
-              <div className="pb-6">
-                <h3 className="font-semibold text-sm">{step.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {guide.web_view_link && (
+            <a
+              href={guide.web_view_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 mt-4 text-sm text-primary hover:underline"
+            >
+              자세히 보기
+              <ExternalLink className="size-3.5" />
+            </a>
+          )}
         </div>
       </div>
     </Container>

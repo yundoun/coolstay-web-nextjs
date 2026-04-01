@@ -10,7 +10,6 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import { recentViewedMock, wishlistMock } from "../data/mock"
 import type { FavoriteAccommodation } from "../types"
 
 type Tab = "recent" | "wishlist"
@@ -19,8 +18,8 @@ export function FavoritesPage() {
   const [tab, setTab] = useState<Tab>("recent")
   const [editMode, setEditMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [recentItems, setRecentItems] = useState(recentViewedMock)
-  const [wishlistItems, setWishlistItems] = useState(wishlistMock)
+  const [recentItems, setRecentItems] = useState<FavoriteAccommodation[]>([])
+  const [wishlistItems, setWishlistItems] = useState<FavoriteAccommodation[]>([])
 
   const currentItems = tab === "recent" ? recentItems : wishlistItems
 
