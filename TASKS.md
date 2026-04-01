@@ -51,22 +51,22 @@
 > 예약 플로우 + 리뷰 (14개 엔드포인트)
 
 #### 예약 (9개)
-- [ ] `P11B-1` `GET /reserv/users/payments/list` 실제 응답 검증
-- [ ] `P11B-2` `POST /reserv/ready` 실제 응답 검증 → reservation.md 수정
-- [ ] `P11B-3` `POST /reserv/register` 실제 응답 검증
-- [ ] `P11B-4` `GET /reserv/users/list` 실제 응답 검증
-- [ ] `P11B-5` `GET /reserv/users/upcoming` 실제 응답 검증
-- [ ] `P11B-6` `GET /reserv/guest/list` 실제 응답 검증
-- [ ] `P11B-7` `POST /reserv/delete` 실제 응답 검증
-- [ ] `P11B-8` `POST /reserv/users/delete` 실제 응답 검증
-- [ ] `P11B-9` `GET /reserv/receipt` 실제 응답 검증
+- [x] `P11B-1` `GET /reserv/users/payments/list` 검증 → UserPaymentInfoResponse 전면 교체
+- [ ] `P11B-2` `POST /reserv/ready` — 파괴적 (실제 예약 생성), AOS 코드 참조
+- [ ] `P11B-3` `POST /reserv/register` — 파괴적, AOS 코드 참조
+- [ ] `P11B-4` `GET /reserv/users/list` — 파라미터 에러 (추가 조사 필요)
+- [x] `P11B-5` `GET /reserv/users/upcoming` 검증 → total_count + books[]
+- [ ] `P11B-6` `GET /reserv/guest/list` — 미호출
+- [ ] `P11B-7` `POST /reserv/delete` — 파괴적, AOS 코드 참조
+- [ ] `P11B-8` `POST /reserv/users/delete` — 파괴적, AOS 코드 참조
+- [ ] `P11B-9` `GET /reserv/receipt` — 미호출
 
 #### 리뷰 (5개)
-- [ ] `P11B-10` `GET /contents/reviews/list` 실제 응답 검증 → contents-review.md 수정
-- [ ] `P11B-11` `POST /contents/reviews/register` 실제 응답 검증
-- [ ] `P11B-12` `POST /contents/reviews/update` 실제 응답 검증
-- [ ] `P11B-13` `POST /contents/reviews/delete` 실제 응답 검증
-- [ ] `P11B-14` `POST /contents/reviews/status/update` 실제 응답 검증
+- [x] `P11B-10` `GET /contents/reviews/list` 검증 → Review 타입 수정 (reg_dt, user, status_info, ReviewImage)
+- [ ] `P11B-11` `POST /contents/reviews/register` — 파괴적, AOS 코드 참조
+- [ ] `P11B-12` `POST /contents/reviews/update` — 파괴적, AOS 코드 참조
+- [ ] `P11B-13` `POST /contents/reviews/delete` — 파괴적, AOS 코드 참조
+- [ ] `P11B-14` `POST /contents/reviews/status/update` — 파괴적, AOS 코드 참조
 
 ### Phase 11-C — 인증/마이페이지/회원 `branch: feat/phase11c-verify-auth`
 
