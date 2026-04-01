@@ -4,7 +4,6 @@ import { Building2 } from "lucide-react"
 import { useStoreDetail } from "../hooks/useDetailData"
 import { mapMotelToDetail } from "../utils/mapMotelToDetail"
 import { AccommodationDetailLayout } from "./AccommodationDetailLayout"
-import { getAccommodationDetail } from "../data/mock"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -16,18 +15,13 @@ export function AccommodationDetailPage({ storeKey }: Props) {
   const { data: apiData, isLoading } = useStoreDetail(storeKey)
 
   // API 데이터 → AccommodationDetail 변환
-  const accommodation = apiData?.motel
+  const detail = apiData?.motel
     ? mapMotelToDetail(apiData.motel)
     : null
-
-  // API 실패 시 mock 폴백
-  const mockData = getAccommodationDetail(storeKey)
 
   if (isLoading) {
     return <LoadingSpinner fullPage />
   }
-
-  const detail = accommodation || mockData
 
   if (!detail) {
     return (

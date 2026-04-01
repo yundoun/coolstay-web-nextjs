@@ -41,7 +41,7 @@ export function MyReviewsPage() {
 
   const reviews = data?.reviews ?? []
   const avgScore = data?.avg_score ? parseFloat(data.avg_score) : 0
-  const totalCount = data?.totalCount ?? 0
+  const totalCount = data?.total_count ?? 0
   const writableCount = data?.available_count ?? 0
 
   const handleDelete = async (key: number) => {
