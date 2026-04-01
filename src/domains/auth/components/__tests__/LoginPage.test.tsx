@@ -19,7 +19,7 @@ vi.mock("next/link", () => ({
 // auth API 모킹
 const mockLoginResult = {
   token: { access_token: "tok", secret: "sec" },
-  user: { key: 1, type: "U", id: "t@t.com", name: "T", nickname: "T", email: "t@t.com", phone_number: "010", status: "S1", history_yn: "N" },
+  user: { key: 1, type: "U", id: "t@t.com", nickname: "T", email: "t@t.com", phone_number: "010", status: "S1" },
 }
 vi.mock("../../api/authApi", () => ({
   loginWithEmail: vi.fn().mockResolvedValue(mockLoginResult),

@@ -15,12 +15,10 @@ const mockUser = {
   key: 1,
   type: "U",
   id: "test@test.com",
-  name: "테스트",
   nickname: "테스터",
   email: "test@test.com",
   phone_number: "01012345678",
   status: "S1",
-  history_yn: "N",
 }
 
 beforeEach(() => {

@@ -73,18 +73,19 @@ export interface Coupon {
   category_code: string
   sub_category_code: string
   type: string
-  discount_type: string
+  discount_type: string       // "AMOUNT" | "RATE"
   dup_use_yn: string
   usable_yn: string
   status: string
   dimmed_yn: string
-  start_dt: string
-  end_dt: string
-  usable_start_dt: string
-  usable_end_dt: string
-  enterable_start_dt: string
-  enterable_end_dt: string
-  reg_dt: string
+  start_dt: number            // 초 단위 timestamp
+  end_dt: number              // 초 단위 timestamp
+  usable_start_dt: number     // 초 단위 timestamp
+  usable_end_dt: number       // 초 단위 timestamp
+  enterable_start_dt: number  // 초 단위 timestamp
+  enterable_end_dt: number    // 초 단위 timestamp
+  reg_dt: number              // 초 단위 timestamp
+  day_codes?: string[]
   constraints: { code: string; value: string; description: string }[]
 }
 
@@ -298,6 +299,16 @@ export interface StoreItem {
   area_cd1: number
   area_cd2: number
   cool_consecutive_popup: boolean
+  // 찜 목록(ST006) 등 일부 검색 유형에서 추가 반환되는 필드
+  rating?: Rating
+  benefit_point_rate?: number
+  location?: Location
+  download_coupon_info?: {
+    status: string
+    coupon_avail_days: number
+    stay_amount: number
+    rent_amount: number
+  }
 }
 
 export interface HomeBanner {

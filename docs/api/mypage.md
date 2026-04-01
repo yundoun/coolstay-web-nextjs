@@ -31,11 +31,11 @@ GET /auth/users/mypage/list
 
 ```json
 {
-  "coupon_count": 3,
-  "mileage_store_count": 1200,
-  "reservation_count": 2,
-  "new_alarm_date": "2026-03-31T00:00:00Z",
-  "new_notice_date": "2026-03-31T00:00:00Z"
+  "coupon_count": 4,
+  "mileage_store_count": 1,
+  "reservation_count": 0,
+  "new_alarm_date": 1775016300,
+  "new_notice_date": 1772689506
 }
 ```
 
@@ -44,8 +44,10 @@ GET /auth/users/mypage/list
 | `coupon_count` | number | 보유 쿠폰 수 |
 | `mileage_store_count` | number | 마일리지 적립 모텔 수 |
 | `reservation_count` | number | 예약 건수 |
-| `new_alarm_date` | string | 최신 알림 일시 |
-| `new_notice_date` | string | 최신 공지사항 일시 |
+| `new_alarm_date` | number | 최신 알림 일시 (초 단위 Unix timestamp) |
+| `new_notice_date` | number | 최신 공지사항 일시 (초 단위 Unix timestamp) |
+
+> **주의**: `new_alarm_date`, `new_notice_date`는 ISO 문자열이 아닌 **초 단위 숫자** — `new Date(value * 1000)` 변환 필요
 
 ### 연동 파일
 

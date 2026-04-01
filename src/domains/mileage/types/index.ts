@@ -13,9 +13,9 @@ export interface MileagePoint {
 }
 
 export interface MileageDetailResponse {
-  amount: number            // 현재 잔액
-  total_amount: number      // 총 적립액
-  expire_amount: number     // 만료 예정 금액
+  amount?: number           // 현재 잔액 (적립 내역 없으면 미반환)
+  total_amount?: number     // 총 적립액 (적립 내역 없으면 미반환)
+  expire_amount?: number    // 만료 예정 금액 (적립 내역 없으면 미반환)
   points: MileagePoint[]
 }
 
