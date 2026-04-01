@@ -6,8 +6,8 @@ export interface MypageInfo {
   coupon_count: number
   mileage_store_count: number
   reservation_count: number
-  new_alarm_date: string
-  new_notice_date: string
+  new_alarm_date: number    // Unix timestamp (초 단위)
+  new_notice_date: number   // Unix timestamp (초 단위)
 }
 
 // ─── 회원정보 변경 ───

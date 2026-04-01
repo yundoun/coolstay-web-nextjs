@@ -32,8 +32,8 @@ describe("getMypageInfo (P2-1)", () => {
       coupon_count: 3,
       mileage_store_count: 1200,
       reservation_count: 2,
-      new_alarm_date: "2026-03-31T00:00:00Z",
-      new_notice_date: "2026-03-31T00:00:00Z",
+      new_alarm_date: 1775016300,
+      new_notice_date: 1772689506,
     }
     mockGet.mockResolvedValueOnce(mockResponse)
 

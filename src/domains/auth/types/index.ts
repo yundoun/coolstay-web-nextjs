@@ -9,12 +9,10 @@ export interface AuthUser {
   key: number
   type: string        // U (이메일), SK (카카오), SN (네이버)
   id: string
-  name: string
   nickname: string
   email: string
   phone_number: string
   status: string      // S1 (정상), D (탈퇴), B1~B3 (차단)
-  history_yn: string  // Y (기존), N (신규)
 }
 
 export interface SessionResponse {

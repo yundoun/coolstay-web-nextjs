@@ -24,7 +24,7 @@ export function ProfileEditPage() {
   const setSession = useAuthStore((s) => s.setSession)
 
   const [nickname, setNickname] = useState(authUser?.nickname ?? "")
-  const [name, setName] = useState(authUser?.name ?? "")
+  const [name, setName] = useState("")
   const [phone, setPhone] = useState(authUser?.phone_number ?? "")
   const [showPhoneVerify, setShowPhoneVerify] = useState(false)
   const [verifyCode, setVerifyCode] = useState("")
@@ -39,7 +39,7 @@ export function ProfileEditPage() {
     try {
       const body: Record<string, string> = {}
       if (nickname !== authUser?.nickname) body.nickname = nickname
-      if (name !== authUser?.name) body.name = name
+      if (name) body.name = name
       if (Object.keys(body).length === 0) {
         alert("변경된 내용이 없습니다.")
         setIsSaving(false)

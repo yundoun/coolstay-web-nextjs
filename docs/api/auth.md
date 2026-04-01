@@ -65,15 +65,13 @@ POST /auth/sessions/users
     "secret": "string"
   },
   "user": {
-    "key": 0,
-    "type": "string",
-    "id": "string",
-    "name": "string",
-    "nickname": "string",
-    "email": "string",
-    "phone_number": "string",
-    "status": "string",
-    "history_yn": "string"
+    "key": 11471,
+    "type": "U",
+    "id": "ehdns1133@naver.com",
+    "nickname": "윤도운",
+    "email": "ehdns1133@naver.com",
+    "phone_number": "01023841133",
+    "status": "S1"
   }
 }
 ```
@@ -82,10 +80,15 @@ POST /auth/sessions/users
 
 | 필드 | 설명 | 값 예시 |
 |------|------|--------|
-| `key` | 사용자 고유 ID | `12345` |
+| `key` | 사용자 고유 ID | `11471` |
 | `type` | 가입 유형 | `U` (이메일), `SK` (카카오), `SN` (네이버) |
+| `id` | 로그인 ID (이메일) | `ehdns1133@naver.com` |
+| `nickname` | 닉네임 | `윤도운` |
+| `email` | 이메일 | `ehdns1133@naver.com` |
+| `phone_number` | 전화번호 | `01023841133` |
 | `status` | 계정 상태 | `S1` (정상), `D` (탈퇴), `B1~B3` (차단) |
-| `history_yn` | 가입 이력 | `Y` (기존 회원), `N` (신규) |
+
+> **참고**: 실제 API 응답에 `name`, `history_yn` 필드는 존재하지 않음 (2026-04-01 dev 서버 확인)
 
 **웹 컴포넌트 매핑**: `LoginPage.tsx` → email, password 입력 후 호출
 
