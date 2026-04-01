@@ -32,14 +32,24 @@ export default function HomePage() {
         <BusinessTypeGrid categories={data?.new_item_categories} />
       </Section>
 
-      {/* 3. 최근 본 숙소 — 재구매 유도 (로그인 시 최우선 노출) */}
+      {/* 3. 배너 캐러셀 */}
+      <Section spacing="sm">
+        <PromoBannerCarousel banners={data?.banners} />
+      </Section>
+
+      {/* 4. 프로모션 버튼 (무제한/첫예약/최저가) — 핵심 가치 */}
+      <Section spacing="md">
+        <PromoCards buttons={data?.item_buttons} />
+      </Section>
+
+      {/* 5. 최근 본 숙소 — 재구매 유도 */}
       {data?.recent_stores && data.recent_stores.length > 0 && (
         <Section title="최근 본 숙소" spacing="md">
           <RecentlyViewed stores={data.recent_stores} />
         </Section>
       )}
 
-      {/* 4. 추천 숙소 — 가격 노출로 구매 유도 (조기 배치) */}
+      {/* 6. 추천 숙소 — 가격 노출로 구매 유도 */}
       <Section
         title="이런 숙소는 어떠세요?"
         description="지역별 인기 숙소를 둘러보세요"
@@ -51,12 +61,7 @@ export default function HomePage() {
         />
       </Section>
 
-      {/* 5. 이벤트 배너 캐러셀 — 시선 환기 */}
-      <Section spacing="sm">
-        <PromoBannerCarousel banners={data?.banners} />
-      </Section>
-
-      {/* 6. 기획전 */}
+      {/* 7. 기획전 */}
       {data?.exhibitions && data.exhibitions.length > 0 && (
         <Section
           title="기획전"
@@ -68,18 +73,13 @@ export default function HomePage() {
         </Section>
       )}
 
-      {/* 7. 진행중 이벤트 + 종료 이벤트 */}
+      {/* 8. 이벤트 (진행중 + 종료) */}
       <Section
         title="이벤트"
         description="놓치면 아쉬운 특별 혜택"
         spacing="md"
       >
         <EventSection />
-      </Section>
-
-      {/* 8. 프로모션 버튼 */}
-      <Section spacing="md">
-        <PromoCards buttons={data?.item_buttons} />
       </Section>
 
       {/* 9. 매거진 */}
@@ -109,18 +109,18 @@ function HomePageSkeleton() {
             <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
-        {/* Region recommendations */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
-          ))}
-        </div>
         {/* Banner */}
         <Skeleton className="h-32 rounded-xl" />
         {/* Promo cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-xl" />
+          ))}
+        </div>
+        {/* Region recommendations */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-xl" />
           ))}
         </div>
       </div>
