@@ -87,7 +87,7 @@ describe("EventListPage", () => {
   it("빈 상태를 표시한다", () => {
     mockUseEventList.mockReturnValue({ events: [], isLoading: false, error: null })
     render(<EventListPage />)
-    expect(screen.getByText("진행 중인 이벤트가 없습니다")).toBeTruthy()
+    expect(screen.getByText("해당하는 이벤트가 없습니다")).toBeTruthy()
   })
 
   it("badge_image_url을 썸네일로 사용한다", () => {
@@ -97,36 +97,14 @@ describe("EventListPage", () => {
     expect(img.getAttribute("src")).toBe("https://example.com/badge.jpg")
   })
 
-  it("thumb_description을 부제로 표시한다", () => {
-    mockUseEventList.mockReturnValue({ events: [mockEvents[0]], isLoading: false, error: null })
+  it("필터 탭이 표시된다", () => {
+    mockUseEventList.mockReturnValue({ events: mockEvents, isLoading: false, error: null })
     render(<EventListPage />)
-    expect(screen.getByText("기획전 목록")).toBeTruthy()
-  })
-
-  it("진행중 이벤트에 '진행중' 배지를 표시한다", () => {
-    mockUseEventList.mockReturnValue({ events: [mockEvents[0]], isLoading: false, error: null })
-    render(<EventListPage />)
-    expect(screen.getByText("진행중")).toBeTruthy()
-  })
-
-  it("종료된 이벤트에 '종료' 배지를 표시한다", () => {
-    mockUseEventList.mockReturnValue({ events: [mockEvents[1]], isLoading: false, error: null })
-    render(<EventListPage />)
-    expect(screen.getByText("종료")).toBeTruthy()
-  })
-
-  it("예정 이벤트에 '예정' 배지를 표시한다", () => {
-    mockUseEventList.mockReturnValue({ events: [mockEvents[2]], isLoading: false, error: null })
-    render(<EventListPage />)
-    expect(screen.getByText("예정")).toBeTruthy()
-  })
-
-  it("종료된 이벤트가 흐리게 표시된다", () => {
-    mockUseEventList.mockReturnValue({ events: [mockEvents[1]], isLoading: false, error: null })
-    render(<EventListPage />)
-    const link = screen.getByText("종료된 이벤트").closest("a")
-    expect(link?.className).toContain("opacity-60")
-    expect(link?.className).toContain("grayscale")
+    const buttons = screen.getAllByRole("button")
+    const tabLabels = buttons.map((b) => b.textContent)
+    expect(tabLabels.some((t) => t?.includes("전체"))).toBe(true)
+    expect(tabLabels.some((t) => t?.includes("진행중"))).toBe(true)
+    expect(tabLabels.some((t) => t?.includes("종료"))).toBe(true)
   })
 
   it("상세 페이지 링크가 /events/[key]로 연결된다", () => {

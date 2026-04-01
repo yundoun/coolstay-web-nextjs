@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Calendar, Gift, Clock, ChevronRight, ArrowRight } from "lucide-react"
+import { Gift, ArrowRight } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -29,10 +29,10 @@ export function EventSection() {
 
   const allEvents = data?.board_items ?? []
 
-  // 진행중/예정을 먼저, 종료를 뒤에 — 최대 6개
+  // 진행중/예정을 먼저, 종료를 뒤에 — 최대 8개
   const active = allEvents.filter((e) => getStatus(e).label !== "종료")
   const ended = allEvents.filter((e) => getStatus(e).label === "종료")
-  const events = [...active, ...ended].slice(0, 6)
+  const events = [...active, ...ended].slice(0, 8)
 
   if (events.length === 0) return null
 
@@ -43,15 +43,21 @@ export function EventSection() {
         <div />
         <Link
           href="/events"
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors"
+          className="flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
           전체보기
           <ArrowRight className="size-3.5" />
         </Link>
       </div>
 
-      {/* 카드 그리드 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* 횡스크롤 카드 캐러셀 */}
+      <div
+        className={cn(
+          "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2",
+          // 스크롤바 숨김
+          "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        )}
+      >
         {events.map((event) => (
           <EventCard key={event.key} event={event} />
         ))}
@@ -63,70 +69,103 @@ export function EventSection() {
 function EventCard({ event }: { event: BoardItem }) {
   const status = getStatus(event)
   const isEnded = status.label === "종료"
-  const image = event.badge_image_url || event.detail_banner_image_url || event.image_urls?.[0]
+  const isUpcoming = status.label === "예정"
+  const image =
+    event.badge_image_url ||
+    event.detail_banner_image_url ||
+    event.image_urls?.[0]
 
   return (
     <Link
       href={`/events/${event.key}`}
       className={cn(
-        "group flex gap-3 p-3 rounded-xl border bg-card",
-        "transition-all duration-200",
+        "group relative flex-shrink-0 snap-start",
+        "w-[200px] sm:w-[240px] rounded-2xl overflow-hidden",
+        "transition-all duration-300",
         isEnded
-          ? "opacity-60 hover:opacity-80"
-          : "hover:shadow-md hover:-translate-y-0.5"
+          ? "opacity-70 hover:opacity-90"
+          : "hover:shadow-xl hover:-translate-y-1"
       )}
     >
-      {/* 이미지 */}
-      <div className={cn(
-        "relative w-24 h-20 sm:w-28 sm:h-[72px] rounded-lg overflow-hidden shrink-0 bg-muted",
-        isEnded && "grayscale"
-      )}>
+      {/* 이미지 영역 */}
+      <div
+        className={cn(
+          "relative aspect-[3/4] bg-muted overflow-hidden",
+          isEnded && "saturate-[0.3]"
+        )}
+      >
         {image ? (
           <Image
             src={image}
             alt={event.title}
             fill
             className={cn(
-              "object-cover transition-transform duration-300",
-              !isEnded && "group-hover:scale-105"
+              "object-cover transition-transform duration-500",
+              !isEnded && "group-hover:scale-110"
             )}
-            sizes="112px"
+            sizes="(max-width: 640px) 200px, 240px"
           />
         ) : (
-          <div className="flex items-center justify-center h-full">
-            <Gift className="size-6 text-muted-foreground/30" />
+          <div className="flex items-center justify-center h-full bg-gradient-to-br from-muted to-muted-foreground/10">
+            <Gift className="size-10 text-muted-foreground/30" />
           </div>
         )}
-        <Badge
-          variant={status.variant}
-          className="absolute top-1.5 left-1.5 text-[10px] px-1.5 py-0 h-5"
-        >
-          {status.label}
-        </Badge>
-      </div>
 
-      {/* 텍스트 */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-        <div>
-          <h4 className={cn(
-            "font-semibold text-sm leading-snug line-clamp-1 transition-colors",
-            isEnded ? "text-muted-foreground" : "group-hover:text-primary"
-          )}>
+        {/* 그라디언트 오버레이 (하단) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+        {/* 상단 그라디언트 (배지 가독성) */}
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
+
+        {/* 상태 배지 (좌상단) */}
+        <div className="absolute top-3 left-3">
+          <Badge
+            variant={status.variant}
+            className={cn(
+              "text-[10px] font-bold px-2.5 py-0.5 shadow-lg backdrop-blur-sm border-0",
+              status.label === "진행중" &&
+                "bg-emerald-500 text-white shadow-emerald-500/40",
+              status.label === "예정" &&
+                "bg-blue-500 text-white shadow-blue-500/40",
+              status.label === "종료" &&
+                "bg-gray-500/80 text-white/90"
+            )}
+          >
+            {status.label}
+          </Badge>
+        </div>
+
+        {/* 하단 텍스트 오버레이 */}
+        <div className="absolute bottom-0 inset-x-0 p-3.5">
+          <h4
+            className={cn(
+              "font-bold text-sm leading-snug line-clamp-2 text-white",
+              "drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]",
+              isEnded && "text-white/70"
+            )}
+          >
             {event.title}
           </h4>
-          {event.thumb_description && (
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-              {event.thumb_description}
+          {(event.start_dt || event.end_dt) && (
+            <p
+              className={cn(
+                "text-[10px] mt-1.5 font-medium",
+                isEnded ? "text-white/40" : "text-white/60"
+              )}
+            >
+              {formatTimestampDot(event.start_dt)} ~ {formatTimestampDot(event.end_dt)}
             </p>
           )}
         </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
-            <Calendar className="size-3" />
-            {formatTimestampDot(event.start_dt)} ~ {formatTimestampDot(event.end_dt)}
-          </span>
-          <ChevronRight className="size-3.5 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-        </div>
+
+        {/* 종료 오버레이 */}
+        {isEnded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+            <span className="text-white/50 text-xs font-bold tracking-wider uppercase px-3 py-1 border border-white/20 rounded-full backdrop-blur-sm">
+              종료
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   )
