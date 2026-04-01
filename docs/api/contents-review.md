@@ -1,5 +1,7 @@
 # Contents API 명세서 — 리뷰 + 키워드 (Phase 3)
 
+> 최종 업데이트: 2026-04-01
+
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
 
@@ -30,11 +32,43 @@
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `totalCount` | number | 전체 리뷰 수 |
-| `nextCursor` | string? | 다음 페이지 커서 |
-| `avg_score` | string? | 평균 평점 |
+| `total_count` | number | 전체 리뷰 수 |
 | `available_count` | number | 작성 가능 리뷰 수 |
+| `avg_score` | string? | 평균 평점 |
+| `next_cursor` | string? | 다음 페이지 커서 |
 | `reviews` | Review[] | 리뷰 목록 |
+
+#### 실제 응답 예시
+
+```json
+{
+  "total_count": 2,
+  "available_count": 1,
+  "avg_score": "4.5",
+  "next_cursor": "...",
+  "reviews": [
+    {
+      "key": 2667,
+      "best_yn": "Y",
+      "item_description": "거울룸",
+      "score": "5",
+      "text": "아주짱",
+      "status": "S",
+      "reg_dt": 1751418887,
+      "motel": {
+        "key": "D_KCST_...",
+        "name": "도운텔2",
+        "location": { "address": "부산광역시 ..." },
+        "images": [{ "key": 149737, "url": "https://...", "thumb_url": "https://...", "priority": -1 }]
+      },
+      "user": { "key": 11471, "name": "윤도운" },
+      "comment": { "key": 297, "text": "7월파이팅", "reg_dt": 1751438372 },
+      "status_info": { "start_date": 1754985586 },
+      "images": [{ "url": "https://...", "thumb_url": "https://...", "priority": -1 }]
+    }
+  ]
+}
+```
 
 ### 웹 사용처
 
@@ -226,10 +260,12 @@ API 함수: `getKeywordSearchList` — 키워드 검색 결과 페이지
 | `score` | string | 평점 (0.0~5.0) |
 | `text` | string | 리뷰 내용 |
 | `status` | string | 리뷰 상태 |
-| `reg_dt` | string | 등록일시 |
+| `reg_dt` | number | 등록일시 (Unix timestamp, 초 단위) |
 | `motel` | MotelBasic? | 숙소 기본 정보 |
-| `comment` | Comment? | 사장님 답변 |
-| `images` | ImageItem[]? | 리뷰 이미지 |
+| `user` | `{ key: number; name: string }`? | 작성자 정보 |
+| `comment` | Comment? | 사장님 답변 (`reg_dt`는 number) |
+| `status_info` | `{ start_date: number }`? | 상태 정보 (이용일 등) |
+| `images` | ReviewImage[]? | 리뷰 이미지 (`{ url, thumb_url?, priority? }`) |
 
 ---
 

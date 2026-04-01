@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 13:28** | Phase 11-B — 예약/리뷰 API 검증 + 타입 수정 | [`1f84952`](.work-history/entries/2026-04-01_13-28_P11B_booking-review-verify.md)
 - **2026-04-01 13:23** | E2E 발견 이슈 수정 | [`9934efb`](.work-history/entries/2026-04-01_13-25_e2e-fixes.md)
 - **2026-04-01 13:20** | Phase 11-A E2E 테스트 완료 | [`7079bf0`](.work-history/entries/2026-04-01_11-30_P11A_e2e-test.md)
 - **2026-04-01 11:27** | Phase 11-A — 홈/검색/숙소 API 검증 + 기획전 신규 | [`4012c94`](.work-history/entries/2026-04-01_11-25_P11A_api-verify-contents.md)
