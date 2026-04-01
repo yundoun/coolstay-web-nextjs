@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 14:27** | Phase 12 Playwright E2E 검증 완료 | [`142d9db`](.work-history/entries/2026-04-01_15-30_P12_e2e-complete.md)
 - **2026-04-01 14:24** | Phase 12-E — 마이페이지/알림/마일리지 API 필드 100% 활용 | [`aeebdb6`](.work-history/entries/2026-04-01_15-05_P12E_mypage-alarm-mileage.md)
 - **2026-04-01 14:20** | Phase 12-D — 예약/리뷰/쿠폰 API 필드 100% 활용 | [`eaad17c`](.work-history/entries/2026-04-01_14-55_P12D_booking-review-coupon.md)
 - **2026-04-01 14:15** | Phase 12-C — 홈 화면 API 필드 100% 활용 | [`c9c66a6`](.work-history/entries/2026-04-01_14-40_P12C_home.md)
