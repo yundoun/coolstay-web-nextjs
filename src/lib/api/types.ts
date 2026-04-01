@@ -625,7 +625,8 @@ export interface BookPaymentSimple {
 
 export interface BookRefundPolicyItem {
   until: string
-  refund_rate: number
+  percent: number
+  amount: number
 }
 
 export interface BookReviewItem {
