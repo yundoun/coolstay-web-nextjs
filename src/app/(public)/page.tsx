@@ -32,22 +32,29 @@ export default function HomePage() {
         <BusinessTypeGrid categories={data?.new_item_categories} />
       </Section>
 
-      {/* 3. 이벤트 배너 캐러셀 */}
-      <Section spacing="sm">
-        <PromoBannerCarousel banners={data?.banners} />
-      </Section>
-
-      {/* 4. 프로모션 버튼 (무제한 / 첫예약 등) */}
-      <Section spacing="md">
-        <PromoCards buttons={data?.item_buttons} />
-      </Section>
-
-      {/* 5. 최근 본 숙소 */}
+      {/* 3. 최근 본 숙소 — 재구매 유도 (로그인 시 최우선 노출) */}
       {data?.recent_stores && data.recent_stores.length > 0 && (
         <Section title="최근 본 숙소" spacing="md">
           <RecentlyViewed stores={data.recent_stores} />
         </Section>
       )}
+
+      {/* 4. 추천 숙소 — 가격 노출로 구매 유도 (조기 배치) */}
+      <Section
+        title="이런 숙소는 어떠세요?"
+        description="지역별 인기 숙소를 둘러보세요"
+        spacing="lg"
+      >
+        <RegionRecommendations
+          categories={data?.recommend_categories}
+          stores={data?.recommend_stores}
+        />
+      </Section>
+
+      {/* 5. 이벤트 배너 캐러셀 — 시선 환기 */}
+      <Section spacing="sm">
+        <PromoBannerCarousel banners={data?.banners} />
+      </Section>
 
       {/* 6. 기획전 */}
       {data?.exhibitions && data.exhibitions.length > 0 && (
@@ -61,28 +68,21 @@ export default function HomePage() {
         </Section>
       )}
 
-      {/* 7. 진행중 이벤트 */}
+      {/* 7. 진행중 이벤트 + 종료 이벤트 */}
       <Section
-        title="진행중 이벤트"
+        title="이벤트"
         description="놓치면 아쉬운 특별 혜택"
         spacing="md"
       >
         <EventSection />
       </Section>
 
-      {/* 8. 이런 숙소는 어떠세요? (지역별 탭 + 그리드) */}
-      <Section
-        title="이런 숙소는 어떠세요?"
-        description="지역별 인기 숙소를 둘러보세요"
-        spacing="lg"
-      >
-        <RegionRecommendations
-          categories={data?.recommend_categories}
-          stores={data?.recommend_stores}
-        />
+      {/* 8. 프로모션 버튼 */}
+      <Section spacing="md">
+        <PromoCards buttons={data?.item_buttons} />
       </Section>
 
-      {/* 8. 매거진 */}
+      {/* 9. 매거진 */}
       {data?.ai_magazines && data.ai_magazines.length > 0 && (
         <Section
           title="매거진"
@@ -109,18 +109,18 @@ function HomePageSkeleton() {
             <Skeleton key={i} className="h-16 rounded-xl" />
           ))}
         </div>
+        {/* Region recommendations */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-xl" />
+          ))}
+        </div>
         {/* Banner */}
         <Skeleton className="h-32 rounded-xl" />
         {/* Promo cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-20 rounded-xl" />
-          ))}
-        </div>
-        {/* Region recommendations */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
           ))}
         </div>
       </div>

@@ -23,14 +23,16 @@ function getStatus(event: BoardItem) {
 export function EventSection() {
   const { data } = useQuery({
     queryKey: ["home", "events"],
-    queryFn: () => getEventList({ count: 6 }),
+    queryFn: () => getEventList({ count: 10 }),
     staleTime: 5 * 60 * 1000,
   })
 
-  const events = (data?.board_items ?? []).filter((e) => {
-    const status = getStatus(e)
-    return status.label !== "종료"
-  }).slice(0, 4)
+  const allEvents = data?.board_items ?? []
+
+  // 진행중/예정을 먼저, 종료를 뒤에 — 최대 6개
+  const active = allEvents.filter((e) => getStatus(e).label !== "종료")
+  const ended = allEvents.filter((e) => getStatus(e).label === "종료")
+  const events = [...active, ...ended].slice(0, 6)
 
   if (events.length === 0) return null
 
@@ -60,6 +62,7 @@ export function EventSection() {
 
 function EventCard({ event }: { event: BoardItem }) {
   const status = getStatus(event)
+  const isEnded = status.label === "종료"
   const image = event.badge_image_url || event.detail_banner_image_url || event.image_urls?.[0]
 
   return (
@@ -67,17 +70,26 @@ function EventCard({ event }: { event: BoardItem }) {
       href={`/events/${event.key}`}
       className={cn(
         "group flex gap-3 p-3 rounded-xl border bg-card",
-        "transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
+        "transition-all duration-200",
+        isEnded
+          ? "opacity-60 hover:opacity-80"
+          : "hover:shadow-md hover:-translate-y-0.5"
       )}
     >
       {/* 이미지 */}
-      <div className="relative w-24 h-20 sm:w-28 sm:h-[72px] rounded-lg overflow-hidden shrink-0 bg-muted">
+      <div className={cn(
+        "relative w-24 h-20 sm:w-28 sm:h-[72px] rounded-lg overflow-hidden shrink-0 bg-muted",
+        isEnded && "grayscale"
+      )}>
         {image ? (
           <Image
             src={image}
             alt={event.title}
             fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className={cn(
+              "object-cover transition-transform duration-300",
+              !isEnded && "group-hover:scale-105"
+            )}
             sizes="112px"
           />
         ) : (
@@ -96,7 +108,10 @@ function EventCard({ event }: { event: BoardItem }) {
       {/* 텍스트 */}
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
-          <h4 className="font-semibold text-sm leading-snug line-clamp-1 group-hover:text-primary transition-colors">
+          <h4 className={cn(
+            "font-semibold text-sm leading-snug line-clamp-1 transition-colors",
+            isEnded ? "text-muted-foreground" : "group-hover:text-primary"
+          )}>
             {event.title}
           </h4>
           {event.thumb_description && (
