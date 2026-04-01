@@ -9,11 +9,15 @@ import { Button } from "@/components/ui/button"
 import { ImageGallery } from "./ImageGallery"
 import { AccommodationInfo } from "./AccommodationInfo"
 import { AmenityList } from "./AmenityList"
+import { BenefitSection } from "./BenefitSection"
+import { ExtraServiceSection } from "./ExtraServiceSection"
 import { RoomCard } from "./RoomCard"
 import { ReviewSection } from "./ReviewSection"
 import { PolicySection } from "./PolicySection"
 import { MapSection } from "./MapSection"
 import { EventBanner } from "./EventBanner"
+import { BusinessInfoSection } from "./BusinessInfoSection"
+import { ExternalLinkSection } from "./ExternalLinkSection"
 import { RoomDetailModal } from "./RoomDetailModal"
 import { RentalTimeModal } from "./RentalTimeModal"
 import type { AccommodationDetail, Room } from "../types"
@@ -94,6 +98,12 @@ export function AccommodationDetailLayout({
 
             <Separator />
 
+            {/* 혜택/쿠폰 섹션 */}
+            <BenefitSection accommodation={accommodation} />
+
+            {/* 부가 서비스 */}
+            <ExtraServiceSection accommodation={accommodation} />
+
             {accommodation.events.length > 0 && (
               <>
                 <EventBanner events={accommodation.events} />
@@ -148,6 +158,14 @@ export function AccommodationDetailLayout({
             <Separator />
 
             <PolicySection policies={accommodation.policies} />
+
+            <Separator />
+
+            {/* 외부 링크 */}
+            <ExternalLinkSection accommodation={accommodation} />
+
+            {/* 사업자 정보 */}
+            <BusinessInfoSection accommodation={accommodation} />
 
             <Separator />
 

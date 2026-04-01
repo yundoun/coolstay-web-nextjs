@@ -28,6 +28,32 @@ export interface AccommodationDetail {
   phoneNumber?: string // 전화번호 (safeNumber)
   directDiscountYn: boolean // 직접할인 쿠폰 여부
   greetingMsg?: string // 사장님 인사말
+
+  // 혜택/쿠폰
+  coupons: import("@/lib/api/types").Coupon[]
+  benefits: { name: string; description: string; image_url?: string; active_yn: string; priority: number }[]
+  downloadCouponInfo?: { status: string; coupon_avail_days: number; stay_amount: number; rent_amount: number }
+  paymentBenefit?: { benefit_more_yn: string; benefit_preview?: string; benefit_contents?: string }
+
+  // 서비스/시설
+  extraServices: { code: string; name: string; visible_yn: string; image_url?: string }[]
+  sitePaymentYn: string
+
+  // 연박/특별
+  consecutiveYn: string
+  coolConsecutivePopup: boolean
+  v2SupportFlag?: { first_reserve?: boolean; visit_korea?: boolean; low_price_korea?: boolean; [key: string]: boolean | undefined }
+
+  // 외부 링크
+  v2ExternalLinks: { name: string; link_url: string; icon_url?: string; activate: boolean }[]
+  externalEvents: import("@/lib/api/types").Banner[]
+
+  // 숙소 정보
+  likeCount: number
+  userLikeYn: string
+  businessInfo?: { trade_name?: string; owner_name?: string; address?: string; email?: string; phone_number?: string; business_number?: string }
+  nearbyDescription?: string
+  locationDescription?: string
 }
 
 export interface AmenityItem {

@@ -1,4 +1,4 @@
-import type { Motel } from "@/lib/api/types"
+import type { Motel, Banner } from "@/lib/api/types"
 import type { AccommodationDetail, Room, AmenityItem, Policy } from "../types"
 
 // 편의시설 코드 → 이름/아이콘 매핑
@@ -157,14 +157,69 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       roomName: r.item_description ?? "",
       images: r.images?.map((img) => img.url),
     })),
-    events: [],
+    events: [
+      ...(motel.event
+        ? [{
+            id: String(motel.event.key),
+            title: motel.event.title ?? "",
+            description: motel.event.description ?? "",
+            imageUrl: motel.event.banner_image_url,
+            startDate: motel.event.start_dt ?? "",
+            endDate: motel.event.end_dt ?? "",
+          }]
+        : []),
+      ...((motel.external_events as unknown as Banner[] | undefined) ?? []).map((ev) => ({
+        id: String(ev.key),
+        title: ev.title ?? "",
+        description: ev.description ?? "",
+        imageUrl: ev.banner_image_url,
+        startDate: ev.start_dt ?? "",
+        endDate: ev.end_dt ?? "",
+      })),
+    ],
     benefitPointRate: motel.benefit_point_rate ?? 0,
     phoneNumber: motel.safe_number || motel.phone_number,
-    directDiscountYn: false,
+    directDiscountYn: motel.download_coupon_info?.status !== "NON_TARGET",
     greetingMsg: motel.greeting_msg,
     checkInTime: "15:00",
     checkOutTime: "11:00",
     latitude: motel.location?.latitude ? parseFloat(motel.location.latitude) : undefined,
     longitude: motel.location?.longitude ? parseFloat(motel.location.longitude) : undefined,
+
+    // 혜택/쿠폰
+    coupons: motel.coupons ? (Array.isArray(motel.coupons) ? motel.coupons : [motel.coupons]) : [],
+    benefits: motel.benefits ? (Array.isArray(motel.benefits) ? motel.benefits : [motel.benefits]) : [],
+    downloadCouponInfo: motel.download_coupon_info ?? undefined,
+    paymentBenefit: motel.payment_benefit
+      ? {
+          benefit_more_yn: motel.payment_benefit.benefit_more_yn ?? "",
+          benefit_preview: motel.payment_benefit.benefit_preview,
+          benefit_contents: motel.payment_benefit.benefit_contents
+            ? JSON.stringify(motel.payment_benefit.benefit_contents)
+            : undefined,
+        }
+      : undefined,
+
+    // 서비스/시설
+    extraServices: motel.extra_services ?? [],
+    sitePaymentYn: motel.site_payment_yn ?? "",
+
+    // 연박/특별
+    consecutiveYn: motel.consecutive_yn ?? "",
+    coolConsecutivePopup: motel.cool_consecutive_popup ?? false,
+    v2SupportFlag: motel.v2_support_flag ?? undefined,
+
+    // 외부 링크
+    v2ExternalLinks: motel.v2_external_links ?? [],
+    externalEvents: motel.external_events
+      ? (Array.isArray(motel.external_events) ? motel.external_events : [motel.external_events])
+      : [],
+
+    // 숙소 정보
+    likeCount: motel.like_count ?? 0,
+    userLikeYn: motel.user_like_yn ?? "",
+    businessInfo: motel.business_info ?? undefined,
+    nearbyDescription: motel.location?.nearby_description ?? undefined,
+    locationDescription: motel.location?.description ?? undefined,
   }
 }
