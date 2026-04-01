@@ -1,0 +1,4 @@
+[     798ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/favicon.ico:0
+[    1016ms] [WARNING] Image with src "https://storage.googleapis.com/coolstay-dev/v2/thumb/admin/admin/2026/03/31/13/2e8ff284f3964db589f3a4fe83feae06.jpeg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ http://localhost:3000/_next/static/chunks/599c9_next_dist_1874a03b._.js:2305
+[   11422ms] [WARNING] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior @ http://localhost:3000/_next/static/chunks/599c9_next_dist_1874a03b._.js:2305
