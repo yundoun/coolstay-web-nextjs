@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 14:39** | Phase 12 TASKS.md 최종 업데이트 | [`d88e00e`](.work-history/entries/2026-04-01_15-45_tasks-update.md)
 - **2026-04-01 14:37** | 홈 화면 이벤트 섹션 추가 | [`5eefeec`](.work-history/entries/2026-04-01_15-40_home-events-section.md)
 - **2026-04-01 14:27** | Phase 12 Playwright E2E 검증 완료 | [`142d9db`](.work-history/entries/2026-04-01_15-30_P12_e2e-complete.md)
 - **2026-04-01 14:24** | Phase 12-E — 마이페이지/알림/마일리지 API 필드 100% 활용 | [`aeebdb6`](.work-history/entries/2026-04-01_15-05_P12E_mypage-alarm-mileage.md)

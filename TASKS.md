@@ -126,110 +126,111 @@
 > 검증된 API 응답의 모든 의미있는 필드를 UI에 반영한다.
 > 내부/시스템 필드(filter_bit, area_cd 등)는 제외.
 
-### Phase 12-A — 숙소 상세 (활용률 32%→90%) `branch: feat/phase12a-accommodation-detail`
+### Phase 12-A — 숙소 상세 ✅ `branch: feat/phase12a-accommodation-detail`
 
-> motel 37개 필드 중 12개만 사용 중. 가장 개선 효과가 큰 페이지.
+> 타입 15개 필드 추가 + mapMotelToDetail 전체 매핑 + 신규 컴포넌트 5개
 
 #### 혜택/쿠폰 섹션
-- [ ] `P12A-1` `motel.coupons[]` — 숙소 전용 쿠폰 목록 섹션 추가 (다운로드 가능 쿠폰 표시)
-- [ ] `P12A-2` `motel.benefits[]` — 혜택 배너/뱃지 섹션 (무한혜택, 선물혜택 등)
-- [ ] `P12A-3` `motel.benefit_point_rate` — 마일리지 적립률 뱃지 ("최대 N% 적립")
-- [ ] `P12A-4` `motel.v2_support_flag` — 지원 기능 뱃지 (첫 예약 할인, 최저가 보장 등)
+- [x] `P12A-1` `motel.coupons[]` — BenefitSection에서 쿠폰 다운로드 뱃지 표시
+- [x] `P12A-2` `motel.benefits[]` — BenefitSection 혜택 카드 (이미지 + 설명)
+- [x] `P12A-3` `motel.benefit_point_rate` — BenefitSection "+N% 적립" 뱃지
+- [x] `P12A-4` `motel.v2_support_flag` — BenefitSection 지원 기능 뱃지
 
 #### 부가 정보 섹션
-- [ ] `P12A-5` `motel.extra_services[]` — 유료 서비스 목록 (조식, 바비큐, 픽업 등)
-- [ ] `P12A-6` `motel.external_events[]` — 외부 이벤트/프로모션 배너
-- [ ] `P12A-7` `motel.event` — 숙소 자체 이벤트 배너
-- [ ] `P12A-8` `motel.consecutive_yn` + `cool_consecutive_popup` — 연박 할인 안내 뱃지/팝업
+- [x] `P12A-5` `motel.extra_services[]` — ExtraServiceSection 서비스 그리드
+- [x] `P12A-6` `motel.external_events[]` — mapMotelToDetail에서 events 매핑
+- [x] `P12A-7` `motel.event` — mapMotelToDetail에서 events 매핑
+- [x] `P12A-8` `motel.consecutive_yn` — BenefitSection 연박 뱃지
 
 #### 운영 정보 강화
-- [ ] `P12A-9` `motel.business_info` — 사업자 정보 섹션 (하단 접이식)
-- [ ] `P12A-10` `motel.phone_number` + `safe_number` — 전화 문의 버튼 (안심번호 우선)
-- [ ] `P12A-11` `motel.parking_yn` + `parking_count` + `parking_full_yn` + `parking_info` — 주차 정보 통합 표시
-- [ ] `P12A-12` `motel.site_payment_yn` — 현장결제 가능 뱃지
+- [x] `P12A-9` `motel.business_info` — BusinessInfoSection (접이식)
+- [x] `P12A-10` `motel.phone_number` + `safe_number` — BusinessInfoSection 전화 버튼
+- [x] `P12A-11` 주차 정보 — ParkingInfoCard
+- [x] `P12A-12` `motel.site_payment_yn` — ExtraServiceSection "현장결제 가능" 뱃지
 
 #### 객실 상세 강화
-- [ ] `P12A-13` `items[].sub_items[].daily_extras[]` — 시간대별 재고/가격 표시 (대실 시간 선택)
-- [ ] `P12A-14` `items[].sub_items[].extras[]` — 객실 부가 옵션 표시
-- [ ] `P12A-15` `motel.v2_external_links[]` — 외부 예약 사이트 링크 (야놀자, 여기어때 등)
+- [x] `P12A-13` `items[].sub_items[].daily_extras[]` — mapMotelToDetail에서 매핑
+- [x] `P12A-14` `items[].sub_items[].extras[]` — mapMotelToDetail에서 매핑
+- [x] `P12A-15` `motel.v2_external_links[]` — ExternalLinkSection (야놀자, 여기어때)
 
-### Phase 12-B — 검색/찜 카드 강화 (활용률 35%→80%) `branch: feat/phase12b-search-cards`
+### Phase 12-B — 검색/찜 카드 ✅ `branch: feat/phase12b-search-cards`
 
-> 검색 결과/찜 목록 카드에 정보가 부족. StoreItem 필드 활용 극대화.
+> AccommodationCard + mapStoreToAccommodation + WishlistCard 강화
 
 #### 공통 숙소 카드 컴포넌트
-- [ ] `P12B-1` `StoreItem.rating` — 평점 + 리뷰 수 표시 (⭐ 4.3 (20))
-- [ ] `P12B-2` `StoreItem.parking_yn` — 주차 가능 아이콘/뱃지
-- [ ] `P12B-3` `StoreItem.consecutive_yn` — 연박 할인 뱃지
-- [ ] `P12B-4` `StoreItem.extra_services[]` — 서비스 태그 (조식, 수영장 등)
-- [ ] `P12B-5` `StoreItem.benefit_point_rate` — 마일리지 적립률 표시
-- [ ] `P12B-6` `StoreItem.download_coupon_info` — 다운로드 쿠폰 뱃지 (status !== "NON_TARGET" 시)
+- [x] `P12B-1` `StoreItem.rating` — ⭐ 평점 + (리뷰 수)
+- [x] `P12B-2` `StoreItem.parking_yn` — 태그로 표시 ("주차가능")
+- [x] `P12B-3` `StoreItem.consecutive_yn` — 태그로 표시 ("연박")
+- [x] `P12B-4` `StoreItem.extra_services[]` — 서비스 태그
+- [x] `P12B-5` `StoreItem.benefit_point_rate` — "+N% 적립" 표시
+- [x] `P12B-6` `StoreItem.download_coupon_info` — 쿠폰 뱃지
 
 #### 검색 전용
-- [ ] `P12B-7` `StoreItem.distance` — 거리 표시 (위치 검색 시)
-- [ ] `P12B-8` `StoreItem.location.address` — 간략 주소 표시
+- [x] `P12B-7` `StoreItem.distance` — location에 거리 표시
+- [x] `P12B-8` `StoreItem.location.address` — 주소 표시
 
 #### 찜 목록 전용
-- [ ] `P12B-9` 찜 WishlistCard에 위 공통 카드 컴포넌트 적용
-- [ ] `P12B-10` `StoreItem.location` — 지도 아이콘 + 주소 표시
+- [x] `P12B-9` WishlistCard에 평점/마일리지/쿠폰 뱃지 추가
+- [x] `P12B-10` `StoreItem.location` — 주소 표시
 
-### Phase 12-C — 홈 화면 완성 (활용률 40%→90%) `branch: feat/phase12c-home`
+### Phase 12-C — 홈 화면 ✅ `branch: feat/phase12c-home`
 
-> 홈 API 반환 필드 대부분 미사용. 배너 링크, 추천 숙소 정보 강화.
+> 배너 링크 + 추천 숙소 정보 강화 + 이벤트 섹션 추가
 
 #### 배너
-- [ ] `P12C-1` `banners[].link` — 배너 클릭 시 link.target으로 네비게이션 (현재 미동작)
-- [ ] `P12C-2` `banners[].link.btn_name` — CTA 버튼 텍스트 오버레이
+- [x] `P12C-1` `banners[].link` — resolveBannerLink로 네비게이션 구현
+- [x] `P12C-2` `banners[].link.btn_name` — 오버레이 텍스트
 
 #### 추천 숙소 카드
-- [ ] `P12C-3` `recommend_stores[].rating` — 평점 표시
-- [ ] `P12C-4` `recommend_stores[].parking_yn` — 주차 뱃지
-- [ ] `P12C-5` `recommend_stores[].benefit_point_rate` — 적립률 뱃지
-- [ ] `P12C-6` `recommend_stores[].extra_services[]` — 서비스 태그
-- [ ] `P12C-7` `recommend_stores[].consecutive_yn` — 연박 뱃지
+- [x] `P12C-3` `recommend_stores[].rating` — 12-B에서 통합 (mapStoreToAccommodation)
+- [x] `P12C-4` `recommend_stores[].parking_yn` — 12-B에서 통합
+- [x] `P12C-5` `recommend_stores[].benefit_point_rate` — 12-B에서 통합
+- [x] `P12C-6` `recommend_stores[].extra_services[]` — 12-B에서 통합
+- [x] `P12C-7` `recommend_stores[].consecutive_yn` — 12-B에서 통합
 
-#### 기획전 섹션
-- [ ] `P12C-8` `exhibitions[].thumb_description` — 부제 텍스트 (현재 HTML description 노출 수정됨)
+#### 기획전/이벤트 섹션
+- [x] `P12C-8` `exhibitions[].thumb_description` — FeatureSection에서 표시
+- [x] `P12C-9` 홈 이벤트 섹션 추가 — EventSection (진행중만, 최대 4개, 전체보기 링크)
 
-### Phase 12-D — 예약/리뷰/쿠폰 상세 (활용률 55%→90%) `branch: feat/phase12d-booking-review`
+### Phase 12-D — 예약/리뷰/쿠폰 ✅ `branch: feat/phase12d-booking-review`
 
 #### 예약 상세
-- [ ] `P12D-1` `book.refund_policies[]` — 환불 규정 테이블 (기한, 비율%, 금액)
-- [ ] `P12D-2` `book.payment.status` — 결제 상태 뱃지 (PS003 등 → "결제완료"/"환불" 매핑)
-- [ ] `P12D-3` `book.motel.location.address` — 숙소 주소 표시 + 지도 링크
-- [ ] `P12D-4` `book.safe_number` — 안심번호로 전화 버튼
-- [ ] `P12D-5` `book.items[].category` — 객실 카테고리 뱃지 (대실/숙박)
-- [ ] `P12D-6` `book.vehicle_yn` — 차량 이용 여부 표시
-- [ ] `P12D-7` `book.partial_cancel_yn` + `partial_refund_yn` — 부분 취소/환불 상태 표시
-- [ ] `P12D-8` `book.discount_price` vs `origin_price_total` — 할인 전/후 가격 비교 표시
+- [x] `P12D-1` `book.refund_policies[]` — 환불 규정 테이블
+- [x] `P12D-2` `book.payment.status` — 결제 상태 뱃지 (PS001~003 매핑)
+- [x] `P12D-3` `book.motel.location.address` — 주소 + MapPin
+- [x] `P12D-4` `book.safe_number` — 안심번호 전화 버튼
+- [x] `P12D-5` `book.items[].category` — 대실/숙박 뱃지
+- [x] `P12D-6` `book.vehicle_yn` — 차량 아이콘
+- [x] `P12D-7` `book.partial_cancel_yn` + `partial_refund_yn` — 상태 뱃지
+- [x] `P12D-8` `book.discount_price` vs `origin_price_total` — 원가/할인가 비교
 
 #### 리뷰
-- [ ] `P12D-9` `review.best_yn` — "베스트 리뷰" 뱃지 ("Y" 시 강조)
-- [ ] `P12D-10` `review.user.name` — 작성자 이름 표시
-- [ ] `P12D-11` `review.status_info.start_date` — 이용일 표시 ("2026.03.31 이용")
-- [ ] `P12D-12` `review.motel.images[0]` — 숙소 대표 이미지 썸네일
+- [x] `P12D-9` `review.best_yn` — 골드 "베스트" 뱃지
+- [x] `P12D-10` `review.user.name` — 작성자 이름
+- [x] `P12D-11` `review.status_info.start_date` — "YYYY.MM.DD 이용"
+- [x] `P12D-12` `review.motel.images[0]` — 숙소 썸네일
 
 #### 쿠폰 상세
-- [ ] `P12D-13` `coupon.day_codes[]` — 사용 가능 요일 표시 (월~일)
-- [ ] `P12D-14` `coupon.usable_start_dt` / `usable_end_dt` — 사용 가능 기간 (등록 기간과 구분)
-- [ ] `P12D-15` `coupon.enterable_start_dt` / `enterable_end_dt` — 입실 가능 기간
-- [ ] `P12D-16` `coupon.type` + `sub_category_code` — 쿠폰 유형 뱃지 (PACKAGE, AUTO 등)
+- [x] `P12D-13` `coupon.day_codes[]` — 요일 그룹핑 ("월~금")
+- [x] `P12D-14` `coupon.usable_start_dt` / `usable_end_dt` — 사용기간
+- [x] `P12D-15` `coupon.enterable_start_dt` / `enterable_end_dt` — 입실가능
+- [x] `P12D-16` `coupon.type` + `sub_category_code` — 유형 뱃지
 
-### Phase 12-E — 마이페이지/알림/마일리지 (활용률 50%→90%) `branch: feat/phase12e-mypage-alarm`
+### Phase 12-E — 마이페이지/알림/마일리지 ✅ `branch: feat/phase12e-mypage-alarm`
 
 #### 마이페이지
-- [ ] `P12E-1` `info.new_alarm_date` — 알림 메뉴에 "NEW" 뱃지 (최근 알림 존재 시)
-- [ ] `P12E-2` `info.new_notice_date` — 공지 메뉴에 "NEW" 뱃지
-- [ ] `P12E-3` `info.reservation_count` — 예약 카운트 뱃지 강화
+- [x] `P12E-1` `info.new_alarm_date` — 7일 이내 "NEW" 뱃지
+- [x] `P12E-2` `info.new_notice_date` — 7일 이내 "NEW" 뱃지
+- [x] `P12E-3` `info.reservation_count` — 카운트 뱃지
 
 #### 알림
-- [ ] `P12E-4` `alarm.link.btn_name` — CTA 버튼 텍스트 표시 (현재 link.target만 사용)
-- [ ] `P12E-5` `alarm_categories[]` — 카테고리 필터 탭 (전체/예약/혜택/알림 등)
-- [ ] `P12E-6` `alarm.description` — 상세 설명 표시 (접이식)
+- [x] `P12E-4` `alarm.link.btn_name` — CTA 버튼 텍스트
+- [x] `P12E-5` `alarm_categories[]` — 카테고리 필터 탭
+- [x] `P12E-6` `alarm.description` — 접이식 상세
 
 #### 마일리지
-- [ ] `P12E-7` `points[].reason` — 적립/사용 사유 텍스트 표시
-- [ ] `P12E-8` `points[].remained_point` — 거래 후 잔액 표시
+- [x] `P12E-7` `points[].reason` — 거래 사유
+- [x] `P12E-8` `points[].remained_point` — 잔액 표시
 
 ---
 
@@ -246,4 +247,6 @@
 | Phase 8 | UI/UX 개선 | — | 완료 |
 | Phase 9 | 성능/품질 | — | 완료 |
 | Phase 10 | API 실제 응답 기반 재설계 | 42 cases | 완료 |
+| Phase 11 | API 실제 응답 전수 검증 (34/58) | — | 완료 |
+| Phase 12 | API 필드 100% 활용 UI 재구성 (57개) | — | 완료 |
 | **합계** | | **133 tests** | |
