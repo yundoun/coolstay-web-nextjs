@@ -1,5 +1,7 @@
 # Contents API 명세서 — 검색/목록
 
+> **최종 업데이트: 2026-04-01 (dev 서버 실제 응답 기준)**
+
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
 
@@ -43,6 +45,38 @@
 
 ### Response (`result`)
 
+실제 응답 구조 (17개 지역 반환):
+
+```json
+{
+  "regions": [
+    {
+      "type": "R001",
+      "view_type": "LIST",
+      "open_yn": "Y",
+      "code": "ALL_01",
+      "name": "서울",
+      "thumb_url": "https://...",
+      "sub_regions": [
+        {
+          "type": "R001",
+          "view_type": "LIST",
+          "open_yn": "Y",
+          "code": "MOTEL_9300001",
+          "name": "강남/역삼/삼성/논현",
+          "geometry": { "latitude": 37.5, "longitude": 127.0 },
+          "sub_regions": [],
+          "depth": 1,
+          "priority": 0
+        }
+      ],
+      "depth": 0,
+      "priority": 0
+    }
+  ]
+}
+```
+
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `regions` | RegionItem[] | 지역 트리 (1depth: 시/도, sub_regions: 상세 지역) |
@@ -55,13 +89,20 @@
 | `type` | string | 타입 코드 (ex: `R001`) |
 | `view_type` | string | 표시 방식 (`LIST`) |
 | `open_yn` | string | 노출 여부 (`Y`/`N`) |
-| `code` | string | 지역 코드 (ex: `MOTEL_1`, `MOTEL_9300001`) |
+| `code` | string | 지역 코드 (ex: `ALL_01`, `MOTEL_9300001`) |
 | `name` | string | 지역명 (ex: `서울`, `강남/역삼/삼성/논현`) |
-| `thumb_url` | string? | 썸네일 이미지 URL |
+| `thumb_url` | string? | 썸네일 이미지 URL (1depth에만 존재) |
 | `geometry` | object? | `{ latitude, longitude }` — 하위 지역에만 존재 |
 | `sub_regions` | RegionItem[] | 하위 지역 목록 |
 | `depth` | number | 트리 깊이 (0: 시/도, 1: 상세 지역) |
 | `priority` | number | 정렬 순서 |
+
+### 비고
+
+- 실제 응답에서 17개 시/도 지역이 반환됨
+- 1depth 지역의 `code`는 `ALL_01`, `ALL_02` 등의 형태
+- `open_yn === "N"`인 지역은 UI에서 필터링
+- API 실패 시 `src/domains/search/data/regions.ts` mock 데이터로 폴백
 
 ### 웹 사용처
 
@@ -69,11 +110,6 @@
 |----------|------|
 | `SearchModal > RegionPanel` (모바일) | `src/components/search/SearchModal.tsx` |
 | `SearchConditionBar > RegionDropdown` (PC) | `src/domains/search/components/SearchConditionBar.tsx` |
-
-### 비고
-
-- `open_yn === "N"`인 지역은 UI에서 필터링
-- API 실패 시 `src/domains/search/data/regions.ts` mock 데이터로 폴백
 
 ---
 

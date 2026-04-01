@@ -1,183 +1,279 @@
 # Home API 명세서
 
-> Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
-> 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
+> **도메인**: 홈 화면
+> **Base Path**: `/api/v2/mobile`
+> **공통 헤더**: `app-token`, `app-secret-code`
+> **최종 업데이트**: 2026-04-01 (dev 서버 실제 응답 기준)
 
 ---
 
-## 1. POST /home/main — 홈 화면 정보 조회
+## 1. 홈 메인
 
-홈 화면 렌더링에 필요한 전체 데이터를 한 번에 반환한다.
+```
+POST /home/main
+```
 
-### Request Body
+### 요청
 
-| 필드 | 타입 | 필수 | 설명 | 기본값 |
-|------|------|:----:|------|--------|
-| `region_code` | string | O | 최상위 지역 코드 | `ALL_0100000` (강남/역삼/삼성/논현) |
-| `popup_notice_yn` | string | O | 전면팝업 조회 여부 | `N` |
-| `coupon_only_yn` | string | O | 쿠폰 정보만 요청 여부 (Y: 쿠폰/마일리지만) | `N` |
-| `convenience_codes` | string | - | 편의시설 코드 (콤마 구분, 최대 5개) | |
-| `refresh_date` | string | - | 추천 재설정 일자 (yyyyMMdd) | |
-| `recent_store_keys` | string | - | 최근 본 업소 key (콤마 구분, 비회원만) | |
-
-### Response (`result`)
-
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `recommend_categories` | RegionCategory[] | 추천 지역 카테고리 탭 (서울, 경기, 부산...) |
-| `recommend_stores` | StoreItem[] | 추천 숙소 목록 |
-| `item_buttons` | LinkItem[] | 상단 프로모 버튼 (무제한, 첫예약 등) |
-| `new_item_categories` | LinkItem[] | 업종 카테고리 (모텔, 호텔·리조트, 펜션...) |
-| `banners` | HomeBanner[] | 홈 배너 캐러셀 |
-| `recent_stores` | StoreItem[] | 최근 본 숙소 (비회원: 빈 배열) |
-| `exhibitions` | Exhibition[] | 기획전 목록 |
-| `phrase` | string | 검색 문구 (랜덤 추천) |
-| `valid_book_yn` | string | 예약 존재 여부 (`Y`/`N`) |
-| `ai_magazines` | AiMagazineBanner[] | AI 매거진 배너 (nullable) |
-| `popups` | Banner[] | 전면 팝업 (popup_notice_yn=Y 시) |
-
-### 웹 컴포넌트 매핑
-
-| 응답 필드 | 컴포넌트 |
-|----------|---------|
-| `banners` | `PromoBannerCarousel` |
-| `new_item_categories` | `BusinessTypeGrid` |
-| `item_buttons` | `PromoCards` |
-| `exhibitions` | `FeatureSection` |
-| `recommend_categories` + `recommend_stores` | `RegionRecommendations` |
-| `recent_stores` | `RecentlyViewed` |
-| `ai_magazines` | `MagazineSection` |
-| `phrase` | `HeroSection` (검색 placeholder) |
-
----
-
-## 2. POST /home/regionStores — 지역 추천 숙소 조회
-
-지역 탭 전환 시 해당 지역의 추천 숙소만 갱신한다.
-
-### Request Body
-
-| 필드 | 타입 | 필수 | 설명 | 기본값 |
-|------|------|:----:|------|--------|
-| `region_code` | string | O | 최상위 지역 코드 | |
-| `convenience_codes` | string | - | 편의시설 코드 (콤마 구분) | |
-
-### Response (`result`)
-
-| 필드 | 타입 | 설명 |
-|------|------|------|
-| `recommend_categories` | RegionCategory[] | 지역 카테고리 목록 (home/main과 동일) |
-| `recommend_stores` | StoreItem[] | 해당 지역 추천 숙소 |
-
----
-
-## 공통 타입
-
-### RegionCategory
 ```json
 {
-  "type": "R001",
-  "view_type": "LIST",
-  "open_yn": "Y",
-  "code": "ALL_01",
-  "name": "서울",
-  "depth": 0,
-  "priority": 0
+  "region_code": "ALL_0100000",
+  "popup_notice_yn": "N",
+  "coupon_only_yn": "N"
 }
 ```
 
-### StoreItem
+### 실제 응답 (dev 서버 2026-04-01)
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `banners` | array | 상단 배너 캐러셀 |
+| `exhibitions` | array | **기획전** (BoardItem 구조, type="EXHIBITION") |
+| `item_buttons` | array | 혜택 버튼 (무제한, 선물 등) |
+| `new_item_categories` | array | 카테고리 버튼 (모텔, 호텔 등) |
+| `phrase` | string | 문구 |
+| `recent_stores` | array | 최근 본 숙소 |
+| `recommend_categories` | array | 추천 지역 |
+| `recommend_stores` | array | 추천 숙소 |
+| `valid_book_yn` | string | 예약 가능 여부 |
+
+#### banners[]
+
 ```json
 {
-  "key": "D_KCST_20240411193926_a1c5f5",
-  "filter_bit": 0,
+  "key": 11597,
+  "view_count": 0,
+  "image_urls": ["https://..."],
+  "link": { "type": "APP_LINK", "sub_type": "A_MR_24", "target": "11596", "btn_name": "이벤트 상세" },
+  "reg_dt": 1630455769
+}
+```
+
+#### exhibitions[] (기획전)
+
+```json
+{
+  "key": 87286,
+  "view_count": 0,
+  "type": "EXHIBITION",
+  "title": "기획전 쿠폰 테스트",
+  "description": "<p>...</p>",
+  "badge_image_url": "https://...",
+  "banner_image_url": "https://...",
+  "detail_banner_image_url": "https://...",
+  "thumb_description": "기획전 쿠폰 테스트",
+  "image_urls": ["https://..."],
+  "link": { "type": "APP_LINK", "sub_type": "...", "target": "...", "btn_name": "" },
+  "start_dt": 1743397200,
+  "end_dt": 1775019599,
+  "reg_dt": 1743399916
+}
+```
+
+> **기획전 개별 조회**: `GET /manage/board/list?board_type=EVENT&board_item_key={key}` → type="EXHIBITION" 반환
+> 이벤트와 기획전은 같은 API를 사용하되 `type` 필드로 구분 ("EXHIBITION" vs "VISIT"/"COUPON")
+
+#### recommend_stores[]
+
+```json
+{
+  "key": "D_KCST_...",
   "name": "숙소명",
-  "like_count": 10,
+  "like_count": 0,
   "consecutive_yn": "N",
   "user_like_yn": "N",
   "parking_yn": "N",
   "point_reward_type": "ORDER",
-  "images": [
-    { "key": 61, "description": "대표 이미지", "url": "https://...", "thumb_url": "https://...", "priority": 0 }
-  ],
-  "items": [
-    {
-      "key": "D_KCIP_...",
-      "price": 20000,
-      "discount_price": 20000,
-      "name": "객실명",
-      "category": { "code": "010102", "name": "숙박" },
-      "coupons": [ { "coupon_pk": 39301, "discount_amount": 3000, "title": "선착순 쿠폰", ... } ],
-      "daily_extras": [ { "date": "20260326", "extras": [ { "code": "PRICE", "value": "20000" } ] } ]
-    }
-  ],
-  "extra_services": []
-}
-```
-
-### HomeBanner
-```json
-{
-  "key": 12398,
-  "view_count": 0,
-  "image_urls": ["https://..."],
-  "link": { "type": "APP_LINK", "sub_type": "A_CR_03", "target": "", "btn_name": "" },
-  "reg_dt": 1668574207
-}
-```
-
-### Exhibition
-```json
-{
-  "key": 87284,
-  "type": "PACKAGE_EXHIBITION_GROUP",
-  "title": "기획전 제목",
-  "description": "기획전 설명",
-  "badge_image_url": "https://...",
-  "banner_image_url": "https://...",
-  "detail_banner_image_url": "https://...",
-  "image_urls": ["https://..."],
-  "reg_dt": 1765931803,
-  "start_dt": 1765897200,
-  "end_dt": 1774969199
-}
-```
-
-### LinkItem (item_buttons / new_item_categories)
-```json
-{
-  "type": "APP_LINK",
-  "sub_type": "A_CA_03",
-  "target": "MOTEL",
-  "btn_name": "모텔",
-  "thumb_url": "https://...",
-  "bg_url": "https://...",
-  "bg_color": "#355555",
-  "title_color": "#111111",
-  "mapping_business_types": ["MOTEL", "GUESTHOUSE"]
+  "filter_bit": 0,
+  "area_cd1": "...",
+  "area_cd2": "...",
+  "images": [{ "key": 149756, "description": "대표 이미지", "url": "https://...", "thumb_url": "https://..." }],
+  "items": [...],
+  "extra_services": [...]
 }
 ```
 
 ---
 
-## 지역 코드 목록 (region_code)
+## 2. 지역별 추천 숙소
 
-| 코드 | 지역 |
-|------|------|
-| `ALL_0100000` | 강남/역삼/삼성/논현 (기본값) |
-| `ALL_01` | 서울 |
-| `ALL_02` | 경기 |
-| `ALL_03` | 부산 |
-| `ALL_04` | 대구/경산 |
-| `ALL_05` | 인천 |
-| `ALL_06` | 광주 |
-| `ALL_07` | 대전 |
-| `ALL_08` | 울산 |
-| `ALL_09` | 충남/세종 |
-| `ALL_10` | 강원 |
-| `ALL_11` | 충북 |
-| `ALL_12` | 전북 |
-| `ALL_13` | 전남 |
-| `ALL_14` | 경북 |
-| `ALL_15` | 경남 |
-| `ALL_16` | 제주 |
+```
+POST /home/regionStores
+```
+
+### 요청
+
+```json
+{ "region_code": "ALL_0100000" }
+```
+
+### 응답
+
+홈 메인과 동일한 `recommend_categories[]`, `recommend_stores[]` 구조.
+
+---
+
+## 3. 숙소 상세 (contents/details)
+
+### 3-1. 숙소 상세 조회
+
+```
+GET /contents/details/list?motel_key={key}&search_start={YYYYMMDD}&search_end={YYYYMMDD}
+```
+
+#### 실제 응답 (dev 서버 2026-04-01)
+
+```json
+{
+  "motel": {
+    "key": "D_KCST_...",
+    "name": "숙소명",
+    "business_type": "...",
+    "like_count": 0,
+    "user_like_yn": "N",
+    "parking_yn": "N",
+    "parking_count": 0,
+    "parking_full_yn": "N",
+    "parking_info": "...",
+    "consecutive_yn": "N",
+    "convenience_codes": ["C21", "C22", "C23", "C24"],
+    "phone_number": "...",
+    "safe_number": "...",
+    "greeting_msg": "...",
+    "rating": ...,
+    "location": {...},
+    "business_info": {...},
+    "benefits": [...],
+    "benefit_extra": ...,
+    "benefit_point_rate": ...,
+    "benefit_room": ...,
+    "coupons": [...],
+    "event": ...,
+    "external_events": [...],
+    "extra_services": [...],
+    "images": [{ "key": ..., "description": "...", "url": "https://...", "thumb_url": "https://...", "priority": ... }],
+    "items": [{ "key": "...", "name": "...", "sort_priority": ..., "package_priority": ..., "sub_items": [...], "images": [...], "extras": [...] }],
+    "v2_external_links": [...],
+    "v2_low_price_btn": ...,
+    "v2_support_flag": ...,
+    "point_reward_type": "...",
+    "site_payment_yn": "...",
+    "partnership_type": "...",
+    "filter_bit": ...,
+    "area_cd1": "...",
+    "area_cd2": "...",
+    "cool_consecutive_popup": ...
+  }
+}
+```
+
+### 3-2. 숙소 이미지 목록
+
+```
+GET /contents/images/list?motel_key={key}
+```
+
+```json
+{
+  "images_per_category": [
+    {
+      "category_code": "...",
+      "category_name": "...",
+      "images": [...]
+    }
+  ]
+}
+```
+
+### 3-3. 객실 예약 현황
+
+```
+GET /contents/books/daystatus/list?motel_key={key}&room_key={key}
+```
+
+```json
+{ "daily_books": [...] }
+```
+
+---
+
+## 4. 지역 목록
+
+```
+GET /contents/regions/list?category_code=MOTEL
+```
+
+### 실제 응답 (dev 서버 2026-04-01)
+
+```json
+{
+  "regions": [
+    {
+      "type": "R001",
+      "view_type": "LIST",
+      "open_yn": "Y",
+      "code": "ALL_01",
+      "name": "서울",
+      "thumb_url": "https://...",
+      "sub_regions": [...],
+      "depth": 0,
+      "priority": 0
+    }
+  ]
+}
+```
+
+17개 지역 반환 (서울, 부산, 제주 등)
+
+---
+
+## 5. aiMagazine (칼럼/매거진)
+
+> `/aiMagazine` API는 기획전이 아닌 **칼럼/매거진** 콘텐츠. 기획전과 별개.
+
+```
+GET /aiMagazine/board/list?count=3
+```
+
+```json
+{
+  "total_count": 6,
+  "next_cursor": "...",
+  "boards": [
+    {
+      "key": 13082,
+      "type": "칼럼",
+      "thumbnail_url": "https://...",
+      "title": "회사에서 열심히 일하는 방법",
+      "sub_title": "참고 하세요"
+    }
+  ]
+}
+```
+
+```
+GET /aiMagazine/board/detail?key=13082
+```
+
+```json
+{
+  "board_detail": {
+    "key": 13082,
+    "title": "...",
+    "sub_title": "...",
+    "profile_image_url": "https://...",
+    "writer_name": "윤도운",
+    "post_date": "2025.08.28",
+    "writer_introduction": "사람",
+    "description": "<p>...</p>",
+    "package_banner": {}
+  }
+}
+```
+
+---
+
+## 연동 파일
+
+- 타입: `src/domains/home/types/index.ts`
+- API: `src/domains/home/api/homeApi.ts` → `getHomeMain()`, `getRegionStores()`

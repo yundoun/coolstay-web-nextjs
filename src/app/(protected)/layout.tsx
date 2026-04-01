@@ -25,9 +25,13 @@ export default function ProtectedLayout({
     }
   }, [])
 
-  // hydration 완료 전에는 판단하지 않음
+  // hydration 완료 전에는 로딩 표시
   if (!hydrated) {
-    return null
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="size-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   if (!isLoggedIn) {
