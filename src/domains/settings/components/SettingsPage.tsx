@@ -3,7 +3,6 @@
 import Link from "next/link"
 import {
   Bell,
-  Mail,
   Smartphone,
   Megaphone,
   LogOut,
@@ -41,27 +40,28 @@ export function SettingsPage() {
             </div>
           </div>
 
+          {/* 실제 API 코드: US002=푸시알림, US003=마케팅, US007=야간알림 */}
           <div className="divide-y">
             <SettingToggle
-              icon={<Mail className="size-5 text-muted-foreground" />}
-              label="이메일 알림 수신"
-              description="예약 확인, 이용 안내 등을 이메일로 받습니다"
-              checked={getSettingValue("EMAIL") === "Y"}
-              onCheckedChange={(v) => updateSetting("EMAIL", v ? "Y" : "N")}
-            />
-            <SettingToggle
-              icon={<Smartphone className="size-5 text-muted-foreground" />}
-              label="SMS 알림 수신"
-              description="예약 확인, 체크인 안내 등을 문자로 받습니다"
-              checked={getSettingValue("SMS") === "Y"}
-              onCheckedChange={(v) => updateSetting("SMS", v ? "Y" : "N")}
+              icon={<Bell className="size-5 text-muted-foreground" />}
+              label="푸시 알림 수신"
+              description="예약 확인, 이용 안내 등을 푸시 알림으로 받습니다"
+              checked={getSettingValue("US002") === "Y"}
+              onCheckedChange={(v) => updateSetting("US002", v ? "Y" : "N")}
             />
             <SettingToggle
               icon={<Megaphone className="size-5 text-muted-foreground" />}
               label="마케팅 정보 수신 동의"
               description="이벤트, 할인 쿠폰 등 마케팅 정보를 받습니다"
-              checked={getSettingValue("MARKETING") === "Y"}
-              onCheckedChange={(v) => updateSetting("MARKETING", v ? "Y" : "N")}
+              checked={getSettingValue("US003") === "Y"}
+              onCheckedChange={(v) => updateSetting("US003", v ? "Y" : "N")}
+            />
+            <SettingToggle
+              icon={<Smartphone className="size-5 text-muted-foreground" />}
+              label="야간 알림 수신"
+              description="21시~08시 사이 알림 수신을 허용합니다"
+              checked={getSettingValue("US007") === "Y"}
+              onCheckedChange={(v) => updateSetting("US007", v ? "Y" : "N")}
             />
           </div>
         </div>

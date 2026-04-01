@@ -14,7 +14,7 @@ beforeEach(() => { vi.clearAllMocks() })
 
 describe("getUserSettings (P4-1)", () => {
   it("GET /auth/users/settings/list를 호출한다", async () => {
-    const mockResponse = { settings: [{ code: "PUSH", value: "Y" }] }
+    const mockResponse = { settings: [{ code: "US002", value: "Y" }] }
     mockGet.mockResolvedValueOnce(mockResponse)
 
     const result = await getUserSettings()
@@ -26,7 +26,7 @@ describe("getUserSettings (P4-1)", () => {
 
 describe("updateUserSettings (P4-2)", () => {
   it("POST /auth/users/settings/update에 설정값을 전달한다", async () => {
-    const settings = [{ code: "PUSH", value: "N" }]
+    const settings = [{ code: "US002", value: "N" }]
     mockPost.mockResolvedValueOnce({ settings })
 
     const result = await updateUserSettings({ settings })

@@ -15,16 +15,22 @@
 GET /auth/users/settings/list
 ```
 
-#### 응답
+#### 실제 응답 (dev 서버 2026-04-01)
 
 ```json
 {
   "settings": [
-    { "code": "PUSH", "value": "Y" },
-    { "code": "MARKETING", "value": "N" }
+    { "code": "US002", "value": "Y" },
+    { "code": "US003", "value": "Y" },
+    { "code": "US007", "value": "Y" }
   ]
 }
 ```
+
+> **설정 코드 매핑**:
+> - `US002` — 푸시 알림 수신
+> - `US003` — 마케팅 정보 수신 동의
+> - `US007` — 야간 알림 수신 (21시~08시)
 
 ### 1-2. 설정 변경
 
@@ -33,7 +39,7 @@ POST /auth/users/settings/update
 ```
 
 ```json
-{ "settings": [{ "code": "PUSH", "value": "N" }] }
+{ "settings": [{ "code": "US002", "value": "N" }] }
 ```
 
 ### 연동 파일
@@ -170,17 +176,17 @@ GET /manage/terms/list
 |------|------|------|------|
 | `term_code` | string | - | 특정 약관 코드 |
 
-### 응답
+### 실제 응답 (dev 서버 2026-04-01)
 
 ```json
 {
   "terms": [
     {
-      "code": "T100",
-      "name": "이용약관",
+      "code": "TC001",
+      "name": "모바일 서비스 이용약관",
       "url": "https://...",
       "required_yn": "Y",
-      "version": "1.0"
+      "version": "00.00.01"
     }
   ]
 }
@@ -201,22 +207,28 @@ GET /manage/terms/list
 GET /auth/users/friend/list
 ```
 
-#### 응답
+#### 실제 응답 (dev 서버 2026-04-01)
 
 ```json
 {
-  "friend_event": null,
-  "friend_info": {
-    "reg_user_count": 5,
-    "my_recommend_code": "ABC123",
-    "update_dt": "2026-03-31",
-    "image_url": "https://...",
-    "ranking_visible_yn": true,
-    "recommend_users": [
-      { "nickname": "유저1", "rank": 1 }
-    ]
+  "friend_event": {
+    "view_count": 0,
+    "image_urls": ["https://..."]
   },
-  "button": { "url": "/share", "text": "공유하기" }
+  "friend_info": {
+    "reg_user_count": 0,
+    "my_recommend_code": "FY5AEAXH",
+    "image_url": "https://...",
+    "update_dt": 1775018849,
+    "ranking_visible_yn": false
+  },
+  "button": {
+    "type": "APP_LINK",
+    "sub_type": "A_AF_02",
+    "target": "",
+    "btn_name": "카톡테스트",
+    "thumb_url": "https://..."
+  }
 }
 ```
 
