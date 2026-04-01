@@ -10,6 +10,7 @@ import {
   Trash2,
   Camera,
   X,
+  Award,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -141,8 +142,29 @@ function ReviewCard({
     <div className="rounded-xl border bg-card overflow-hidden">
       {/* Accommodation Info */}
       <div className="flex items-center gap-3 p-4 border-b bg-muted/30">
+        {/* Motel thumbnail */}
+        {review.motel?.images?.[0] && (
+          <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
+            <Image
+              src={review.motel.images[0].thumb_url || review.motel.images[0].url}
+              alt={motelName}
+              fill
+              className="object-cover"
+              sizes="48px"
+            />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{motelName}</p>
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-sm truncate">{motelName}</p>
+            {/* Best review badge */}
+            {review.best_yn === "Y" && (
+              <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600 gap-1">
+                <Award className="size-3" />
+                베스트
+              </Badge>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">{review.item_description}</p>
         </div>
         <DropdownMenu>
@@ -169,9 +191,17 @@ function ReviewCard({
 
       {/* Review Content */}
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
           <StarRating rating={score} size="sm" />
+          {review.user?.name && (
+            <span className="text-xs font-medium text-foreground/70">{review.user.name}</span>
+          )}
           <span className="text-xs text-muted-foreground">{formatTimestampDot(review.reg_dt)}</span>
+          {review.status_info?.start_date && (
+            <span className="text-xs text-muted-foreground">
+              {formatTimestampDot(review.status_info.start_date)} 이용
+            </span>
+          )}
         </div>
         <p className="text-sm leading-relaxed">{review.text}</p>
 
