@@ -8,6 +8,7 @@ import {
   PromoCards,
   RecentlyViewed,
   FeatureSection,
+  EventSection,
   RegionRecommendations,
   MagazineSection,
 } from "@/domains/home/components"
@@ -60,7 +61,16 @@ export default function HomePage() {
         </Section>
       )}
 
-      {/* 7. 이런 숙소는 어떠세요? (지역별 탭 + 그리드) */}
+      {/* 7. 진행중 이벤트 */}
+      <Section
+        title="진행중 이벤트"
+        description="놓치면 아쉬운 특별 혜택"
+        spacing="md"
+      >
+        <EventSection />
+      </Section>
+
+      {/* 8. 이런 숙소는 어떠세요? (지역별 탭 + 그리드) */}
       <Section
         title="이런 숙소는 어떠세요?"
         description="지역별 인기 숙소를 둘러보세요"
