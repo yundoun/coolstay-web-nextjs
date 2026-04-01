@@ -73,55 +73,51 @@
 > 인증 + 마이페이지 + 찜/마일리지 (20개 엔드포인트)
 
 #### 인증 (9개)
-- [ ] `P11C-1` `POST /auth/sessions/users` 실제 응답 검증 → auth.md 수정
-- [ ] `P11C-2` `POST /auth/code/send` 실제 응답 검증
-- [ ] `P11C-3` `POST /auth/code/check` 실제 응답 검증
-- [ ] `P11C-4` `GET /auth/code/list` 실제 응답 검증
-- [ ] `P11C-5` `POST /auth/users/register` 실제 응답 검증
-- [ ] `P11C-6` `POST /auth/users/pw/find` 실제 응답 검증
-- [ ] `P11C-7` `POST /auth/users/id/find` 실제 응답 검증
-- [ ] `P11C-8` `POST /auth/sessions/users/sns` 응답 구조 확인 (호출 불가 시 AOS 코드 참조)
-- [ ] `P11C-9` `POST /auth/users/sns/register` 응답 구조 확인
+- [x] `P11C-1` 로그인 응답 검증 → user에 name/history_yn 없음, AuthUser 수정
+- [x] `P11C-2` /auth/code/send → sms_auth_key 반환 확인
+- [ ] `P11C-3` /auth/code/check — 미호출 (인증 코드 필요)
+- [x] `P11C-4` /auth/code/list → auth_method 구조 확인
+- [ ] `P11C-5~9` register/find/sns — 소셜 로그인 보류 (Phase 6)
 
 #### 마이페이지 (4개)
-- [ ] `P11C-10` `GET /auth/users/mypage/list` 실제 응답 검증 → mypage.md 수정
-- [ ] `P11C-11` `POST /auth/users/update` 실제 응답 검증
-- [ ] `P11C-12` `POST /auth/users/pw/check` 실제 응답 검증
-- [ ] `P11C-13` `POST /auth/users/delete` 응답 구조 확인 (파괴적 — AOS 코드 참조)
+- [x] `P11C-10` mypage/list → new_alarm/notice_date number(초) 확인, 타입 수정
+- [x] `P11C-11` users/update → token+user 반환 확인
+- [x] `P11C-12` pw/check → 호출 확인 (enc_password 형식 검증 필요)
+- [ ] `P11C-13` users/delete — 미호출 (계정 삭제)
 
 #### 찜 (3개)
-- [ ] `P11C-14` `GET /contents/list?search_type=ST006` 실제 응답 검증
-- [ ] `P11C-15` `POST /auth/dibs/register` 실제 응답 검증
-- [ ] `P11C-16` `POST /auth/dibs/delete` 실제 응답 검증
+- [x] `P11C-14` ST006 찜 목록 → motels[] + rating/download_coupon_info 확인, StoreItem 보강
+- [x] `P11C-15` dibs/register → storeKey(camelCase) 확인
+- [x] `P11C-16` dibs/delete → 파라미터 에러 (flag 조합 확인 필요)
 
 #### 마일리지 (2개)
-- [ ] `P11C-17` `GET /benefit/users/mileage/list` 실제 응답 검증
-- [ ] `P11C-18` `POST /benefit/mileage/delete` 실제 응답 검증
+- [x] `P11C-17` mileage/list → store_key 필수, points[] 반환
+- [ ] `P11C-18` mileage/delete — 미호출
 
 ### Phase 11-D — CS/설정/기타 `branch: feat/phase11d-verify-cs`
 
 > 알림/공지/FAQ/문의 + 설정/약관/친구추천 (11개 엔드포인트)
 
 #### 알림 (3개)
-- [ ] `P11D-1` `GET /auth/alarms/users/list` 실제 응답 검증 → cs.md 수정
-- [ ] `P11D-2` `POST /auth/alarms/card/update` 실제 응답 검증
-- [ ] `P11D-3` `POST /auth/alarms/delete` 실제 응답 검증
+- [x] `P11D-1` alarms/list → link 객체, alarm_categories 발견, Alarm 타입 수정
+- [ ] `P11D-2` alarms/card/update — 미호출
+- [ ] `P11D-3` alarms/delete — 미호출
 
-#### 게시판 — 공지/FAQ/문의 (3개, 같은 엔드포인트)
-- [ ] `P11D-4` `GET /manage/board/list?board_type=NOTICE` 실제 응답 검증
-- [ ] `P11D-5` `GET /manage/board/list?board_type=FAQ` 실제 응답 검증
-- [ ] `P11D-6` `GET /manage/board/list?board_type=INQUIRY` 실제 응답 검증 (로그인 필요)
+#### 게시판 (3개)
+- [x] `P11D-4` NOTICE → key/view_count/title/reg_dt만 반환 (description 없음)
+- [x] `P11D-5` FAQ → type에 카테고리명("마일리지") 포함
+- [ ] `P11D-6` INQUIRY → 에러 (board_type=ASK일 가능성)
 
 #### 설정 (2개)
-- [ ] `P11D-7` `GET /auth/users/settings/list` 실제 응답 검증 → contents.md 수정
-- [ ] `P11D-8` `POST /auth/users/settings/update` 실제 응답 검증
+- [x] `P11D-7` settings/list → 코드 US002/US003/US007, 컴포넌트 수정
+- [ ] `P11D-8` settings/update — 미호출
 
 #### 약관 (1개)
-- [ ] `P11D-9` `GET /manage/terms/list` 실제 응답 검증
+- [x] `P11D-9` terms/list → 기존 타입과 일치 ✅
 
 #### 친구추천 (2개)
-- [ ] `P11D-10` `GET /auth/users/friend/list` 실제 응답 검증 (로그인 필요)
-- [ ] `P11D-11` `POST /auth/users/friend/register` 실제 응답 검증
+- [x] `P11D-10` friend/list → button 구조 변경, update_dt number, Friend 타입 수정
+- [ ] `P11D-11` friend/register — 미호출
 
 ---
 
