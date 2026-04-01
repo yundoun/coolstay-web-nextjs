@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 11:00** | API 명세서 업데이트 — 실제 응답 기준 | [`f634995`](.work-history/entries/2026-04-01_11-00_P10_api-docs-update.md)
 - **2026-04-01 10:56** | Phase 10 (2차) — 실제 API 응답 기반 UI 재설계 | [`979610d`](.work-history/entries/2026-04-01_10-55_P10_actual-api-redesign.md)
 - **2026-04-01 10:44** | Phase 10 — API 응답 구조 재설계 | [`668a1ec`](.work-history/entries/2026-04-01_10-45_P10_api-redesign.md)
 - **2026-04-01 10:39** | Mock 정리 + 가이드 API 연동 + 정렬 옵션 통일 | [`a682c98`](.work-history/entries/2026-04-01_10-30_mock-cleanup-guide-api-sort.md)

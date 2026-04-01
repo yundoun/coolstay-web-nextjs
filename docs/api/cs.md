@@ -1,9 +1,9 @@
 # CS / Alarm API 명세서
 
-> **도메인**: 알림, 공지사항, FAQ, 1:1 문의
+> **도메인**: 알림, 공지사항, FAQ, 1:1 문의, 꿀팁 가이드
 > **Base Path**: `/api/v2/mobile`
 > **공통 헤더**: `app-token`, `app-secret-code`
-> **작성일**: 2026-03-31
+> **최종 업데이트**: 2026-04-01 (dev 서버 실제 응답 기준)
 
 ---
 
@@ -15,6 +15,48 @@
 4. [공지사항](#4-공지사항)
 5. [FAQ](#5-faq)
 6. [1:1 문의](#6-11-문의)
+7. [꿀팁 가이드](#7-꿀팁-가이드)
+
+---
+
+## 공통: BoardItem 타입
+
+> 공지/FAQ/문의/가이드/이벤트 모두 `board_items[]` 배열로 반환되며, 아래 구조를 공유합니다.
+> board_type에 따라 반환되는 필드가 다릅니다.
+
+```typescript
+interface BoardItemLink {
+  type: string       // "APP_LINK" | "URL" | "URL_DETAIL"
+  sub_type: string   // "A_MR_24" 등
+  target: string     // 링크 대상 (URL 또는 ID)
+  btn_name: string   // 버튼 텍스트
+}
+
+interface BoardItem {
+  key: number                         // 항목 고유 ID (number)
+  type?: string                       // "NOTICE" | "FAQ" | "GUIDE" | "VISIT" | "COUPON" 등
+  title: string
+  description?: string                // 본문 (HTML 포함 가능)
+  badge_image_url?: string            // 뱃지/목록 썸네일 이미지
+  detail_banner_image_url?: string    // 상세 히어로 이미지
+  image_urls?: string[]               // 상세 이미지 목록 (string[])
+  webview_link?: string               // 웹뷰 링크
+  link?: BoardItemLink                // CTA 링크 객체
+  buttons?: BoardItemLink[]           // CTA 버튼 배열 (이벤트 등)
+  thumb_description?: string          // 목록 부제
+  view_count?: number                 // 조회수
+  status?: string                     // 상태 코드 ("BI005" 등)
+  start_dt?: number                   // 게시 시작일 (초 단위 timestamp)
+  end_dt?: number                     // 게시 종료일 (초 단위 timestamp)
+  reg_dt?: number                     // 등록일 (초 단위 timestamp)
+  tags?: string[]
+  reply?: { text: string; reg_dt: number }
+  reply_count?: number
+  position?: number                   // 정렬 순서
+}
+```
+
+**⚠️ 타임스탬프는 초 단위**: `1727399964` (초) → `new Date(value * 1000)`으로 변환 필요
 
 ---
 
@@ -139,16 +181,17 @@ GET /manage/board/list?board_type=NOTICE
 
 ```json
 {
-  "total_count": 10,
+  "total_count": "10",
   "next_cursor": "abc",
   "board_items": [
     {
-      "key": "notice-1",
+      "key": 12345,
       "type": "NOTICE",
       "title": "서비스 점검 안내",
       "description": "3월 31일 02:00~04:00 서버 점검",
       "status": "ACTIVE",
-      "view_count": 150
+      "view_count": 150,
+      "reg_dt": 1711843200
     }
   ]
 }
@@ -156,6 +199,7 @@ GET /manage/board/list?board_type=NOTICE
 
 ### 연동 파일
 
+- 타입: `src/domains/cs/types/index.ts` → `BoardItem`, `BoardListResponse`
 - API: `src/domains/cs/api/csApi.ts` → `getNoticeList()`
 
 ---
@@ -217,9 +261,99 @@ POST /manage/board/delete
 
 ---
 
+## 7. 꿀팁 가이드
+
+> 2026-04-01 dev 서버 실제 응답 확인
+
+```
+GET /manage/board/list?board_type=GUIDE
+```
+
+### 파라미터
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| `board_type` | string | O | `GUIDE` 고정 |
+| `count` | number | - | 요청 개수 (기본 10) |
+| `cursor` | string | - | 페이지네이션 커서 |
+
+### 실제 응답 (dev 서버 2026-04-01)
+
+```json
+{
+  "total_count": "9",
+  "next_cursor": "null",
+  "board_items": [
+    {
+      "key": 13426,
+      "view_count": 6,
+      "title": "꿀팁222222",
+      "image_urls": [
+        "https://storage.googleapis.com/coolstay-dev/v2/admin/.../image1.jpg",
+        "https://storage.googleapis.com/coolstay-dev/v2/admin/.../image2.png"
+      ],
+      "reg_dt": 1727399964
+    },
+    {
+      "key": 13286,
+      "view_count": 37,
+      "title": "기노출상단버튼",
+      "image_urls": [
+        "https://storage.googleapis.com/coolstay-dev/v2/admin/.../image.jpeg"
+      ],
+      "link": {
+        "type": "APP_LINK",
+        "sub_type": "A_MR_07",
+        "target": "",
+        "btn_name": ""
+      },
+      "reg_dt": 1713163665
+    },
+    {
+      "key": 12848,
+      "view_count": 19,
+      "title": "등록테스트",
+      "image_urls": [
+        "https://storage.googleapis.com/coolstay-dev/.../image1.jpg",
+        "https://storage.googleapis.com/coolstay-dev/.../image2.jpg"
+      ],
+      "link": {
+        "type": "APP_LINK",
+        "sub_type": "A_MR_24",
+        "target": "12848",
+        "btn_name": "이벤트 상세"
+      },
+      "reg_dt": 1691384438
+    }
+  ]
+}
+```
+
+### 가이드에서 반환되는 필드
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `key` | number | 가이드 ID |
+| `title` | string | 제목 |
+| `image_urls` | string[] | 이미지 목록 |
+| `view_count` | number | 조회수 |
+| `reg_dt` | number | 등록일 (초 단위) |
+| `link` | BoardItemLink | CTA 버튼 (일부 항목만) |
+
+> **주의**: `description`, `banner_image_url`, `webview_link` 은 가이드에서 반환되지 않음
+
+### 연동 파일
+
+- 타입: `src/domains/cs/types/index.ts` → `BoardItem`, `BoardListResponse`
+- API: `src/domains/cs/api/csApi.ts` → `getGuideList()`
+- 컴포넌트: `src/domains/guide/components/GuidePage.tsx`
+
+---
+
 ## 테스트 현황
 
 | API | 테스트 파일 | Cases |
 |-----|------------|-------|
 | Alarm (P3-1~3) | `src/domains/alarm/api/__tests__/alarmApi.test.ts` | 4 |
 | CS (P3-4~6) | `src/domains/cs/api/__tests__/csApi.test.ts` | 6 |
+| Guide (P10-A) | `src/domains/guide/components/__tests__/GuidePage.test.tsx` | 10 |

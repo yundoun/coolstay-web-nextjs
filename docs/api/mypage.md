@@ -236,6 +236,7 @@ POST /auth/dibs/delete
 ## 6. 쿠폰
 
 > **Base Path**: `/benefit/coupons`
+> **최종 업데이트**: 2026-04-01 (dev 서버 실제 응답 기준)
 
 ### 6-1. 쿠폰 목록 조회
 
@@ -258,30 +259,76 @@ GET /benefit/coupons/list?search_type=ST601
 | `cursor` | string | - | 페이지네이션 커서 |
 | `count` | string | - | 요청 개수 (기본 10) |
 
-#### 응답
+#### 실제 응답 (dev 서버 2026-04-01)
 
 ```json
 {
-  "total_count": 5,
-  "remain7day_count": 2,
-  "next_cursor": "abc",
+  "total_count": 4,
+  "remain7day_count": 4,
   "coupons": [
     {
-      "coupon_pk": 1,
-      "discount_amount": 3000,
-      "title": "신규 회원 할인",
-      "discount_type": "FIXED",
-      "status": "ACTIVE",
-      "start_dt": "2026-03-01T00:00:00Z",
-      "end_dt": "2026-04-30T00:00:00Z",
-      "received": true,
+      "coupon_pk": 20176577,
+      "discount_amount": 10000,
+      "total_amount": 6,
+      "remain_amount": 0,
+      "code": "DS1772859600614umkei",
+      "title": "동촌 하야트[팩스] 재방문 쿠폰",
+      "description": "동촌 하야트[팩스] 재방문 쿠폰(자동)",
+      "category_code": "STEP3",
+      "sub_category_code": "AUTO",
+      "type": "PACKAGE",
+      "discount_type": "AMOUNT",
+      "dup_use_yn": "Y",
+      "usable_yn": "Y",
+      "status": "C001",
+      "dimmed_yn": "N",
+      "start_dt": 1772809200,
+      "end_dt": 1775487599,
+      "usable_start_dt": 1772809200,
+      "usable_end_dt": 1775487599,
+      "enterable_start_dt": 1772809200,
+      "enterable_end_dt": 1775487599,
+      "reg_dt": 1772859600,
+      "day_codes": [],
       "constraints": [
-        { "code": "MIN_PRICE", "value": "30000", "description": "3만원 이상" }
+        { "code": "CC004", "value": "D_KCST_...", "description": "적용제휴점" },
+        { "code": "CC002", "value": "010102", "description": "숙박" },
+        { "code": "CC005", "value": "ALL", "description": "주말•평일" },
+        { "code": "CC001", "value": "0", "description": "최소 객실 금액(판매가) 이상" }
       ]
     }
   ]
 }
 ```
+
+#### 쿠폰 필드 상세
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `coupon_pk` | number | 쿠폰 PK |
+| `discount_amount` | number | 할인 금액/비율 |
+| `total_amount` | number | 총 발급 수량 |
+| `remain_amount` | number | 잔여 수량 |
+| `code` | string | 쿠폰 코드 |
+| `title` | string | 쿠폰명 |
+| `description` | string | 설명 |
+| `category_code` | string | 카테고리 (`"STEP3"` 등) |
+| `sub_category_code` | string | 서브 카테고리 (`"AUTO"` 등) |
+| `type` | string | 타입 (`"PACKAGE"` 등) |
+| `discount_type` | string | **`"AMOUNT"` (원) / `"RATE"` (%)** |
+| `dup_use_yn` | string | 중복 사용 (`"Y"` / `"N"`) |
+| `usable_yn` | string | 사용 가능 여부 |
+| `status` | string | 상태 코드 (`"C001"` 등) |
+| `dimmed_yn` | string | 비활성화 (`"Y"` = 만료/사용완료) |
+| `start_dt` ~ `reg_dt` | number | **모든 타임스탬프: 초 단위** |
+| `day_codes` | string[] | 요일 코드 |
+| `constraints` | CouponConstraint[] | 사용 조건 배열 |
+
+> **주의**:
+> - `discount_type`은 `"AMOUNT"` (정액) / `"RATE"` (정률) — `"FIXED"` 아님
+> - `received` 필드는 실제 응답에 존재하지 않음
+> - 모든 타임스탬프는 **초 단위**: `new Date(value * 1000)` 변환 필요
+> - `constraints[].code`는 내부 코드 (`CC001` 등) — UI에서는 `description`만 표시
 
 ### 6-2. 쿠폰 등록
 
@@ -319,6 +366,7 @@ POST /benefit/coupons/delete
 
 - 타입: `src/domains/coupon/types/index.ts`
 - API: `src/domains/coupon/api/couponApi.ts` → `getCouponList()`, `registerCoupon()`, `downloadCoupon()`, `deleteCoupons()`
+- 컴포넌트: `src/domains/coupon/components/CouponListPage.tsx`
 
 ---
 
