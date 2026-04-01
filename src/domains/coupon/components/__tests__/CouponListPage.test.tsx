@@ -24,6 +24,7 @@ const mockRegister = vi.fn()
 const mockHookReturn = {
   coupons: [] as ReturnType<typeof createCoupon>[],
   totalCount: 0,
+  remain7dayCount: 0,
   isLoading: false,
   error: null as string | null,
   register: mockRegister,
@@ -37,15 +38,28 @@ function createCoupon(overrides: Record<string, unknown> = {}) {
   return {
     coupon_pk: 1,
     discount_amount: 5000,
+    total_amount: 6,
+    remain_amount: 3,
+    code: "TESTCODE001",
     title: "테스트 쿠폰",
-    discount_type: "FIXED",
-    status: "ACTIVE",
-    received: true,
-    constraints: [],
+    description: "테스트 쿠폰 설명",
+    category_code: "STEP3",
+    sub_category_code: "AUTO",
+    type: "PACKAGE",
+    discount_type: "AMOUNT",
+    dup_use_yn: "N",
+    usable_yn: "Y",
+    status: "C001",
     dimmed_yn: "N",
-    description: "설명",
-    usable_start_dt: "2026-01-01",
-    usable_end_dt: "2026-12-31",
+    start_dt: 1772809200,
+    end_dt: 1775487599,
+    usable_start_dt: 1772809200,
+    usable_end_dt: 1775487599,
+    enterable_start_dt: 1772809200,
+    enterable_end_dt: 1775487599,
+    reg_dt: 1772859600,
+    day_codes: [],
+    constraints: [],
     ...overrides,
   }
 }
@@ -54,6 +68,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   mockHookReturn.coupons = []
   mockHookReturn.totalCount = 0
+  mockHookReturn.remain7dayCount = 0
   mockHookReturn.isLoading = false
   mockHookReturn.error = null
   mockRegister.mockReset()
@@ -128,11 +143,11 @@ describe("CouponListPage", () => {
       expect(screen.getByText("10%")).toBeTruthy()
     })
 
-    it("FIXED 타입 쿠폰은 원 단위로 표시한다", async () => {
+    it("AMOUNT 타입 쿠폰은 원 단위로 표시한다", async () => {
       mockHookReturn.coupons = [
         createCoupon({
           coupon_pk: 1,
-          discount_type: "FIXED",
+          discount_type: "AMOUNT",
           discount_amount: 5000,
         }),
       ]
@@ -141,6 +156,107 @@ describe("CouponListPage", () => {
       render(<CouponListPage />)
 
       expect(screen.getByText("5,000원")).toBeTruthy()
+    })
+
+    it("초 단위 타임스탬프를 YYYY.MM.DD 형식으로 표시한다", async () => {
+      mockHookReturn.coupons = [
+        createCoupon({
+          coupon_pk: 1,
+          usable_start_dt: 1772809200,
+          usable_end_dt: 1775487599,
+        }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      // 1772809200 -> 2026.03.08 (KST), 1775487599 -> 2026.04.07 (KST)
+      const dateTexts = screen.getByText(/2026\./)
+      expect(dateTexts).toBeTruthy()
+    })
+  })
+
+  describe("7일 내 만료 배지", () => {
+    it("remain7dayCount > 0 이면 만료 임박 배지를 표시한다", async () => {
+      mockHookReturn.remain7dayCount = 3
+      mockHookReturn.coupons = [
+        createCoupon({ coupon_pk: 1 }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      expect(screen.getByTestId("expire-soon-badge")).toBeTruthy()
+      expect(screen.getByText(/7일 내 만료 3장/)).toBeTruthy()
+    })
+
+    it("remain7dayCount === 0 이면 배지를 표시하지 않는다", async () => {
+      mockHookReturn.remain7dayCount = 0
+      mockHookReturn.coupons = [
+        createCoupon({ coupon_pk: 1 }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      expect(screen.queryByTestId("expire-soon-badge")).toBeNull()
+    })
+  })
+
+  describe("제약 조건 표시", () => {
+    it("constraints에서 CC004, CC007을 필터링하고 description을 표시한다", async () => {
+      mockHookReturn.coupons = [
+        createCoupon({
+          coupon_pk: 1,
+          constraints: [
+            { code: "CC004", value: "D_KCST_001", description: "적용제휴점" },
+            { code: "CC002", value: "010102", description: "숙박" },
+            { code: "CC005", value: "ALL", description: "주말/평일" },
+            { code: "CC007", value: "N", description: "재발급여부" },
+            { code: "CC001", value: "0", description: "최소 객실 금액(판매가) 이상" },
+          ],
+        }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      // 카드를 클릭하여 확장
+      const card = screen.getByText("테스트 쿠폰")
+      fireEvent.click(card)
+
+      // 보여야 하는 것
+      expect(screen.getByText("숙박")).toBeTruthy()
+      expect(screen.getByText("주말/평일")).toBeTruthy()
+      expect(screen.getByText("최소 객실 금액(판매가) 이상")).toBeTruthy()
+
+      // 숨겨야 하는 것
+      expect(screen.queryByText("적용제휴점")).toBeNull()
+      expect(screen.queryByText("재발급여부")).toBeNull()
+    })
+  })
+
+  describe("중복사용 배지", () => {
+    it("dup_use_yn이 Y이면 중복사용 배지를 표시한다", async () => {
+      mockHookReturn.coupons = [
+        createCoupon({ coupon_pk: 1, dup_use_yn: "Y", dimmed_yn: "N" }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      expect(screen.getByText("중복사용")).toBeTruthy()
+    })
+
+    it("dup_use_yn이 N이면 중복사용 배지를 표시하지 않는다", async () => {
+      mockHookReturn.coupons = [
+        createCoupon({ coupon_pk: 1, dup_use_yn: "N", dimmed_yn: "N" }),
+      ]
+
+      const { CouponListPage } = await import("../CouponListPage")
+      render(<CouponListPage />)
+
+      expect(screen.queryByText("중복사용")).toBeNull()
     })
   })
 

@@ -14,7 +14,7 @@ export interface CouponListParams {
 }
 
 export interface CouponConstraint {
-  code: string
+  code: string                  // CC001, CC002, CC004, CC005, CC007 등
   value: string
   description: string
 }
@@ -22,34 +22,34 @@ export interface CouponConstraint {
 export interface Coupon {
   coupon_pk: number
   discount_amount: number
+  total_amount: number
+  remain_amount: number
+  code: string
   title: string
-  discount_type: string
-  status: string
-  received: boolean
+  description: string
+  category_code: string         // "STEP3" 등
+  sub_category_code: string     // "AUTO" 등
+  type: string                  // "PACKAGE" 등
+  discount_type: string         // "AMOUNT" | "RATE"
+  dup_use_yn: string
+  usable_yn: string
+  status: string                // "C001" 등
+  dimmed_yn: string
+  start_dt: number              // 초 단위 timestamp
+  end_dt: number                // 초 단위 timestamp
+  usable_start_dt: number       // 초 단위 timestamp
+  usable_end_dt: number         // 초 단위 timestamp
+  enterable_start_dt: number    // 초 단위 timestamp
+  enterable_end_dt: number      // 초 단위 timestamp
+  reg_dt: number                // 초 단위 timestamp
+  day_codes: string[]
   constraints: CouponConstraint[]
-  total_amount?: number
-  remain_amount?: number
-  code?: string
-  description?: string
-  category_code?: string
-  sub_category_code?: string
-  type?: string
-  dup_use_yn?: string
-  usable_yn?: string
-  dimmed_yn?: string
-  start_dt?: string
-  end_dt?: string
-  usable_start_dt?: string
-  usable_end_dt?: string
-  enterable_start_dt?: string
-  enterable_end_dt?: string
-  reg_dt?: string
 }
 
 export interface CouponListResponse {
   total_count: number
   remain7day_count: number
-  next_cursor: string
+  next_cursor?: string
   coupons: Coupon[]
 }
 
@@ -84,4 +84,3 @@ export interface CouponDeleteRequest {
   coupon_keys: number[]
   flag?: string
 }
-

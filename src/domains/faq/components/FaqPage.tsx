@@ -68,7 +68,7 @@ export function FaqPage() {
             <div className="rounded-xl border bg-card overflow-hidden">
               <Accordion type="single" collapsible>
                 {filteredItems.map((faq) => (
-                  <AccordionItem key={faq.key} value={faq.key}>
+                  <AccordionItem key={faq.key} value={String(faq.key)}>
                     <AccordionTrigger className="px-4 hover:no-underline">
                       <div className="flex items-start gap-3 text-left">
                         <span className="text-primary font-bold shrink-0">Q</span>
