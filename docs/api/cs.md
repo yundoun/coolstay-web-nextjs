@@ -80,24 +80,34 @@ GET /auth/alarms/users/list
 
 ```json
 {
-  "total_count": 3,
-  "next_cursor": "abc",
+  "total_count": 2,
+  "next_cursor": "...",
+  "alarm_categories": [
+    { "code": "BENEFIT", "name": "혜택" }
+  ],
   "alarms": [
     {
-      "key": 1,
-      "type": "BOOKING",
-      "title": "예약이 확정되었습니다",
-      "description": "도운텔2 스탠다드",
-      "summary": "3월 31일 체크인",
+      "key": 36448,
+      "title": "마일리지 적립 안내",
+      "summary": "마일리지가 440원 적립되었습니다...",
       "read_yn": "N",
-      "link": "/bookings/123",
-      "image": "https://...",
-      "reg_dt": 1711843200,
-      "category_code": "BOOKING"
+      "category_code": "BENEFIT",
+      "link": {
+        "type": "APP_LINK",
+        "sub_type": "A_MR_09",
+        "target": "0",
+        "btn_name": "내 마일리지"
+      },
+      "reg_dt": 1775016300
     }
   ]
 }
 ```
+
+> **주의**:
+> - `link`는 **객체** (BoardItemLink와 동일 구조) — 문자열이 아님
+> - `alarm_categories`로 카테고리 탭 목록 제공
+> - `description`, `type`, `image` 필드는 실제 응답에서 미확인 (optional)
 
 ### 연동 파일
 
@@ -177,25 +187,25 @@ GET /manage/board/list?board_type=NOTICE
 | `board_item_key` | string | - | 특정 공지 조회 (상세) |
 | `cursor` | string | - | 페이지네이션 커서 |
 
-### 응답
+### 실제 응답 (dev 서버 2026-04-01)
 
 ```json
 {
-  "total_count": "10",
-  "next_cursor": "abc",
+  "total_count": "...",
+  "next_cursor": "...",
   "board_items": [
     {
-      "key": 12345,
-      "type": "NOTICE",
-      "title": "서비스 점검 안내",
-      "description": "3월 31일 02:00~04:00 서버 점검",
-      "status": "ACTIVE",
-      "view_count": 150,
-      "reg_dt": 1711843200
+      "key": 13322,
+      "view_count": 0,
+      "title": "testestestestestestestset",
+      "reg_dt": 1772689506
     }
   ]
 }
 ```
+
+> **주의**: 공지사항 목록에서는 `key`, `view_count`, `title`, `reg_dt`만 반환됨.
+> `description`, `status`, `type` 등은 목록 조회에서 포함되지 않음 (상세 조회 시 반환 가능)
 
 ### 연동 파일
 
@@ -210,7 +220,23 @@ GET /manage/board/list?board_type=NOTICE
 GET /manage/board/list?board_type=FAQ
 ```
 
-공지사항과 동일 구조, `board_type=FAQ`로 호출.
+### 실제 응답 (dev 서버 2026-04-01)
+
+```json
+{
+  "board_items": [
+    {
+      "key": 13177,
+      "view_count": 0,
+      "type": "마일리지",
+      "title": "정산 FAQ...",
+      "reg_dt": 1701649780
+    }
+  ]
+}
+```
+
+> **주의**: FAQ 목록에서는 `type`(카테고리명, 예: "마일리지")이 포함됨. 공지사항과 달리 `type` 필드가 존재.
 
 ### 연동 파일
 

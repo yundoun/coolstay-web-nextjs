@@ -118,8 +118,10 @@ function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
   const Icon = config.icon
   const isRead = alarm.read_yn === "Y"
 
-  const Wrapper = alarm.link ? Link : "div"
-  const wrapperProps = alarm.link ? { href: alarm.link, onClick } : { onClick }
+  // link는 객체 — target이 있으면 링크로, 없으면 div로 렌더링
+  const linkTarget = alarm.link?.target
+  const Wrapper = linkTarget ? Link : "div"
+  const wrapperProps = linkTarget ? { href: linkTarget, onClick } : { onClick }
 
   const regDate = new Date(alarm.reg_dt < 1e12 ? alarm.reg_dt * 1000 : alarm.reg_dt)
   const timeAgo = getRelativeTime(regDate.toISOString())
