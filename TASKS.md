@@ -4,70 +4,131 @@
 
 ## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth` (보류)
 
-> 카카오/네이버 SDK 세팅 + 소셜 로그인/회원가입 연동 (개발자 콘솔 준비 중)
-
-- [ ] `P6-1` 카카오 SDK 세팅 (JavaScript SDK 초기화, 앱 키 설정)
-- [ ] `P6-2` 네이버 SDK 세팅 (네이버 로그인 API 초기화)
-- [ ] `P6-3` 소셜 로그인 API 연동 — `POST /auth/sessions/users/sns`
-- [ ] `P6-4` 소셜 회원가입 API 연동 — `POST /auth/users/sns/register`
-- [ ] `P6-5` LoginPage 소셜 버튼 실제 동작 연결
-- [ ] `P6-6` RegisterPage 소셜 가입 플로우 연결
+> 개발자 콘솔 준비 중
 
 ---
 
-## Phase 10 — API 실제 응답 기반 재설계 `branch: feat/phase10-api-redesign`
+## Phase 11 — API 실제 응답 검증 및 명세 수정
 
-> 2026-04-01 dev 서버 실제 API 호출 결과 기반으로 타입/컴포넌트 수정
+> 모든 API 엔드포인트를 dev 서버에서 실제 호출하여 응답 구조를 검증하고,
+> 명세서(docs/api/)와 타입(types/)을 실제 응답 기준으로 수정한다.
+>
+> **방법**: 각 엔드포인트를 curl로 호출 → 실제 JSON 응답 확인 → 타입/명세 불일치 수정
 
-### 10-0. 공통 타입 수정 (BoardItem)
+### Phase 11-A — 홈/검색/숙소 `branch: feat/phase11a-verify-contents`
 
-> `BoardItem` 은 가이드/기획전/공지/FAQ/문의 공용. 실제 응답에 맞게 재정의.
+> 가장 핵심이 되는 콘텐츠 API 검증 (13개 엔드포인트)
 
-- [x] `P10-0a` `BoardItem.key` 타입 `string` → `number` 수정
-- [x] `P10-0b` `BoardItem.link` 타입 `string` → `BoardItemLink` 객체로 변경
-- [x] `P10-0c` `BoardItem.images` 제거, `image_urls: string[]` 추가
-- [x] `P10-0d` `BoardItem.web_view_link` → `webview_link` 필드명 수정
-- [x] `P10-0e` 신규 필드 추가: `badge_image_url`, `detail_banner_image_url`, `buttons[]`, `thumb_description`
-- [x] `P10-0f` 타임스탬프 **초 단위** — `formatTimestamp`에 자동 변환 적용
+#### 홈 (2개)
+- [ ] `P11A-1` `POST /home/main` 실제 응답 검증 → homeApi.ts 타입 + home.md 수정
+- [ ] `P11A-2` `POST /home/regionStores` 실제 응답 검증
 
-### 10-A. 꿀팁 가이드 재설계
+#### 검색 (6개)
+- [ ] `P11A-3` `GET /contents/regions/list` 실제 응답 검증
+- [ ] `P11A-4` `GET /contents/list` 실제 응답 검증 → contentsApi.ts 타입 + contents-search.md 수정
+- [ ] `P11A-5` `GET /contents/total/list` 실제 응답 검증
+- [ ] `P11A-6` `GET /contents/filter` 실제 응답 검증
+- [ ] `P11A-7` `POST /contents/filter/list` 실제 응답 검증
+- [ ] `P11A-8` `GET /contents/myArea/list` 실제 응답 검증
 
-> 실제 응답: `{ key(number), title, image_urls(string[]), link(object), view_count, reg_dt(초) }`
-> description, banner_image_url, webview_link 은 가이드에선 반환되지 않음
+#### 숙소 상세 (4개)
+- [ ] `P11A-9` `GET /contents/details/list` 실제 응답 검증 → detailApi.ts 타입 + contents-detail.md 수정
+- [ ] `P11A-10` `GET /contents/images/list` 실제 응답 검증
+- [ ] `P11A-11` `GET /contents/books/daystatus/list` 실제 응답 검증
+- [ ] `P11A-12` `GET /contents/refund-policy/list` 실제 응답 검증
 
-- [x] `P10-1` 목록 UI — `image_urls[0]` 썸네일 + 2컬럼 카드 그리드
-- [x] `P10-2` 목록 부제 — `view_count` + `reg_dt` 메타데이터 표시
-- [x] `P10-3` 상세 UI — `image_urls[]` 갤러리 + 히어로 이미지
-- [x] `P10-4` 상세 CTA — `link.btn_name` 기반 버튼
-- [x] `P10-5` 가이드 테스트 재작성 ✅ (10 cases)
+#### 기획전 신규 (AOS 별도 API)
+- [ ] `P11A-13` `GET /aiMagazine/board/list` 실제 응답 확인 → 기획전 API 함수 신규 생성
+- [ ] `P11A-14` `GET /aiMagazine/board/detail` 실제 응답 확인
+- [ ] `P11A-15` `/exhibitions` 라우트 + ExhibitionListPage/ExhibitionDetailPage 신규 생성
 
-### 10-B. 기획전(Event) 재설계
+### Phase 11-B — 예약/리뷰 `branch: feat/phase11b-verify-booking`
 
-> 실제 응답: `{ key(number), type, title, description, badge_image_url, detail_banner_image_url, webview_link, image_urls[], link(object), buttons[], status("BI005"등), start_dt(초), end_dt(초), reg_dt(초), thumb_description }`
-> banner_image_url 은 반환되지 않음, status 는 코드값("BI005") 사용
+> 예약 플로우 + 리뷰 (14개 엔드포인트)
 
-- [x] `P10-6` 목록 이미지 — `badge_image_url` 사용 + 2컬럼 그리드
-- [x] `P10-7` status — 날짜 기반 판단 (코드값 불투명)
-- [x] `P10-8` 상세 — `detail_banner_image_url` 히어로 + `image_urls[]` 갤러리
-- [x] `P10-9` 상세 CTA — `buttons[]` 배열 렌더링
-- [x] `P10-10` `webview_link` 필드명 수정 완료
-- [x] `P10-11` 타임스탬프 — `formatTimestampDot` + `toMillis` 적용
-- [x] `P10-12` 기획전 테스트 재작성 ✅ (18 cases)
+#### 예약 (9개)
+- [ ] `P11B-1` `GET /reserv/users/payments/list` 실제 응답 검증
+- [ ] `P11B-2` `POST /reserv/ready` 실제 응답 검증 → reservation.md 수정
+- [ ] `P11B-3` `POST /reserv/register` 실제 응답 검증
+- [ ] `P11B-4` `GET /reserv/users/list` 실제 응답 검증
+- [ ] `P11B-5` `GET /reserv/users/upcoming` 실제 응답 검증
+- [ ] `P11B-6` `GET /reserv/guest/list` 실제 응답 검증
+- [ ] `P11B-7` `POST /reserv/delete` 실제 응답 검증
+- [ ] `P11B-8` `POST /reserv/users/delete` 실제 응답 검증
+- [ ] `P11B-9` `GET /reserv/receipt` 실제 응답 검증
 
-### 10-C. 쿠폰 재설계
+#### 리뷰 (5개)
+- [ ] `P11B-10` `GET /contents/reviews/list` 실제 응답 검증 → contents-review.md 수정
+- [ ] `P11B-11` `POST /contents/reviews/register` 실제 응답 검증
+- [ ] `P11B-12` `POST /contents/reviews/update` 실제 응답 검증
+- [ ] `P11B-13` `POST /contents/reviews/delete` 실제 응답 검증
+- [ ] `P11B-14` `POST /contents/reviews/status/update` 실제 응답 검증
 
-> 실제 응답: 대부분 현재 타입과 일치. discount_type 값과 타임스탬프 단위만 수정 필요.
+### Phase 11-C — 인증/마이페이지/회원 `branch: feat/phase11c-verify-auth`
 
-- [x] `P10-13` `discount_type` — `"AMOUNT"`→원, `"RATE"`→% 수정
-- [x] `P10-14` `received` 삭제, 모든 필드 실제 응답 기준 필수/타입 재정의
-- [x] `P10-15` `day_codes: string[]` 추가
-- [x] `P10-16` 타임스탬프 — `formatTimestampDot` 적용, 7일 만료 뱃지
-- [x] `P10-17` 쿠폰 테스트 재작성 ✅ (14 cases)
+> 인증 + 마이페이지 + 찜/마일리지 (20개 엔드포인트)
 
-### 10-D. 공통 유틸
+#### 인증 (9개)
+- [ ] `P11C-1` `POST /auth/sessions/users` 실제 응답 검증 → auth.md 수정
+- [ ] `P11C-2` `POST /auth/code/send` 실제 응답 검증
+- [ ] `P11C-3` `POST /auth/code/check` 실제 응답 검증
+- [ ] `P11C-4` `GET /auth/code/list` 실제 응답 검증
+- [ ] `P11C-5` `POST /auth/users/register` 실제 응답 검증
+- [ ] `P11C-6` `POST /auth/users/pw/find` 실제 응답 검증
+- [ ] `P11C-7` `POST /auth/users/id/find` 실제 응답 검증
+- [ ] `P11C-8` `POST /auth/sessions/users/sns` 응답 구조 확인 (호출 불가 시 AOS 코드 참조)
+- [ ] `P11C-9` `POST /auth/users/sns/register` 응답 구조 확인
 
-- [x] `P10-18` `formatTimestamp` — 초 단위 자동 감지, `formatTimestampDot`/`toMillis` 추가
-- [x] `P10-19` 빌드 + 전체 테스트 통과 ✅ 25 files, 139 tests
+#### 마이페이지 (4개)
+- [ ] `P11C-10` `GET /auth/users/mypage/list` 실제 응답 검증 → mypage.md 수정
+- [ ] `P11C-11` `POST /auth/users/update` 실제 응답 검증
+- [ ] `P11C-12` `POST /auth/users/pw/check` 실제 응답 검증
+- [ ] `P11C-13` `POST /auth/users/delete` 응답 구조 확인 (파괴적 — AOS 코드 참조)
+
+#### 찜 (3개)
+- [ ] `P11C-14` `GET /contents/list?search_type=ST006` 실제 응답 검증
+- [ ] `P11C-15` `POST /auth/dibs/register` 실제 응답 검증
+- [ ] `P11C-16` `POST /auth/dibs/delete` 실제 응답 검증
+
+#### 마일리지 (2개)
+- [ ] `P11C-17` `GET /benefit/users/mileage/list` 실제 응답 검증
+- [ ] `P11C-18` `POST /benefit/mileage/delete` 실제 응답 검증
+
+### Phase 11-D — CS/설정/기타 `branch: feat/phase11d-verify-cs`
+
+> 알림/공지/FAQ/문의 + 설정/약관/친구추천 (11개 엔드포인트)
+
+#### 알림 (3개)
+- [ ] `P11D-1` `GET /auth/alarms/users/list` 실제 응답 검증 → cs.md 수정
+- [ ] `P11D-2` `POST /auth/alarms/card/update` 실제 응답 검증
+- [ ] `P11D-3` `POST /auth/alarms/delete` 실제 응답 검증
+
+#### 게시판 — 공지/FAQ/문의 (3개, 같은 엔드포인트)
+- [ ] `P11D-4` `GET /manage/board/list?board_type=NOTICE` 실제 응답 검증
+- [ ] `P11D-5` `GET /manage/board/list?board_type=FAQ` 실제 응답 검증
+- [ ] `P11D-6` `GET /manage/board/list?board_type=INQUIRY` 실제 응답 검증 (로그인 필요)
+
+#### 설정 (2개)
+- [ ] `P11D-7` `GET /auth/users/settings/list` 실제 응답 검증 → contents.md 수정
+- [ ] `P11D-8` `POST /auth/users/settings/update` 실제 응답 검증
+
+#### 약관 (1개)
+- [ ] `P11D-9` `GET /manage/terms/list` 실제 응답 검증
+
+#### 친구추천 (2개)
+- [ ] `P11D-10` `GET /auth/users/friend/list` 실제 응답 검증 (로그인 필요)
+- [ ] `P11D-11` `POST /auth/users/friend/register` 실제 응답 검증
+
+---
+
+## 검증 완료 API (Phase 10에서 확인)
+
+| 엔드포인트 | 검증일 | 주요 발견 |
+|-----------|--------|----------|
+| `GET /manage/board/list?board_type=GUIDE` | 2026-04-01 | key:number, image_urls:string[], reg_dt 초단위, description 없음 |
+| `GET /manage/board/list?board_type=EVENT` | 2026-04-01 | badge_image_url, detail_banner_image_url, buttons[], webview_link, status 코드값 |
+| `GET /benefit/coupons/list` | 2026-04-01 | discount_type:"AMOUNT", 모든 timestamp 초단위, received 필드 없음 |
+| `POST /auth/sessions/temporary` | 2026-04-01 | 토큰 발급 정상 |
 
 ---
 
@@ -75,22 +136,13 @@
 
 | Phase | 내용 | 테스트 | 상태 |
 |-------|------|--------|------|
-| Phase 1 | 인증/회원 + 로그인 상태 관리 + Route Group | 38 cases | 완료 |
+| Phase 1 | 인증/회원 + 로그인 상태 관리 | 38 cases | 완료 |
 | Phase 2 | 마이페이지/회원관리/찜/쿠폰/마일리지 API | 16 cases | 완료 |
-| Phase 3 | 소통/CS (알림/공지/FAQ/문의) API | 10 cases | 완료 |
+| Phase 3 | 소통/CS API | 10 cases | 완료 |
 | Phase 4 | 부가 콘텐츠/설정 API | 8 cases | 완료 |
-| Phase 5 | Mock → API 전환 (10개 도메인) | 5 cases | 완료 |
+| Phase 5 | Mock → API 전환 | 5 cases | 완료 |
 | Phase 7 | 마이페이지 API 연동 강화 | — | 완료 (P7-6 보류) |
 | Phase 8 | UI/UX 개선 | — | 완료 |
 | Phase 9 | 성능/품질 | — | 완료 |
-| Phase 10 (1차) | API 응답 구조 재설계 — Legacy 삭제/타입 정비/찜 연동 | 22 cases | 완료 |
-| **합계** | | **99 tests** | |
-
-### 문서
-
-- `docs/api/auth.md` — 인증 API 명세
-- `docs/api/mypage.md` — 마이페이지/찜/쿠폰/마일리지 API 명세
-- `docs/api/cs.md` — 알림/공지/FAQ/문의 API 명세
-- `docs/api/contents.md` — 설정/이벤트/약관/친구추천 API 명세
-- `docs/api/mock-to-api-migration.md` — Mock→API 전환 결과
-- `docs/test-reports/e2e/` — E2E 테스트 결과 5건
+| Phase 10 | API 실제 응답 기반 재설계 | 42 cases | 완료 |
+| **합계** | | **133 tests** | |
