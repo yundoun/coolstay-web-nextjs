@@ -11,24 +11,31 @@ import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { useEventList } from "../hooks/useEventList"
-import type { EventBoardItem } from "../types"
+import type { BoardItem } from "@/domains/cs/types"
 
-function getEventStatus(event: EventBoardItem) {
-  const now = Date.now()
-  if (event.end_dt && event.end_dt < now) return { label: "종료", variant: "destructive" as const }
-  if (event.start_dt && event.start_dt > now) return { label: "예정", variant: "secondary" as const }
-  return { label: "진행중", variant: "default" as const }
+function getEventStatus(event: BoardItem) {
+  switch (event.status) {
+    case "END":
+    case "ENDED":
+      return { label: "종료", variant: "destructive" as const }
+    case "WAIT":
+    case "SCHEDULED":
+      return { label: "예정", variant: "secondary" as const }
+    case "ACTIVE":
+    default:
+      return { label: "진행중", variant: "default" as const }
+  }
 }
 
 function formatTs(ts?: number) {
   if (!ts) return ""
-  const d = new Date(ts < 1e12 ? ts * 1000 : ts)
+  const d = new Date(ts)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
 }
 
 export function EventListPage() {
   const { events, isLoading, error } = useEventList()
-  const [selectedEvent, setSelectedEvent] = useState<EventBoardItem | null>(null)
+  const [selectedEvent, setSelectedEvent] = useState<BoardItem | null>(null)
 
   if (selectedEvent) {
     return (
@@ -102,10 +109,11 @@ function EventDetail({
   event,
   onBack,
 }: {
-  event: EventBoardItem
+  event: BoardItem
   onBack: () => void
 }) {
   const status = getEventStatus(event)
+  const detailLink = event.web_view_link || event.link
 
   return (
     <Container size="narrow" padding="responsive" className="py-8">
@@ -145,10 +153,10 @@ function EventDetail({
             </p>
           </div>
 
-          {event.link && status.label === "진행중" && (
+          {detailLink && (
             <div className="mt-6">
               <Button className="w-full" size="lg" asChild>
-                <a href={event.link}>
+                <a href={detailLink}>
                   <Gift className="size-4 mr-2" />
                   자세히 보기
                 </a>

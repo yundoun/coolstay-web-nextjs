@@ -111,9 +111,9 @@ export function CouponListPage() {
 function formatDate(dt: string | number | undefined) {
   if (!dt) return ""
   if (typeof dt === "number") {
-    const ms = dt < 1e12 ? dt * 1000 : dt
-    return new Date(ms).toISOString().slice(0, 10)
+    return new Date(dt).toISOString().slice(0, 10)
   }
+  // String dates: ISO format ("2026-03-01") or other string representations
   return String(dt).slice(0, 10)
 }
 

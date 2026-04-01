@@ -22,28 +22,28 @@ export interface CouponConstraint {
 export interface Coupon {
   coupon_pk: number
   discount_amount: number
-  total_amount: number
-  remain_amount: number
-  code: string
   title: string
-  description: string
-  category_code: string
-  sub_category_code: string
-  type: string
   discount_type: string
-  dup_use_yn: string
-  usable_yn: string
   status: string
-  dimmed_yn: string
-  start_dt: string
-  end_dt: string
-  usable_start_dt: string
-  usable_end_dt: string
-  enterable_start_dt: string
-  enterable_end_dt: string
-  reg_dt: string
   received: boolean
   constraints: CouponConstraint[]
+  total_amount?: number
+  remain_amount?: number
+  code?: string
+  description?: string
+  category_code?: string
+  sub_category_code?: string
+  type?: string
+  dup_use_yn?: string
+  usable_yn?: string
+  dimmed_yn?: string
+  start_dt?: string
+  end_dt?: string
+  usable_start_dt?: string
+  usable_end_dt?: string
+  enterable_start_dt?: string
+  enterable_end_dt?: string
+  reg_dt?: string
 }
 
 export interface CouponListResponse {
@@ -85,21 +85,3 @@ export interface CouponDeleteRequest {
   flag?: string
 }
 
-// ─── Legacy (mock용, API 연동 후 제거) ───
-
-export type CouponDiscountType = "fixed" | "percent"
-
-export interface CouponItem {
-  id: string
-  title: string
-  discountType: CouponDiscountType
-  discountValue: number
-  minOrderAmount: number
-  validFrom: string
-  validTo: string
-  usageCondition: string
-  applicableAccommodations: string
-  description: string
-  isUsed: boolean
-  isExpired: boolean
-}

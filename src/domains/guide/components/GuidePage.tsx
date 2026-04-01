@@ -12,13 +12,14 @@ import { useQuery } from "@tanstack/react-query"
 import { Container } from "@/components/layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { getGuideList } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
 
 export function GuidePage() {
   const [selectedGuide, setSelectedGuide] = useState<BoardItem | null>(null)
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["guide", "list"],
     queryFn: () => getGuideList({ count: 20 }),
   })
@@ -40,7 +41,12 @@ export function GuidePage() {
 
       {isLoading ? (
         <LoadingSpinner />
-      ) : isError || guides.length === 0 ? (
+      ) : isError ? (
+        <ErrorState
+          message="가이드를 불러오지 못했습니다"
+          onRetry={() => refetch()}
+        />
+      ) : guides.length === 0 ? (
         <EmptyState
           icon={BookOpen}
           title="등록된 가이드가 없습니다"
