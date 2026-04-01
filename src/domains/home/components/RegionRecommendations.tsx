@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Coins } from "lucide-react"
+import { Star, Ticket } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRegionStores } from "../hooks/useHomeData"
 import type { RegionCategory, StoreItem } from "@/lib/api/types"
@@ -101,16 +101,38 @@ export function RegionRecommendations({ categories, stores }: Props) {
                 <h4 className="text-sm font-semibold line-clamp-1 group-hover:text-primary transition-colors">
                   {store.name}
                 </h4>
-                {store.like_count > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <Star className="size-3 fill-primary text-primary" />
-                    <span className="text-xs text-muted-foreground">
-                      찜 {store.like_count.toLocaleString()}
-                    </span>
+                {/* Rating · Mileage · Coupon */}
+                {(store.rating || store.benefit_point_rate || store.download_coupon_info || store.like_count > 0) && (
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1 text-[11px] text-muted-foreground">
+                    {store.rating && parseFloat(store.rating.avg_score) > 0 ? (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Star className="size-3 fill-amber-400 text-amber-400" />
+                        <span className="font-medium text-foreground">{parseFloat(store.rating.avg_score).toFixed(1)}</span>
+                        {store.rating.review_count > 0 && (
+                          <span>({store.rating.review_count.toLocaleString()})</span>
+                        )}
+                      </span>
+                    ) : store.like_count > 0 ? (
+                      <span className="inline-flex items-center gap-0.5">
+                        <Star className="size-3 fill-primary text-primary" />
+                        <span>찜 {store.like_count.toLocaleString()}</span>
+                      </span>
+                    ) : null}
+                    {store.benefit_point_rate != null && store.benefit_point_rate > 0 && (
+                      <span className="text-emerald-600 font-medium">
+                        +{store.benefit_point_rate}% 적립
+                      </span>
+                    )}
+                    {store.download_coupon_info && store.download_coupon_info.status !== "NON_TARGET" && (
+                      <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-px text-primary font-medium">
+                        <Ticket className="size-2.5" />
+                        쿠폰
+                      </span>
+                    )}
                   </div>
                 )}
                 {pricing.price > 0 && (
-                  <div className="mt-2 flex items-baseline gap-1">
+                  <div className="mt-1.5 flex items-baseline gap-1">
                     {pricing.originalPrice && (
                       <span className="text-xs text-muted-foreground line-through">
                         {pricing.originalPrice.toLocaleString()}
@@ -126,15 +148,6 @@ export function RegionRecommendations({ categories, stores }: Props) {
                     )}
                   </div>
                 )}
-                {/* 쿠폰 뱃지 */}
-                {store.items?.[0]?.coupons?.length ? (
-                  <div className="mt-1.5">
-                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium">
-                      <Coins className="size-2.5" />
-                      쿠폰 {store.items[0].coupons[0].discount_amount.toLocaleString()}원
-                    </span>
-                  </div>
-                ) : null}
               </div>
             </Link>
           )

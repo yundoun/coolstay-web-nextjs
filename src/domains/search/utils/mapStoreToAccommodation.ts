@@ -45,5 +45,10 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
     tags: tags.slice(0, 3),
     partnershipType: store.partnership_type || undefined,
     consecutiveYn: store.consecutive_yn,
+    rating: parseFloat(store.rating?.avg_score || "0") || undefined,
+    reviewCount: store.rating?.review_count || undefined,
+    mileageRate: store.benefit_point_rate || undefined,
+    hasCoupon: !!store.download_coupon_info && store.download_coupon_info.status !== "NON_TARGET",
+    address: store.location?.address || "",
   }
 }

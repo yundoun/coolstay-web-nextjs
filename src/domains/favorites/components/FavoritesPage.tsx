@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Clock, Star, MapPin, Pencil, Trash2, Loader2 } from "lucide-react"
+import { Heart, Clock, Star, MapPin, Pencil, Trash2, Loader2, Ticket } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -262,11 +262,36 @@ function WishlistCard({
       </div>
       <div className="p-3">
         <h3 className="font-semibold text-sm truncate">{item.name}</h3>
-        {item.distance && (
+        {(item.distance || item.location?.address) && (
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
             <MapPin className="size-3" />
-            {item.distance}
+            {item.location?.address || item.distance}
           </p>
+        )}
+        {/* Rating · Mileage · Coupon */}
+        {(item.rating || item.benefit_point_rate || item.download_coupon_info) && (
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+            {item.rating && parseFloat(item.rating.avg_score) > 0 && (
+              <span className="inline-flex items-center gap-0.5">
+                <Star className="size-3 fill-amber-400 text-amber-400" />
+                <span className="font-medium text-foreground">{parseFloat(item.rating.avg_score).toFixed(1)}</span>
+                {item.rating.review_count > 0 && (
+                  <span>({item.rating.review_count.toLocaleString()})</span>
+                )}
+              </span>
+            )}
+            {item.benefit_point_rate != null && item.benefit_point_rate > 0 && (
+              <span className="inline-flex items-center gap-0.5 text-emerald-600 font-medium">
+                +{item.benefit_point_rate}% 적립
+              </span>
+            )}
+            {item.download_coupon_info && item.download_coupon_info.status !== "NON_TARGET" && (
+              <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-px text-primary font-medium">
+                <Ticket className="size-2.5" />
+                쿠폰
+              </span>
+            )}
+          </div>
         )}
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-1">
