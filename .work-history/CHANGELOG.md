@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 14:15** | Phase 12-C — 홈 화면 API 필드 100% 활용 | [`c9c66a6`](.work-history/entries/2026-04-01_14-40_P12C_home.md)
 - **2026-04-01 14:11** | Phase 12-B — 검색/찜 카드 API 필드 100% 활용 | [`29ec9a3`](.work-history/entries/2026-04-01_14-30_P12B_search-cards.md)
 - **2026-04-01 14:06** | Phase 12-A — 숙소 상세 API 필드 100% 활용 | [`cfab329`](.work-history/entries/2026-04-01_14-20_P12A_accommodation-detail.md)
 - **2026-04-01 13:59** | Phase 12 태스크 작성 — API 필드 100% 활용 UI 재구성 | [`f7f33fa`](.work-history/entries/2026-04-01_14-10_phase12-tasks.md)
