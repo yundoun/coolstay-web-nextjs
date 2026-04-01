@@ -77,6 +77,12 @@ export interface BookingResult {
 
 // ─── 예약 상세 ─────────────────────────────────────────────
 
+export interface BookingRefundPolicy {
+  until: string
+  percent: number
+  amount: number
+}
+
 export interface BookingDetail {
   bookingId: string
   status: BookingStatus
@@ -85,6 +91,7 @@ export interface BookingDetail {
   roomName: string
   roomImageUrl: string
   bookingType: BookingType
+  categoryCode: string
   checkIn: string
   checkOut: string
   usageTime?: string
@@ -92,13 +99,21 @@ export interface BookingDetail {
   bookerPhone: string
   bookingDate: string
   transportation: string
+  vehicleYn: string
   paymentMethod: PaymentMethod
+  paymentStatus: string
   originalPrice: number
+  discountPrice: number
   couponDiscounts: { name: string; amount: number }[]
   mileageDiscount: number
   totalAmount: number
   hasReview: boolean
   refundYn: string
+  partialCancelYn: string
+  partialRefundYn: string
+  address: string
+  safeNumber: string
+  refundPolicies: BookingRefundPolicy[]
 }
 
 // ─── 예약 내역 ─────────────────────────────────────────────
@@ -244,18 +259,31 @@ export function toBookingDetail(b: BookItem): BookingDetail {
     roomName: b.items?.[0]?.name || "",
     roomImageUrl: pickImageUrl(b),
     bookingType,
+    categoryCode: b.items?.[0]?.category?.code || "",
     checkIn: tsToDate(b.start_dt),
     checkOut: tsToDate(b.end_dt),
     bookerName: b.name,
     bookerPhone: b.phone_number,
     bookingDate: tsToDateTime(b.reg_dt),
     transportation: b.vehicle_yn === "Y" ? "자가용" : "도보",
+    vehicleYn: b.vehicle_yn,
     paymentMethod: mapPaymentMethod(b.payment?.method),
+    paymentStatus: b.payment?.status || "",
     originalPrice: b.origin_price_total,
+    discountPrice: b.discount_price,
     couponDiscounts,
     mileageDiscount: b.used_point || 0,
     totalAmount: b.total_price,
     hasReview: !!b.review,
     refundYn: b.refund_yn || "N",
+    partialCancelYn: b.partial_cancel_yn || "N",
+    partialRefundYn: b.partial_refund_yn || "N",
+    address: b.motel?.location?.address || "",
+    safeNumber: b.safe_number || b.motel?.safe_number || "",
+    refundPolicies: (b.refund_policies || []).map((p) => ({
+      until: p.until,
+      percent: p.percent,
+      amount: p.amount,
+    })),
   }
 }

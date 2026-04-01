@@ -17,6 +17,10 @@ import {
   Trash2,
   ArrowLeft,
   FileSearch,
+  MapPin,
+  PhoneCall,
+  ShieldAlert,
+  AlertTriangle,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -44,10 +48,15 @@ const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   phone: "휴대폰결제",
 }
 
-const TRANSPORT_LABELS: Record<string, string> = {
-  자가용: "자가용",
-  도보: "도보",
-  대중교통: "대중교통",
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PS001: "결제대기",
+  PS002: "결제완료",
+  PS003: "결제확인",
+}
+
+const CATEGORY_LABELS: Record<string, { label: string; icon: typeof Clock }> = {
+  "010101": { label: "대실", icon: Clock },
+  "010102": { label: "숙박", icon: Moon },
 }
 
 function maskName(name: string) {
@@ -60,7 +69,6 @@ function maskPhone(phone: string) {
   if (parts.length === 3) {
     return `${parts[0]}-****-${parts[2].slice(0, 2)}**`
   }
-  // 하이픈 없는 경우 (API 응답)
   if (phone.length >= 10) {
     return `${phone.slice(0, 3)}-****-${phone.slice(-4, -2)}**`
   }
@@ -71,6 +79,10 @@ function formatDate(dateStr: string) {
   const d = new Date(dateStr + "T00:00:00")
   const days = ["일", "월", "화", "수", "목", "금", "토"]
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}(${days[d.getDay()]})`
+}
+
+function getPaymentStatusLabel(status: string): string {
+  return PAYMENT_STATUS_LABELS[status] || status
 }
 
 export function BookingDetailPage({ bookingId }: { bookingId: string }) {
@@ -100,7 +112,7 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
   }
 
   const status = STATUS_CONFIG[booking.status]
-  const isRental = booking.bookingType === "rental"
+  const categoryInfo = CATEGORY_LABELS[booking.categoryCode]
 
   const handleCancel = async () => {
     if (!confirm("예약을 취소하시겠습니까?")) return
@@ -154,22 +166,57 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold truncate">{booking.accommodationName}</h2>
             <p className="text-sm text-muted-foreground mt-0.5">{booking.roomName}</p>
-            <Badge variant="outline" className="mt-2 text-xs">
-              {isRental ? (
-                <><Clock className="size-3 mr-1" />대실</>
+            <div className="flex items-center gap-2 mt-2">
+              {/* Category badge from API code */}
+              {categoryInfo ? (
+                <Badge variant="outline" className="text-xs">
+                  <categoryInfo.icon className="size-3 mr-1" />
+                  {categoryInfo.label}
+                </Badge>
               ) : (
-                <><Moon className="size-3 mr-1" />숙박</>
+                <Badge variant="outline" className="text-xs">
+                  {booking.bookingType === "rental" ? (
+                    <><Clock className="size-3 mr-1" />대실</>
+                  ) : (
+                    <><Moon className="size-3 mr-1" />숙박</>
+                  )}
+                </Badge>
               )}
-            </Badge>
+              {/* Vehicle badge */}
+              {booking.vehicleYn === "Y" && (
+                <Badge variant="outline" className="text-xs">
+                  <Car className="size-3 mr-1" />차량 이용
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
-        <div className="border-t px-4 py-3">
+
+        {/* Address */}
+        {booking.address && (
+          <div className="border-t px-4 py-3 flex items-start gap-2">
+            <MapPin className="size-4 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-sm text-muted-foreground">{booking.address}</p>
+          </div>
+        )}
+
+        <div className="border-t px-4 py-3 flex items-center gap-4">
           <Link
             href={`/accommodations/${booking.accommodationId}`}
             className="text-sm text-primary font-medium hover:underline"
           >
             숙소 보기
           </Link>
+          {/* Safe number call button */}
+          {booking.safeNumber && (
+            <a
+              href={`tel:${booking.safeNumber}`}
+              className="flex items-center gap-1.5 text-sm text-primary font-medium hover:underline"
+            >
+              <PhoneCall className="size-3.5" />
+              안심번호로 전화
+            </a>
+          )}
         </div>
       </section>
 
@@ -180,6 +227,17 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
           <InfoRow label="예약 상태">
             <Badge variant={status.variant}>{status.label}</Badge>
           </InfoRow>
+          {/* Partial cancel/refund status */}
+          {booking.partialCancelYn === "Y" && (
+            <InfoRow label="부분 취소" icon={<AlertTriangle className="size-3.5 text-amber-500" />}>
+              <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">부분 취소됨</Badge>
+            </InfoRow>
+          )}
+          {booking.partialRefundYn === "Y" && (
+            <InfoRow label="부분 환불" icon={<ShieldAlert className="size-3.5 text-amber-500" />}>
+              <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">부분 환불됨</Badge>
+            </InfoRow>
+          )}
           <InfoRow label="예약 번호">
             <div className="flex items-center gap-2">
               <span className="font-mono text-sm">{booking.bookingId}</span>
@@ -192,14 +250,14 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
             </div>
           </InfoRow>
           <InfoRow label="교통수단" icon={<Car className="size-3.5" />}>
-            {TRANSPORT_LABELS[booking.transportation] || booking.transportation}
+            {booking.transportation}
           </InfoRow>
           <Separator />
           <InfoRow label="체크인" icon={<Calendar className="size-3.5" />}>
             {formatDate(booking.checkIn)}
           </InfoRow>
           <InfoRow label="체크아웃" icon={<Calendar className="size-3.5" />}>
-            {isRental
+            {booking.bookingType === "rental"
               ? `${formatDate(booking.checkOut)} / ${booking.usageTime}`
               : formatDate(booking.checkOut)}
           </InfoRow>
@@ -223,8 +281,36 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
           <InfoRow label="결제수단" icon={<CreditCard className="size-3.5" />}>
             {PAYMENT_LABELS[booking.paymentMethod]}
           </InfoRow>
+          {/* Payment status */}
+          {booking.paymentStatus && (
+            <InfoRow label="결제상태">
+              <Badge variant="outline" className="text-xs">
+                {getPaymentStatusLabel(booking.paymentStatus)}
+              </Badge>
+            </InfoRow>
+          )}
           <Separator />
-          <PriceRow label="판매가" amount={booking.originalPrice} />
+
+          {/* Original vs discounted price comparison */}
+          {booking.discountPrice > 0 && booking.originalPrice !== booking.discountPrice ? (
+            <>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">정가</span>
+                <span className="line-through text-muted-foreground">
+                  {booking.originalPrice.toLocaleString()}원
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">할인가</span>
+                <span className="text-red-500 font-medium">
+                  {booking.discountPrice.toLocaleString()}원
+                </span>
+              </div>
+            </>
+          ) : (
+            <PriceRow label="판매가" amount={booking.originalPrice} />
+          )}
+
           {booking.couponDiscounts.map((c, i) => (
             <PriceRow
               key={i}
@@ -249,6 +335,35 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
           </div>
         </div>
       </section>
+
+      {/* 환불 규정 */}
+      {booking.refundPolicies.length > 0 && (
+        <section className="mt-4 rounded-xl border bg-card p-4">
+          <h3 className="font-semibold mb-4">환불 규정</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-muted-foreground">
+                  <th className="text-left py-2 pr-4 font-medium">취소 기한</th>
+                  <th className="text-right py-2 pr-4 font-medium">환불 비율</th>
+                  <th className="text-right py-2 font-medium">환불 금액</th>
+                </tr>
+              </thead>
+              <tbody>
+                {booking.refundPolicies.map((policy, i) => (
+                  <tr key={i} className="border-b last:border-b-0">
+                    <td className="py-2.5 pr-4">{policy.until}</td>
+                    <td className="text-right py-2.5 pr-4">{policy.percent}%</td>
+                    <td className="text-right py-2.5 font-medium">
+                      {policy.amount.toLocaleString()}원
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {/* 액션 버튼 */}
       <section className="mt-6 space-y-3">

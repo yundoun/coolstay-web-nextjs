@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Ticket, Clock, ChevronDown, ChevronUp, Gift, Info } from "lucide-react"
+import { Ticket, Clock, ChevronDown, ChevronUp, Gift, Info, CalendarDays, DoorOpen, Tag } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -41,6 +41,39 @@ function formatDiscount(coupon: Coupon): string {
     return `${coupon.discount_amount}%`
   }
   return `${coupon.discount_amount.toLocaleString()}원`
+}
+
+/** day_codes → human-readable day names */
+const DAY_CODE_NAMES: Record<string, string> = {
+  MON: "월", TUE: "화", WED: "수", THU: "목", FRI: "금", SAT: "토", SUN: "일",
+  "1": "월", "2": "화", "3": "수", "4": "목", "5": "금", "6": "토", "7": "일",
+}
+
+function formatDayCodes(codes: string[]): string {
+  if (!codes || codes.length === 0) return ""
+  const names = codes.map((c) => DAY_CODE_NAMES[c] || c)
+  // Check if it's a weekday range (Mon-Fri)
+  const weekdays = ["월", "화", "수", "목", "금"]
+  const weekend = ["토", "일"]
+  if (weekdays.every((d) => names.includes(d)) && !weekend.some((d) => names.includes(d))) {
+    return "월~금"
+  }
+  if (weekend.every((d) => names.includes(d)) && !weekdays.some((d) => names.includes(d))) {
+    return "토~일"
+  }
+  return names.join(", ")
+}
+
+/** coupon type + sub_category_code → badge label */
+function getCouponTypeLabel(type: string, subCategory: string): string | null {
+  const labels: Record<string, string> = {
+    PACKAGE: "패키지",
+    AUTO: "자동발급",
+    DOWNLOAD: "다운로드",
+    EVENT: "이벤트",
+    MANUAL: "수동발급",
+  }
+  return labels[type] || labels[subCategory] || null
 }
 
 export function CouponListPage() {
@@ -184,7 +217,7 @@ function CouponCard({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             {/* Status badge */}
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               {isDimmed ? (
                 <Badge variant="secondary" className="text-xs">
                   만료
@@ -199,6 +232,16 @@ function CouponCard({
                   중복사용
                 </Badge>
               )}
+              {/* Type badge */}
+              {(() => {
+                const typeLabel = getCouponTypeLabel(coupon.type, coupon.sub_category_code)
+                return typeLabel ? (
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Tag className="size-3" />
+                    {typeLabel}
+                  </Badge>
+                ) : null
+              })()}
             </div>
 
             {/* Discount amount — hero text */}
@@ -237,6 +280,41 @@ function CouponCard({
       {/* Expanded detail section */}
       {expanded && (
         <div className="border-t px-4 py-3 space-y-2.5 bg-muted/30">
+          {/* Date info rows */}
+          <div className="space-y-1.5">
+            {/* Registration period */}
+            {coupon.start_dt > 0 && coupon.end_dt > 0 && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="size-3.5 shrink-0" />
+                <span>등록기간: {formatTimestampDot(coupon.start_dt)} ~ {formatTimestampDot(coupon.end_dt)}</span>
+              </div>
+            )}
+
+            {/* Usable period (separate from registration) */}
+            {coupon.usable_start_dt > 0 && coupon.usable_end_dt > 0 && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CalendarDays className="size-3.5 shrink-0" />
+                <span>사용기간: {formatTimestampDot(coupon.usable_start_dt)} ~ {formatTimestampDot(coupon.usable_end_dt)}</span>
+              </div>
+            )}
+
+            {/* Enterable period */}
+            {coupon.enterable_start_dt > 0 && coupon.enterable_end_dt > 0 && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <DoorOpen className="size-3.5 shrink-0" />
+                <span>입실가능: {formatTimestampDot(coupon.enterable_start_dt)} ~ {formatTimestampDot(coupon.enterable_end_dt)}</span>
+              </div>
+            )}
+
+            {/* Day codes */}
+            {coupon.day_codes && coupon.day_codes.length > 0 && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <CalendarDays className="size-3.5 shrink-0" />
+                <span>사용 가능 요일: {formatDayCodes(coupon.day_codes)}</span>
+              </div>
+            )}
+          </div>
+
           {/* Constraints — human-readable descriptions only */}
           {visibleConstraints.length > 0 && (
             <div className="space-y-1.5">
