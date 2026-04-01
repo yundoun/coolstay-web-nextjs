@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import Link from "next/link"
 import {
   User,
@@ -26,35 +27,69 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth"
 import { useMypageInfo } from "../hooks/useMypageInfo"
+import type { MypageInfo } from "../types"
 
 interface MenuItem {
   icon: React.ElementType
   label: string
   href: string
   badge?: string
+  /** 숫자 카운트 뱃지 (예: 예약 건수) */
+  countBadge?: number
 }
 
-const ACCOUNT_MENU: MenuItem[] = [
-  { icon: CalendarDays, label: "예약/이용 내역", href: "/bookings" },
-  { icon: Heart, label: "최근/관심 숙소", href: "/favorites" },
-  { icon: PenLine, label: "나의 후기", href: "/reviews" },
-  { icon: MessageSquare, label: "나의 문의", href: "/inquiries" },
-  { icon: FileText, label: "이용 약관", href: "/terms" },
-]
+const SEVEN_DAYS_SEC = 7 * 86400
 
-const SUPPORT_MENU: MenuItem[] = [
-  { icon: Bell, label: "공지사항", href: "/notices", badge: "NEW" },
-  { icon: PartyPopper, label: "이벤트", href: "/events" },
-  { icon: Lightbulb, label: "꿀팁 가이드", href: "/guide" },
-  { icon: HelpCircle, label: "자주 묻는 질문", href: "/faq" },
-  { icon: Settings, label: "설정", href: "/settings" },
-]
+/** new_alarm_date / new_notice_date 가 최근 7일 이내인지 판별 */
+function isWithin7Days(timestamp?: number): boolean {
+  if (!timestamp || timestamp === 0) return false
+  return Date.now() / 1000 - timestamp < SEVEN_DAYS_SEC
+}
+
+function buildAccountMenu(info: MypageInfo | null): MenuItem[] {
+  return [
+    {
+      icon: CalendarDays,
+      label: "예약/이용 내역",
+      href: "/bookings",
+      countBadge: (info?.reservation_count ?? 0) > 0 ? info!.reservation_count : undefined,
+    },
+    { icon: Heart, label: "최근/관심 숙소", href: "/favorites" },
+    { icon: PenLine, label: "나의 후기", href: "/reviews" },
+    { icon: MessageSquare, label: "나의 문의", href: "/inquiries" },
+    { icon: FileText, label: "이용 약관", href: "/terms" },
+  ]
+}
+
+function buildSupportMenu(info: MypageInfo | null): MenuItem[] {
+  return [
+    {
+      icon: Bell,
+      label: "알림",
+      href: "/notifications",
+      badge: isWithin7Days(info?.new_alarm_date) ? "NEW" : undefined,
+    },
+    {
+      icon: Bell,
+      label: "공지사항",
+      href: "/notices",
+      badge: isWithin7Days(info?.new_notice_date) ? "NEW" : undefined,
+    },
+    { icon: PartyPopper, label: "이벤트", href: "/events" },
+    { icon: Lightbulb, label: "꿀팁 가이드", href: "/guide" },
+    { icon: HelpCircle, label: "자주 묻는 질문", href: "/faq" },
+    { icon: Settings, label: "설정", href: "/settings" },
+  ]
+}
 
 export function MyPage() {
   const router = useRouter()
   const user = useAuthStore((state) => state.user)
   const clearSession = useAuthStore((state) => state.clearSession)
   const { info } = useMypageInfo()
+
+  const accountMenu = useMemo(() => buildAccountMenu(info), [info])
+  const supportMenu = useMemo(() => buildSupportMenu(info), [info])
 
   const handleLogout = () => {
     clearSession()
@@ -116,14 +151,14 @@ export function MyPage() {
 
       {/* Account Menu */}
       <div className="mt-6">
-        <MenuSection items={ACCOUNT_MENU} />
+        <MenuSection items={accountMenu} />
       </div>
 
       <Separator className="my-2" />
 
       {/* Support Menu */}
       <div>
-        <MenuSection items={SUPPORT_MENU} />
+        <MenuSection items={supportMenu} />
       </div>
 
       {/* Logout */}
@@ -159,6 +194,11 @@ function MenuSection({ items }: { items: MenuItem[] }) {
             <Badge variant="destructive" className="text-[10px] px-1.5 py-0">
               {item.badge}
             </Badge>
+          )}
+          {typeof item.countBadge === "number" && item.countBadge > 0 && (
+            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+              {item.countBadge}
+            </span>
           )}
           <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
         </Link>

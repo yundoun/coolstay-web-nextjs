@@ -10,6 +10,8 @@ import {
   ChevronRight,
   ArrowLeft,
   MapPin,
+  FileText,
+  Wallet,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -25,13 +27,22 @@ import {
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { useMileageDetail } from "../hooks/useMileage"
-import type { StoreMileage, MileageStatus } from "../types"
+import type { StoreMileage, MileageStatus, MileagePoint } from "../types"
 
 const STATUS_LABELS: Record<MileageStatus, { label: string; color: string }> = {
   earned: { label: "적립", color: "text-blue-600" },
   used: { label: "사용", color: "text-red-500" },
   expired: { label: "소멸", color: "text-muted-foreground" },
 }
+
+/** API status 문자열을 UI 라벨로 매핑 */
+const POINT_STATUS_MAP: Record<string, { label: string; color: string }> = {
+  EARN: { label: "적립", color: "text-blue-600" },
+  USE: { label: "사용", color: "text-red-500" },
+  EXPIRE: { label: "소멸", color: "text-muted-foreground" },
+  CANCEL: { label: "취소", color: "text-orange-500" },
+}
+const defaultPointStatus = { label: "-", color: "text-muted-foreground" }
 
 export function MileagePage() {
   const [selectedStore, setSelectedStore] = useState<string | null>(null)
@@ -43,11 +54,13 @@ export function MileagePage() {
     totalEarned: mileageData?.total_amount ?? 0,
     expiringAmount: mileageData?.expire_amount ?? 0,
   }
+  const points: MileagePoint[] = mileageData?.points ?? []
   const stores: StoreMileage[] = [] // 목록 API 연동 전까지 빈 배열
 
   const activeStore = stores.find((s) => s.id === selectedStore)
 
-  if (stores.length === 0) {
+  // 매장 목록도 없고 포인트 내역도 없으면 빈 상태 표시
+  if (stores.length === 0 && points.length === 0) {
     return (
       <Container size="normal" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">마일리지</h1>
@@ -104,25 +117,86 @@ export function MileagePage() {
         </div>
       </div>
 
-      {/* Store Mileage List */}
-      <div className="mt-6">
-        <h2 className="font-semibold mb-3">매장별 마일리지</h2>
-
-        {activeStore ? (
-          <StoreDetail store={activeStore} onBack={() => setSelectedStore(null)} />
-        ) : (
-          <div className="space-y-3">
-            {stores.map((store) => (
-              <StoreCard
-                key={store.id}
-                store={store}
-                onClick={() => setSelectedStore(store.id)}
-              />
+      {/* Point Transaction History (from API) */}
+      {points.length > 0 && (
+        <div className="mt-6">
+          <h2 className="font-semibold mb-3">거래 내역</h2>
+          <div className="space-y-2">
+            {points.map((point) => (
+              <PointEntry key={point.key} point={point} />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Store Mileage List */}
+      {stores.length > 0 && (
+        <div className="mt-6">
+          <h2 className="font-semibold mb-3">매장별 마일리지</h2>
+
+          {activeStore ? (
+            <StoreDetail store={activeStore} onBack={() => setSelectedStore(null)} />
+          ) : (
+            <div className="space-y-3">
+              {stores.map((store) => (
+                <StoreCard
+                  key={store.id}
+                  store={store}
+                  onClick={() => setSelectedStore(store.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </Container>
+  )
+}
+
+/** 개별 포인트 거래 내역 카드 */
+function PointEntry({ point }: { point: MileagePoint }) {
+  const statusInfo = POINT_STATUS_MAP[point.status] ?? defaultPointStatus
+  const isPositive = point.amount > 0
+
+  return (
+    <div className="flex items-center gap-3 p-4 rounded-xl border bg-card">
+      <div className={cn(
+        "flex items-center justify-center size-10 rounded-full shrink-0",
+        isPositive ? "bg-blue-50" : "bg-red-50",
+      )}>
+        {isPositive ? (
+          <TrendingUp className="size-5 text-blue-500" />
+        ) : (
+          <Wallet className="size-5 text-red-500" />
         )}
       </div>
-    </Container>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className={cn("text-xs font-medium", statusInfo.color)}>
+            {statusInfo.label}
+          </span>
+          {point.reason && (
+            <span className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+              <FileText className="size-3 shrink-0" />
+              {point.reason}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <p className={cn(
+            "text-sm font-bold",
+            isPositive ? "text-blue-600" : "text-red-500",
+          )}>
+            {isPositive ? "+" : ""}{point.amount.toLocaleString()}P
+          </p>
+          {typeof point.remained_point === "number" && (
+            <p className="text-xs text-muted-foreground">
+              잔액 {point.remained_point.toLocaleString()}P
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -12,6 +12,9 @@ import {
   Info,
   Trash2,
   BellOff,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -19,7 +22,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { getAlarmList, deleteAlarms, updateAlarmCard } from "@/domains/alarm/api/alarmApi"
-import type { Alarm } from "@/domains/alarm/types"
+import type { Alarm, AlarmCategory } from "@/domains/alarm/types"
 
 const categoryIcons: Record<string, { icon: React.ElementType; color: string }> = {
   RESERVATION: { icon: CalendarCheck, color: "text-blue-500 bg-blue-50" },
@@ -43,15 +46,25 @@ function getRelativeTime(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("ko-KR")
 }
 
+/** 전체 카테고리를 표현하는 상수 */
+const ALL_CATEGORY = "__ALL__"
+
 export function NotificationPage() {
   const queryClient = useQueryClient()
+  const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY)
+
   const { data, isLoading } = useQuery({
-    queryKey: ["alarms"],
-    queryFn: () => getAlarmList({ count: 50 }),
+    queryKey: ["alarms", activeCategory === ALL_CATEGORY ? undefined : activeCategory],
+    queryFn: () =>
+      getAlarmList({
+        count: 50,
+        category: activeCategory === ALL_CATEGORY ? undefined : activeCategory,
+      }),
     retry: 1,
   })
 
   const alarms = data?.alarms ?? []
+  const categories = data?.alarm_categories ?? []
   const unreadCount = alarms.filter((a) => a.read_yn === "N").length
 
   const handleDeleteAll = async () => {
@@ -66,11 +79,13 @@ export function NotificationPage() {
     if (alarm.read_yn === "N") {
       try {
         await updateAlarmCard({ type: "READ", alarm_key: [alarm.key] })
-        // Optimistic update
-        queryClient.setQueryData(["alarms"], {
-          ...data,
-          alarms: alarms.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a),
-        })
+        queryClient.setQueryData(
+          ["alarms", activeCategory === ALL_CATEGORY ? undefined : activeCategory],
+          {
+            ...data,
+            alarms: alarms.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a),
+          },
+        )
       } catch { /* ignore */ }
     }
   }
@@ -94,6 +109,15 @@ export function NotificationPage() {
         )}
       </div>
 
+      {/* Category Filter Tabs */}
+      {categories.length > 0 && (
+        <CategoryTabs
+          categories={categories}
+          activeCategory={activeCategory}
+          onChange={setActiveCategory}
+        />
+      )}
+
       {isLoading ? (
         <LoadingSpinner />
       ) : alarms.length === 0 ? (
@@ -113,25 +137,72 @@ export function NotificationPage() {
   )
 }
 
+function CategoryTabs({
+  categories,
+  activeCategory,
+  onChange,
+}: {
+  categories: AlarmCategory[]
+  activeCategory: string
+  onChange: (code: string) => void
+}) {
+  return (
+    <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
+      <button
+        onClick={() => onChange(ALL_CATEGORY)}
+        className={cn(
+          "shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+          activeCategory === ALL_CATEGORY
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted text-muted-foreground hover:bg-muted/80",
+        )}
+      >
+        전체
+      </button>
+      {categories.map((cat) => (
+        <button
+          key={cat.code}
+          onClick={() => onChange(cat.code)}
+          className={cn(
+            "shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
+            activeCategory === cat.code
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-muted/80",
+          )}
+        >
+          {cat.name}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
+  const [expanded, setExpanded] = useState(false)
   const config = categoryIcons[alarm.category_code] || defaultIcon
   const Icon = config.icon
   const isRead = alarm.read_yn === "Y"
 
-  // link는 객체 — target이 있으면 링크로, 없으면 div로 렌더링
   const linkTarget = alarm.link?.target
-  const Wrapper = linkTarget ? Link : "div"
-  const wrapperProps = linkTarget ? { href: linkTarget, onClick } : { onClick }
+  const hasDescription = !!alarm.description
 
   const regDate = new Date(alarm.reg_dt < 1e12 ? alarm.reg_dt * 1000 : alarm.reg_dt)
   const timeAgo = getRelativeTime(regDate.toISOString())
 
+  const handleCardClick = () => {
+    onClick()
+    // If there's a link target but no btn_name (legacy), navigate directly
+    if (linkTarget && !alarm.link?.btn_name) {
+      window.location.href = linkTarget
+    }
+  }
+
   return (
-    <Wrapper
-      {...(wrapperProps as React.ComponentProps<"div"> & React.ComponentProps<typeof Link>)}
+    <div
+      onClick={handleCardClick}
       className={cn(
         "flex gap-3 p-4 rounded-xl border transition-colors cursor-pointer",
-        isRead ? "bg-card hover:bg-muted/30" : "bg-primary/5 border-primary/20 hover:bg-primary/10"
+        isRead ? "bg-card hover:bg-muted/30" : "bg-primary/5 border-primary/20 hover:bg-primary/10",
       )}
     >
       <div className={cn("flex items-center justify-center size-10 rounded-full shrink-0", config.color)}>
@@ -144,9 +215,45 @@ function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
           </p>
           {!isRead && <span className="size-2 rounded-full bg-primary shrink-0 mt-1.5" />}
         </div>
-        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{alarm.summary || alarm.description}</p>
-        <p className="text-xs text-muted-foreground/70 mt-1.5">{timeAgo}</p>
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{alarm.summary}</p>
+
+        {/* Collapsible Description */}
+        {hasDescription && (
+          <div className="mt-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setExpanded(!expanded)
+              }}
+              className="flex items-center gap-1 text-xs text-primary/80 hover:text-primary font-medium"
+            >
+              {expanded ? "접기" : "상세보기"}
+              {expanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+            </button>
+            {expanded && (
+              <p className="text-xs text-muted-foreground mt-1.5 p-2 rounded-lg bg-muted/50 leading-relaxed whitespace-pre-wrap">
+                {alarm.description}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-1.5">
+          <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
+
+          {/* CTA Button from alarm.link.btn_name */}
+          {alarm.link?.btn_name && linkTarget && (
+            <Link
+              href={linkTarget}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+            >
+              {alarm.link.btn_name}
+              <ExternalLink className="size-3" />
+            </Link>
+          )}
+        </div>
       </div>
-    </Wrapper>
+    </div>
   )
 }
