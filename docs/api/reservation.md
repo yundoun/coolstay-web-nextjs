@@ -2,6 +2,7 @@
 
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
+> 최종 업데이트: 2026-04-01
 
 ---
 
@@ -67,23 +68,20 @@ motel (숙소)
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `userSitePayCount` | number | 현장결제 사용 횟수 |
-| `enableSitePayCount` | number | 현장결제 최대 이용 횟수 |
-| `isNoShowYn` | string | 노쇼 블락 여부 (`Y`/`N`) |
-| `noShowStartDt` | number | 노쇼 블락 시작 (Unix timestamp) |
-| `noShowEndDt` | number | 노쇼 블락 종료 (Unix timestamp) |
-| `stayNoShowBaseTime` | string? | 노쇼 기준 시간 (예: `"22"`) |
-| `paymentMethods` | PaymentMethod[] | 사용 가능 결제 수단 목록 |
-| `promotionBannerImgUrl` | string? | 결제 홍보 배너 이미지 URL |
+| `site_payment_usage_cnt` | number | 현장결제 사용 횟수 |
+| `site_payment_base_cnt` | number | 현장결제 최대 이용 횟수 (기본 20) |
+| `noshow_base_time` | string | 노쇼 기준 시간 (예: `"22"`) |
+| `noshow_block_yn` | string | 노쇼 차단 여부 (`Y`/`N`) |
+| `payment_methods` | PaymentMethod[] | 사용 가능 결제 수단 목록 |
 
 #### PaymentMethod
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
-| `code` | string | 결제 수단 코드 |
-| `name` | string | 결제 수단 이름 |
-| `pg` | string | PG사 코드 (아래 참조) |
-| `method` | string | 결제 방식 (아래 참조) |
+| `pg_code` | string? | PG사 코드 (현장결제 시 없음). 예: `"INICIS_DIR"`, `"TOSS"`, `"INICIS_NON_CERT"` |
+| `method` | string | 결제 방식 코드. 예: `"SITE"`, `"CARD"`, `"KAKAOPAY"`, `"TOSSPAY"`, `"NPAY"`, `"PHONE"` |
+| `available_yn` | string | 사용 가능 여부 (`Y`/`N`) |
+| `guide_message` | string | 결제 수단 표시명. 예: `"현장결제"`, `"신용/체크카드"`, `"카카오페이"` |
 
 ### 웹 사용처
 

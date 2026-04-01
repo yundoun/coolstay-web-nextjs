@@ -137,13 +137,13 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
           userName: "",
           rating: parseFloat(motel.best_rating.score ?? "0"),
           content: motel.best_rating.text ?? "",
-          createdAt: motel.best_rating.reg_dt ?? "",
+          createdAt: String(motel.best_rating.reg_dt ?? ""),
           roomName: motel.best_rating.item_description ?? "",
           isBest: true,
           reply: motel.best_rating.comment
             ? {
                 content: motel.best_rating.comment.text,
-                createdAt: motel.best_rating.comment.reg_dt,
+                createdAt: String(motel.best_rating.comment.reg_dt),
               }
             : undefined,
         }
@@ -153,7 +153,7 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       userName: "",
       rating: parseFloat(r.score ?? "0"),
       content: r.text ?? "",
-      createdAt: r.reg_dt ?? "",
+      createdAt: String(r.reg_dt ?? ""),
       roomName: r.item_description ?? "",
       images: r.images?.map((img) => img.url),
     })),

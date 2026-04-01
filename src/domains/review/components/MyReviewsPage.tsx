@@ -31,6 +31,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { formatTimestampDot } from "@/lib/utils/formatDate"
 import { useMyReviews } from "../hooks/useMyReviews"
 import { deleteReview } from "../api/reviewApi"
 import type { Review } from "@/lib/api/types"
@@ -170,7 +171,7 @@ function ReviewCard({
       <div className="p-4">
         <div className="flex items-center gap-2 mb-2">
           <StarRating rating={score} size="sm" />
-          <span className="text-xs text-muted-foreground">{review.reg_dt}</span>
+          <span className="text-xs text-muted-foreground">{formatTimestampDot(review.reg_dt)}</span>
         </div>
         <p className="text-sm leading-relaxed">{review.text}</p>
 

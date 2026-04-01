@@ -35,6 +35,12 @@ export interface Rating {
   reviews: Review[]
 }
 
+export interface ReviewImage {
+  url: string
+  thumb_url?: string
+  priority?: number
+}
+
 export interface Review {
   key: number
   best_yn: string
@@ -42,16 +48,18 @@ export interface Review {
   score: string
   text: string
   status: string
-  reg_dt: string
+  reg_dt: number
   motel?: MotelBasic
+  user?: { key: number; name: string }
   comment?: Comment
-  images?: ImageItem[]
+  status_info?: { start_date: number }
+  images?: ReviewImage[]
 }
 
 export interface Comment {
   key: number
   text: string
-  reg_dt: string
+  reg_dt: number
 }
 
 export interface Coupon {
@@ -502,22 +510,19 @@ export interface ReviewUpdateResponse {
 // ─── Reservation API 응답 ───
 
 // reserv/users/payments/list
-export interface PaymentMethodItem {
-  code: string
-  name: string
-  pg: string
+export interface PaymentMethod {
+  pg_code?: string
   method: string
+  available_yn: string
+  guide_message: string
 }
 
 export interface UserPaymentInfoResponse {
-  userSitePayCount: number
-  enableSitePayCount: number
-  isNoShowYn: string
-  noShowStartDt: number
-  noShowEndDt: number
-  stayNoShowBaseTime: string | null
-  paymentMethods: PaymentMethodItem[]
-  promotionBannerImgUrl: string | null
+  site_payment_usage_cnt: number
+  site_payment_base_cnt: number
+  noshow_base_time: string
+  noshow_block_yn: string
+  payment_methods: PaymentMethod[]
 }
 
 // reserv/ready (request body)
