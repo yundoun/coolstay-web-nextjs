@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 15:02** | 이벤트 상세 히어로 이미지 전체 너비 수정 | [`34f86fd`](.work-history/entries/2026-04-01_16-05_event-hero-fix.md)
 - **2026-04-01 14:55** | 이벤트 UI 모던 리디자인 | [`897ab3a`](.work-history/entries/2026-04-01_16-00_event-redesign.md)
 - **2026-04-01 14:48** | 프로모 버튼 원래 위치로 복원 | [`bfdcb7b`](.work-history/entries/2026-04-01_15-55_promo-restore.md)
 - **2026-04-01 14:46** | 홈 화면 UX 재배치 + 이벤트/기획전 확장 | [`b479fa6`](.work-history/entries/2026-04-01_15-50_home-ux-reorder.md)

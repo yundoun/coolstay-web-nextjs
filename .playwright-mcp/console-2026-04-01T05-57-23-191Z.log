@@ -1,0 +1,1 @@
+[     488ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/_next/image?url=https%3A%2F%2Fexample.com%2Fimages%2Fsample-thumbnail.jpg&w=384&q=75:0

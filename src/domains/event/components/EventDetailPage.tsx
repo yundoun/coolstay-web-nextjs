@@ -101,7 +101,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
       {/* ─── 히어로 섹션 (풀블리드) ─── */}
       <div className="relative">
         {/* 히어로 이미지 */}
-        <div className="relative aspect-[16/10] sm:aspect-[2/1] max-h-[480px] bg-gray-900 overflow-hidden">
+        <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] lg:aspect-[5/2] bg-gray-900 overflow-hidden">
           {heroImage ? (
             <Image
               src={heroImage}
