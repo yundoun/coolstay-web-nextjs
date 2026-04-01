@@ -3,14 +3,17 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Clock, Star, MapPin, Pencil, Trash2, Search } from "lucide-react"
+import { Heart, Clock, Star, MapPin, Pencil, Trash2, Loader2 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
-import type { FavoriteAccommodation } from "../types"
+import { useFavorites } from "../hooks/useFavorites"
+import { useRecentViewed } from "../hooks/useRecentViewed"
+import type { StoreItem } from "@/lib/api/types"
+import type { RecentViewedItem } from "../types"
 
 type Tab = "recent" | "wishlist"
 
@@ -18,33 +21,51 @@ export function FavoritesPage() {
   const [tab, setTab] = useState<Tab>("recent")
   const [editMode, setEditMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [recentItems, setRecentItems] = useState<FavoriteAccommodation[]>([])
-  const [wishlistItems, setWishlistItems] = useState<FavoriteAccommodation[]>([])
 
-  const currentItems = tab === "recent" ? recentItems : wishlistItems
+  const {
+    wishlistItems,
+    isLoading: isFavoritesLoading,
+    error: favoritesError,
+    removeFavorites,
+    isDeleting,
+  } = useFavorites()
 
-  const toggleSelect = (id: string) => {
+  const {
+    recentItems,
+    removeRecentItems,
+  } = useRecentViewed()
+
+  const currentItemKeys =
+    tab === "wishlist"
+      ? wishlistItems.map((i) => i.key)
+      : recentItems.map((i) => i.key)
+
+  const currentCount =
+    tab === "wishlist" ? wishlistItems.length : recentItems.length
+
+  const toggleSelect = (key: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
       return next
     })
   }
 
   const selectAll = () => {
-    if (selectedIds.size === currentItems.length) {
+    if (selectedIds.size === currentItemKeys.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(currentItems.map((i) => i.id)))
+      setSelectedIds(new Set(currentItemKeys))
     }
   }
 
-  const deleteSelected = () => {
-    if (tab === "recent") {
-      setRecentItems((prev) => prev.filter((i) => !selectedIds.has(i.id)))
+  const deleteSelected = async () => {
+    const keys = Array.from(selectedIds)
+    if (tab === "wishlist") {
+      await removeFavorites(keys)
     } else {
-      setWishlistItems((prev) => prev.filter((i) => !selectedIds.has(i.id)))
+      removeRecentItems(keys)
     }
     setSelectedIds(new Set())
     setEditMode(false)
@@ -60,7 +81,7 @@ export function FavoritesPage() {
     <Container size="normal" padding="responsive" className="py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">찜 / 최근본</h1>
-        {currentItems.length > 0 && (
+        {currentCount > 0 && (
           <Button
             variant="ghost"
             size="sm"
@@ -83,7 +104,9 @@ export function FavoritesPage() {
           icon={<Clock className="size-3.5" />}
         >
           최근본
-          <span className="ml-1.5 text-xs text-muted-foreground">{recentItems.length}</span>
+          <span className="ml-1.5 text-xs text-muted-foreground">
+            {recentItems.length}
+          </span>
         </TabButton>
         <TabButton
           active={tab === "wishlist"}
@@ -91,16 +114,20 @@ export function FavoritesPage() {
           icon={<Heart className="size-3.5" />}
         >
           찜
-          <span className="ml-1.5 text-xs text-muted-foreground">{wishlistItems.length}</span>
+          <span className="ml-1.5 text-xs text-muted-foreground">
+            {wishlistItems.length}
+          </span>
         </TabButton>
       </div>
 
       {/* Edit Mode Actions */}
-      {editMode && currentItems.length > 0 && (
+      {editMode && currentCount > 0 && (
         <div className="flex items-center justify-between mb-4 p-3 rounded-lg bg-muted/50">
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
-              checked={selectedIds.size === currentItems.length && currentItems.length > 0}
+              checked={
+                selectedIds.size === currentCount && currentCount > 0
+              }
               onCheckedChange={selectAll}
             />
             <span className="text-sm">전체 선택</span>
@@ -108,27 +135,49 @@ export function FavoritesPage() {
           <Button
             variant="destructive"
             size="sm"
-            disabled={selectedIds.size === 0}
+            disabled={selectedIds.size === 0 || isDeleting}
             onClick={deleteSelected}
           >
-            <Trash2 className="size-3.5 mr-1" />
+            {isDeleting ? (
+              <Loader2 className="size-3.5 mr-1 animate-spin" />
+            ) : (
+              <Trash2 className="size-3.5 mr-1" />
+            )}
             선택 삭제 ({selectedIds.size})
           </Button>
         </div>
       )}
 
       {/* Content */}
-      {currentItems.length === 0 ? (
+      {tab === "wishlist" && isFavoritesLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : tab === "wishlist" && favoritesError ? (
+        <div className="text-center py-20 text-destructive">{favoritesError}</div>
+      ) : currentCount === 0 ? (
         <FavoritesEmptyState tab={tab} />
-      ) : (
+      ) : tab === "wishlist" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentItems.map((item) => (
-            <AccommodationCard
-              key={item.id}
+          {wishlistItems.map((item) => (
+            <WishlistCard
+              key={item.key}
               item={item}
               editMode={editMode}
-              selected={selectedIds.has(item.id)}
-              onToggle={() => toggleSelect(item.id)}
+              selected={selectedIds.has(item.key)}
+              onToggle={() => toggleSelect(item.key)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {recentItems.map((item) => (
+            <RecentCard
+              key={item.key}
+              item={item}
+              editMode={editMode}
+              selected={selectedIds.has(item.key)}
+              onToggle={() => toggleSelect(item.key)}
             />
           ))}
         </div>
@@ -164,61 +213,77 @@ function TabButton({
   )
 }
 
-function AccommodationCard({
+/** 찜 목록 카드 — StoreItem 기반 */
+function WishlistCard({
   item,
   editMode,
   selected,
   onToggle,
 }: {
-  item: FavoriteAccommodation
+  item: StoreItem
   editMode: boolean
   selected: boolean
   onToggle: () => void
 }) {
+  const mainImage = item.images?.[0]?.url || item.images?.[0]?.thumb_url || ""
+  const firstRoom = item.items?.[0]
+  const price = firstRoom?.discount_price ?? firstRoom?.price ?? 0
+  const originalPrice =
+    firstRoom && firstRoom.price > (firstRoom.discount_price ?? firstRoom.price)
+      ? firstRoom.price
+      : undefined
+
   const content = (
     <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative aspect-[4/3]">
-        <Image
-          src={item.imageUrl}
-          alt={item.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        {mainImage ? (
+          <Image
+            src={mainImage}
+            alt={item.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
+            이미지 없음
+          </div>
+        )}
         {editMode && (
           <div className="absolute top-3 left-3 z-10">
             <Checkbox checked={selected} onCheckedChange={onToggle} />
           </div>
         )}
-        {item.tags && item.tags.length > 0 && (
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            {item.tags.map((tag) => (
-              <Badge key={tag} className="text-xs bg-black/60 text-white border-none">
-                {tag}
-              </Badge>
-            ))}
+        {item.user_like_yn === "Y" && !editMode && (
+          <div className="absolute top-3 right-3">
+            <Heart className="size-5 fill-red-500 text-red-500" />
           </div>
         )}
       </div>
       <div className="p-3">
         <h3 className="font-semibold text-sm truncate">{item.name}</h3>
-        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-          <MapPin className="size-3" />
-          {item.location}
-        </p>
+        {item.distance && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+            <MapPin className="size-3" />
+            {item.distance}
+          </p>
+        )}
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-1">
-            <Star className="size-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-medium">{item.rating}</span>
-            <span className="text-xs text-muted-foreground">({item.reviewCount.toLocaleString()})</span>
+            <Heart className="size-3.5 text-red-400" />
+            <span className="text-xs font-medium">{item.like_count}</span>
           </div>
           <div className="text-right">
-            {item.originalPrice && (
+            {originalPrice && (
               <span className="text-xs text-muted-foreground line-through mr-1">
-                {item.originalPrice.toLocaleString()}
+                {originalPrice.toLocaleString()}
               </span>
             )}
-            <span className="font-bold text-sm">{item.price.toLocaleString()}원</span>
+            {price > 0 && (
+              <span className="font-bold text-sm">
+                {price.toLocaleString()}원
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -233,17 +298,76 @@ function AccommodationCard({
     )
   }
 
-  return (
-    <Link href={`/accommodations/${item.id}`}>
-      {content}
-    </Link>
+  return <Link href={`/accommodations/${item.key}`}>{content}</Link>
+}
+
+/** 최근 본 숙소 카드 — RecentViewedItem 기반 */
+function RecentCard({
+  item,
+  editMode,
+  selected,
+  onToggle,
+}: {
+  item: RecentViewedItem
+  editMode: boolean
+  selected: boolean
+  onToggle: () => void
+}) {
+  const content = (
+    <div className="rounded-xl border bg-card overflow-hidden hover:shadow-md transition-shadow">
+      <div className="relative aspect-[4/3]">
+        {item.imageUrl ? (
+          <Image
+            src={item.imageUrl}
+            alt={item.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-sm">
+            이미지 없음
+          </div>
+        )}
+        {editMode && (
+          <div className="absolute top-3 left-3 z-10">
+            <Checkbox checked={selected} onCheckedChange={onToggle} />
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <h3 className="font-semibold text-sm truncate">{item.name}</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {new Date(item.viewedAt).toLocaleDateString("ko-KR")}에 봄
+        </p>
+      </div>
+    </div>
   )
+
+  if (editMode) {
+    return (
+      <button onClick={onToggle} className="text-left w-full">
+        {content}
+      </button>
+    )
+  }
+
+  return <Link href={`/accommodations/${item.key}`}>{content}</Link>
 }
 
 function FavoritesEmptyState({ tab }: { tab: Tab }) {
-  const config = tab === "recent"
-    ? { icon: Clock, title: "최근 본 숙소가 없습니다", description: "다양한 숙소를 둘러보세요" }
-    : { icon: Heart, title: "찜한 숙소가 없습니다", description: "마음에 드는 숙소를 찜해보세요" }
+  const config =
+    tab === "recent"
+      ? {
+          icon: Clock,
+          title: "최근 본 숙소가 없습니다",
+          description: "다양한 숙소를 둘러보세요",
+        }
+      : {
+          icon: Heart,
+          title: "찜한 숙소가 없습니다",
+          description: "마음에 드는 숙소를 찜해보세요",
+        }
 
   return (
     <EmptyState

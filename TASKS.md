@@ -15,48 +15,59 @@
 
 ---
 
-## Phase 10 — API 응답 구조 재설계 `branch: feat/phase10-api-redesign`
+## Phase 10 — API 실제 응답 기반 재설계 `branch: feat/phase10-api-redesign`
 
-> API 연동 도메인의 타입/컴포넌트를 실제 응답 구조에 맞게 재정비
+> 2026-04-01 dev 서버 실제 API 호출 결과 기반으로 타입/컴포넌트 수정
 
-### 10-A. 이용가이드 재설계
+### 10-0. 공통 타입 수정 (BoardItem)
 
-- [ ] `P10-1` Legacy 타입 삭제 — `GuideItem`, `GuideStep` (guide/types/index.ts)
-- [ ] `P10-2` GuidePage 에러 상태 보강 — isError 시 ErrorState 표시, 재시도 버튼
-- [ ] `P10-3` 가이드 상세 → `board_item_key` 파라미터로 개별 조회 API 연동
-- [ ] `P10-4` 가이드 테스트 작성
+> `BoardItem` 은 가이드/기획전/공지/FAQ/문의 공용. 실제 응답에 맞게 재정의.
 
-### 10-B. 쿠폰 재설계
+- [x] `P10-0a` `BoardItem.key` 타입 `string` → `number` 수정
+- [x] `P10-0b` `BoardItem.link` 타입 `string` → `BoardItemLink` 객체로 변경
+- [x] `P10-0c` `BoardItem.images` 제거, `image_urls: string[]` 추가
+- [x] `P10-0d` `BoardItem.web_view_link` → `webview_link` 필드명 수정
+- [x] `P10-0e` 신규 필드 추가: `badge_image_url`, `detail_banner_image_url`, `buttons[]`, `thumb_description`
+- [x] `P10-0f` 타임스탬프 **초 단위** — `formatTimestamp`에 자동 변환 적용
 
-- [ ] `P10-5` Legacy 타입 삭제 — `CouponItem`, `CouponDiscountType` (coupon/types/index.ts)
-- [ ] `P10-6` `Coupon` 타입 정비 — API 실제 반환 필드만 유지, 미반환 필드 제거 또는 optional 처리
-- [ ] `P10-7` `discount_type` 분기 검증 — `"FIXED"` / `"RATE"` 값 확인 후 컴포넌트 로직 수정
-- [ ] `P10-8` `formatDate` 타임스탬프 처리 통일 — 휴리스틱(1e12) 제거, 일관된 단위 사용
-- [ ] `P10-9` 쿠폰 테스트 작성
+### 10-A. 꿀팁 가이드 재설계
 
-### 10-C. 기획전(Event) 재설계
+> 실제 응답: `{ key(number), title, image_urls(string[]), link(object), view_count, reg_dt(초) }`
+> description, banner_image_url, webview_link 은 가이드에선 반환되지 않음
 
-- [ ] `P10-10` Legacy 타입 삭제 — `EventItem`, `EventStatus` (event/types/index.ts)
-- [ ] `P10-11` `EventBoardItem` → `BoardItem` 공통 타입 전환 (CS 도메인과 통일)
-- [ ] `P10-12` status 로직 수정 — 클라이언트 재계산 제거, API `status` 필드 직접 사용
-- [ ] `P10-13` `formatTs` 타임스탬프 처리 통일 — 쿠폰과 동일 방식 적용
-- [ ] `P10-14` `web_view_link` 활용 — link/web_view_link 사용 정책 정리
-- [ ] `P10-15` 기획전 테스트 작성
+- [x] `P10-1` 목록 UI — `image_urls[0]` 썸네일 + 2컬럼 카드 그리드
+- [x] `P10-2` 목록 부제 — `view_count` + `reg_dt` 메타데이터 표시
+- [x] `P10-3` 상세 UI — `image_urls[]` 갤러리 + 히어로 이미지
+- [x] `P10-4` 상세 CTA — `link.btn_name` 기반 버튼
+- [x] `P10-5` 가이드 테스트 재작성 ✅ (10 cases)
 
-### 10-D. 찜(Favorites) API 연동
+### 10-B. 기획전(Event) 재설계
 
-- [ ] `P10-16` `FavoriteAccommodation` 타입 → API 응답 기반 재정의 (contents/list 응답 구조)
-- [ ] `P10-17` 찜 목록 API 연동 — `getDibsList()` 호출 → React Query 훅 생성
-- [ ] `P10-18` 찜 등록/삭제 API 연동 — `POST /auth/dibs/register`, `/auth/dibs/delete`
-- [ ] `P10-19` 최근 본 숙소 — 로컬스토리지 기반 구현 (API 없음)
-- [ ] `P10-20` FavoritesPage 컴포넌트 재설계 — API 데이터 바인딩 + 편집 모드 동작
-- [ ] `P10-21` 찜 테스트 작성
+> 실제 응답: `{ key(number), type, title, description, badge_image_url, detail_banner_image_url, webview_link, image_urls[], link(object), buttons[], status("BI005"등), start_dt(초), end_dt(초), reg_dt(초), thumb_description }`
+> banner_image_url 은 반환되지 않음, status 는 코드값("BI005") 사용
 
-### 10-E. 공통 정리
+- [x] `P10-6` 목록 이미지 — `badge_image_url` 사용 + 2컬럼 그리드
+- [x] `P10-7` status — 날짜 기반 판단 (코드값 불투명)
+- [x] `P10-8` 상세 — `detail_banner_image_url` 히어로 + `image_urls[]` 갤러리
+- [x] `P10-9` 상세 CTA — `buttons[]` 배열 렌더링
+- [x] `P10-10` `webview_link` 필드명 수정 완료
+- [x] `P10-11` 타임스탬프 — `formatTimestampDot` + `toMillis` 적용
+- [x] `P10-12` 기획전 테스트 재작성 ✅ (18 cases)
 
-- [ ] `P10-22` Legacy 타입 일괄 삭제 — `notice/types/index.ts` NoticeItem
-- [ ] `P10-23` 타임스탬프 포맷 유틸 공통화 — `formatTimestamp()` 함수 1개로 통일
-- [ ] `P10-24` 빌드 + 전체 테스트 통과 확인
+### 10-C. 쿠폰 재설계
+
+> 실제 응답: 대부분 현재 타입과 일치. discount_type 값과 타임스탬프 단위만 수정 필요.
+
+- [x] `P10-13` `discount_type` — `"AMOUNT"`→원, `"RATE"`→% 수정
+- [x] `P10-14` `received` 삭제, 모든 필드 실제 응답 기준 필수/타입 재정의
+- [x] `P10-15` `day_codes: string[]` 추가
+- [x] `P10-16` 타임스탬프 — `formatTimestampDot` 적용, 7일 만료 뱃지
+- [x] `P10-17` 쿠폰 테스트 재작성 ✅ (14 cases)
+
+### 10-D. 공통 유틸
+
+- [x] `P10-18` `formatTimestamp` — 초 단위 자동 감지, `formatTimestampDot`/`toMillis` 추가
+- [x] `P10-19` 빌드 + 전체 테스트 통과 ✅ 25 files, 139 tests
 
 ---
 
@@ -72,7 +83,8 @@
 | Phase 7 | 마이페이지 API 연동 강화 | — | 완료 (P7-6 보류) |
 | Phase 8 | UI/UX 개선 | — | 완료 |
 | Phase 9 | 성능/품질 | — | 완료 |
-| **합계** | | **77 tests** | |
+| Phase 10 (1차) | API 응답 구조 재설계 — Legacy 삭제/타입 정비/찜 연동 | 22 cases | 완료 |
+| **합계** | | **99 tests** | |
 
 ### 문서
 

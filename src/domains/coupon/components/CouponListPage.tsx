@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { Ticket, Tag, ChevronDown, ChevronUp, Gift } from "lucide-react"
+import { Ticket, Clock, ChevronDown, ChevronUp, Gift, Info } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
@@ -11,11 +10,41 @@ import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { formatTimestampDot } from "@/lib/utils/formatDate"
 import { useCouponList } from "../hooks/useCouponList"
-import type { Coupon } from "../types"
+import type { Coupon, CouponConstraint } from "../types"
+
+/** CC004(적용제휴점), CC007(재발급여부)는 사용자에게 불필요하므로 숨긴다 */
+const HIDDEN_CONSTRAINT_CODES = new Set(["CC004", "CC007"])
+
+function filterConstraints(constraints: CouponConstraint[]): CouponConstraint[] {
+  return constraints.filter((c) => !HIDDEN_CONSTRAINT_CODES.has(c.code))
+}
+
+/** 할인 금액 크기별 왼쪽 accent 색상 */
+function getAccentColor(coupon: Coupon): string {
+  if (coupon.dimmed_yn === "Y") return "border-l-gray-300"
+  if (coupon.discount_type === "RATE") {
+    if (coupon.discount_amount >= 20) return "border-l-rose-500"
+    if (coupon.discount_amount >= 10) return "border-l-orange-500"
+    return "border-l-amber-500"
+  }
+  // AMOUNT
+  if (coupon.discount_amount >= 50000) return "border-l-rose-500"
+  if (coupon.discount_amount >= 20000) return "border-l-orange-500"
+  if (coupon.discount_amount >= 10000) return "border-l-blue-500"
+  return "border-l-emerald-500"
+}
+
+function formatDiscount(coupon: Coupon): string {
+  if (coupon.discount_type === "RATE") {
+    return `${coupon.discount_amount}%`
+  }
+  return `${coupon.discount_amount.toLocaleString()}원`
+}
 
 export function CouponListPage() {
-  const { coupons, isLoading, error, register } = useCouponList()
+  const { coupons, isLoading, error, register, remain7dayCount } = useCouponList()
   const [couponCode, setCouponCode] = useState("")
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
@@ -42,6 +71,9 @@ export function CouponListPage() {
           placeholder="쿠폰 코드 입력"
           value={couponCode}
           onChange={(e) => setCouponCode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleRegister()
+          }}
           className="flex-1"
         />
         <Button onClick={handleRegister} disabled={!couponCode.trim()}>
@@ -49,15 +81,28 @@ export function CouponListPage() {
         </Button>
       </div>
 
-      {/* Coupon Count */}
-      <div className="flex items-center gap-2 mb-4">
-        <Ticket className="size-4 text-primary" />
-        <span className="text-sm font-medium">
-          사용 가능 쿠폰 <span className="text-primary">{activeCoupons.length}</span>장
-        </span>
+      {/* Summary Bar */}
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          <Ticket className="size-4 text-primary" />
+          <span className="text-sm font-medium">
+            사용 가능 쿠폰{" "}
+            <span className="text-primary font-bold">{activeCoupons.length}</span>장
+          </span>
+        </div>
+        {remain7dayCount > 0 && (
+          <Badge
+            variant="destructive"
+            className="text-xs gap-1"
+            data-testid="expire-soon-badge"
+          >
+            <Clock className="size-3" />
+            7일 내 만료 {remain7dayCount}장
+          </Badge>
+        )}
       </div>
 
-      {/* Loading */}
+      {/* Content */}
       {isLoading ? (
         <LoadingSpinner />
       ) : error ? (
@@ -84,10 +129,12 @@ export function CouponListPage() {
 
           {inactiveCoupons.length > 0 && (
             <>
-              <div className="pt-4 pb-2">
-                <p className="text-sm text-muted-foreground font-medium">
+              <div className="pt-6 pb-2 flex items-center gap-2">
+                <div className="h-px flex-1 bg-border" />
+                <p className="text-xs text-muted-foreground font-medium px-2">
                   사용완료/만료 쿠폰
                 </p>
+                <div className="h-px flex-1 bg-border" />
               </div>
               {inactiveCoupons.map((coupon) => (
                 <CouponCard
@@ -95,7 +142,9 @@ export function CouponListPage() {
                   coupon={coupon}
                   expanded={expandedId === coupon.coupon_pk}
                   onToggle={() =>
-                    setExpandedId(expandedId === coupon.coupon_pk ? null : coupon.coupon_pk)
+                    setExpandedId(
+                      expandedId === coupon.coupon_pk ? null : coupon.coupon_pk
+                    )
                   }
                   disabled
                 />
@@ -106,15 +155,6 @@ export function CouponListPage() {
       )}
     </Container>
   )
-}
-
-function formatDate(dt: string | number | undefined) {
-  if (!dt) return ""
-  if (typeof dt === "number") {
-    const ms = dt < 1e12 ? dt * 1000 : dt
-    return new Date(ms).toISOString().slice(0, 10)
-  }
-  return String(dt).slice(0, 10)
 }
 
 function CouponCard({
@@ -128,39 +168,62 @@ function CouponCard({
   onToggle: () => void
   disabled?: boolean
 }) {
-  const discountDisplay =
-    coupon.discount_type === "RATE"
-      ? `${coupon.discount_amount}%`
-      : `${coupon.discount_amount.toLocaleString()}원`
-
   const isDimmed = coupon.dimmed_yn === "Y"
+  const accentColor = getAccentColor(coupon)
+  const visibleConstraints = filterConstraints(coupon.constraints ?? [])
 
   return (
     <div
       className={cn(
-        "rounded-xl border bg-card overflow-hidden transition-shadow",
-        disabled ? "opacity-60" : "hover:shadow-md"
+        "rounded-xl border border-l-4 bg-card overflow-hidden transition-all duration-200",
+        accentColor,
+        disabled ? "opacity-50 grayscale-[30%]" : "hover:shadow-md hover:-translate-y-0.5"
       )}
     >
-      <button
-        onClick={onToggle}
-        className="w-full text-left p-4"
-      >
+      <button onClick={onToggle} className="w-full text-left p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            {/* Status badge */}
+            <div className="flex items-center gap-2 mb-2">
               {isDimmed ? (
-                <Badge variant="secondary" className="text-xs">만료</Badge>
+                <Badge variant="secondary" className="text-xs">
+                  만료
+                </Badge>
               ) : (
-                <Badge variant="default" className="text-xs">사용가능</Badge>
+                <Badge variant="default" className="text-xs">
+                  사용가능
+                </Badge>
+              )}
+              {coupon.dup_use_yn === "Y" && !isDimmed && (
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  중복사용
+                </Badge>
               )}
             </div>
-            <p className="font-semibold mt-1">{coupon.title}</p>
-            <p className="text-2xl font-bold text-primary mt-1">{discountDisplay}</p>
+
+            {/* Discount amount — hero text */}
+            <p
+              className={cn(
+                "text-2xl font-extrabold tracking-tight",
+                isDimmed ? "text-muted-foreground" : "text-primary"
+              )}
+            >
+              {formatDiscount(coupon)}
+              <span className="text-sm font-normal text-muted-foreground ml-1.5">할인</span>
+            </p>
+
+            {/* Title */}
+            <p className="font-medium text-sm mt-1.5 text-foreground/90 truncate">
+              {coupon.title}
+            </p>
+
+            {/* Validity period */}
             <p className="text-xs text-muted-foreground mt-2">
-              {formatDate(coupon.usable_start_dt)} ~ {formatDate(coupon.usable_end_dt)}
+              {formatTimestampDot(coupon.usable_start_dt)} ~{" "}
+              {formatTimestampDot(coupon.usable_end_dt)}
             </p>
           </div>
+
           <div className="shrink-0 pt-1">
             {expanded ? (
               <ChevronUp className="size-5 text-muted-foreground" />
@@ -171,35 +234,39 @@ function CouponCard({
         </div>
       </button>
 
+      {/* Expanded detail section */}
       {expanded && (
-        <div className="border-t px-4 py-3 space-y-2 bg-muted/30">
-          {coupon.constraints?.map((c) => (
-            <DetailRow key={c.code} icon={<Tag className="size-3.5" />} label={c.code} value={c.description} />
-          ))}
-          <p className="text-xs text-muted-foreground pt-1">{coupon.description}</p>
+        <div className="border-t px-4 py-3 space-y-2.5 bg-muted/30">
+          {/* Constraints — human-readable descriptions only */}
+          {visibleConstraints.length > 0 && (
+            <div className="space-y-1.5">
+              {visibleConstraints.map((c, i) => (
+                <div
+                  key={`${c.code}-${i}`}
+                  className="flex items-center gap-2 text-sm text-foreground/80"
+                >
+                  <Info className="size-3.5 text-muted-foreground shrink-0" />
+                  <span>{c.description}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Description */}
+          {coupon.description && (
+            <p className="text-xs text-muted-foreground pt-1 leading-relaxed">
+              {coupon.description}
+            </p>
+          )}
+
+          {/* Remaining uses */}
+          {coupon.remain_amount > 0 && (
+            <p className="text-xs text-muted-foreground">
+              남은 횟수: {coupon.remain_amount} / {coupon.total_amount}
+            </p>
+          )}
         </div>
       )}
     </div>
   )
 }
-
-function DetailRow({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-}) {
-  return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="flex items-center gap-1 text-muted-foreground shrink-0">
-        {icon}
-        {label}
-      </span>
-      <span className="text-foreground">{value}</span>
-    </div>
-  )
-}
-

@@ -136,7 +136,7 @@ function InquiryList() {
     retry: 1,
   })
   const items = data?.board_items ?? []
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedId, setExpandedId] = useState<number | null>(null)
 
   if (isLoading) {
     return <LoadingSpinner />
