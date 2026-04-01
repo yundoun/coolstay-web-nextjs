@@ -20,27 +20,31 @@
 > 가장 핵심이 되는 콘텐츠 API 검증 (13개 엔드포인트)
 
 #### 홈 (2개)
-- [ ] `P11A-1` `POST /home/main` 실제 응답 검증 → homeApi.ts 타입 + home.md 수정
-- [ ] `P11A-2` `POST /home/regionStores` 실제 응답 검증
+- [x] `P11A-1` `POST /home/main` 실제 응답 검증 → home.md 전면 업데이트
+  - banners[], exhibitions[], item_buttons[], recommend_stores[] 등 9개 필드 확인
+  - **기획전은 exhibitions[] 배열로 홈에서 반환, type="EXHIBITION"**
+- [x] `P11A-2` `POST /home/regionStores` 실제 응답 검증 → recommend_categories + recommend_stores
 
 #### 검색 (6개)
-- [ ] `P11A-3` `GET /contents/regions/list` 실제 응답 검증
-- [ ] `P11A-4` `GET /contents/list` 실제 응답 검증 → contentsApi.ts 타입 + contents-search.md 수정
-- [ ] `P11A-5` `GET /contents/total/list` 실제 응답 검증
-- [ ] `P11A-6` `GET /contents/filter` 실제 응답 검증
-- [ ] `P11A-7` `POST /contents/filter/list` 실제 응답 검증
-- [ ] `P11A-8` `GET /contents/myArea/list` 실제 응답 검증
+- [x] `P11A-3` `GET /contents/regions/list` 실제 응답 검증 → 17개 지역, sub_regions 구조 확인
+- [ ] `P11A-4` `GET /contents/list` 실제 응답 검증 — 빈 결과 반환 (파라미터 추가 조사 필요)
+- [x] `P11A-5` `GET /contents/total/list` 실제 응답 검증 → total_count + search_results[]
+- [ ] `P11A-6` `GET /contents/filter` 실제 응답 검증 — 에러 반환 (파라미터 추가 조사 필요)
+- [ ] `P11A-7` `POST /contents/filter/list` 실제 응답 검증 (미호출)
+- [ ] `P11A-8` `GET /contents/myArea/list` 실제 응답 검증 (미호출)
 
 #### 숙소 상세 (4개)
-- [ ] `P11A-9` `GET /contents/details/list` 실제 응답 검증 → detailApi.ts 타입 + contents-detail.md 수정
-- [ ] `P11A-10` `GET /contents/images/list` 실제 응답 검증
-- [ ] `P11A-11` `GET /contents/books/daystatus/list` 실제 응답 검증
-- [ ] `P11A-12` `GET /contents/refund-policy/list` 실제 응답 검증
+- [x] `P11A-9` `GET /contents/details/list` 실제 응답 검증 → motel 37개 필드 확인, contents-detail.md 업데이트
+- [x] `P11A-10` `GET /contents/images/list` 실제 응답 검증 → images_per_category[] 구조
+- [x] `P11A-11` `GET /contents/books/daystatus/list` 실제 응답 검증 → daily_books[]
+- [ ] `P11A-12` `GET /contents/refund-policy/list` 실제 응답 검증 — 에러 반환 (파라미터 추가 조사 필요)
 
-#### 기획전 신규 (AOS 별도 API)
-- [ ] `P11A-13` `GET /aiMagazine/board/list` 실제 응답 확인 → 기획전 API 함수 신규 생성
-- [ ] `P11A-14` `GET /aiMagazine/board/detail` 실제 응답 확인
-- [ ] `P11A-15` `/exhibitions` 라우트 + ExhibitionListPage/ExhibitionDetailPage 신규 생성
+#### 기획전 신규
+- [x] `P11A-13` `GET /aiMagazine/board/list` 실제 응답 확인 → **칼럼/매거진 API** (기획전 아님)
+- [x] `P11A-14` `GET /aiMagazine/board/detail` 실제 응답 확인 → board_detail 구조
+- [x] `P11A-15` `/exhibitions` 라우트 + ExhibitionListPage/ExhibitionDetailPage 신규 생성
+  - 기획전 = `POST /home/main` → exhibitions[] + `GET /manage/board/list?board_type=EVENT&board_item_key`
+  - exhibition 도메인 생성 (api, hooks, components, routes)
 
 ### Phase 11-B — 예약/리뷰 `branch: feat/phase11b-verify-booking`
 

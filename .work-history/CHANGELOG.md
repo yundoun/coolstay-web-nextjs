@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-01 11:27** | Phase 11-A — 홈/검색/숙소 API 검증 + 기획전 신규 | [`4012c94`](.work-history/entries/2026-04-01_11-25_P11A_api-verify-contents.md)
 - **2026-04-01 11:18** | Phase 11 태스크 작성 — API 실제 응답 전수 검증 | [`c4238e5`](.work-history/entries/2026-04-01_11-10_phase11-tasks.md)
 - **2026-04-01 11:04** | 기획전 상세 페이지 라우트 분리 | [`8c86aa5`](.work-history/entries/2026-04-01_11-05_event-detail-route.md)
 - **2026-04-01 11:00** | API 명세서 업데이트 — 실제 응답 기준 | [`f634995`](.work-history/entries/2026-04-01_11-00_P10_api-docs-update.md)
