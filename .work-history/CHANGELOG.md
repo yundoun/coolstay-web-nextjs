@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 11:27** | ## EV-2: 홈 EventSection 재설계 | [`a1be676`](.work-history/entries/2026-04-02_12-00_EV-2_home-event-redesign.md)
 - **2026-04-02 11:25** | ## EV-1: 이벤트 영역 현행 UX 분석 | [`5e37553`](.work-history/entries/2026-04-02_11-45_EV-1_ux-analysis.md)
 - **2026-04-02 11:22** | ## EV-0: 하네스 세팅 — 이벤트 UI 개선 | [`ae4329a`](.work-history/entries/2026-04-02_11-30_EV-0_harness-setup.md)
 - **2026-04-02 10:46** | 하네스 Lite 모드 추가 + 파생 파일 정리 | [`bad61f1`](.work-history/entries/2026-04-02_10-30_harness-lite-cleanup.md)
