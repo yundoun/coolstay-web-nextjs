@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 13:08** | ## FIX: 전체 Image 빈 src 에러 일괄 수정 (7개 파일) | [`c718c92`](.work-history/entries/2026-04-02_13-10_FIX_empty-image-src-all.md)
 - **2026-04-02 13:00** | ## FIX: RoomCard 이미지 없을 때 Skeleton 표시 | [`c2f3254`](.work-history/entries/2026-04-02_13-10_FIX_roomcard-skeleton.md)
 - **2026-04-02 12:59** | ## FIX: RoomCard 빈 imageUrl src 에러 수정 | [`2fece05`](.work-history/entries/2026-04-02_13-05_FIX_roomcard-empty-src.md)
 - **2026-04-02 12:57** | ## FIX: ImageGallery 빈 문자열 src 에러 수정 | [`3a788d9`](.work-history/entries/2026-04-02_13-00_FIX_image-gallery-empty-src.md)

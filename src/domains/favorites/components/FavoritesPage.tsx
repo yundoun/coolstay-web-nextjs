@@ -225,7 +225,7 @@ function WishlistCard({
   selected: boolean
   onToggle: () => void
 }) {
-  const mainImage = item.images?.[0]?.url || item.images?.[0]?.thumb_url || ""
+  const mainImage = item.images?.[0]?.url || item.images?.[0]?.thumb_url || null
   const firstRoom = item.items?.[0]
   const price = firstRoom?.discount_price ?? firstRoom?.price ?? 0
   const originalPrice =
