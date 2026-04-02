@@ -5,7 +5,6 @@ import Link from "next/link"
 import { Users, AlertCircle, Clock, Moon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
 
@@ -40,7 +39,9 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
               sizes="(max-width: 640px) 100vw, 224px"
             />
           ) : (
-            <Skeleton className="absolute inset-0" />
+            <div className="flex items-center justify-center h-full bg-muted">
+              <span className="text-muted-foreground/30 text-sm">No Image</span>
+            </div>
           )}
           {!room.isAvailable && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
