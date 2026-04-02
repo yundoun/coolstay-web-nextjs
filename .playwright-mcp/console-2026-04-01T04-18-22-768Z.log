@@ -1,2 +1,0 @@
-[     678ms] [WARNING] Image with src "https://storage.googleapis.com/coolstay-dev/v2/admin/admin/2024/09/27/10/96ec13d96401415597783b00bb1a8506.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading @ http://localhost:3000/_next/static/chunks/599c9_next_dist_1874a03b._.js:2305
