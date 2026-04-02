@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 13:25** | ## 하네스 설치 스크립트 추가 | [`392d54c`](.work-history/entries/2026-04-02_13-35_harness-setup-script.md)
 - **2026-04-02 13:17** | ## FIX: RoomCard Skeleton → 텍스트 placeholder | [`505850d`](.work-history/entries/2026-04-02_13-25_FIX_roomcard-placeholder.md)
 - **2026-04-02 13:16** | ## EV-4 v2: EventDetailPage 구조 변경 — CMS 구조 반영 | [`bf20c7a`](.work-history/entries/2026-04-02_13-20_EV-4-v2_detail-restructure.md)
 - **2026-04-02 13:08** | ## FIX: 전체 Image 빈 src 에러 일괄 수정 (7개 파일) | [`c718c92`](.work-history/entries/2026-04-02_13-10_FIX_empty-image-src-all.md)
