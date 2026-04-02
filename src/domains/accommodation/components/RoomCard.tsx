@@ -40,7 +40,7 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
             />
           ) : (
             <div className="flex items-center justify-center h-full bg-muted">
-              <Moon className="size-8 text-muted-foreground/30" />
+              <span className="text-muted-foreground/30 text-sm">No Image</span>
             </div>
           )}
           {!room.isAvailable && (

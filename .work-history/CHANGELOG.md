@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 12:59** | ## FIX: RoomCard 빈 imageUrl src 에러 수정 | [`2fece05`](.work-history/entries/2026-04-02_13-05_FIX_roomcard-empty-src.md)
 - **2026-04-02 12:57** | ## FIX: ImageGallery 빈 문자열 src 에러 수정 | [`3a788d9`](.work-history/entries/2026-04-02_13-00_FIX_image-gallery-empty-src.md)
 - **2026-04-02 12:54** | ## FIX: RoomCard 빈 imageUrl 에러 수정 | [`21892d2`](.work-history/entries/2026-04-02_13-00_FIX_roomcard-empty-src.md)
 - **2026-04-02 12:53** | ## FIX: 숙소 상세 ImageGallery 빈 src 에러 수정 | [`5c8acfc`](.work-history/entries/2026-04-02_12-55_FIX_image-gallery-empty-src.md)
