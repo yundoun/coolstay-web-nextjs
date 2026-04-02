@@ -1,5 +1,7 @@
 "use client"
 
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { Section } from "@/components/layout"
 import {
   HeroSection,
@@ -78,6 +80,15 @@ export default function HomePage() {
         title="이벤트"
         description="놓치면 아쉬운 특별 혜택"
         spacing="md"
+        headerAction={
+          <Link
+            href="/events"
+            className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            전체보기
+            <ArrowRight className="size-3.5" />
+          </Link>
+        }
       >
         <EventSection />
       </Section>

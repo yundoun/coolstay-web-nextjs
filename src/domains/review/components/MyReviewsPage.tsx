@@ -143,10 +143,10 @@ function ReviewCard({
       {/* Accommodation Info */}
       <div className="flex items-center gap-3 p-4 border-b bg-muted/30">
         {/* Motel thumbnail */}
-        {review.motel?.images?.[0] && (
+        {review.motel?.images?.[0] && (review.motel.images[0].thumb_url || review.motel.images[0].url) && (
           <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0">
             <Image
-              src={review.motel.images[0].thumb_url || review.motel.images[0].url}
+              src={(review.motel.images[0].thumb_url || review.motel.images[0].url)!}
               alt={motelName}
               fill
               className="object-cover"
@@ -208,7 +208,7 @@ function ReviewCard({
         {/* Images */}
         {review.images && review.images.length > 0 && (
           <div className="flex gap-2 mt-3">
-            {review.images.map((img, i) => (
+            {review.images.filter((img) => img.url).map((img, i) => (
               <div
                 key={i}
                 className="relative w-20 h-20 rounded-lg overflow-hidden"

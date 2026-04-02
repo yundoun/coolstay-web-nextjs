@@ -12,10 +12,13 @@ interface ImageGalleryProps {
   name: string
 }
 
-export function ImageGallery({ images, name }: ImageGalleryProps) {
+export function ImageGallery({ images: rawImages, name }: ImageGalleryProps) {
+  const images = rawImages.filter((url) => url && url.trim() !== "")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+
+  if (images.length === 0) return null
 
   const goTo = (index: number) => {
     setCurrentIndex(Math.max(0, Math.min(index, images.length - 1)))

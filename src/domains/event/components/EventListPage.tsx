@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Container } from "@/components/layout"
-import { Badge } from "@/components/ui/badge"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -64,6 +63,12 @@ export function EventListPage() {
     )
   }
 
+  const counts: Record<FilterTab, number> = {
+    전체: events.length,
+    진행중: events.filter((e) => getEventStatus(e).label === "진행중").length,
+    종료: events.filter((e) => getEventStatus(e).label === "종료").length,
+  }
+
   const [featured, ...rest] = filteredEvents
 
   return (
@@ -82,6 +87,7 @@ export function EventListPage() {
       <div className="flex gap-2 mb-6">
         {(["전체", "진행중", "종료"] as FilterTab[]).map((tab) => {
           const isActive = activeFilter === tab
+          const count = counts[tab]
           return (
             <button
               key={tab}
@@ -94,14 +100,16 @@ export function EventListPage() {
               )}
             >
               {tab}
-              {tab !== "전체" && (
-                <span className={cn(
+              <span
+                className={cn(
                   "ml-1.5 text-xs",
-                  isActive ? "text-primary-foreground/70" : "text-muted-foreground/60"
-                )}>
-                  {events.filter((e) => getEventStatus(e).label === tab).length}
-                </span>
-              )}
+                  isActive
+                    ? "text-primary-foreground/70"
+                    : "text-muted-foreground/60"
+                )}
+              >
+                {count}
+              </span>
             </button>
           )
         })}
@@ -132,8 +140,8 @@ function FeaturedCard({ event }: { event: BoardItem }) {
   const status = getEventStatus(event)
   const ended = status.label === "종료"
   const image =
-    event.badge_image_url ||
     event.detail_banner_image_url ||
+    event.badge_image_url ||
     event.image_urls?.[0]
 
   return (
@@ -176,7 +184,7 @@ function FeaturedCard({ event }: { event: BoardItem }) {
 
         {/* 상태 배지 */}
         <div className="absolute top-4 left-4">
-          <StatusDot status={status} size="lg" />
+          <StatusBadge status={status} size="lg" />
         </div>
 
         {/* 조회수 */}
@@ -206,7 +214,8 @@ function FeaturedCard({ event }: { event: BoardItem }) {
           {(event.start_dt || event.end_dt) && (
             <div className="flex items-center gap-1.5 mt-2 text-xs text-white/50">
               <Calendar className="size-3" />
-              {formatTimestampDot(event.start_dt)} ~ {formatTimestampDot(event.end_dt)}
+              {formatTimestampDot(event.start_dt)} ~{" "}
+              {formatTimestampDot(event.end_dt)}
             </div>
           )}
         </div>
@@ -230,8 +239,8 @@ function EventGridCard({ event }: { event: BoardItem }) {
   const status = getEventStatus(event)
   const ended = status.label === "종료"
   const image =
-    event.badge_image_url ||
     event.detail_banner_image_url ||
+    event.badge_image_url ||
     event.image_urls?.[0]
 
   return (
@@ -245,10 +254,10 @@ function EventGridCard({ event }: { event: BoardItem }) {
           : "hover:shadow-lg hover:-translate-y-0.5"
       )}
     >
-      {/* 이미지 */}
+      {/* 이미지 — 배너형 가로 비율 */}
       <div
         className={cn(
-          "relative aspect-[4/3] bg-muted overflow-hidden",
+          "relative aspect-[16/10] bg-muted overflow-hidden",
           ended && "saturate-[0.2]"
         )}
       >
@@ -269,10 +278,7 @@ function EventGridCard({ event }: { event: BoardItem }) {
           </div>
         )}
 
-        {/* 그라디언트 */}
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 to-transparent" />
-
-        {/* 조회수 */}
+        {/* 조회수 (이미지 위) */}
         {event.view_count != null && event.view_count > 0 && (
           <div className="absolute top-2 right-2 flex items-center gap-0.5 text-[10px] text-white/70 bg-black/30 rounded-full px-1.5 py-0.5 backdrop-blur-sm">
             <Eye className="size-2.5" />
@@ -280,7 +286,7 @@ function EventGridCard({ event }: { event: BoardItem }) {
           </div>
         )}
 
-        {/* 종료 오버레이 */}
+        {/* 종료 오버레이 — 그리드 카드에서는 이미지 위 오버레이만 (하단 중복 제거) */}
         {ended && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/20">
             <span className="text-white/50 text-[10px] font-bold tracking-wider px-2.5 py-0.5 border border-white/20 rounded-full backdrop-blur-sm">
@@ -292,9 +298,12 @@ function EventGridCard({ event }: { event: BoardItem }) {
 
       {/* 하단 정보 */}
       <div className="p-3">
-        <div className="flex items-center gap-1.5 mb-1.5">
-          <StatusDot status={status} size="sm" />
-        </div>
+        {/* 상태 — 종료가 아닐 때만 표시 (종료는 이미지 오버레이에서 처리) */}
+        {!ended && (
+          <div className="mb-1.5">
+            <StatusBadge status={status} size="sm" />
+          </div>
+        )}
         <h3
           className={cn(
             "font-bold text-sm leading-snug line-clamp-2",
@@ -305,9 +314,15 @@ function EventGridCard({ event }: { event: BoardItem }) {
         >
           {event.title}
         </h3>
+        {event.thumb_description && (
+          <p className="text-xs text-muted-foreground/60 mt-1 line-clamp-1">
+            {event.thumb_description}
+          </p>
+        )}
         {(event.start_dt || event.end_dt) && (
           <p className="text-[11px] text-muted-foreground/60 mt-1.5">
-            {formatTimestampDot(event.start_dt)} ~ {formatTimestampDot(event.end_dt)}
+            {formatTimestampDot(event.start_dt)} ~{" "}
+            {formatTimestampDot(event.end_dt)}
           </p>
         )}
       </div>
@@ -315,9 +330,9 @@ function EventGridCard({ event }: { event: BoardItem }) {
   )
 }
 
-// ─── Status dot indicator ───
+// ─── Status badge (pill style) ───
 
-function StatusDot({
+function StatusBadge({
   status,
   size = "sm",
 }: {
@@ -325,38 +340,20 @@ function StatusDot({
   size?: "sm" | "lg"
 }) {
   const isLg = size === "lg"
+  const StatusIcon = status.icon
 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 font-semibold rounded-full",
-        isLg
-          ? "text-xs px-3 py-1 bg-black/30 backdrop-blur-sm text-white"
-          : "text-[11px]"
+        "inline-flex items-center gap-1 font-bold rounded-full backdrop-blur-sm",
+        isLg ? "text-xs px-3 py-1 shadow-sm" : "text-[10px] px-2 py-0.5",
+        status.label === "진행중" && "bg-emerald-500/90 text-white",
+        status.label === "예정" && "bg-blue-500/90 text-white",
+        status.label === "종료" && "bg-gray-500/70 text-white/80"
       )}
     >
-      <span
-        className={cn(
-          "rounded-full shrink-0",
-          isLg ? "size-2" : "size-1.5",
-          status.label === "진행중" && "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]",
-          status.label === "예정" && "bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.6)]",
-          status.label === "종료" && "bg-gray-400"
-        )}
-      />
-      <span
-        className={cn(
-          isLg
-            ? "text-white/90"
-            : cn(
-                status.label === "진행중" && "text-emerald-600 dark:text-emerald-400",
-                status.label === "예정" && "text-blue-600 dark:text-blue-400",
-                status.label === "종료" && "text-muted-foreground"
-              )
-        )}
-      >
-        {status.label}
-      </span>
+      <StatusIcon className={cn(isLg ? "size-3" : "size-2.5")} />
+      {status.label}
     </span>
   )
 }

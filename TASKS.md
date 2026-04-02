@@ -2,6 +2,20 @@
 
 ---
 
+## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
+
+> **진행률**: 92 / 117 (78%)
+
+### 태스크
+
+- [x] `EV-1` 현행 UX 분석 — dev 서버 실행 + Playwright로 현재 화면 캡처 + 실제 데이터 기반 문제 식별
+- [x] `EV-2` 홈 EventSection 재설계 — 분석 결과 기반 카드/레이아웃/인터랙션 개선
+- [x] `EV-3` EventListPage 재설계 — 필터/카드/플로우 개선
+- [x] `EV-4` EventDetailPage 재설계 — 히어로/콘텐츠/갤러리/CTA 개선
+- [x] `EV-5` 테스트 전체 통과 확인 + 최종 스크린샷 비교 ✅ 129 tests passed
+
+---
+
 ## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth` (보류)
 
 > 개발자 콘솔 준비 중

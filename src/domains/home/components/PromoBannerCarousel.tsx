@@ -66,15 +66,22 @@ export function PromoBannerCarousel({ banners }: Props) {
           const isExternal = href?.startsWith("http")
           const btnName = banner.link?.btn_name
 
+          const bannerImage = banner.image_urls?.[0]
           const content = (
             <>
-              <Image
-                src={banner.image_urls?.[0] || ""}
-                alt={`배너 ${banner.key}`}
-                fill
-                className="object-cover"
-                sizes="100vw"
-              />
+              {bannerImage ? (
+                <Image
+                  src={bannerImage}
+                  alt={`배너 ${banner.key}`}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-muted">
+                  <span className="text-muted-foreground/30 text-sm">No Image</span>
+                </div>
+              )}
               {btnName && (
                 <span className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-xs md:text-sm font-medium text-white bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
                   {btnName}

@@ -36,13 +36,17 @@ export function FeatureSection({ exhibitions }: Props) {
         href={`/exhibitions/${hero.key}`}
         className="group relative overflow-hidden rounded-xl block aspect-[2/1] mb-3"
       >
-        <Image
-          src={hero.banner_image_url || hero.image_urls?.[0] || ""}
-          alt={hero.title}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="100vw"
-        />
+        {(hero.banner_image_url || hero.image_urls?.[0]) ? (
+          <Image
+            src={(hero.banner_image_url || hero.image_urls?.[0])!}
+            alt={hero.title}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="100vw"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
         <div className="absolute inset-0 flex flex-col justify-end p-5 md:p-6">
           {hero.thumb_description && (
@@ -66,13 +70,17 @@ export function FeatureSection({ exhibitions }: Props) {
               href={`/exhibitions/${item.key}`}
               className="group relative overflow-hidden rounded-xl aspect-[4/3]"
             >
-              <Image
-                src={item.banner_image_url || item.image_urls?.[0] || ""}
-                alt={item.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 50vw, 33vw"
-              />
+              {(item.banner_image_url || item.image_urls?.[0]) ? (
+                <Image
+                  src={(item.banner_image_url || item.image_urls?.[0])!}
+                  alt={item.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/5" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3">
                 {item.thumb_description && (

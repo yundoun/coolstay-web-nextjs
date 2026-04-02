@@ -3,6 +3,21 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 13:17** | ## FIX: RoomCard Skeleton → 텍스트 placeholder | [`505850d`](.work-history/entries/2026-04-02_13-25_FIX_roomcard-placeholder.md)
+- **2026-04-02 13:16** | ## EV-4 v2: EventDetailPage 구조 변경 — CMS 구조 반영 | [`bf20c7a`](.work-history/entries/2026-04-02_13-20_EV-4-v2_detail-restructure.md)
+- **2026-04-02 13:08** | ## FIX: 전체 Image 빈 src 에러 일괄 수정 (7개 파일) | [`c718c92`](.work-history/entries/2026-04-02_13-10_FIX_empty-image-src-all.md)
+- **2026-04-02 13:00** | ## FIX: RoomCard 이미지 없을 때 Skeleton 표시 | [`c2f3254`](.work-history/entries/2026-04-02_13-10_FIX_roomcard-skeleton.md)
+- **2026-04-02 12:59** | ## FIX: RoomCard 빈 imageUrl src 에러 수정 | [`2fece05`](.work-history/entries/2026-04-02_13-05_FIX_roomcard-empty-src.md)
+- **2026-04-02 12:57** | ## FIX: ImageGallery 빈 문자열 src 에러 수정 | [`3a788d9`](.work-history/entries/2026-04-02_13-00_FIX_image-gallery-empty-src.md)
+- **2026-04-02 12:54** | ## FIX: RoomCard 빈 imageUrl 에러 수정 | [`21892d2`](.work-history/entries/2026-04-02_13-00_FIX_roomcard-empty-src.md)
+- **2026-04-02 12:53** | ## FIX: 숙소 상세 ImageGallery 빈 src 에러 수정 | [`5c8acfc`](.work-history/entries/2026-04-02_12-55_FIX_image-gallery-empty-src.md)
+- **2026-04-02 11:41** | ## EV-2 수정: 전체보기 링크 위치 — 기존 패턴 일관성 적용 | [`2a4c39b`](.work-history/entries/2026-04-02_12-45_EV-2-fix_header-action-consistency.md)
+- **2026-04-02 11:31** | ## EV-5: 테스트 전체 통과 확인 | [`b001b62`](.work-history/entries/2026-04-02_12-35_EV-5_test-verify.md)
+- **2026-04-02 11:30** | ## EV-4: EventDetailPage 재설계 | [`742eaf0`](.work-history/entries/2026-04-02_12-30_EV-4_event-detail-redesign.md)
+- **2026-04-02 11:28** | ## EV-3: EventListPage 재설계 | [`78964ff`](.work-history/entries/2026-04-02_12-15_EV-3_event-list-redesign.md)
+- **2026-04-02 11:27** | ## EV-2: 홈 EventSection 재설계 | [`a1be676`](.work-history/entries/2026-04-02_12-00_EV-2_home-event-redesign.md)
+- **2026-04-02 11:25** | ## EV-1: 이벤트 영역 현행 UX 분석 | [`5e37553`](.work-history/entries/2026-04-02_11-45_EV-1_ux-analysis.md)
+- **2026-04-02 11:22** | ## EV-0: 하네스 세팅 — 이벤트 UI 개선 | [`ae4329a`](.work-history/entries/2026-04-02_11-30_EV-0_harness-setup.md)
 - **2026-04-02 10:46** | 하네스 Lite 모드 추가 + 파생 파일 정리 | [`bad61f1`](.work-history/entries/2026-04-02_10-30_harness-lite-cleanup.md)
 - **2026-04-01 15:02** | 이벤트 상세 히어로 이미지 전체 너비 수정 | [`34f86fd`](.work-history/entries/2026-04-01_16-05_event-hero-fix.md)
 - **2026-04-01 14:55** | 이벤트 UI 모던 리디자인 | [`897ab3a`](.work-history/entries/2026-04-01_16-00_event-redesign.md)

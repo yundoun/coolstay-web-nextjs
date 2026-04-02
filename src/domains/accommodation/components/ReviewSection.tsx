@@ -164,9 +164,9 @@ function ReviewCard({
       <p className="text-xs text-muted-foreground mb-2">{review.roomName}</p>
       <p className="text-sm leading-relaxed">{review.content}</p>
 
-      {review.images && review.images.length > 0 && (
+      {review.images && review.images.filter((img) => img).length > 0 && (
         <div className="flex gap-2 mt-3">
-          {review.images.map((image, index) => (
+          {review.images.filter((img) => img).map((image, index) => (
             <button
               key={index}
               className="relative size-20 rounded-lg overflow-hidden hover:ring-2 hover:ring-primary/50 transition-all"

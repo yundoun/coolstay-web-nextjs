@@ -43,7 +43,9 @@ export function RoomDetailModal({
 
   if (!room) return null
 
-  const images = room.images.length > 0 ? room.images : [room.imageUrl]
+  const images = (room.images.length > 0 ? room.images : [room.imageUrl]).filter(
+    (url) => url && url.trim() !== ""
+  )
 
   const goToImage = (index: number) => {
     setCurrentImage(Math.max(0, Math.min(index, images.length - 1)))
@@ -55,14 +57,20 @@ export function RoomDetailModal({
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0 gap-0">
           {/* Image Carousel */}
           <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-            <Image
-              src={images[currentImage]}
-              alt={`${room.name} 이미지 ${currentImage + 1}`}
-              fill
-              className="object-cover cursor-pointer"
-              sizes="(max-width: 640px) 100vw, 512px"
-              onClick={() => setLightboxOpen(true)}
-            />
+            {images.length > 0 ? (
+              <Image
+                src={images[currentImage]}
+                alt={`${room.name} 이미지 ${currentImage + 1}`}
+                fill
+                className="object-cover cursor-pointer"
+                sizes="(max-width: 640px) 100vw, 512px"
+                onClick={() => setLightboxOpen(true)}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <span className="text-muted-foreground/30 text-sm">No Image</span>
+              </div>
+            )}
 
             {images.length > 1 && (
               <>

@@ -12,14 +12,20 @@ export function RoomSummaryCard({ context }: RoomSummaryCardProps) {
 
   return (
     <div className="flex gap-4 p-4 rounded-xl border bg-card">
-      <div className="relative w-28 h-20 rounded-lg overflow-hidden shrink-0">
-        <Image
-          src={context.room.imageUrl}
-          alt={context.room.name}
-          fill
-          className="object-cover"
-          sizes="112px"
-        />
+      <div className="relative w-28 h-20 rounded-lg overflow-hidden shrink-0 bg-muted">
+        {context.room.imageUrl ? (
+          <Image
+            src={context.room.imageUrl}
+            alt={context.room.name}
+            fill
+            className="object-cover"
+            sizes="112px"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-muted-foreground/30 text-xs">No Image</span>
+          </div>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
