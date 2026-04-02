@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -9,7 +8,6 @@ import {
   ArrowLeft,
   ExternalLink,
   Eye,
-  Images,
   Share2,
   Tag,
   Sparkles,
@@ -47,111 +45,6 @@ function DescriptionRenderer({ text }: { text: string }) {
   )
 }
 
-// ─── Image Gallery with scroll indicators ───
-
-function ImageGallery({ images, title }: { images: string[]; title: string }) {
-  const [activeIdx, setActiveIdx] = useState(0)
-
-  return (
-    <div>
-      <div className="flex items-center gap-1.5 mb-3 text-sm font-semibold text-foreground">
-        <Images className="size-4 text-primary" />
-        이미지
-        <span className="text-xs text-muted-foreground font-normal ml-1">
-          {images.length}장
-        </span>
-      </div>
-
-      <div className="relative">
-        <div
-          className={cn(
-            "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2",
-            "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          )}
-          onScroll={(e) => {
-            const el = e.currentTarget
-            const child = el.firstElementChild as HTMLElement | null
-            if (!child) return
-            const cardWidth = child.offsetWidth + 12 // gap-3 = 12px
-            const idx = Math.round(el.scrollLeft / cardWidth)
-            setActiveIdx(Math.min(idx, images.length - 1))
-          }}
-        >
-          {images.map((url, idx) => (
-            <div
-              key={idx}
-              className="relative flex-shrink-0 snap-start w-[280px] sm:w-[360px] aspect-[16/10] rounded-xl overflow-hidden bg-muted shadow-sm"
-            >
-              <Image
-                src={url}
-                alt={`${title} ${idx + 1}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 280px, 360px"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* 스크롤 인디케이터 */}
-        {images.length > 1 && (
-          <div className="flex justify-center gap-1.5 mt-3">
-            {images.map((_, idx) => (
-              <span
-                key={idx}
-                className={cn(
-                  "rounded-full transition-all duration-300",
-                  idx === activeIdx
-                    ? "w-5 h-1.5 bg-primary"
-                    : "w-1.5 h-1.5 bg-muted-foreground/20"
-                )}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ─── CTA Buttons ───
-
-function CTAButtons({
-  buttons,
-  layout,
-}: {
-  buttons: BoardItemLink[]
-  layout: "inline" | "sticky"
-}) {
-  return (
-    <div className={cn("flex gap-2", layout === "inline" && "gap-3")}>
-      {buttons.map((btn, idx) => (
-        <Button
-          key={idx}
-          className={cn(
-            "flex-1 gap-2 rounded-xl h-12 font-bold",
-            layout === "sticky" && "text-sm",
-            idx === 0 &&
-              "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-          )}
-          size={layout === "inline" ? "lg" : "default"}
-          variant={idx === 0 ? "default" : "outline"}
-          asChild
-        >
-          <a href={btn.target} target="_blank" rel="noopener noreferrer">
-            {idx === 0 ? (
-              <Sparkles className="size-4" />
-            ) : (
-              <Gift className="size-4" />
-            )}
-            {btn.btn_name || "바로가기"}
-          </a>
-        </Button>
-      ))}
-    </div>
-  )
-}
-
 // ─── Main ───
 
 export function EventDetailPage({ eventKey }: { eventKey: number }) {
@@ -185,15 +78,21 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
 
   const status = getEventStatus(event)
   const StatusIcon = status.icon
+
+  // 히어로: 썸네일(badge) 우선, 없으면 상세 배너
   const heroImage =
-    event.detail_banner_image_url ||
     event.badge_image_url ||
-    event.image_urls?.[0]
+    event.detail_banner_image_url
+
+  // 상세 이미지: 세로로 긴 랜딩 이미지 (콘텐츠 자체)
+  const detailImages = (event.image_urls ?? []).filter(
+    (url) => url && url.trim() !== ""
+  )
 
   const hasDescription =
     event.description && event.description !== "." && event.description.trim()
-  const hasImages = event.image_urls && event.image_urls.length > 0
-  const hasContent = hasDescription || hasImages || event.webview_link
+  const hasContent =
+    hasDescription || detailImages.length > 0 || event.webview_link
 
   const handleShare = async () => {
     try {
@@ -210,7 +109,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
     <div className="min-h-screen bg-muted/30">
       {/* ─── 히어로 섹션 (풀블리드) ─── */}
       <div className="relative">
-        {/* 히어로 이미지 */}
+        {/* 히어로 이미지 (썸네일 배너) */}
         <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] lg:aspect-[5/2] bg-gray-900 overflow-hidden">
           {heroImage ? (
             <Image
@@ -311,15 +210,15 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
         </div>
       </div>
 
-      {/* ─── 콘텐츠 카드 (히어로 위로 겹침) ─── */}
+      {/* ─── 콘텐츠 영역 ─── */}
       <Container size="narrow" padding="responsive">
         <div className="relative -mt-8 bg-background rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.1)] min-h-[120px]">
           <div className="p-5 sm:p-8">
-            {/* 설명 */}
+            {/* 설명 텍스트 */}
             {hasDescription && (
               <div
                 className={cn(
-                  hasImages || event.webview_link
+                  detailImages.length > 0 || event.webview_link
                     ? "pb-6 border-b border-border/50"
                     : ""
                 )}
@@ -328,19 +227,34 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
               </div>
             )}
 
-            {/* 이미지 갤러리 */}
-            {hasImages && (
-              <div className={cn(hasDescription ? "mt-6" : "")}>
-                <ImageGallery
-                  images={event.image_urls!}
-                  title={event.title}
-                />
-              </div>
+            {/* 콘텐츠 없을 때 */}
+            {!hasContent && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                이벤트 상세 정보가 준비 중입니다.
+              </p>
             )}
+          </div>
 
+          {/* 상세 이미지 — 풀너비 세로 스택 (콘텐츠 자체) */}
+          {detailImages.length > 0 && (
+            <div className="flex flex-col">
+              {detailImages.map((url, idx) => (
+                <img
+                  key={idx}
+                  src={url}
+                  alt={`${event.title} 상세 ${idx + 1}`}
+                  className="w-full h-auto"
+                  loading={idx === 0 ? "eager" : "lazy"}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* 하단 영역 (링크 + CTA) */}
+          <div className="p-5 sm:p-8">
             {/* 웹뷰 링크 */}
             {event.webview_link && (
-              <div className="mt-6">
+              <div className="mb-4">
                 <Button
                   variant="outline"
                   className="w-full gap-2 rounded-xl h-12 font-semibold border-2 hover:bg-muted/50"
@@ -358,36 +272,40 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
               </div>
             )}
 
-            {/* 콘텐츠 없을 때 */}
-            {!hasContent && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                이벤트 상세 정보가 준비 중입니다.
-              </p>
-            )}
-
-            {/* 데스크탑 CTA — 콘텐츠 카드 내부에 배치 (스크롤 없이 노출) */}
+            {/* CTA 버튼 — 인라인 (모바일/데스크탑 공통) */}
             {event.buttons && event.buttons.length > 0 && (
-              <div className="hidden sm:block mt-6 pt-6 border-t border-border/50">
-                <CTAButtons buttons={event.buttons} layout="inline" />
+              <div className="flex gap-2 sm:gap-3">
+                {event.buttons.map((btn: BoardItemLink, idx: number) => (
+                  <Button
+                    key={idx}
+                    className={cn(
+                      "flex-1 gap-2 rounded-xl h-12 font-bold",
+                      idx === 0 &&
+                        "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+                    )}
+                    size="lg"
+                    variant={idx === 0 ? "default" : "outline"}
+                    asChild
+                  >
+                    <a
+                      href={btn.target}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {idx === 0 ? (
+                        <Sparkles className="size-4" />
+                      ) : (
+                        <Gift className="size-4" />
+                      )}
+                      {btn.btn_name || "바로가기"}
+                    </a>
+                  </Button>
+                ))}
               </div>
             )}
           </div>
         </div>
-
-        {/* 모바일 하단 여백 (sticky bar가 가리는 영역) */}
-        {event.buttons && event.buttons.length > 0 && (
-          <div className="h-24 sm:h-0" />
-        )}
       </Container>
-
-      {/* ─── 모바일 CTA 스티키 바 ─── */}
-      {event.buttons && event.buttons.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 z-50 sm:hidden">
-          <div className="bg-background/95 backdrop-blur-lg border-t shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-            <CTAButtons buttons={event.buttons} layout="sticky" />
-          </div>
-        </div>
-      )}
     </div>
   )
 }
