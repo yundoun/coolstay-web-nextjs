@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 11:30** | ## EV-4: EventDetailPage 재설계 | [`742eaf0`](.work-history/entries/2026-04-02_12-30_EV-4_event-detail-redesign.md)
 - **2026-04-02 11:28** | ## EV-3: EventListPage 재설계 | [`78964ff`](.work-history/entries/2026-04-02_12-15_EV-3_event-list-redesign.md)
 - **2026-04-02 11:27** | ## EV-2: 홈 EventSection 재설계 | [`a1be676`](.work-history/entries/2026-04-02_12-00_EV-2_home-event-redesign.md)
 - **2026-04-02 11:25** | ## EV-1: 이벤트 영역 현행 UX 분석 | [`5e37553`](.work-history/entries/2026-04-02_11-45_EV-1_ux-analysis.md)

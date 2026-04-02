@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -14,7 +15,6 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Container } from "@/components/layout"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorState } from "@/components/ui/error-state"
@@ -44,6 +44,111 @@ function DescriptionRenderer({ text }: { text: string }) {
     <p className="text-sm text-foreground/80 whitespace-pre-line leading-relaxed">
       {text}
     </p>
+  )
+}
+
+// ─── Image Gallery with scroll indicators ───
+
+function ImageGallery({ images, title }: { images: string[]; title: string }) {
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-3 text-sm font-semibold text-foreground">
+        <Images className="size-4 text-primary" />
+        이미지
+        <span className="text-xs text-muted-foreground font-normal ml-1">
+          {images.length}장
+        </span>
+      </div>
+
+      <div className="relative">
+        <div
+          className={cn(
+            "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2",
+            "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          )}
+          onScroll={(e) => {
+            const el = e.currentTarget
+            const child = el.firstElementChild as HTMLElement | null
+            if (!child) return
+            const cardWidth = child.offsetWidth + 12 // gap-3 = 12px
+            const idx = Math.round(el.scrollLeft / cardWidth)
+            setActiveIdx(Math.min(idx, images.length - 1))
+          }}
+        >
+          {images.map((url, idx) => (
+            <div
+              key={idx}
+              className="relative flex-shrink-0 snap-start w-[280px] sm:w-[360px] aspect-[16/10] rounded-xl overflow-hidden bg-muted shadow-sm"
+            >
+              <Image
+                src={url}
+                alt={`${title} ${idx + 1}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 280px, 360px"
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* 스크롤 인디케이터 */}
+        {images.length > 1 && (
+          <div className="flex justify-center gap-1.5 mt-3">
+            {images.map((_, idx) => (
+              <span
+                key={idx}
+                className={cn(
+                  "rounded-full transition-all duration-300",
+                  idx === activeIdx
+                    ? "w-5 h-1.5 bg-primary"
+                    : "w-1.5 h-1.5 bg-muted-foreground/20"
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── CTA Buttons ───
+
+function CTAButtons({
+  buttons,
+  layout,
+}: {
+  buttons: BoardItemLink[]
+  layout: "inline" | "sticky"
+}) {
+  return (
+    <div className={cn("flex gap-2", layout === "inline" && "gap-3")}>
+      {buttons.map((btn, idx) => (
+        <Button
+          key={idx}
+          className={cn(
+            "flex-1 gap-2 rounded-xl h-12 font-bold",
+            layout === "sticky" && "text-sm",
+            idx === 0 &&
+              "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+          )}
+          size={layout === "inline" ? "lg" : "default"}
+          variant={idx === 0 ? "default" : "outline"}
+          asChild
+        >
+          <a href={btn.target} target="_blank" rel="noopener noreferrer">
+            {idx === 0 ? (
+              <Sparkles className="size-4" />
+            ) : (
+              <Gift className="size-4" />
+            )}
+            {btn.btn_name || "바로가기"}
+          </a>
+        </Button>
+      ))}
+    </div>
   )
 }
 
@@ -84,6 +189,11 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
     event.detail_banner_image_url ||
     event.badge_image_url ||
     event.image_urls?.[0]
+
+  const hasDescription =
+    event.description && event.description !== "." && event.description.trim()
+  const hasImages = event.image_urls && event.image_urls.length > 0
+  const hasContent = hasDescription || hasImages || event.webview_link
 
   const handleShare = async () => {
     try {
@@ -162,8 +272,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
                     "bg-emerald-500/90 text-white shadow-lg shadow-emerald-500/30",
                   status.label === "예정" &&
                     "bg-blue-500/90 text-white shadow-lg shadow-blue-500/30",
-                  status.label === "종료" &&
-                    "bg-gray-500/80 text-white/80"
+                  status.label === "종료" && "bg-gray-500/80 text-white/80"
                 )}
               >
                 <StatusIcon className="size-3" />
@@ -187,7 +296,8 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
               {(event.start_dt || event.end_dt) && (
                 <span className="flex items-center gap-1.5 text-xs text-white/60">
                   <Calendar className="size-3.5" />
-                  {formatTimestampDot(event.start_dt)} ~ {formatTimestampDot(event.end_dt)}
+                  {formatTimestampDot(event.start_dt)} ~{" "}
+                  {formatTimestampDot(event.end_dt)}
                 </span>
               )}
               {event.view_count != null && (
@@ -203,50 +313,32 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
 
       {/* ─── 콘텐츠 카드 (히어로 위로 겹침) ─── */}
       <Container size="narrow" padding="responsive">
-        <div className="relative -mt-4 bg-background rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] min-h-[200px]">
+        <div className="relative -mt-8 bg-background rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.1)] min-h-[120px]">
           <div className="p-5 sm:p-8">
             {/* 설명 */}
-            {event.description && event.description !== "." && (
-              <div className="pb-6 border-b border-border/50">
-                <DescriptionRenderer text={event.description} />
+            {hasDescription && (
+              <div
+                className={cn(
+                  hasImages || event.webview_link
+                    ? "pb-6 border-b border-border/50"
+                    : ""
+                )}
+              >
+                <DescriptionRenderer text={event.description!} />
               </div>
             )}
 
-            {/* 이미지 갤러리 (횡스크롤) */}
-            {event.image_urls && event.image_urls.length > 0 && (
-              <div className="mt-6">
-                <div className="flex items-center gap-1.5 mb-3 text-sm font-semibold text-foreground">
-                  <Images className="size-4 text-primary" />
-                  이미지
-                  <span className="text-xs text-muted-foreground font-normal ml-1">
-                    {event.image_urls.length}장
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2",
-                    "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                  )}
-                >
-                  {event.image_urls.map((url, idx) => (
-                    <div
-                      key={idx}
-                      className="relative flex-shrink-0 snap-start w-[280px] sm:w-[360px] aspect-[16/10] rounded-xl overflow-hidden bg-muted shadow-sm"
-                    >
-                      <Image
-                        src={url}
-                        alt={`${event.title} ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 640px) 280px, 360px"
-                      />
-                    </div>
-                  ))}
-                </div>
+            {/* 이미지 갤러리 */}
+            {hasImages && (
+              <div className={cn(hasDescription ? "mt-6" : "")}>
+                <ImageGallery
+                  images={event.image_urls!}
+                  title={event.title}
+                />
               </div>
             )}
 
-            {/* 웹뷰 링크 (아웃라인 버튼) */}
+            {/* 웹뷰 링크 */}
             {event.webview_link && (
               <div className="mt-6">
                 <Button
@@ -254,84 +346,47 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
                   className="w-full gap-2 rounded-xl h-12 font-semibold border-2 hover:bg-muted/50"
                   asChild
                 >
-                  <a href={event.webview_link} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={event.webview_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="size-4" />
                     자세히 보기
                   </a>
                 </Button>
               </div>
             )}
+
+            {/* 콘텐츠 없을 때 */}
+            {!hasContent && (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                이벤트 상세 정보가 준비 중입니다.
+              </p>
+            )}
+
+            {/* 데스크탑 CTA — 콘텐츠 카드 내부에 배치 (스크롤 없이 노출) */}
+            {event.buttons && event.buttons.length > 0 && (
+              <div className="hidden sm:block mt-6 pt-6 border-t border-border/50">
+                <CTAButtons buttons={event.buttons} layout="inline" />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* 하단 여백 (sticky bar가 가리는 영역) */}
+        {/* 모바일 하단 여백 (sticky bar가 가리는 영역) */}
         {event.buttons && event.buttons.length > 0 && (
           <div className="h-24 sm:h-0" />
         )}
       </Container>
 
-      {/* ─── CTA 스티키 바 (모바일: 하단 고정, 데스크탑: 인라인) ─── */}
+      {/* ─── 모바일 CTA 스티키 바 ─── */}
       {event.buttons && event.buttons.length > 0 && (
-        <>
-          {/* 모바일: 고정 하단 바 */}
-          <div className="fixed bottom-0 inset-x-0 z-50 sm:hidden">
-            <div className="bg-background/95 backdrop-blur-lg border-t shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              <div className="flex gap-2">
-                {event.buttons.map((btn: BoardItemLink, idx: number) => (
-                  <Button
-                    key={idx}
-                    className={cn(
-                      "flex-1 gap-2 rounded-xl h-12 font-bold text-sm",
-                      idx === 0 &&
-                        "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-                    )}
-                    variant={idx === 0 ? "default" : "outline"}
-                    asChild
-                  >
-                    <a href={btn.target} target="_blank" rel="noopener noreferrer">
-                      {idx === 0 ? (
-                        <Sparkles className="size-4" />
-                      ) : (
-                        <Gift className="size-4" />
-                      )}
-                      {btn.btn_name || "바로가기"}
-                    </a>
-                  </Button>
-                ))}
-              </div>
-            </div>
+        <div className="fixed bottom-0 inset-x-0 z-50 sm:hidden">
+          <div className="bg-background/95 backdrop-blur-lg border-t shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <CTAButtons buttons={event.buttons} layout="sticky" />
           </div>
-
-          {/* 데스크탑: 인라인 */}
-          <Container size="narrow" padding="responsive" className="hidden sm:block pb-8">
-            <div className="bg-background rounded-b-2xl shadow-[0_4px_20px_rgba(0,0,0,0.06)] p-5">
-              <div className="flex gap-3">
-                {event.buttons.map((btn: BoardItemLink, idx: number) => (
-                  <Button
-                    key={idx}
-                    className={cn(
-                      "flex-1 gap-2 rounded-xl h-12 font-bold",
-                      idx === 0 &&
-                        "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
-                    )}
-                    size="lg"
-                    variant={idx === 0 ? "default" : "outline"}
-                    asChild
-                  >
-                    <a href={btn.target} target="_blank" rel="noopener noreferrer">
-                      {idx === 0 ? (
-                        <Sparkles className="size-4" />
-                      ) : (
-                        <Gift className="size-4" />
-                      )}
-                      {btn.btn_name || "바로가기"}
-                    </a>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </Container>
-        </>
+        </div>
       )}
     </div>
   )
