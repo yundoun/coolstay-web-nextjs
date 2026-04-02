@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 11:31** | ## EV-5: 테스트 전체 통과 확인 | [`b001b62`](.work-history/entries/2026-04-02_12-35_EV-5_test-verify.md)
 - **2026-04-02 11:30** | ## EV-4: EventDetailPage 재설계 | [`742eaf0`](.work-history/entries/2026-04-02_12-30_EV-4_event-detail-redesign.md)
 - **2026-04-02 11:28** | ## EV-3: EventListPage 재설계 | [`78964ff`](.work-history/entries/2026-04-02_12-15_EV-3_event-list-redesign.md)
 - **2026-04-02 11:27** | ## EV-2: 홈 EventSection 재설계 | [`a1be676`](.work-history/entries/2026-04-02_12-00_EV-2_home-event-redesign.md)
