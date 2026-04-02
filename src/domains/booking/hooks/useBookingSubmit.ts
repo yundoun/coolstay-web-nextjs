@@ -86,28 +86,30 @@ export function useBookingSubmit() {
         checkOut.setHours(coH, 0, 0, 0)
       }
 
-      // 쿠폰 정보 구성
+      // 쿠폰 정보 구성 — rawCoupons에서 원본 데이터 매핑
       const coupons = selectedCouponId
-        ? context.availableCoupons
-            .filter((c) => c.id === selectedCouponId)
+        ? (context.rawCoupons || [])
+            .filter((c) => String(c.coupon_pk) === selectedCouponId)
             .map((c) => ({
-              code: c.id,
-              title: c.name,
-              description: "",
-              category_code: "",
+              code: c.code,
+              title: c.title,
+              description: c.description,
+              category_code: c.category_code,
               category_description: "",
-              type: "DOWNLOAD",
-              discount_type: c.discountType === "fixed" ? "AMOUNT" : "RATE",
-              discount_amount: c.discountValue,
-              total_amount: 0,
-              remain_amount: 0,
-              dup_use_yn: "N",
-              usable_yn: "Y",
-              status: "ACTIVE",
-              start_dt: "",
-              end_dt: "",
-              usable_start_dt: "",
-              usable_end_dt: "",
+              type: c.type,
+              discount_type: c.discount_type,
+              discount_amount: c.discount_amount,
+              total_amount: c.total_amount,
+              remain_amount: c.remain_amount,
+              dup_use_yn: c.dup_use_yn,
+              usable_yn: c.usable_yn,
+              status: c.status,
+              start_dt: String(c.start_dt),
+              end_dt: String(c.end_dt),
+              usable_start_dt: String(c.usable_start_dt),
+              usable_end_dt: String(c.usable_end_dt),
+              day_codes: c.day_codes,
+              constraints: c.constraints,
             }))
         : undefined
 

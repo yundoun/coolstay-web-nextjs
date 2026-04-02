@@ -9,8 +9,30 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { getStoreDetail } from "@/domains/accommodation/api/detailApi"
 import { mapMotelToDetail } from "@/domains/accommodation/utils/mapMotelToDetail"
+import { getCouponList } from "@/domains/coupon/api/couponApi"
+import type { Coupon as ApiCoupon } from "@/domains/coupon/types"
 import { BookingPageLayout } from "./BookingPageLayout"
-import type { BookingContext, BookingType } from "../types"
+import type { BookingContext, BookingType, Coupon } from "../types"
+
+/** YYYYMMDD 포맷 */
+function toDateStr(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, "0")
+  const day = String(d.getDate()).padStart(2, "0")
+  return `${y}${m}${day}`
+}
+
+/** API 쿠폰 → 예약 UI용 쿠폰 변환 */
+function mapApiCouponToBooking(c: ApiCoupon): Coupon {
+  const minPriceConstraint = c.constraints?.find((ct) => ct.code === "CC001")
+  return {
+    id: String(c.coupon_pk),
+    name: c.title,
+    discountType: c.discount_type === "AMOUNT" ? "fixed" : "percent",
+    discountValue: c.discount_amount,
+    minOrderAmount: minPriceConstraint ? Number(minPriceConstraint.value) : 0,
+  }
+}
 
 interface BookingPageClientProps {
   accommodationId: string
@@ -50,6 +72,37 @@ export function BookingPageClient({
         const endHour = isRental ? room.rentalEndHour : room.stayEndHour
         const useHours = isRental ? room.rentalUseHours : undefined
 
+        // 쿠폰 목록 조회
+        let availableCoupons: Coupon[] = []
+        let rawCoupons: ApiCoupon[] = []
+        try {
+          const today = new Date()
+          const tomorrow = new Date(today)
+          tomorrow.setDate(tomorrow.getDate() + 1)
+
+          const couponRes = await getCouponList({
+            search_type: "ST601",
+            item_category_code: isRental ? "010101" : "010102",
+            book_dt: toDateStr(today),
+            book_out_dt: toDateStr(isRental ? today : tomorrow),
+            discount_price: String(price),
+          })
+
+          rawCoupons = couponRes.coupons.filter((c) => {
+            if (c.usable_yn !== "Y" || c.dimmed_yn === "Y") return false
+            // CC004: 적용 제휴점 제한 — 값이 있으면 현재 숙소 key 포함 여부 확인
+            const storeConstraint = c.constraints?.find((ct) => ct.code === "CC004")
+            if (storeConstraint && !storeConstraint.value.includes(accommodationId)) return false
+            // CC001: 최소 객실 금액
+            const minPriceConstraint = c.constraints?.find((ct) => ct.code === "CC001")
+            if (minPriceConstraint && Number(minPriceConstraint.value) > price) return false
+            return true
+          })
+          availableCoupons = rawCoupons.map(mapApiCouponToBooking)
+        } catch (e) {
+          console.error("[BookingPageClient] 쿠폰 조회 실패:", e)
+        }
+
         setContext({
           accommodation: {
             id: detail.id,
@@ -73,7 +126,8 @@ export function BookingPageClient({
           startHour,
           endHour,
           useHours,
-          availableCoupons: [],
+          availableCoupons,
+          rawCoupons,
           availableMileage: 0,
           benefitPointRate: detail.benefitPointRate,
         })

@@ -1,4 +1,5 @@
 import type { BookItem } from "@/lib/api/types"
+import type { Coupon as ApiCoupon } from "@/domains/coupon/types"
 
 export type BookingType = "rental" | "stay"
 
@@ -49,6 +50,7 @@ export interface BookingContext {
   endHour?: number     // 종료 시간 (ETIME)
   useHours?: number    // 대실 이용 시간 (UTIME)
   availableCoupons: Coupon[]
+  rawCoupons: ApiCoupon[]      // 원본 API 쿠폰 데이터 (예약 제출용)
   availableMileage: number
   benefitPointRate: number
 }

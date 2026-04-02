@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 17:20** | 예약 페이지 쿠폰 적용 기능 연동 | [`971411d`](.work-history/entries/2026-04-02_16-30_feat_booking-coupon-integration.md)
 - **2026-04-02 15:26** | fix: 검색 페이지 URL 동기화 및 이미지/카운트 오류 수정 | [`271e908`](.work-history/entries/2026-04-02_15-25_FIX_search-url-sync.md)
 - **2026-04-02 13:25** | ## 하네스 설치 스크립트 추가 | [`392d54c`](.work-history/entries/2026-04-02_13-35_harness-setup-script.md)
 - **2026-04-02 13:17** | ## FIX: RoomCard Skeleton → 텍스트 placeholder | [`505850d`](.work-history/entries/2026-04-02_13-25_FIX_roomcard-placeholder.md)
