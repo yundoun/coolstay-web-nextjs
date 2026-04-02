@@ -67,8 +67,8 @@ export function useFilterSearch(params: FilterParams | undefined) {
           checkOut: params!.checkOut!,
           adultCount: params!.adultCnt,
           kidsCount: params!.kidCnt,
-          latitude: params!.latitude,
-          longitude: params!.longitude,
+          latitude: params!.latitude || undefined,
+          longitude: params!.longitude || undefined,
         },
         filters!,
       ),
@@ -78,7 +78,7 @@ export function useFilterSearch(params: FilterParams | undefined) {
 
   return {
     data: listQuery.data,
-    totalCount: keysQuery.data?.total_count ?? 0,
+    totalCount: Math.max(keysQuery.data?.total_count ?? 0, 0),
     isLoading: keysQuery.isLoading || (hasFilters && listQuery.isLoading),
     isError: keysQuery.isError || listQuery.isError,
     isEmpty: keysQuery.isSuccess && (!filters || filters.length === 0),

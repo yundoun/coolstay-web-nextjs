@@ -13,7 +13,6 @@ import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
 import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
 import { useKeywordSearch } from "../hooks/useKeywordData"
-import { useSearchModal } from "@/lib/stores/search-modal"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
@@ -38,22 +37,18 @@ export function SearchPageLayout() {
   const {
     sort,
     selectedRegion,
-    toggleRegion,
     setSort,
   } = useSearchFilters()
 
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
 
-  const [checkIn, setCheckIn] = useState(defaultCheckIn)
-  const [checkOut, setCheckOut] = useState(defaultCheckOut)
-  const [adults, setAdults] = useState(2)
-  const [kids, setKids] = useState(0)
-
-  // URL에서 keyword 읽기
+  // URL params를 source of truth로 사용
   const keyword = searchParams?.get("keyword") ?? ""
-
-  // store에서 regionCode 가져오기 (API 지역 코드)
-  const regionCode = useSearchModal((s) => s.regionCode)
+  const regionCode = searchParams?.get("regionCode") ?? ""
+  const checkIn = searchParams?.get("checkIn") || defaultCheckIn
+  const checkOut = searchParams?.get("checkOut") || defaultCheckOut
+  const adults = Number(searchParams?.get("adults")) || 2
+  const kids = Number(searchParams?.get("kids")) || 0
 
   // ─── 키워드 검색 (2단계: search/keyword → keyword/list) ───
   const keywordParams = useMemo(() => {
@@ -65,8 +60,8 @@ export function SearchPageLayout() {
       checkOut: toApiDate(checkOut),
       adultCnt: adults,
       kidCnt: kids,
-      latitude: "",
-      longitude: "",
+      latitude: undefined,
+      longitude: undefined,
       sort: "BENEFIT",
     }
   }, [keyword, regionCode, checkIn, checkOut, adults, kids])
@@ -83,8 +78,8 @@ export function SearchPageLayout() {
       checkOut: toApiDate(checkOut),
       adultCnt: adults,
       kidCnt: kids,
-      latitude: "",
-      longitude: "",
+      latitude: undefined,
+      longitude: undefined,
       sort: "BENEFIT",
     }
   }, [regionCode, checkIn, checkOut, adults, kids])
@@ -117,35 +112,64 @@ export function SearchPageLayout() {
   const totalCount =
     keywordSearch.totalCount ||
     filterSearch.totalCount ||
-    (myAreaData?.total_count ?? 0)
+    Math.max(myAreaData?.total_count ?? 0, 0)
 
-  const handleDateChange = useCallback((newCheckIn: string, newCheckOut: string) => {
-    setCheckIn(newCheckIn)
-    setCheckOut(newCheckOut)
-  }, [])
+  // URL params를 갱신하는 헬퍼
+  const pushParams = useCallback(
+    (overrides: Record<string, string | undefined>) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? "")
+      for (const [key, value] of Object.entries(overrides)) {
+        if (value != null && value !== "") params.set(key, value)
+        else params.delete(key)
+      }
+      router.push(`/search?${params.toString()}`, { scroll: false })
+    },
+    [searchParams, router],
+  )
 
-  const handleGuestChange = useCallback((newAdults: number, newKids: number) => {
-    setAdults(newAdults)
-    setKids(newKids)
-  }, [])
+  const handleDateChange = useCallback(
+    (newCheckIn: string, newCheckOut: string) => {
+      pushParams({ checkIn: newCheckIn, checkOut: newCheckOut })
+    },
+    [pushParams],
+  )
+
+  const handleGuestChange = useCallback(
+    (newAdults: number, newKids: number) => {
+      pushParams({
+        adults: String(newAdults),
+        kids: newKids > 0 ? String(newKids) : undefined,
+      })
+    },
+    [pushParams],
+  )
 
   const handleSearch = useCallback(() => {
-    const params = new URLSearchParams(searchParams?.toString() ?? "")
-    params.set("checkIn", checkIn)
-    params.set("checkOut", checkOut)
-    params.set("adults", String(adults))
-    if (kids > 0) params.set("kids", String(kids))
-    else params.delete("kids")
-    router.push(`/search?${params.toString()}`, { scroll: false })
-  }, [searchParams, checkIn, checkOut, adults, kids, router])
+    pushParams({
+      checkIn,
+      checkOut,
+      adults: String(adults),
+      kids: kids > 0 ? String(kids) : undefined,
+    })
+  }, [pushParams, checkIn, checkOut, adults, kids])
+
+  const handleRegionChange = useCallback(
+    (name: string, code: string) => {
+      pushParams({
+        keyword: name,
+        regionCode: code || undefined,
+      })
+    },
+    [pushParams],
+  )
 
   return (
     <div className="min-h-screen">
       <Container size="wide" padding="responsive">
         {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
-          selectedRegion={selectedRegion}
-          onRegionChange={toggleRegion}
+          selectedRegion={keyword || selectedRegion}
+          onRegionChange={handleRegionChange}
           checkIn={checkIn}
           checkOut={checkOut}
           adults={adults}

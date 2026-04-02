@@ -27,6 +27,7 @@ export function HeroSection({ phrase }: Props) {
     open,
     selectedCity,
     selectedArea,
+    regionCode,
     checkIn,
     checkOut,
     adults,
@@ -51,6 +52,7 @@ export function HeroSection({ phrase }: Props) {
   const handleSearch = () => {
     const params = new URLSearchParams()
     if (selectedCity) params.set("keyword", selectedArea || selectedCity)
+    if (regionCode) params.set("regionCode", regionCode)
     if (checkIn) {
       params.set("checkIn", `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, "0")}-${String(checkIn.getDate()).padStart(2, "0")}`)
     }

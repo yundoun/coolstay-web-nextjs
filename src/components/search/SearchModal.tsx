@@ -481,7 +481,7 @@ function GuestPanel() {
         params.set("keyword", selectedArea || selectedCity)
       }
       if (regionCode) {
-        params.set("region", regionCode)
+        params.set("regionCode", regionCode)
       }
       if (checkIn) {
         params.set(

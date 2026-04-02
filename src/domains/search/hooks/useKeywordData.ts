@@ -43,8 +43,8 @@ export function useKeywordSearch(params: KeywordSearchParams | undefined) {
           checkOut: params!.checkOut!,
           adultCount: params!.adultCnt,
           kidsCount: params!.kidCnt,
-          latitude: params!.latitude,
-          longitude: params!.longitude,
+          latitude: params!.latitude || undefined,
+          longitude: params!.longitude || undefined,
         },
         filters!,
       ),
@@ -54,7 +54,7 @@ export function useKeywordSearch(params: KeywordSearchParams | undefined) {
 
   return {
     data: listQuery.data,
-    totalCount: keysQuery.data?.total_count ?? 0,
+    totalCount: Math.max(keysQuery.data?.total_count ?? 0, 0),
     isLoading: keysQuery.isLoading || (hasFilters && listQuery.isLoading),
     isError: keysQuery.isError || listQuery.isError,
     // keys는 있지만 결과 0건인 경우도 처리

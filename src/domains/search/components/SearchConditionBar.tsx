@@ -49,7 +49,7 @@ function isBetween(d: Date, start: Date, end: Date) {
 
 interface SearchConditionBarProps {
   selectedRegion: string | null
-  onRegionChange: (region: string) => void
+  onRegionChange: (region: string, code: string) => void
   checkIn: string
   checkOut: string
   adults: number
@@ -190,8 +190,8 @@ export function SearchConditionBar({
       {/* Dropdown Panels */}
       {openDropdown === "region" && (
         <RegionDropdown
-          onSelect={(keyword) => {
-            onRegionChange(keyword)
+          onSelect={(keyword, code) => {
+            onRegionChange(keyword, code)
             setOpenDropdown(null)
           }}
           onClose={() => setOpenDropdown(null)}
@@ -229,11 +229,10 @@ function RegionDropdown({
   onSelect,
   onClose,
 }: {
-  onSelect: (keyword: string) => void
+  onSelect: (keyword: string, code: string) => void
   onClose: () => void
 }) {
   const { data: apiRegions, isLoading } = useRegions("MOTEL")
-  const { setRegionCode } = useSearchModal()
 
   // API 데이터 → 도시/지역 목록 변환 (API 실패 시 mock 폴백)
   const regionList = useMemo(() => {
@@ -259,8 +258,7 @@ function RegionDropdown({
   const activeCityData = regionList.find((c) => c.name === activeCity)
 
   const handleSelect = (name: string, code: string) => {
-    setRegionCode(code || null)
-    onSelect(name)
+    onSelect(name, code)
   }
 
   return (
