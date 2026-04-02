@@ -13,7 +13,7 @@ interface ImageGalleryProps {
 }
 
 export function ImageGallery({ images: rawImages, name }: ImageGalleryProps) {
-  const images = rawImages.filter((src) => src && src.trim() !== "")
+  const images = rawImages.filter((url) => url && url.trim() !== "")
   const [currentIndex, setCurrentIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
