@@ -30,13 +30,19 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
       <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 p-0 sm:p-4">
         {/* Image */}
         <div className="relative w-full sm:w-48 md:w-56 aspect-[16/9] sm:aspect-auto sm:h-44 rounded-none sm:rounded-xl overflow-hidden shrink-0">
-          <Image
-            src={room.imageUrl}
-            alt={room.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, 224px"
-          />
+          {room.imageUrl ? (
+            <Image
+              src={room.imageUrl}
+              alt={room.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, 224px"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-muted">
+              <Moon className="size-8 text-muted-foreground/30" />
+            </div>
+          )}
           {!room.isAvailable && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <span className="text-white font-bold text-lg">매진</span>
