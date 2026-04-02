@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-02 11:22** | ## EV-0: 하네스 세팅 — 이벤트 UI 개선 | [`ae4329a`](.work-history/entries/2026-04-02_11-30_EV-0_harness-setup.md)
 - **2026-04-02 10:46** | 하네스 Lite 모드 추가 + 파생 파일 정리 | [`bad61f1`](.work-history/entries/2026-04-02_10-30_harness-lite-cleanup.md)
 - **2026-04-01 15:02** | 이벤트 상세 히어로 이미지 전체 너비 수정 | [`34f86fd`](.work-history/entries/2026-04-01_16-05_event-hero-fix.md)
 - **2026-04-01 14:55** | 이벤트 UI 모던 리디자인 | [`897ab3a`](.work-history/entries/2026-04-01_16-00_event-redesign.md)
