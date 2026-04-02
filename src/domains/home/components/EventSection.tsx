@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Gift, ArrowRight, Eye, Sparkles, Clock, Calendar } from "lucide-react"
+import { Gift, Eye, Sparkles, Clock, Calendar } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import { formatTimestampDot, toMillis } from "@/lib/utils/formatDate"
@@ -39,42 +39,19 @@ export function EventSection() {
 
   // 1개면 풀너비 피처드, 2개 이상이면 캐러셀
   if (activeEvents.length === 1) {
-    return (
-      <div>
-        <FeaturedEventCard event={activeEvents[0]} />
-        <MoreEventsLink />
-      </div>
-    )
+    return <FeaturedEventCard event={activeEvents[0]} />
   }
 
   return (
-    <div>
-      <div
-        className={cn(
-          "flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2",
-          "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-        )}
-      >
-        {activeEvents.map((event, idx) => (
-          <EventCard key={event.key} event={event} priority={idx === 0} />
-        ))}
-      </div>
-      <MoreEventsLink />
-    </div>
-  )
-}
-
-/** 전체보기 링크 */
-function MoreEventsLink() {
-  return (
-    <div className="flex justify-end mt-3">
-      <Link
-        href="/events"
-        className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-      >
-        전체 이벤트 보기
-        <ArrowRight className="size-3.5" />
-      </Link>
+    <div
+      className={cn(
+        "flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2",
+        "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      )}
+    >
+      {activeEvents.map((event, idx) => (
+        <EventCard key={event.key} event={event} priority={idx === 0} />
+      ))}
     </div>
   )
 }
