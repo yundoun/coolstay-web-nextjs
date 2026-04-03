@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-/harness/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -37,8 +36,6 @@ yarn-error.log*
 # playwright-mcp (Playwright MCP 세션 로그/스크린샷)
 .playwright-mcp/
 
-# harness artifacts (실행 결과물 — 재생성 가능)
-/harness/artifacts/
 
 # 루트 스크린샷 (디버깅/검증용 임시 캡처)
 screenshot-*.png
