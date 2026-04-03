@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Bell,
   Smartphone,
@@ -14,13 +15,17 @@ import { Container } from "@/components/layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { useSettings } from "../hooks/useSettings"
+import { useAuth } from "@/lib/stores/auth"
 
 export function SettingsPage() {
   const { getSettingValue, updateSetting, isLoading } = useSettings()
+  const { clearSession } = useAuth()
+  const router = useRouter()
 
   const handleLogout = () => {
     if (confirm("로그아웃하시겠습니까?")) {
-      alert("로그아웃되었습니다.")
+      clearSession()
+      router.push("/")
     }
   }
 
