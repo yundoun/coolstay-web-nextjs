@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { X, Minus, Plus, ChevronLeft, ChevronRight, MapPin } from "lucide-react"
+import { X, Minus, Plus, ChevronLeft, ChevronRight, MapPin, Navigation, Train } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useSearchModal } from "@/lib/stores/search-modal"
@@ -71,9 +71,10 @@ export function SearchModal() {
 
 function RegionPanel() {
   const { selectedCity, setCity, setArea, setRegionCode, setStep, close } = useSearchModal()
-  const { data: apiRegions, isLoading } = useRegions("MOTEL")
+  const { data: apiRegions, isLoading } = useRegions()
+  const [tab, setTab] = useState<"region" | "subway">("region")
 
-  // API 데이터 → 도시/지역 목록 변환 (API 실패 시 mock 폴백)
+  // 지역 목록
   const regionList = useMemo(() => {
     if (!apiRegions?.regions?.length) {
       return cityRegions.map((c) => ({
@@ -93,8 +94,30 @@ function RegionPanel() {
       }))
   }, [apiRegions])
 
+  // 지하철 목록
+  const subwayList = useMemo(() => {
+    if (!apiRegions?.subways?.length) return []
+    return apiRegions.subways
+      .filter((s) => s.open_yn !== "N")
+      .map((line) => ({
+        name: line.name,
+        code: line.code,
+        stations: (line.sub_regions || [])
+          .filter((s) => s.open_yn === "Y")
+          .map((s) => ({ name: s.name, code: s.code })),
+      }))
+  }, [apiRegions])
+
   const activeCity = selectedCity || regionList[0]?.name || ""
   const activeCityData = regionList.find((c) => c.name === activeCity)
+  const [activeSubwayLine, setActiveSubwayLine] = useState(subwayList[0]?.name || "")
+  const activeLineData = subwayList.find((l) => l.name === activeSubwayLine)
+
+  useEffect(() => {
+    if (tab === "subway" && subwayList.length && !activeSubwayLine) {
+      setActiveSubwayLine(subwayList[0].name)
+    }
+  }, [tab, subwayList, activeSubwayLine])
 
   const handleAreaClick = (area: { name: string; code: string }) => {
     setCity(activeCity)
@@ -110,10 +133,26 @@ function RegionPanel() {
     setStep("date")
   }
 
+  const handleSubwaySelect = (station: { name: string; code: string }) => {
+    setCity(null)
+    setArea(station.name)
+    setRegionCode(station.code)
+    setStep("date")
+  }
+
+  const handleMyArea = () => {
+    setCity(null)
+    setArea(null)
+    setRegionCode(null)
+    setStep("date")
+  }
+
+  const hasSubways = subwayList.length > 0
+
   return (
-    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] overflow-hidden">
+    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-5 border-b">
+      <div className="flex items-center justify-between px-6 py-5 border-b shrink-0">
         <h2 className="text-lg font-bold">지역 선택</h2>
         <button
           onClick={close}
@@ -123,12 +162,50 @@ function RegionPanel() {
         </button>
       </div>
 
+      {/* 내 주변 + 탭 전환 */}
+      <div className="flex items-center gap-2 px-6 py-3 border-b border-border/50 shrink-0">
+        <button
+          onClick={handleMyArea}
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs text-primary font-medium hover:bg-primary/5 rounded-full border border-primary/30"
+        >
+          <Navigation className="size-3.5" />
+          내 주변
+        </button>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={() => setTab("region")}
+            className={cn(
+              "flex items-center gap-1 px-3.5 py-2 text-xs rounded-full transition-colors",
+              tab === "region"
+                ? "bg-primary text-white font-semibold"
+                : "text-gray-500 hover:bg-gray-100"
+            )}
+          >
+            <MapPin className="size-3.5" />
+            지역
+          </button>
+          {hasSubways && (
+            <button
+              onClick={() => setTab("subway")}
+              className={cn(
+                "flex items-center gap-1 px-3.5 py-2 text-xs rounded-full transition-colors",
+                tab === "subway"
+                  ? "bg-primary text-white font-semibold"
+                  : "text-gray-500 hover:bg-gray-100"
+              )}
+            >
+              <Train className="size-3.5" />
+              지하철
+            </button>
+          )}
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
-      ) : (
-        /* Body: 2-column */
+      ) : tab === "region" ? (
         <div className="flex flex-1 min-h-0 md:min-h-[400px]">
           {/* Left: City list */}
           <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
@@ -153,7 +230,6 @@ function RegionPanel() {
 
           {/* Right: Area list */}
           <div className="flex-1 py-2 overflow-y-auto">
-            {/* 전체 선택 */}
             <button
               onClick={handleCityOnly}
               className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -174,6 +250,49 @@ function RegionPanel() {
                 <ChevronRight className="size-4 text-gray-300 ml-auto" />
               </button>
             ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 min-h-0 md:min-h-[400px]">
+          {/* Left: Subway lines */}
+          <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
+            {subwayList.map((line) => (
+              <button
+                key={line.name}
+                onClick={() => setActiveSubwayLine(line.name)}
+                className={cn(
+                  "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
+                  activeSubwayLine === line.name
+                    ? "text-primary font-semibold bg-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                {activeSubwayLine === line.name && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary rounded-r-full" />
+                )}
+                {line.name}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Stations */}
+          <div className="flex-1 py-2 overflow-y-auto">
+            {activeLineData?.stations.map((station) => (
+              <button
+                key={station.code || station.name}
+                onClick={() => handleSubwaySelect(station)}
+                className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Train className="size-4 text-gray-400" />
+                <span>{station.name}</span>
+                <ChevronRight className="size-4 text-gray-300 ml-auto" />
+              </button>
+            ))}
+            {(!activeLineData?.stations.length) && (
+              <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                역 정보가 없습니다
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -343,12 +462,9 @@ function DatePanel() {
 }
 
 function useReducedState(initial: Date): [Date, (d: Date) => void] {
-  const [state, setState] = useStateHook(initial)
+  const [state, setState] = useState(initial)
   return [state, setState]
 }
-
-// useState import를 위해
-import { useState as useStateHook } from "react"
 
 // 캘린더 한 달
 
@@ -474,31 +590,25 @@ function GuestPanel() {
 
   const handleApply = () => {
     close()
-    // 검색 페이지에서는 URL 갱신으로 결과 반영
-    if (pathname === "/search") {
-      const params = new URLSearchParams()
-      if (selectedCity) {
-        params.set("keyword", selectedArea || selectedCity)
-      }
-      if (regionCode) {
-        params.set("regionCode", regionCode)
-      }
-      if (checkIn) {
-        params.set(
-          "checkIn",
-          `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, "0")}-${String(checkIn.getDate()).padStart(2, "0")}`
-        )
-      }
-      if (checkOut) {
-        params.set(
-          "checkOut",
-          `${checkOut.getFullYear()}-${String(checkOut.getMonth() + 1).padStart(2, "0")}-${String(checkOut.getDate()).padStart(2, "0")}`
-        )
-      }
-      params.set("adults", String(adults))
-      if (kids > 0) params.set("kids", String(kids))
-      router.push(`/search?${params.toString()}`)
+    const fmt = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const params = new URLSearchParams()
+    if (selectedCity) {
+      params.set("keyword", selectedArea || selectedCity)
     }
+    if (regionCode) {
+      params.set("regionCode", regionCode)
+    }
+    params.set("checkIn", fmt(checkIn || today))
+    params.set("checkOut", fmt(checkOut || tomorrow))
+    params.set("adults", String(adults))
+    if (kids > 0) params.set("kids", String(kids))
+    router.push(`/search?${params.toString()}`)
   }
 
   return (

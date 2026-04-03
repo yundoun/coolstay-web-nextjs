@@ -11,7 +11,7 @@ import type {
 type Params = Record<string, string | number | boolean | undefined>
 
 // ─── 지역 목록 ───
-export function getRegions(categoryCode: string = "MOTEL") {
+export function getRegions(categoryCode: string = "ALL,SUBWAY") {
   return api.get<RegionsResponse>("/contents/regions/list", {
     category_code: categoryCode,
   })

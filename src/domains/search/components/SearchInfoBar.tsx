@@ -43,7 +43,10 @@ export function SearchInfoBar({
           {!keyword && regionLabel && (
             <span className="text-primary font-semibold">{regionLabel}</span>
           )}
-          {(keyword || regionLabel) ? " 검색 결과 " : "검색 결과 "}
+          {!keyword && !regionLabel && (
+            <span className="text-primary font-semibold">내 주변</span>
+          )}
+          {" 검색 결과 "}
           <span className="text-muted-foreground">
             {totalCount.toLocaleString()}개
           </span>
@@ -51,7 +54,7 @@ export function SearchInfoBar({
       </div>
 
       <div className="flex items-center gap-2">
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"

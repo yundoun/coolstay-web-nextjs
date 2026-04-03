@@ -13,6 +13,7 @@ import { KeywordSearchSection } from "./KeywordSearchSection"
 import { useSearchFilters } from "../hooks"
 import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
 import { useKeywordSearch } from "../hooks/useKeywordData"
+import { useUserLocation } from "../hooks/useUserLocation"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
@@ -40,6 +41,7 @@ export function SearchPageLayout() {
     setSort,
   } = useSearchFilters()
 
+  const { location: userLocation, isLocating } = useUserLocation()
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
 
   // URL params를 source of truth로 사용
@@ -52,7 +54,7 @@ export function SearchPageLayout() {
 
   // ─── 키워드 검색 (2단계: search/keyword → keyword/list) ───
   const keywordParams = useMemo(() => {
-    if (!keyword || regionCode) return undefined
+    if (!keyword || regionCode || isLocating) return undefined
     return {
       type: "ST701",
       extraType: keyword,
@@ -60,15 +62,16 @@ export function SearchPageLayout() {
       checkOut: toApiDate(checkOut),
       adultCnt: adults,
       kidCnt: kids,
-      latitude: undefined,
-      longitude: undefined,
-      sort: "BENEFIT",
+      latitude: "",
+      longitude: "",
+      sort,
     }
-  }, [keyword, regionCode, checkIn, checkOut, adults, kids])
+  }, [keyword, regionCode, isLocating, checkIn, checkOut, adults, kids, sort])
 
   const keywordSearch = useKeywordSearch(keywordParams)
 
   // ─── 지역 검색 (2단계: filter → filter/list) ───
+  // AOS 앱: 지역 검색 시 latitude/longitude를 빈 문자열로 전송
   const filterParams = useMemo(() => {
     if (!regionCode) return undefined
     return {
@@ -78,19 +81,19 @@ export function SearchPageLayout() {
       checkOut: toApiDate(checkOut),
       adultCnt: adults,
       kidCnt: kids,
-      latitude: undefined,
-      longitude: undefined,
-      sort: "BENEFIT",
+      latitude: "",
+      longitude: "",
+      sort,
     }
-  }, [regionCode, checkIn, checkOut, adults, kids])
+  }, [regionCode, checkIn, checkOut, adults, kids, sort])
 
   const filterSearch = useFilterSearch(filterParams)
 
   // ─── 키워드·지역 모두 없을 때 내 주변 추천 숙소 ───
   const myAreaParams = useMemo(() => {
-    if (regionCode || keyword) return undefined
-    return { latitude: "37.5665", longitude: "126.9780" }
-  }, [regionCode, keyword])
+    if (regionCode || keyword || isLocating) return undefined
+    return { latitude: userLocation.latitude, longitude: userLocation.longitude }
+  }, [regionCode, keyword, isLocating, userLocation])
   const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
 
   const isLoading = keywordSearch.isLoading || filterSearch.isLoading || isMyAreaLoading
@@ -109,10 +112,20 @@ export function SearchPageLayout() {
     return []
   }, [keywordSearch.data, filterSearch.data, myAreaData])
 
-  const totalCount =
-    keywordSearch.totalCount ||
-    filterSearch.totalCount ||
-    Math.max(myAreaData?.total_count ?? 0, 0)
+  // API total_count가 -1 또는 0이면 실제 배열 길이를 폴백으로 사용
+  const totalCount = (() => {
+    if (keywordSearch.data?.motels?.length) {
+      return keywordSearch.totalCount || keywordSearch.data.motels.length
+    }
+    if (filterSearch.data?.motels?.length) {
+      return filterSearch.totalCount || filterSearch.data.motels.length
+    }
+    if (myAreaData?.motels?.length) {
+      const apiCount = myAreaData.total_count ?? 0
+      return apiCount > 0 ? apiCount : myAreaData.motels.length
+    }
+    return 0
+  })()
 
   // URL params를 갱신하는 헬퍼
   const pushParams = useCallback(
@@ -156,7 +169,7 @@ export function SearchPageLayout() {
   const handleRegionChange = useCallback(
     (name: string, code: string) => {
       pushParams({
-        keyword: name,
+        keyword: name || undefined,
         regionCode: code || undefined,
       })
     },

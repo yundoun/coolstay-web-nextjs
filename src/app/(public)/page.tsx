@@ -27,7 +27,7 @@ export default function HomePage() {
   return (
     <main>
       {/* 1. Hero - 검색바 */}
-      <HeroSection phrase={data?.phrase} />
+      <HeroSection />
 
       {/* 2. 업태 카테고리 */}
       <Section spacing="md">

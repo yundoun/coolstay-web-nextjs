@@ -12,6 +12,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Navigation,
+  Train,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -97,7 +99,7 @@ export function SearchConditionBar({
   }
 
   // 라벨
-  const regionLabel = selectedRegion || "전체"
+  const regionLabel = selectedRegion || "내 주변"
 
   // 모바일 축약 날짜: 3/25~3/26 1박
   const ciDate = new Date(checkIn + "T00:00:00")
@@ -225,6 +227,8 @@ export function SearchConditionBar({
 
 // ─── 지역 드롭다운 ───────────────────────────────────────────
 
+type RegionTab = "region" | "subway"
+
 function RegionDropdown({
   onSelect,
   onClose,
@@ -232,9 +236,10 @@ function RegionDropdown({
   onSelect: (keyword: string, code: string) => void
   onClose: () => void
 }) {
-  const { data: apiRegions, isLoading } = useRegions("MOTEL")
+  const { data: apiRegions, isLoading } = useRegions()
+  const [tab, setTab] = useState<RegionTab>("region")
 
-  // API 데이터 → 도시/지역 목록 변환 (API 실패 시 mock 폴백)
+  // 지역 목록
   const regionList = useMemo(() => {
     if (!apiRegions?.regions?.length) {
       return cityRegions.map((c) => ({
@@ -254,27 +259,96 @@ function RegionDropdown({
       }))
   }, [apiRegions])
 
+  // 지하철 목록
+  const subwayList = useMemo(() => {
+    if (!apiRegions?.subways?.length) return []
+    return apiRegions.subways
+      .filter((s) => s.open_yn !== "N")
+      .map((line) => ({
+        name: line.name,
+        code: line.code,
+        stations: (line.sub_regions || [])
+          .filter((s) => s.open_yn === "Y")
+          .map((s) => ({ name: s.name, code: s.code })),
+      }))
+  }, [apiRegions])
+
   const [activeCity, setActiveCity] = useState(regionList[0]?.name || "")
+  const [activeSubwayLine, setActiveSubwayLine] = useState(subwayList[0]?.name || "")
   const activeCityData = regionList.find((c) => c.name === activeCity)
+  const activeLineData = subwayList.find((l) => l.name === activeSubwayLine)
+
+  // 지하철 탭 전환 시 첫 번째 노선 선택
+  useEffect(() => {
+    if (tab === "subway" && subwayList.length && !activeSubwayLine) {
+      setActiveSubwayLine(subwayList[0].name)
+    }
+  }, [tab, subwayList, activeSubwayLine])
 
   const handleSelect = (name: string, code: string) => {
     onSelect(name, code)
   }
 
+  const handleMyArea = () => {
+    onSelect("", "")
+  }
+
+  const hasSubways = subwayList.length > 0
+
   return (
-    <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-xl border w-[580px] max-h-[480px] overflow-hidden animate-fade-in-down">
-      <div className="flex items-center justify-between px-5 py-3.5 border-b">
+    <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-xl border w-[580px] max-h-[min(520px,70vh)] flex flex-col overflow-hidden animate-fade-in-down">
+      <div className="flex items-center justify-between px-5 py-3.5 border-b shrink-0">
         <h3 className="text-sm font-bold">지역 선택</h3>
         <button onClick={onClose} className="p-0.5 rounded-full hover:bg-gray-100">
           <X className="size-4 text-gray-400" />
         </button>
       </div>
+
+      {/* 내 주변 + 탭 전환 */}
+      <div className="flex items-center gap-2 px-5 py-2.5 border-b border-border/50 shrink-0">
+        <button
+          onClick={handleMyArea}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-primary font-medium hover:bg-primary/5 rounded-full border border-primary/30"
+        >
+          <Navigation className="size-3" />
+          내 주변
+        </button>
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={() => setTab("region")}
+            className={cn(
+              "flex items-center gap-1 px-3 py-1.5 text-xs rounded-full transition-colors",
+              tab === "region"
+                ? "bg-primary text-white font-semibold"
+                : "text-gray-500 hover:bg-gray-100"
+            )}
+          >
+            <MapPin className="size-3" />
+            지역
+          </button>
+          {hasSubways && (
+            <button
+              onClick={() => setTab("subway")}
+              className={cn(
+                "flex items-center gap-1 px-3 py-1.5 text-xs rounded-full transition-colors",
+                tab === "subway"
+                  ? "bg-primary text-white font-semibold"
+                  : "text-gray-500 hover:bg-gray-100"
+              )}
+            >
+              <Train className="size-3" />
+              지하철
+            </button>
+          )}
+        </div>
+      </div>
+
       {isLoading ? (
-        <div className="flex items-center justify-center h-[380px]">
+        <div className="flex items-center justify-center py-20">
           <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
-      ) : (
-        <div className="flex h-[380px]">
+      ) : tab === "region" ? (
+        <div className="flex flex-1 min-h-0">
           {/* Cities */}
           <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
             {regionList.map((region) => (
@@ -316,6 +390,48 @@ function RegionDropdown({
                 <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
               </button>
             ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 min-h-0">
+          {/* Subway Lines */}
+          <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
+            {subwayList.map((line) => (
+              <button
+                key={line.name}
+                onClick={() => setActiveSubwayLine(line.name)}
+                className={cn(
+                  "w-full text-left px-4 py-2.5 text-sm relative",
+                  activeSubwayLine === line.name
+                    ? "text-primary font-semibold bg-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                )}
+              >
+                {activeSubwayLine === line.name && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
+                )}
+                {line.name}
+              </button>
+            ))}
+          </div>
+          {/* Stations */}
+          <div className="flex-1 py-1 overflow-y-auto">
+            {activeLineData?.stations.map((station) => (
+              <button
+                key={station.code || station.name}
+                onClick={() => handleSelect(station.name, station.code)}
+                className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+              >
+                <Train className="size-3.5 text-gray-400" />
+                <span>{station.name}</span>
+                <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+              </button>
+            ))}
+            {(!activeLineData?.stations.length) && (
+              <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                역 정보가 없습니다
+              </div>
+            )}
           </div>
         </div>
       )}

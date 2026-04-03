@@ -136,7 +136,27 @@ export function CompactSearchBar() {
       addRecentSearch(keyword)
       setQuery("")
       setIsFocused(false)
-      router.push(`/search?keyword=${encodeURIComponent(keyword)}`)
+
+      const today = new Date()
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      const fmt = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+
+      // 현재 URL에서 기존 검색 params 보존 (날짜, 인원 등)
+      const currentParams = new URLSearchParams(window.location.search)
+      const params = new URLSearchParams()
+      params.set("keyword", keyword)
+      // 기존 params에서 날짜/인원 보존, 없으면 기본값
+      params.set("checkIn", currentParams.get("checkIn") || fmt(today))
+      params.set("checkOut", currentParams.get("checkOut") || fmt(tomorrow))
+      params.set("adults", currentParams.get("adults") || "2")
+      const kids = currentParams.get("kids")
+      if (kids) params.set("kids", kids)
+      // sort 보존
+      const sort = currentParams.get("sort")
+      if (sort) params.set("sort", sort)
+      router.push(`/search?${params.toString()}`)
     },
     [router, addRecentSearch]
   )
@@ -152,7 +172,12 @@ export function CompactSearchBar() {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter" && query.trim()) handleSelect(query.trim())
+      // IME 조합 중(한글 입력 중)에는 무시
+      if (e.nativeEvent.isComposing) return
+      if (e.key === "Enter" && query.trim()) {
+        e.preventDefault()
+        handleSelect(query.trim())
+      }
       if (e.key === "Escape") {
         setIsFocused(false)
         inputRef.current?.blur()

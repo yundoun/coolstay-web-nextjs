@@ -13,15 +13,23 @@ function formatDateKr(d: Date) {
   return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}(${DAYS[d.getDay()]})`
 }
 
+function formatDateParam(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+}
+
 function diffDays(a: Date, b: Date) {
   return Math.round((b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-interface Props {
-  phrase?: string
+function getDefaultDates() {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  return { defaultCheckIn: today, defaultCheckOut: tomorrow }
 }
 
-export function HeroSection({ phrase }: Props) {
+export function HeroSection() {
   const router = useRouter()
   const {
     open,
@@ -34,31 +42,29 @@ export function HeroSection({ phrase }: Props) {
     kids,
   } = useSearchModal()
 
-  const locationDisplay = selectedArea || selectedCity || phrase || "지역, 숙소명 검색"
+  const locationDisplay = selectedArea || selectedCity || "내 주변"
   const locationLabel = selectedCity ? "선택된 지역" : "어디로 떠나시나요?"
 
-  let dateDisplay = "날짜 선택"
-  if (checkIn && checkOut) {
-    const nights = diffDays(checkIn, checkOut)
-    dateDisplay = `${formatDateKr(checkIn)} - ${formatDateKr(checkOut)} · ${nights}박`
-  } else if (checkIn) {
-    dateDisplay = `${formatDateKr(checkIn)} - 체크아웃 선택`
-  }
+  const { defaultCheckIn, defaultCheckOut } = getDefaultDates()
+  const effectiveCheckIn = checkIn || defaultCheckIn
+  const effectiveCheckOut = checkOut || defaultCheckOut
+  const nights = diffDays(effectiveCheckIn, effectiveCheckOut)
+  const dateDisplay = `${formatDateKr(effectiveCheckIn)} - ${formatDateKr(effectiveCheckOut)} · ${nights}박`
   const dateLabel = checkIn ? "선택된 날짜" : "날짜"
 
   const guestDisplay =
     kids > 0 ? `성인 ${adults}, 아동 ${kids}` : `성인 ${adults}명`
 
   const handleSearch = () => {
+    const { defaultCheckIn, defaultCheckOut } = getDefaultDates()
+    const effectiveCheckIn = checkIn || defaultCheckIn
+    const effectiveCheckOut = checkOut || defaultCheckOut
+
     const params = new URLSearchParams()
     if (selectedCity) params.set("keyword", selectedArea || selectedCity)
     if (regionCode) params.set("regionCode", regionCode)
-    if (checkIn) {
-      params.set("checkIn", `${checkIn.getFullYear()}-${String(checkIn.getMonth() + 1).padStart(2, "0")}-${String(checkIn.getDate()).padStart(2, "0")}`)
-    }
-    if (checkOut) {
-      params.set("checkOut", `${checkOut.getFullYear()}-${String(checkOut.getMonth() + 1).padStart(2, "0")}-${String(checkOut.getDate()).padStart(2, "0")}`)
-    }
+    params.set("checkIn", formatDateParam(effectiveCheckIn))
+    params.set("checkOut", formatDateParam(effectiveCheckOut))
     params.set("adults", String(adults))
     if (kids > 0) params.set("kids", String(kids))
     router.push(`/search?${params.toString()}`)

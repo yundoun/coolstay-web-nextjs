@@ -67,6 +67,7 @@ export function useFilterSearch(params: FilterParams | undefined) {
           checkOut: params!.checkOut!,
           adultCount: params!.adultCnt,
           kidsCount: params!.kidCnt,
+          type: params!.type,
           latitude: params!.latitude || undefined,
           longitude: params!.longitude || undefined,
         },
