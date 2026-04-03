@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-03 15:24** | fix: 설정 페이지 로그아웃 import 오류 수정 | [`11b749d`](.work-history/entries/2026-04-03_11-45_FIX_settings-logout-import.md)
 - **2026-04-03 15:08** | fix: 설정 페이지 로그아웃 기능 수정 | [`a9171fd`](.work-history/entries/2026-04-03_11-30_FIX_settings-logout.md)
 - **2026-04-03 14:56** | fix: 검색 API 파라미터 AOS 앱 동작과 정렬 | [`b0fadd4`](.work-history/entries/2026-04-03_11-00_FIX_search-query-alignment.md)
 - **2026-04-03 09:46** | Claude Agent SDK 하네스 삭제 | [`1d7b9ac`](.work-history/entries/2026-04-03_10-00_chore_remove-harness.md)

@@ -15,11 +15,11 @@ import { Container } from "@/components/layout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { Switch } from "@/components/ui/switch"
 import { useSettings } from "../hooks/useSettings"
-import { useAuth } from "@/lib/stores/auth"
+import { useAuthStore } from "@/lib/stores/auth"
 
 export function SettingsPage() {
   const { getSettingValue, updateSetting, isLoading } = useSettings()
-  const { clearSession } = useAuth()
+  const clearSession = useAuthStore((s) => s.clearSession)
   const router = useRouter()
 
   const handleLogout = () => {
