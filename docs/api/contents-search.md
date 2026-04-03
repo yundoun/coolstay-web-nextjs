@@ -1,6 +1,6 @@
 # Contents API 명세서 — 검색/목록
 
-> **최종 업데이트: 2026-04-01 (dev 서버 실제 응답 기준)**
+> **최종 업데이트: 2026-04-03 (dev 서버 실제 응답 기준)**
 
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
@@ -29,6 +29,16 @@
 
 > **주의**: `contents/list` API는 dev 서버에서 빈 결과를 반환한다. AOS 앱도 이 엔드포인트를 검색에 사용하지 않음 (마일리지 모텔 조회 등 특수 용도로만 사용).
 
+### total_count 응답값 의미
+
+| 값 | 의미 |
+|----|------|
+| `-1` | **검색 미실행** — 파라미터 오류 또는 지원하지 않는 코드 (빈 결과 반환) |
+| `0` | 검색 실행했으나 결과 없음 |
+| `N > 0` | 정상 결과 |
+
+`total_count: -1`이 반환되면 `filters: []`도 비어있어 2단계 API 호출이 불가능하다.
+
 ---
 
 ## 1. GET /contents/regions/list — 지역 정보 조회
@@ -39,9 +49,9 @@
 
 | 필드 | 타입 | 필수 | 설명 | 기본값 |
 |------|------|:----:|------|--------|
-| `category_code` | string | O | 지역 카테고리 코드 | `MOTEL` |
+| `category_code` | string | O | 지역 카테고리 코드 | `ALL,SUBWAY` |
 
-`category_code` 값: `MOTEL`, `SUBWAY`, `MOTEL,SUBWAY` (콤마 구분으로 복수 가능)
+`category_code` 값: `ALL`, `SUBWAY`, `ALL,SUBWAY` (콤마 구분으로 복수 가능)
 
 ### Response (`result`)
 
@@ -62,7 +72,7 @@
           "type": "R001",
           "view_type": "LIST",
           "open_yn": "Y",
-          "code": "MOTEL_9300001",
+          "code": "ALL_0100001",
           "name": "강남/역삼/삼성/논현",
           "geometry": { "latitude": 37.5, "longitude": 127.0 },
           "sub_regions": [],
@@ -97,12 +107,23 @@
 | `depth` | number | 트리 깊이 (0: 시/도, 1: 상세 지역) |
 | `priority` | number | 정렬 순서 |
 
+### 지역 코드 체계 및 주의사항
+
+| 레벨 | 코드 형식 | 예시 | `/contents/filter` 동작 |
+|------|----------|------|----------------------|
+| 도시 (상위) | `ALL_XX` (2자리) | `ALL_01` (서울), `ALL_03` (부산) | **`total_count=-1` (검색 미실행!)** |
+| 하위 지역 | `ALL_XXXXXXX` (7자리) | `ALL_0100001` (강남/역삼) | **정상 동작** |
+| 지하철역 | `SUBWAY_XXXX` | - | 정상 동작 |
+
+> **⚠️ 상위 코드(`ALL_XX`)로 `/contents/filter`를 호출하면 서버가 검색을 실행하지 않는다.**
+> 웹 앱에서는 "서울 전체" 등 상위 코드 선택 시 키워드 검색(ST701)으로 fallback 처리한다.
+> (2026-04-03 dev 서버 검증 완료)
+
 ### 비고
 
 - 실제 응답에서 17개 시/도 지역이 반환됨
-- 1depth 지역의 `code`는 `ALL_01`, `ALL_02` 등의 형태
 - `open_yn === "N"`인 지역은 UI에서 필터링
-- API 실패 시 `src/domains/search/data/regions.ts` mock 데이터로 폴백
+- API 실패 시 `src/domains/search/data/regions.ts` mock 데이터로 폴백 (단, 폴백 데이터에는 code가 없어 지역 검색 불가)
 
 ### 웹 사용처
 
@@ -462,9 +483,30 @@ src/domains/search/
 ├── utils/
 │   └── mapStoreToAccommodation.ts  # StoreItem → AccommodationCard 변환
 └── components/
-    └── SearchPageLayout.tsx   # 검색 결과 페이지 (키워드/지역/myArea 분기)
+    ├── SearchPageLayout.tsx   # 검색 결과 페이지 (키워드/지역/myArea 분기)
+    ├── SearchConditionBar.tsx # 조건바 (지역/날짜/인원 선택)
+    └── KeywordSearchSection.tsx # 해시태그 키워드 칩
 
 src/lib/api/
 ├── client.ts                  # API 클라이언트 (토큰 관리, retry)
 └── types.ts                   # 전체 타입 정의
 ```
+
+### 검색 분기 로직 (SearchPageLayout)
+
+URL 파라미터 기준으로 3가지 검색 모드를 분기한다:
+
+```
+URL params                          → 검색 모드
+─────────────────────────────────────────────────
+regionCode 있음                     → 지역 검색 (ST003, /contents/filter)
+keyword 있음 & regionCode 없음      → 키워드 검색 (ST701, /contents/search/keyword)
+둘 다 없음                          → 내 주변 추천 (/contents/myArea/list)
+```
+
+**주의사항:**
+- `keyword`와 `regionCode`는 상호 배타적으로 관리한다
+- 지역 선택 시: `regionCode` + `regionName` (표시용) 설정, `keyword` 제거
+- 키워드 칩 클릭 시: `keyword` 설정, `regionCode` 제거
+- 헤더 텍스트 검색 시: 새 URLSearchParams 생성 (기존 params 미보존)
+- "서울 전체" 등 상위 지역 선택 시: `regionCode` 없이 `keyword=서울`로 키워드 검색 fallback

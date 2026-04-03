@@ -20,8 +20,9 @@ export function KeywordSearchSection() {
     }
     setActiveKeywords(next)
 
-    // 선택된 키워드로 검색 반영
+    // 선택된 키워드로 검색 반영 (지역 검색과 충돌 방지: regionCode 제거)
     const params = new URLSearchParams(searchParams?.toString() ?? "")
+    params.delete("regionCode")
     if (next.size > 0) {
       params.set("keyword", Array.from(next).join(","))
     } else {

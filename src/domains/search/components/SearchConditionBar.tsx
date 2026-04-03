@@ -285,8 +285,16 @@ function RegionDropdown({
     }
   }, [tab, subwayList, activeSubwayLine])
 
+  // 상위 지역코드(ALL_XX)는 서버에서 검색 미실행(total_count=-1) → 키워드 검색으로 전환
+  const isTopLevelCode = (code: string) => /^ALL_\d{2}$/.test(code)
+
   const handleSelect = (name: string, code: string) => {
-    onSelect(name, code)
+    if (isTopLevelCode(code)) {
+      // "서울 전체" 등 → regionCode 없이 키워드 검색
+      onSelect(name, "")
+    } else {
+      onSelect(name, code)
+    }
   }
 
   const handleMyArea = () => {

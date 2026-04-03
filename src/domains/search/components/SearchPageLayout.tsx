@@ -47,6 +47,7 @@ export function SearchPageLayout() {
   // URL params를 source of truth로 사용
   const keyword = searchParams?.get("keyword") ?? ""
   const regionCode = searchParams?.get("regionCode") ?? ""
+  const regionName = searchParams?.get("regionName") ?? ""
   const checkIn = searchParams?.get("checkIn") || defaultCheckIn
   const checkOut = searchParams?.get("checkOut") || defaultCheckOut
   const adults = Number(searchParams?.get("adults")) || 2
@@ -168,10 +169,21 @@ export function SearchPageLayout() {
 
   const handleRegionChange = useCallback(
     (name: string, code: string) => {
-      pushParams({
-        keyword: name || undefined,
-        regionCode: code || undefined,
-      })
+      if (code) {
+        // 하위 지역 코드가 있으면 → 지역 필터 검색 (keyword는 제거, 표시명은 regionName)
+        pushParams({
+          keyword: undefined,
+          regionCode: code,
+          regionName: name || undefined,
+        })
+      } else {
+        // 코드 없음 (내 주변 or 도시 전체) → 키워드 검색으로 전환
+        pushParams({
+          keyword: name || undefined,
+          regionCode: undefined,
+          regionName: undefined,
+        })
+      }
     },
     [pushParams],
   )
@@ -181,7 +193,7 @@ export function SearchPageLayout() {
       <Container size="wide" padding="responsive">
         {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
-          selectedRegion={keyword || selectedRegion}
+          selectedRegion={regionName || keyword || selectedRegion}
           onRegionChange={handleRegionChange}
           checkIn={checkIn}
           checkOut={checkOut}
@@ -200,7 +212,7 @@ export function SearchPageLayout() {
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
           totalCount={totalCount}
-          regionLabel={selectedRegion || undefined}
+          regionLabel={regionName || selectedRegion || undefined}
           keyword={keyword || undefined}
           sort={sort}
           onSortChange={setSort}
