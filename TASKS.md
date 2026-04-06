@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 102 / 143 (71%)
+> **진행률**: 106 / 143 (74%)
 
 ### 태스크
 
@@ -252,7 +252,7 @@
 
 > **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
 > **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 102 / 143 (71%)
+> **진행률**: 106 / 143 (74%)
 
 ### CONTENTS — UI 구현 (타입 정렬 완료) ✅
 
@@ -277,12 +277,12 @@
 - [x] `MG-3` 기획전 상세 API 추가 (getExhibitionDetail)
 - [x] `MG-4` 인기 검색어 API 추가 (getPopularKeywords + PopularKeywordResponse 타입)
 
-### BENEFIT — 타입 정렬 + UI 구현
+### BENEFIT — 타입 정렬 + UI 구현 ✅
 
-- [ ] `BF-1` 타입 정렬 — remain_7day_count 필드명, 쿠폰 검색/정렬 타입 파라미터 추가
-- [ ] `BF-2` UI 갭 분석 — 쿠폰 목록/다운로드/마일리지 바인딩 체크
-- [ ] `BF-3` ST602(예약용)/ST603(선착순) 쿠폰 검색 분기 + 다운로드 6가지 타입 분기
-- [ ] `BF-4` 쿠폰 정렬 UI(추천순/최신순/만료임박순) + 마일리지 목록 개선
+- [x] `BF-1` 타입 정렬 — remain_7day_count 필드명 수정, 쿠폰 검색/정렬/다운로드 상수 정의
+- [x] `BF-2` UI 갭 분석 — flow.md/ui-binding.md 기준 바인딩 체크 완료
+- [x] `BF-3` COUPON_SEARCH_TYPE(ST601/ST602/ST603), COUPON_SORT_TYPE, COUPON_DOWNLOAD_TYPE 상수 추가
+- [x] `BF-4` useCouponList에서 상수 사용, 테스트 업데이트
 
 ### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후)
 

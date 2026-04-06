@@ -27,7 +27,7 @@ describe("getCouponList", () => {
   it("GET /benefit/coupons/list에 search_type을 전달한다", async () => {
     const mockResponse = {
       total_count: 5,
-      remain7day_count: 2,
+      remain_7day_count: 2,
       next_cursor: "",
       coupons: [],
     }
