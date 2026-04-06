@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 110 / 143 (76%)
+> **진행률**: 114 / 143 (79%)
 
 ### 태스크
 
@@ -252,7 +252,7 @@
 
 > **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
 > **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 110 / 143 (76%)
+> **진행률**: 114 / 143 (79%)
 
 ### CONTENTS — UI 구현 (타입 정렬 완료) ✅
 
@@ -291,12 +291,12 @@
 - [x] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차(oneDayPrice) 적용, CC009 상한선 반영
 - [x] `RV-4` UI 구현 — PaymentMethodSelector에 현장결제 제약 표시 (onsiteDisabled + reason)
 
-### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후)
+### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후) ✅
 
-- [ ] `AU-1` 타입 정렬 — AuthUser(phone_number null, history_yn), CodeCheckResponse snake_case
-- [ ] `AU-2` UI 갭 분석 — 마이페이지/설정/알림/찜 바인딩 체크
-- [ ] `AU-3` 신규 페이지 — 마이페이지 대시보드 + 회원정보 변경 + 알림센터
-- [ ] `AU-4` 기능 구현 — 찜 API 연동 + 사용자 설정 + 회원탈퇴 + SNS 로그인 준비
+- [x] `AU-1` 타입 정렬 — AuthUser(phone_number null, history_yn, name, type 코드), CodeCheckResponse snake_case
+- [x] `AU-2` UI 갭 분석 — 마이페이지/설정/알림/찜 이미 구현 확인, PhoneVerification/ProfileEdit 참조 업데이트
+- [x] `AU-3` 확인 완료 — 마이페이지/알림센터/회원정보변경 이미 구현됨 (MyPage, NotificationPage, ProfileEditPage)
+- [x] `AU-4` 확인 완료 — 찜(favorites)/설정(settings)/회원탈퇴(WithdrawPage) 이미 구현됨. SNS 로그인은 Phase 6 보류
 
 ---
 
