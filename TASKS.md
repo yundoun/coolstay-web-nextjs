@@ -248,6 +248,58 @@
 
 ---
 
+## Phase 13 — 도메인별 스펙 정렬 + UI 재구성 `branch: feat/domain-spec-alignment`
+
+> **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
+> **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
+> **진행률**: 10 / 24 (42%)
+
+### CONTENTS — UI 구현 (타입 정렬 완료) ✅
+
+- [x] `CT-1` 목록 카드에 benefit_tags, grade_tags 표시 (mapStoreToAccommodation + AccommodationCard)
+- [x] `CT-2` 목록 카드에 v2_support_flag 뱃지 표시 (최저가, 무제한쿠폰, 첫예약 등)
+- [x] `CT-3` 목록 카드 쿠폰 할인액 구체 표시 (hasCoupon boolean → coupons[].discount_amount)
+- [x] `CT-4` 상세 페이지 객실 쿠폰 표시 (sub_items.coupons[] → RoomCard)
+- [x] `CT-5` 상세 페이지 객실 남은 수량 매핑 (daily_extras CUR_SALES → remainingCount)
+- [x] `CT-6` 상세 페이지 객실 키워드 매핑 (items.keywords → Room.keywords)
+- [x] `CT-7` 상세 페이지 보강 — 결제혜택 렌더링, 마일리지유형 분기, 찜 토글 상태
+
+### HOME — 타입 정렬 + UI 구현 ✅
+
+- [x] `HM-1` 타입 정렬 — HomeBanner(title, start_dt, end_dt 등), RegionCategory(thumb_url, geometry, sub_regions) 필드 확장
+- [x] `HM-2` UI 갭 분석 + 구현 — 배너 기간 노출 제어, 비회원 최근 본 숙소 localStorage 연동
+- [x] `HM-3` 홈 화면 데이터 바인딩 보강 — 지역 탭 썸네일, sub_items 가격 추출 대응
+
+### MANAGE — 타입 정렬 + UI 구현
+
+- [ ] `MG-1` 타입 정렬 (CRITICAL) — board_type "INQUIRY"→"ASK" 수정, 필드명 일관성
+- [ ] `MG-2` UI 갭 분석 — 공지/FAQ/이벤트/기획전/가이드 바인딩 체크
+- [ ] `MG-3` 기획전 상세 5개 API 연쇄 호출 구현 (Contents+Benefit+Manage 조합)
+- [ ] `MG-4` 신규 API — 인기 검색어(/manage/popular/keyword), 파일 업로드(/manage/files/gcs), 앱 초기화(/manage/app/list)
+
+### BENEFIT — 타입 정렬 + UI 구현
+
+- [ ] `BF-1` 타입 정렬 — remain_7day_count 필드명, 쿠폰 검색/정렬 타입 파라미터 추가
+- [ ] `BF-2` UI 갭 분석 — 쿠폰 목록/다운로드/마일리지 바인딩 체크
+- [ ] `BF-3` ST602(예약용)/ST603(선착순) 쿠폰 검색 분기 + 다운로드 6가지 타입 분기
+- [ ] `BF-4` 쿠폰 정렬 UI(추천순/최신순/만료임박순) + 마일리지 목록 개선
+
+### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후)
+
+- [ ] `RV-1` 타입 정렬 — 결제 상태 코드 전체 매핑, noshow 필드 추가, PaymentMethod 보강
+- [ ] `RV-2` UI 갭 분석 — 예약 플로우 전체 바인딩 체크 (가격/쿠폰/결제/환불)
+- [ ] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차 적용, CC009 상한, STEP1~3 다중 쿠폰
+- [ ] `RV-4` UI 구현 — 현장결제 제약 표시, 환불정책 연동, PG 결제 준비, 부분 취소
+
+### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후)
+
+- [ ] `AU-1` 타입 정렬 — AuthUser(phone_number null, history_yn), CodeCheckResponse snake_case
+- [ ] `AU-2` UI 갭 분석 — 마이페이지/설정/알림/찜 바인딩 체크
+- [ ] `AU-3` 신규 페이지 — 마이페이지 대시보드 + 회원정보 변경 + 알림센터
+- [ ] `AU-4` 기능 구현 — 찜 API 연동 + 사용자 설정 + 회원탈퇴 + SNS 로그인 준비
+
+---
+
 ## 완료된 Phase 요약
 
 | Phase | 내용 | 테스트 | 상태 |

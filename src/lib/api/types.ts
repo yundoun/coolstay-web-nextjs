@@ -266,6 +266,10 @@ export interface RegionCategory {
   open_yn: string
   code: string
   name: string
+  thumb_url?: string                // 썸네일 URL (1depth에만)
+  geometry?: { latitude: string; longitude: string }  // 위경도 (하위 지역에만)
+  sub_regions?: RegionCategory[]    // 하위 카테고리 (재귀)
+  mapping_business_types?: string[] // 업태 리스트
   depth: number
   priority: number
 }
@@ -325,9 +329,18 @@ export interface StoreItem {
 export interface HomeBanner {
   key: number
   view_count: number
+  type?: string
+  title?: string
+  description?: string
+  badge_image_url?: string
+  banner_image_url?: string
+  detail_banner_image_url?: string
+  thumb_description?: string
   image_urls: string[]
   link: LinkItem
   reg_dt: number
+  start_dt?: number              // 게시 시작일 (초 단위)
+  end_dt?: number                // 게시 종료일 (초 단위)
 }
 
 export interface Exhibition {
@@ -349,9 +362,10 @@ export interface Exhibition {
 
 export interface AiMagazineBanner {
   key: number
-  title: string
-  description: string
+  title?: string               // 실측에서 반환될 수 있음
+  description?: string         // 실측에서 반환될 수 있음
   image_url: string
+  link?: LinkItem              // 스펙: V1BoardVO.LinkItem (sub_type="A_MR_24")
 }
 
 export interface HomeMainResponse {

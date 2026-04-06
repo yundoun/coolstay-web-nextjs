@@ -1,15 +1,35 @@
 import type { StoreItem } from "@/lib/api/types"
 import type { Accommodation } from "@/components/accommodation"
 
+// v2_support_flag → 사용자 표시 라벨 매핑
+const SUPPORT_FLAG_LABELS: Record<string, string> = {
+  is_first_reserve: "첫 예약",
+  is_low_price_korea: "최저가",
+  is_visit_korea: "숙박대전",
+  is_favor_coupon_store: "찜혜택",
+  is_unlimited_coupon: "무제한쿠폰",
+  is_revisit: "재방문",
+}
+
 /**
  * API StoreItem → AccommodationCard용 Accommodation 변환
  */
 export function mapStoreToAccommodation(store: StoreItem): Accommodation {
-  // 숙박(010102) 아이템에서 최저가 추출, 없으면 대실(010101)
-  const stayItem = store.items?.find((i) => i.category?.code === "010102")
-  const rentItem = store.items?.find((i) => i.category?.code === "010101")
-  const priceItem = stayItem || rentItem
+  // 목록 API: items[]에서 직접 대실/숙박 찾기, 또는 items[].sub_items[]에서 찾기
+  let stayItem = store.items?.find((i) => i.category?.code === "010102")
+  let rentItem = store.items?.find((i) => i.category?.code === "010101")
 
+  // sub_items 구조인 경우 (상세 API와 동일 구조)
+  if (!stayItem && !rentItem && store.items?.length) {
+    for (const item of store.items) {
+      if (item.sub_items?.length) {
+        if (!stayItem) stayItem = item.sub_items.find((si) => si.category?.code === "010102")
+        if (!rentItem) rentItem = item.sub_items.find((si) => si.category?.code === "010101")
+      }
+    }
+  }
+
+  const priceItem = stayItem || rentItem
   const price = priceItem?.discount_price ?? priceItem?.price ?? 0
   const originalPrice =
     priceItem && priceItem.price > priceItem.discount_price
@@ -32,6 +52,21 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
       .forEach((s) => tags.push(s.name))
   }
 
+  // v2_support_flag → 활성 라벨 추출
+  const supportFlags: string[] = []
+  if (store.v2_support_flag) {
+    for (const [key, val] of Object.entries(store.v2_support_flag)) {
+      if (val === true && SUPPORT_FLAG_LABELS[key]) {
+        supportFlags.push(SUPPORT_FLAG_LABELS[key])
+      }
+    }
+  }
+
+  // 쿠폰 최대 할인액 추출
+  const couponDiscount = store.coupons?.length
+    ? Math.max(...store.coupons.map((c) => c.discount_amount || 0))
+    : undefined
+
   return {
     id: store.key,
     name: store.name,
@@ -49,6 +84,10 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
     reviewCount: store.rating?.review_count || undefined,
     mileageRate: store.benefit_point_rate || undefined,
     hasCoupon: !!store.download_coupon_info && store.download_coupon_info.status !== "NON_TARGET",
+    couponDiscount: couponDiscount && couponDiscount > 0 ? couponDiscount : undefined,
     address: store.location?.address || "",
+    benefitTags: store.benefit_tags?.length ? store.benefit_tags : undefined,
+    gradeTags: store.grade_tags?.length ? store.grade_tags : undefined,
+    supportFlags: supportFlags.length > 0 ? supportFlags : undefined,
   }
 }

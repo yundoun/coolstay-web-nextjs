@@ -25,7 +25,11 @@ export interface Accommodation {
   reviewCount?: number
   mileageRate?: number
   hasCoupon?: boolean
+  couponDiscount?: number      // 쿠폰 최대 할인액
   address?: string
+  benefitTags?: string[]       // 혜택 태그 (benefit_tags)
+  gradeTags?: string[]         // 등급 태그 (grade_tags, 호텔 성급 등)
+  supportFlags?: string[]      // v2_support_flag에서 활성화된 라벨 목록
 }
 
 export interface AccommodationCardProps {
@@ -75,6 +79,20 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             </Badge>
           )}
 
+          {/* Support Flag Badges */}
+          {accommodation.supportFlags && accommodation.supportFlags.length > 0 && (
+            <div className="absolute left-3 bottom-3 flex flex-wrap gap-1">
+              {accommodation.supportFlags.slice(0, 2).map((flag) => (
+                <Badge
+                  key={flag}
+                  className="rounded-md bg-amber-500 text-white text-[10px] font-semibold px-1.5 py-0.5"
+                >
+                  {flag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
           {/* Wishlist Button */}
           <Button
             variant="ghost"
@@ -97,15 +115,27 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
 
         {/* Content */}
         <div className="p-4">
-          {/* Tags */}
-          {accommodation.tags && accommodation.tags.length > 0 && (
+          {/* Grade Tags (호텔 성급 등) */}
+          {accommodation.gradeTags && accommodation.gradeTags.length > 0 && (
+            <div className="mb-1.5 flex flex-wrap gap-1">
+              {accommodation.gradeTags.map((tag) => (
+                <Badge key={tag} className="bg-indigo-100 text-indigo-700 text-[10px] font-medium hover:bg-indigo-100">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* Tags + Benefit Tags */}
+          {((accommodation.tags && accommodation.tags.length > 0) || (accommodation.benefitTags && accommodation.benefitTags.length > 0)) && (
             <div className="mb-2 flex flex-wrap gap-1">
-              {accommodation.tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="text-xs font-normal"
-                >
+              {accommodation.benefitTags?.slice(0, 2).map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs font-normal text-emerald-700 border-emerald-200 bg-emerald-50">
+                  {tag}
+                </Badge>
+              ))}
+              {accommodation.tags?.slice(0, 3 - (accommodation.benefitTags?.length ?? 0)).map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-xs font-normal">
                   {tag}
                 </Badge>
               ))}
@@ -139,10 +169,12 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
                   <span className="font-medium">+{accommodation.mileageRate}% 적립</span>
                 </span>
               )}
-              {accommodation.hasCoupon && (
+              {(accommodation.hasCoupon || (accommodation.couponDiscount != null && accommodation.couponDiscount > 0)) && (
                 <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-px text-primary font-medium">
                   <Ticket className="size-3" />
-                  쿠폰
+                  {accommodation.couponDiscount != null && accommodation.couponDiscount > 0
+                    ? `-${accommodation.couponDiscount.toLocaleString()}원`
+                    : "쿠폰"}
                 </span>
               )}
             </div>

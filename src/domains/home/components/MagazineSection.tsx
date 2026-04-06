@@ -29,7 +29,7 @@ export function MagazineSection({ magazines }: Props) {
             <div className="relative aspect-[16/10] overflow-hidden">
               <Image
                 src={item.image_url}
-                alt={item.title}
+                alt={item.title ?? `매거진 ${item.key}`}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 640px) 100vw, 33vw"

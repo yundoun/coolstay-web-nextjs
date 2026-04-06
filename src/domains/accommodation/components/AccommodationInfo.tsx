@@ -56,9 +56,16 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
 
         {/* Actions */}
         <div className="mt-4 flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Heart className="size-4" />
-            찜하기
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "gap-2",
+              accommodation.userLikeYn === "Y" && "text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
+            )}
+          >
+            <Heart className={cn("size-4", accommodation.userLikeYn === "Y" && "fill-current")} />
+            {accommodation.userLikeYn === "Y" ? "찜" : "찜하기"}
           </Button>
           <Button variant="outline" size="sm" className="gap-2">
             <Share2 className="size-4" />

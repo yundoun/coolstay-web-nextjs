@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Users, AlertCircle, Clock, Moon } from "lucide-react"
+import { Users, AlertCircle, Clock, Moon, Ticket } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -114,6 +114,12 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
                       {room.rentalPrice.toLocaleString()}원
                     </span>
                   </div>
+                  {room.rentalCoupons && room.rentalCoupons.length > 0 && (
+                    <div className="mt-1 flex items-center gap-1 text-xs text-primary">
+                      <Ticket className="size-3" />
+                      <span>-{Math.max(...room.rentalCoupons.map(c => c.discount_amount)).toLocaleString()}원</span>
+                    </div>
+                  )}
                 </div>
                 <Button
                   size="sm"
@@ -143,6 +149,12 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
                     {room.stayPrice.toLocaleString()}원
                   </span>
                 </div>
+                {room.stayCoupons && room.stayCoupons.length > 0 && (
+                  <div className="mt-1 flex items-center gap-1 text-xs text-primary">
+                    <Ticket className="size-3" />
+                    <span>-{Math.max(...room.stayCoupons.map(c => c.discount_amount)).toLocaleString()}원</span>
+                  </div>
+                )}
               </div>
               <Button
                 size="sm"

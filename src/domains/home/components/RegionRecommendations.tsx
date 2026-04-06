@@ -9,8 +9,17 @@ import { useRegionStores } from "../hooks/useHomeData"
 import type { RegionCategory, StoreItem } from "@/lib/api/types"
 
 function getStayPrice(store: StoreItem) {
-  const stayItem = store.items?.find((i) => i.category.code === "010102")
-  const rentItem = store.items?.find((i) => i.category.code === "010101")
+  // items에서 직접 찾기, 또는 sub_items 구조에서 찾기
+  let stayItem = store.items?.find((i) => i.category?.code === "010102")
+  let rentItem = store.items?.find((i) => i.category?.code === "010101")
+  if (!stayItem && !rentItem) {
+    for (const item of store.items ?? []) {
+      if (item.sub_items?.length) {
+        if (!stayItem) stayItem = item.sub_items.find((si) => si.category?.code === "010102")
+        if (!rentItem) rentItem = item.sub_items.find((si) => si.category?.code === "010101")
+      }
+    }
+  }
   const item = stayItem || rentItem
   return {
     price: item?.discount_price || item?.price || 0,
@@ -43,23 +52,33 @@ export function RegionRecommendations({ categories, stores }: Props) {
       {/* 지역 탭 */}
       {tabs.length > 0 && (
         <div className="flex items-center gap-1 mb-6 border-b overflow-x-auto scrollbar-hide">
-          {tabs.map((tab) => (
-            <button
-              key={tab.code}
-              onClick={() => setActiveCode(tab.code === activeCode ? undefined : tab.code)}
-              className={cn(
-                "px-4 py-2.5 text-sm font-medium transition-all relative shrink-0",
-                (activeCode === undefined && tab === tabs[0]) || activeCode === tab.code
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {tab.name}
-              {((activeCode === undefined && tab === tabs[0]) || activeCode === tab.code) && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
-              )}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isActive = (activeCode === undefined && tab === tabs[0]) || activeCode === tab.code
+            return (
+              <button
+                key={tab.code}
+                onClick={() => setActiveCode(tab.code === activeCode ? undefined : tab.code)}
+                className={cn(
+                  "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium transition-all relative shrink-0",
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {tab.thumb_url && (
+                  <Image
+                    src={tab.thumb_url}
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="rounded-full object-cover"
+                  />
+                )}
+                {tab.name}
+                {isActive && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground rounded-full" />
+                )}
+              </button>
+            )
+          })}
         </div>
       )}
 
