@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-06 16:58** | 1:1 문의 링크 경로 수정 | [`cc9a1c1`](.work-history/entries/2026-04-06_17-05_FIX_inquiry-link-path.md)
 - **2026-04-06 16:54** | AUTH AU-1~4 타입 정렬 | [`8473edc`](.work-history/entries/2026-04-06_16-58_AU1-4_auth-type-alignment.md)
 - **2026-04-06 16:52** | RESERVATION RV-1~4 타입 정렬 + 가격 계산 수정 | [`9407ef4`](.work-history/entries/2026-04-06_16-55_RV1-4_reservation-type-pricing.md)
 - **2026-04-06 14:10** | BENEFIT BF-1~4 타입 정렬 + 상수 정의 | [`c259a75`](.work-history/entries/2026-04-06_14-12_BF1-4_benefit-type-alignment.md)

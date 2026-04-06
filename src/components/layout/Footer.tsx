@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 const FOOTER_LINKS = {
   고객센터: [
     { label: "자주 묻는 질문", href: "/faq" },
-    { label: "1:1 문의", href: "/inquiry" },
+    { label: "1:1 문의", href: "/inquiries" },
     { label: "공지사항", href: "/notices" },
     { label: "이용가이드", href: "/guide" },
   ],

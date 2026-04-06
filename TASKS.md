@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 114 / 143 (79%)
+> **진행률**: 118 / 143 (82%)
 
 ### 태스크
 
@@ -252,7 +252,7 @@
 
 > **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
 > **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 114 / 143 (79%)
+> **진행률**: 118 / 143 (82%)
 
 ### CONTENTS — UI 구현 (타입 정렬 완료) ✅
 
