@@ -3,6 +3,12 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-06 16:58** | 1:1 문의 링크 경로 수정 | [`cc9a1c1`](.work-history/entries/2026-04-06_17-05_FIX_inquiry-link-path.md)
+- **2026-04-06 16:54** | AUTH AU-1~4 타입 정렬 | [`8473edc`](.work-history/entries/2026-04-06_16-58_AU1-4_auth-type-alignment.md)
+- **2026-04-06 16:52** | RESERVATION RV-1~4 타입 정렬 + 가격 계산 수정 | [`9407ef4`](.work-history/entries/2026-04-06_16-55_RV1-4_reservation-type-pricing.md)
+- **2026-04-06 14:10** | BENEFIT BF-1~4 타입 정렬 + 상수 정의 | [`c259a75`](.work-history/entries/2026-04-06_14-12_BF1-4_benefit-type-alignment.md)
+- **2026-04-06 14:07** | MANAGE MG-1~4 타입 정렬 + API 추가 | [`d003a5b`](.work-history/entries/2026-04-06_14-10_MG1-4_manage-type-alignment.md)
+- **2026-04-06 10:31** | CONTENTS CT-1~7 + HOME HM-1~3 UI 갭 구현 | [`a33d549`](.work-history/entries/2026-04-06_10-35_CT1-7_HM1-3_ui-gap-implementation.md)
 - **2026-04-06 10:11** | Contents 도메인 타입 coolstay-domain-analysis 스펙 정렬 | [`d47545b`](.work-history/entries/2026-04-06_10-15_REFACTOR_contents-domain-type-alignment.md)
 - **2026-04-03 16:59** | fix: 키워드/지역 검색 빈 결과 반환 버그 수정 | [`4692859`](.work-history/entries/2026-04-03_16-55_FIX_search-empty-results.md)
 - **2026-04-03 15:29** | fix: protected layout redirect 에러 수정 | [`95dacb9`](.work-history/entries/2026-04-03_12-00_FIX_protected-layout-redirect.md)

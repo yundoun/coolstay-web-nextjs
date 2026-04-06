@@ -77,8 +77,8 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       maxGuests,
       amenities: [],
       isAvailable: true,
-      remainingCount: 0,
-      keywords: [],
+      remainingCount: parseInt(getExtra(stayItem, "CUR_SALES") || getExtra(rentItem, "CUR_SALES") || "0"),
+      keywords: item.keywords ?? [],
       rentalPrice: rentPrice,
       rentalOriginalPrice: rentOriginal,
       rentalAvailable: !!rentItem,
@@ -93,6 +93,8 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       stayPackageKey: stayItem?.key,
       stayStartHour: getExtra(stayItem, "STIME") ? parseInt(getExtra(stayItem, "STIME")!) : undefined,
       stayEndHour: getExtra(stayItem, "ETIME") ? parseInt(getExtra(stayItem, "ETIME")!) : undefined,
+      rentalCoupons: rentItem?.coupons?.length ? rentItem.coupons : undefined,
+      stayCoupons: stayItem?.coupons?.length ? stayItem.coupons : undefined,
     }
   })
 

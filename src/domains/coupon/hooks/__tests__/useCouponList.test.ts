@@ -31,7 +31,7 @@ describe("useCouponList", () => {
   it("마운트 시 쿠폰 목록을 조회한다", async () => {
     mockGetCouponList.mockResolvedValueOnce({
       total_count: 2,
-      remain7day_count: 1,
+      remain_7day_count: 1,
       next_cursor: "",
       coupons: [
         { coupon_pk: 1, title: "쿠폰1", status: "ACTIVE", dimmed_yn: "N" },

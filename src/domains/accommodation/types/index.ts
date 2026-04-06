@@ -94,6 +94,9 @@ export interface Room {
   stayPackageKey?: string // 숙박 패키지(sub_item) 키
   stayStartHour?: number  // 숙박 체크인 시간 (STIME)
   stayEndHour?: number    // 숙박 체크아웃 시간 (ETIME, 다음날)
+  // 객실 쿠폰 (sub_items.coupons[])
+  rentalCoupons?: import("@/lib/api/types").Coupon[]
+  stayCoupons?: import("@/lib/api/types").Coupon[]
 }
 
 export interface ReviewSummary {

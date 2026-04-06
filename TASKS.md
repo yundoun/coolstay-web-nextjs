@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 92 / 117 (78%)
+> **진행률**: 118 / 143 (82%)
 
 ### 태스크
 
@@ -245,6 +245,58 @@
 #### 마일리지
 - [x] `P12E-7` `points[].reason` — 거래 사유
 - [x] `P12E-8` `points[].remained_point` — 잔액 표시
+
+---
+
+## Phase 13 — 도메인별 스펙 정렬 + UI 재구성 `branch: feat/domain-spec-alignment`
+
+> **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
+> **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
+> **진행률**: 118 / 143 (82%)
+
+### CONTENTS — UI 구현 (타입 정렬 완료) ✅
+
+- [x] `CT-1` 목록 카드에 benefit_tags, grade_tags 표시 (mapStoreToAccommodation + AccommodationCard)
+- [x] `CT-2` 목록 카드에 v2_support_flag 뱃지 표시 (최저가, 무제한쿠폰, 첫예약 등)
+- [x] `CT-3` 목록 카드 쿠폰 할인액 구체 표시 (hasCoupon boolean → coupons[].discount_amount)
+- [x] `CT-4` 상세 페이지 객실 쿠폰 표시 (sub_items.coupons[] → RoomCard)
+- [x] `CT-5` 상세 페이지 객실 남은 수량 매핑 (daily_extras CUR_SALES → remainingCount)
+- [x] `CT-6` 상세 페이지 객실 키워드 매핑 (items.keywords → Room.keywords)
+- [x] `CT-7` 상세 페이지 보강 — 결제혜택 렌더링, 마일리지유형 분기, 찜 토글 상태
+
+### HOME — 타입 정렬 + UI 구현 ✅
+
+- [x] `HM-1` 타입 정렬 — HomeBanner(title, start_dt, end_dt 등), RegionCategory(thumb_url, geometry, sub_regions) 필드 확장
+- [x] `HM-2` UI 갭 분석 + 구현 — 배너 기간 노출 제어, 비회원 최근 본 숙소 localStorage 연동
+- [x] `HM-3` 홈 화면 데이터 바인딩 보강 — 지역 탭 썸네일, sub_items 가격 추출 대응
+
+### MANAGE — 타입 정렬 + UI 구현 ✅
+
+- [x] `MG-1` 타입 정렬 (CRITICAL) — board_type "INQUIRY"→"ASK" 수정, BoardItem 기획전 필드 추가, total_count 타입 통일
+- [x] `MG-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
+- [x] `MG-3` 기획전 상세 API 추가 (getExhibitionDetail)
+- [x] `MG-4` 인기 검색어 API 추가 (getPopularKeywords + PopularKeywordResponse 타입)
+
+### BENEFIT — 타입 정렬 + UI 구현 ✅
+
+- [x] `BF-1` 타입 정렬 — remain_7day_count 필드명 수정, 쿠폰 검색/정렬/다운로드 상수 정의
+- [x] `BF-2` UI 갭 분석 — flow.md/ui-binding.md 기준 바인딩 체크 완료
+- [x] `BF-3` COUPON_SEARCH_TYPE(ST601/ST602/ST603), COUPON_SORT_TYPE, COUPON_DOWNLOAD_TYPE 상수 추가
+- [x] `BF-4` useCouponList에서 상수 사용, 테스트 업데이트
+
+### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후) ✅
+
+- [x] `RV-1` 타입 정렬 — noshow_block_start_dt/end_dt 추가, BookPaymentSimple.cancel_dt 추가
+- [x] `RV-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
+- [x] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차(oneDayPrice) 적용, CC009 상한선 반영
+- [x] `RV-4` UI 구현 — PaymentMethodSelector에 현장결제 제약 표시 (onsiteDisabled + reason)
+
+### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후) ✅
+
+- [x] `AU-1` 타입 정렬 — AuthUser(phone_number null, history_yn, name, type 코드), CodeCheckResponse snake_case
+- [x] `AU-2` UI 갭 분석 — 마이페이지/설정/알림/찜 이미 구현 확인, PhoneVerification/ProfileEdit 참조 업데이트
+- [x] `AU-3` 확인 완료 — 마이페이지/알림센터/회원정보변경 이미 구현됨 (MyPage, NotificationPage, ProfileEditPage)
+- [x] `AU-4` 확인 완료 — 찜(favorites)/설정(settings)/회원탈퇴(WithdrawPage) 이미 구현됨. SNS 로그인은 Phase 6 보류
 
 ---
 

@@ -31,7 +31,7 @@ export interface PwCheckRequest {
 }
 
 export interface PwCheckResponse {
-  isVerified: boolean
+  isVerified: boolean            // 실측: camelCase 반환 확인됨 (P11C-12)
 }
 
 // ─── 회원 탈퇴 ───

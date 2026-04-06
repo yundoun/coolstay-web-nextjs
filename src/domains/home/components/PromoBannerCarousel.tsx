@@ -39,7 +39,13 @@ interface Props {
 export function PromoBannerCarousel({ banners }: Props) {
   const [current, setCurrent] = useState(0)
 
-  const items = banners?.length ? banners : []
+  // 기간이 설정된 배너는 현재 시간 기준으로 필터링
+  const now = Math.floor(Date.now() / 1000)
+  const items = (banners ?? []).filter((b) => {
+    if (b.start_dt && b.start_dt > now) return false
+    if (b.end_dt && b.end_dt < now) return false
+    return true
+  })
   if (items.length === 0) return null
 
   const next = useCallback(() => {

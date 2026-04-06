@@ -7,12 +7,14 @@ export interface AuthToken {
 
 export interface AuthUser {
   key: number
-  type: string        // U (이메일), SK (카카오), SN (네이버)
+  type: string                   // 스펙: E(이메일), K(카카오), N(네이버), A(애플)
   id: string
+  name?: string                  // 유저 이름 (Simple 필드)
   nickname: string
-  email: string
-  phone_number: string
-  status: string      // S1 (정상), D (탈퇴), B1~B3 (차단)
+  email: string                  // SNS 타입이면 "TODO: #9999" 가능 — 표시 금지
+  phone_number: string | null    // 애플 계정은 null 가능
+  status: string                 // S1(정상), D(탈퇴), B1~B3(차단)
+  history_yn?: string            // 회원가입 시만. Y=기존예약있음, N=신규
 }
 
 export interface SessionResponse {
@@ -53,8 +55,8 @@ export interface CodeCheckRequest {
 }
 
 export interface CodeCheckResponse {
-  isVerified: boolean
-  remainTryCount: number
+  is_verified: boolean           // 스펙: snake_case
+  remain_try_count: number       // 스펙: snake_case
 }
 
 export interface AuthMethodResponse {

@@ -79,6 +79,7 @@ export function BenefitSection({ accommodation }: BenefitSectionProps) {
           <Badge className="gap-1 bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">
             <Percent className="size-3.5" />
             +{benefitPointRate}% 적립
+            {accommodation.paymentBenefit?.benefit_more_yn === "Y" && " +α"}
           </Badge>
         )}
         {activeSupportFlags.map(([key]) => {
