@@ -558,6 +558,8 @@ export interface UserPaymentInfoResponse {
   site_payment_base_cnt: number
   noshow_base_time: string
   noshow_block_yn: string
+  noshow_block_start_dt?: number   // 노쇼 제재 시작 (초 단위)
+  noshow_block_end_dt?: number     // 노쇼 제재 종료 (초 단위)
   payment_methods: PaymentMethod[]
 }
 
@@ -654,8 +656,9 @@ export interface BookPaymentSimple {
   imp_uid?: string
   card_name?: string
   charge?: number
-  status?: string
+  status?: string              // PS101(결제완료), PS202(환불) 등
   paid_dt?: number
+  cancel_dt?: number           // 환불 일시 (초 단위)
   refund_charge?: number
 }
 

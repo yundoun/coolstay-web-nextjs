@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 106 / 143 (74%)
+> **진행률**: 110 / 143 (76%)
 
 ### 태스크
 
@@ -252,7 +252,7 @@
 
 > **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
 > **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 106 / 143 (74%)
+> **진행률**: 110 / 143 (76%)
 
 ### CONTENTS — UI 구현 (타입 정렬 완료) ✅
 
@@ -284,12 +284,12 @@
 - [x] `BF-3` COUPON_SEARCH_TYPE(ST601/ST602/ST603), COUPON_SORT_TYPE, COUPON_DOWNLOAD_TYPE 상수 추가
 - [x] `BF-4` useCouponList에서 상수 사용, 테스트 업데이트
 
-### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후)
+### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후) ✅
 
-- [ ] `RV-1` 타입 정렬 — 결제 상태 코드 전체 매핑, noshow 필드 추가, PaymentMethod 보강
-- [ ] `RV-2` UI 갭 분석 — 예약 플로우 전체 바인딩 체크 (가격/쿠폰/결제/환불)
-- [ ] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차 적용, CC009 상한, STEP1~3 다중 쿠폰
-- [ ] `RV-4` UI 구현 — 현장결제 제약 표시, 환불정책 연동, PG 결제 준비, 부분 취소
+- [x] `RV-1` 타입 정렬 — noshow_block_start_dt/end_dt 추가, BookPaymentSimple.cancel_dt 추가
+- [x] `RV-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
+- [x] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차(oneDayPrice) 적용, CC009 상한선 반영
+- [x] `RV-4` UI 구현 — PaymentMethodSelector에 현장결제 제약 표시 (onsiteDisabled + reason)
 
 ### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후)
 

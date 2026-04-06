@@ -24,13 +24,29 @@ export function useBookingForm(context: BookingContext) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("onsite")
   const [agreements, setAgreements] = useState<AgreementItem[]>(DEFAULT_AGREEMENTS)
 
-  // 쿠폰 할인 계산
+  // 쿠폰 할인 계산 (스펙: pricing-formula.md 기준)
   const couponDiscount = useMemo(() => {
     if (!selectedCouponId) return 0
     const coupon = context.availableCoupons.find((c) => c.id === selectedCouponId)
     if (!coupon) return 0
+    const rawCoupon = context.rawCoupons.find((c) => String(c.coupon_pk) === selectedCouponId)
+
     if (coupon.discountType === "fixed") return coupon.discountValue
-    return Math.floor(context.price * (coupon.discountValue / 100))
+
+    // 정률(RATE) 할인: 1일차 가격(oneDayPrice)에만 적용 (연박 시)
+    const oneDayPrice = context.originalPrice ?? context.price
+    let discount = Math.floor(oneDayPrice * (coupon.discountValue / 100))
+
+    // CC009 제약조건: 할인 상한선
+    if (rawCoupon?.constraints) {
+      const cc009 = rawCoupon.constraints.find((c) => c.code === "CC009")
+      if (cc009) {
+        const limit = parseInt(cc009.value)
+        if (limit > 0) discount = Math.min(discount, limit)
+      }
+    }
+
+    return discount
   }, [selectedCouponId, context])
 
   // 결제 요약
