@@ -49,8 +49,8 @@ export interface FilterParams {
   extraType?: string
   checkIn?: string
   checkOut?: string
-  adultCnt?: number
-  kidCnt?: number
+  adultCount?: number
+  kidsCount?: number
   latitude?: string
   longitude?: string
   businessType?: string

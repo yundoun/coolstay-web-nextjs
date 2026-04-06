@@ -151,6 +151,25 @@ export interface MotelBasic {
   images: ImageItem[]
 }
 
+// 객실/패키지 아이템 (V1ContentItemVO.ItemObj)
+export interface ItemObj {
+  key: string
+  price: number
+  discount_price: number
+  consecutive_price: number
+  name: string
+  description: string
+  category: StoreItemCategory
+  extras: { code: string; value: string }[]
+  keywords?: string[]
+  images?: ImageItem[]
+  coupons?: Coupon[]
+  daily_extras?: DailyExtra[]
+  sub_items?: ItemObj[]       // 하위 패키지 (대실/숙박). 예약 시 이 키 사용
+  package_priority?: number
+  sort_priority?: number
+}
+
 export interface Motel extends MotelBasic {
   rating: Rating
   business_info: {
@@ -187,30 +206,19 @@ export interface Motel extends MotelBasic {
     stay_amount: number
     rent_amount: number
   }
-  items: {
-    benefit_more_yn: string
-    benefit_preview: string
-    benefit_contents: {
-      key: string
-      title: string
-      start_dt: string
-      end_dt: string
-      logo_url: string
-      contents: string[]
-    }
-  }[]
-  event: Banner
+  items: ItemObj[]                          // 객실 목록 (스펙: List<ItemObj>)
+  event: Banner[]                           // 이벤트 정보 (스펙: List<V1BoardVO.Item>)
   benefit_tags: string[]
-  benefits: {
+  benefits: {                               // 혜택 아이콘 (스펙: List<V1BenefitVO.Item>)
     name: string
     description: string
     image_url: string
     active_yn: string
     priority: number
-  }
+  }[]
   grade_tags: string[]
-  coupons: Coupon
-  external_events: Banner
+  coupons: Coupon[]                         // 쿠폰 정보 (스펙: List<V1CouponVO.Item>)
+  external_events: Banner[]                 // 숙박대전 이벤트 (스펙: List<V1BoardVO.Item>)
   payment_benefit: {
     benefit_more_yn: string
     benefit_preview: string
@@ -229,13 +237,13 @@ export interface Motel extends MotelBasic {
     visible_yn: string
     image_url: string
   }[]
-  v2_support_flag: {
-    first_reserve: boolean
-    visit_korea: boolean
-    low_price_korea: boolean
-    favor_coupon_store: boolean
-    unlimited_coupon: boolean
-    revisit: boolean
+  v2_support_flag: {                        // 스펙: is_ 접두사 (V1ContentItemVO.SupportFlag)
+    is_first_reserve: boolean
+    is_visit_korea: boolean
+    is_low_price_korea: boolean
+    is_favor_coupon_store: boolean
+    is_unlimited_coupon: boolean
+    is_revisit: boolean
   }
   v2_external_links: {
     name: string
@@ -247,6 +255,7 @@ export interface Motel extends MotelBasic {
   area_cd1: number
   area_cd2: number
   cool_consecutive_popup: boolean
+  max_discount_amount?: number              // 최대 할인 금액 (스펙: Long, nullable)
 }
 
 // ─── Home API 응답 ───
@@ -271,21 +280,11 @@ export interface DailyExtra {
   extras: { code: string; value: string }[]
 }
 
-export interface StoreRoomItem {
-  key: string
-  price: number
-  discount_price: number
-  consecutive_price: number
-  name: string
-  category: StoreItemCategory
-  coupons?: Coupon[]
-  daily_extras?: DailyExtra[]
-}
-
 export interface StoreItem {
   key: string
   filter_bit: number
   partnership_type?: string
+  business_type?: string        // 업태 (MOTEL, HOTEL, PENSION 등)
   name: string
   like_count: number
   distance?: string
@@ -294,12 +293,24 @@ export interface StoreItem {
   parking_yn: string
   point_reward_type: string
   images: ImageItem[]
-  items: StoreRoomItem[]
+  items: ItemObj[]              // 객실 목록 (스펙: List<ItemObj>)
+  coupons?: Coupon[]            // 쿠폰 정보 (스펙: List<V1CouponVO.Item>)
+  benefit_tags?: string[]       // 혜택 태그
+  grade_tags?: string[]         // 등급 태그 (호텔 성급)
   extra_services: { code: string; name: string; visible_yn: string; image_url: string }[]
   area_cd1: number
   area_cd2: number
   cool_consecutive_popup: boolean
-  // 찜 목록(ST006) 등 일부 검색 유형에서 추가 반환되는 필드
+  max_discount_amount?: number  // 최대 할인 금액
+  v2_support_flag?: {           // V2 지원 플래그
+    is_first_reserve: boolean
+    is_visit_korea: boolean
+    is_low_price_korea: boolean
+    is_favor_coupon_store: boolean
+    is_unlimited_coupon: boolean
+    is_revisit: boolean
+  }
+  // 상세 조회나 특정 검색 유형(ST006 등)에서 추가 반환되는 필드
   rating?: Rating
   benefit_point_rate?: number
   location?: Location

@@ -1,6 +1,6 @@
 # Contents API 명세서 — 리뷰 + 키워드 (Phase 3)
 
-> 최종 업데이트: 2026-04-01
+> 최종 업데이트: 2026-04-06 (coolstay-domain-analysis 스펙 기준)
 
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
@@ -20,13 +20,15 @@
 | `count` | number | - | 페이지당 개수 |
 | `cursor` | string | - | 페이징 커서 |
 
-#### search_type 코드
+#### search_type 코드 (ReviewSearchType)
 
-| 코드 | 설명 | search_extra |
-|------|------|-------------|
-| `ST301` | 전체 리뷰 | motel_key |
-| `ST302` | 내가 쓴 리뷰 | - |
-| `ST303` | 특정 리뷰 | review_key |
+| 코드 | Enum | 설명 | search_extra |
+|------|------|------|-------------|
+| `SR001` | RATINGS_MOTELS | 제휴점 후기 | motel_key |
+| `SR002` | RATINGS_MY | 나의 후기 | - |
+| `SR003` | RATINGS_REVIEW_KEY | 후기 상세 | review_key |
+
+> 상수: `REVIEW_SEARCH_TYPE` (`src/domains/review/api/reviewApi.ts`)
 
 ### Response (`result`)
 
@@ -194,8 +196,8 @@ Hook: `useKeywordList` — 검색 페이지 키워드 필터
 | `extraType` | string | - | 부가 검색 값 |
 | `checkIn` | string | - | 체크인 날짜 |
 | `checkOut` | string | - | 체크아웃 날짜 |
-| `adultCnt` | number | - | 성인 수 |
-| `kidCnt` | number | - | 아동 수 |
+| `adultCount` | number | - | 성인 수 |
+| `kidsCount` | number | - | 아동 수 |
 | `latitude` | string | - | 위도 |
 | `longitude` | string | - | 경도 |
 | `sort` | string | - | 정렬 |

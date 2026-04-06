@@ -1,6 +1,6 @@
 # Contents API 명세서 — 상세 (Phase 2)
 
-> **최종 업데이트: 2026-04-01 (dev 서버 실제 응답 기준)**
+> **최종 업데이트: 2026-04-06 (coolstay-domain-analysis 스펙 기준)**
 
 > Base URL: `http://dev.server.coolstay.co.kr:9000/api/v2/mobile`
 > 인증: `app-token` + `app-secret-code` 헤더 (임시 토큰: `POST /auth/sessions/temporary`)
@@ -51,7 +51,7 @@ user_like_yn, v2_external_links, v2_low_price_btn, v2_support_flag
 | `business_info` | object | 사업자 정보 (상호명, 주소, 사업자번호 등) |
 | `location` | Location | 위치 (`address`, `latitude`, `longitude`) |
 | `images` | ImageItem[] | 대표 이미지 목록 |
-| `items` | DetailItem[] | 객실 목록 (상세 구조, 아래 참조) |
+| `items` | ItemObj[] | 객실 목록 (아래 참조). sub_items에 대실/숙박 패키지 |
 | `convenience_codes` | string[] | 편의시설 코드 목록 |
 | `parking_yn` | string | 주차 가능 여부 |
 | `parking_count` | number | 주차 가능 대수 |
@@ -64,12 +64,13 @@ user_like_yn, v2_external_links, v2_low_price_btn, v2_support_flag
 | `safe_number` | string | 안심번호 |
 | `like_count` | number | 찜 수 |
 | `user_like_yn` | string | 사용자 찜 여부 |
-| `benefits` | object[] | 혜택 정보 |
-| `coupons` | object[] | 쿠폰 정보 |
-| `extra_services` | object[] | 부가 서비스 |
-| `event` | object | 이벤트 정보 |
-| `external_events` | object[] | 외부 이벤트 목록 |
-| `v2_support_flag` | object | 지원 플래그 (첫예약, 무제한쿠폰 등) |
+| `benefits` | BenefitItem[] | 혜택 아이콘 목록 (배열) |
+| `coupons` | Coupon[] | 쿠폰 정보 (배열) |
+| `extra_services` | ExtraService[] | 부가 서비스 (배열) |
+| `event` | Banner[] | 이벤트 정보 (배열) |
+| `external_events` | Banner[] | 숙박대전 이벤트 (배열) |
+| `v2_support_flag` | SupportFlag | 지원 플래그 (`is_` 접두사, 아래 참조) |
+| `max_discount_amount` | number? | 최대 할인 금액 |
 | `v2_external_links` | object[] | 외부 링크 목록 |
 | `v2_low_price_btn` | object | 최저가 버튼 정보 |
 | `area_cd1` | string | 지역 코드 1 |
@@ -81,21 +82,38 @@ user_like_yn, v2_external_links, v2_low_price_btn, v2_support_flag
 | `point_reward_type` | string | 포인트 적립 타입 |
 | `site_payment_yn` | string | 현장 결제 가능 여부 |
 
-#### DetailItem (객실 — 상세 API 전용 구조)
+#### ItemObj (객실/패키지 — V1ContentItemVO.ItemObj)
 
-상세 API의 `items`는 목록 API(`StoreRoomItem`)와 구조가 다르다.
-
-실제 `items[0]` 키: `extras`, `images`, `key`, `name`, `package_priority`, `sort_priority`, `sub_items`
+상세 API와 목록 API 공통으로 사용되는 통합 타입. `sub_items`에 대실/숙박 패키지가 위치하며, **예약 시에는 sub_items의 key를 사용해야 한다.**
 
 | 필드 | 타입 | 설명 |
 |------|------|------|
 | `key` | string | 객실 고유 키 |
-| `name` | string | 객실명 (ex: "Single Room", "Double Room") |
-| `extras` | Extra[] | 인원/옵션 정보 (`MAX`, `MIN`, `WALK_ONLY` 등) |
-| `images` | ImageItem[] | 객실 이미지 목록 |
-| `sub_items` | StoreRoomItem[] | 대실/숙박 가격 정보 (카테고리별) |
-| `package_priority` | number | 패키지 정렬 순서 |
-| `sort_priority` | number | 기본 정렬 순서 |
+| `price` | number | 정가 |
+| `discount_price` | number | 판매가 |
+| `consecutive_price` | number | 연박 추가 요금 |
+| `name` | string | 객실명 |
+| `description` | string | 객실 설명 |
+| `category` | ItemCategory | 카테고리 (`{ code, name }`) |
+| `extras` | CodeObj[] | 부가 정보 (`STIME`, `ETIME`, `UTIME`, `MAX_ADULT` 등) |
+| `keywords` | string[]? | 키워드 |
+| `images` | ImageItem[]? | 객실 이미지 목록 |
+| `coupons` | Coupon[]? | 객실 쿠폰 |
+| `daily_extras` | DailyExtra[]? | 일별 판매 정보 |
+| `sub_items` | ItemObj[]? | ★ 하위 패키지 (대실/숙박). 예약 시 이 키 사용 |
+| `package_priority` | number? | 패키지 정렬 순서 |
+| `sort_priority` | number? | 기본 정렬 순서 |
+
+#### SupportFlag (V1ContentItemVO.SupportFlag)
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| `is_first_reserve` | boolean | 첫예약 |
+| `is_visit_korea` | boolean | 숙박대전 |
+| `is_low_price_korea` | boolean | 국내 최저가 |
+| `is_favor_coupon_store` | boolean | 찜쿠폰 |
+| `is_unlimited_coupon` | boolean | 무제한 쿠폰 |
+| `is_revisit` | boolean | 재방문 |
 
 #### ImageItem (실제 응답 키)
 

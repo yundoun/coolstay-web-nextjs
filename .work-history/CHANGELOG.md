@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-06 10:11** | Contents 도메인 타입 coolstay-domain-analysis 스펙 정렬 | [`d47545b`](.work-history/entries/2026-04-06_10-15_REFACTOR_contents-domain-type-alignment.md)
 - **2026-04-03 16:59** | fix: 키워드/지역 검색 빈 결과 반환 버그 수정 | [`4692859`](.work-history/entries/2026-04-03_16-55_FIX_search-empty-results.md)
 - **2026-04-03 15:29** | fix: protected layout redirect 에러 수정 | [`95dacb9`](.work-history/entries/2026-04-03_12-00_FIX_protected-layout-redirect.md)
 - **2026-04-03 15:24** | fix: 설정 페이지 로그아웃 import 오류 수정 | [`11b749d`](.work-history/entries/2026-04-03_11-45_FIX_settings-logout-import.md)

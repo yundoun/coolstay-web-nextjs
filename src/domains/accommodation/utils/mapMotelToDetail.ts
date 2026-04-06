@@ -1,4 +1,4 @@
-import type { Motel, Banner } from "@/lib/api/types"
+import type { Motel, ItemObj } from "@/lib/api/types"
 import type { AccommodationDetail, Room, AmenityItem, Policy } from "../types"
 
 // 편의시설 코드 → 이름/아이콘 매핑
@@ -44,18 +44,16 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     })
   }
 
-  // 객실 변환 — 상세 API의 items는 { key, name, extras, images, sub_items } 구조
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rooms: Room[] = (motel.items as any[] ?? []).map((item) => {
-    const subItems = item.sub_items ?? item.items ?? []
-    const stayItem = subItems.find((si: { category?: { code: string } }) => si.category?.code === "010102")
-    const rentItem = subItems.find((si: { category?: { code: string } }) => si.category?.code === "010101")
+  // 객실 변환 — items[].sub_items[]에서 대실(010101)/숙박(010102) 패키지 추출
+  const rooms: Room[] = (motel.items ?? []).map((item: ItemObj) => {
+    const subItems = item.sub_items ?? []
+    const stayItem = subItems.find((si) => si.category?.code === "010102")
+    const rentItem = subItems.find((si) => si.category?.code === "010101")
 
     // daily_extras에서 시간 정보 추출 헬퍼
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getExtra = (si: any, code: string): string | undefined => {
+    const getExtra = (si: ItemObj | undefined, code: string): string | undefined => {
       const todayExtras = si?.daily_extras?.[0]?.extras ?? []
-      return todayExtras.find((e: { code: string }) => e.code === code)?.value
+      return todayExtras.find((e) => e.code === code)?.value
     }
 
     const stayPrice = stayItem?.discount_price ?? stayItem?.price ?? 0
@@ -64,11 +62,11 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     const rentOriginal = rentItem?.price !== rentItem?.discount_price ? rentItem?.price : undefined
 
     // extras에서 인원 정보 추출
-    const maxExtra = (item.extras ?? []).find((e: { code: string }) => e.code === "MAX")
+    const maxExtra = (item.extras ?? []).find((e) => e.code === "MAX")
     const maxGuests = maxExtra ? parseInt(maxExtra.value) : 2
 
     // 객실 이미지
-    const roomImages = (item.images ?? []).map((img: { url: string }) => img.url)
+    const roomImages = (item.images ?? []).map((img) => img.url)
 
     return {
       id: item.key ?? "",
@@ -158,17 +156,15 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       images: r.images?.map((img) => img.url),
     })),
     events: [
-      ...(motel.event
-        ? [{
-            id: String(motel.event.key),
-            title: motel.event.title ?? "",
-            description: motel.event.description ?? "",
-            imageUrl: motel.event.banner_image_url,
-            startDate: motel.event.start_dt ?? "",
-            endDate: motel.event.end_dt ?? "",
-          }]
-        : []),
-      ...((motel.external_events as unknown as Banner[] | undefined) ?? []).map((ev) => ({
+      ...(motel.event ?? []).map((ev) => ({
+        id: String(ev.key),
+        title: ev.title ?? "",
+        description: ev.description ?? "",
+        imageUrl: ev.banner_image_url,
+        startDate: ev.start_dt ?? "",
+        endDate: ev.end_dt ?? "",
+      })),
+      ...(motel.external_events ?? []).map((ev) => ({
         id: String(ev.key),
         title: ev.title ?? "",
         description: ev.description ?? "",
@@ -187,8 +183,8 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     longitude: motel.location?.longitude ? parseFloat(motel.location.longitude) : undefined,
 
     // 혜택/쿠폰
-    coupons: motel.coupons ? (Array.isArray(motel.coupons) ? motel.coupons : [motel.coupons]) : [],
-    benefits: motel.benefits ? (Array.isArray(motel.benefits) ? motel.benefits : [motel.benefits]) : [],
+    coupons: motel.coupons ?? [],
+    benefits: motel.benefits ?? [],
     downloadCouponInfo: motel.download_coupon_info ?? undefined,
     paymentBenefit: motel.payment_benefit
       ? {
@@ -211,9 +207,7 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
 
     // 외부 링크
     v2ExternalLinks: motel.v2_external_links ?? [],
-    externalEvents: motel.external_events
-      ? (Array.isArray(motel.external_events) ? motel.external_events : [motel.external_events])
-      : [],
+    externalEvents: motel.external_events ?? [],
 
     // 숙소 정보
     likeCount: motel.like_count ?? 0,

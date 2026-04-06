@@ -7,8 +7,19 @@ import type {
 } from "@/lib/api/types"
 
 // ─── 리뷰 목록 조회 ───
+
+// 리뷰 검색 타입 (ReviewSearchType)
+export const REVIEW_SEARCH_TYPE = {
+  /** 제휴점 후기 (search_extra = motel_key) */
+  STORE: "SR001",
+  /** 나의 후기 */
+  MY: "SR002",
+  /** 후기 상세 (search_extra = review_key) */
+  DETAIL: "SR003",
+} as const
+
 export interface ReviewListParams {
-  search_type: string    // ST301: 전체, ST302: 내가 쓴 리뷰, ST303: key로 조회
+  search_type: string    // SR001: 제휴점 후기, SR002: 나의 후기, SR003: 후기 상세
   search_extra: string   // motel_key 또는 review_key
   count?: number
   cursor?: string

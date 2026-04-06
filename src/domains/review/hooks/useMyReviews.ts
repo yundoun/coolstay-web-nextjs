@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useCallback } from "react"
-import { getReviewList } from "../api/reviewApi"
+import { getReviewList, REVIEW_SEARCH_TYPE } from "../api/reviewApi"
 
 export function useMyReviews() {
   const queryClient = useQueryClient()
@@ -10,7 +10,7 @@ export function useMyReviews() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["myReviews"],
     queryFn: () => getReviewList({
-      search_type: "ST302",
+      search_type: REVIEW_SEARCH_TYPE.MY,
       search_extra: "",
       count: 20,
     }),
