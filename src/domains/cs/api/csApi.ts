@@ -4,6 +4,7 @@ import type {
   BoardListResponse,
   BoardRegisterRequest,
   BoardDeleteRequest,
+  PopularKeywordResponse,
 } from "../types"
 
 /** 공지사항 목록/상세 조회 */
@@ -25,7 +26,7 @@ export function getFaqList(params?: Omit<BoardListParams, "board_type">) {
 /** 1:1 문의 목록 조회 */
 export function getInquiryList(params?: Omit<BoardListParams, "board_type">) {
   return api.get<BoardListResponse>("/manage/board/list", {
-    board_type: "INQUIRY",
+    board_type: "ASK",
     ...params,
   })
 }
@@ -46,4 +47,17 @@ export function getGuideList(params?: Omit<BoardListParams, "board_type">) {
     board_type: "GUIDE",
     ...params,
   })
+}
+
+/** 기획전 상세 조회 */
+export function getExhibitionDetail(boardItemKey: string) {
+  return api.get<BoardListResponse>("/manage/board/list", {
+    board_type: "EVENT",
+    board_item_key: boardItemKey,
+  })
+}
+
+/** 인기 검색어 */
+export function getPopularKeywords() {
+  return api.get<PopularKeywordResponse>("/manage/popular/keyword")
 }

@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-06 14:07** | MANAGE MG-1~4 타입 정렬 + API 추가 | [`d003a5b`](.work-history/entries/2026-04-06_14-10_MG1-4_manage-type-alignment.md)
 - **2026-04-06 10:31** | CONTENTS CT-1~7 + HOME HM-1~3 UI 갭 구현 | [`a33d549`](.work-history/entries/2026-04-06_10-35_CT1-7_HM1-3_ui-gap-implementation.md)
 - **2026-04-06 10:11** | Contents 도메인 타입 coolstay-domain-analysis 스펙 정렬 | [`d47545b`](.work-history/entries/2026-04-06_10-15_REFACTOR_contents-domain-type-alignment.md)
 - **2026-04-03 16:59** | fix: 키워드/지역 검색 빈 결과 반환 버그 수정 | [`4692859`](.work-history/entries/2026-04-03_16-55_FIX_search-empty-results.md)

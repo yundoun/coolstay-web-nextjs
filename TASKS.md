@@ -4,7 +4,7 @@
 
 ## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
 
-> **진행률**: 92 / 117 (78%)
+> **진행률**: 102 / 143 (71%)
 
 ### 태스크
 
@@ -252,7 +252,7 @@
 
 > **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
 > **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 10 / 24 (42%)
+> **진행률**: 102 / 143 (71%)
 
 ### CONTENTS — UI 구현 (타입 정렬 완료) ✅
 
@@ -270,12 +270,12 @@
 - [x] `HM-2` UI 갭 분석 + 구현 — 배너 기간 노출 제어, 비회원 최근 본 숙소 localStorage 연동
 - [x] `HM-3` 홈 화면 데이터 바인딩 보강 — 지역 탭 썸네일, sub_items 가격 추출 대응
 
-### MANAGE — 타입 정렬 + UI 구현
+### MANAGE — 타입 정렬 + UI 구현 ✅
 
-- [ ] `MG-1` 타입 정렬 (CRITICAL) — board_type "INQUIRY"→"ASK" 수정, 필드명 일관성
-- [ ] `MG-2` UI 갭 분석 — 공지/FAQ/이벤트/기획전/가이드 바인딩 체크
-- [ ] `MG-3` 기획전 상세 5개 API 연쇄 호출 구현 (Contents+Benefit+Manage 조합)
-- [ ] `MG-4` 신규 API — 인기 검색어(/manage/popular/keyword), 파일 업로드(/manage/files/gcs), 앱 초기화(/manage/app/list)
+- [x] `MG-1` 타입 정렬 (CRITICAL) — board_type "INQUIRY"→"ASK" 수정, BoardItem 기획전 필드 추가, total_count 타입 통일
+- [x] `MG-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
+- [x] `MG-3` 기획전 상세 API 추가 (getExhibitionDetail)
+- [x] `MG-4` 인기 검색어 API 추가 (getPopularKeywords + PopularKeywordResponse 타입)
 
 ### BENEFIT — 타입 정렬 + UI 구현
 

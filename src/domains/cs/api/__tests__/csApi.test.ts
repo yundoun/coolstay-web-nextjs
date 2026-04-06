@@ -77,7 +77,7 @@ describe("getInquiryList (P3-4)", () => {
     const result = await getInquiryList()
 
     expect(mockGet).toHaveBeenCalledWith("/manage/board/list", {
-      board_type: "INQUIRY",
+      board_type: "ASK",
     })
     expect(result.total_count).toBe(2)
   })
@@ -87,10 +87,10 @@ describe("registerInquiry (P3-4)", () => {
   it("POST /manage/board/register에 문의 내용을 전달한다", async () => {
     mockPost.mockResolvedValueOnce(undefined)
 
-    await registerInquiry({ board_type: "INQUIRY", title: "문의합니다" })
+    await registerInquiry({ board_type: "ASK", title: "문의합니다" })
 
     expect(mockPost).toHaveBeenCalledWith("/manage/board/register", {
-      board_type: "INQUIRY",
+      board_type: "ASK",
       title: "문의합니다",
     })
   })
@@ -100,10 +100,10 @@ describe("deleteInquiry (P3-4)", () => {
   it("POST /manage/board/delete에 삭제 대상을 전달한다", async () => {
     mockPost.mockResolvedValueOnce(undefined)
 
-    await deleteInquiry({ board_type: "INQUIRY", item_key: "inq-123" })
+    await deleteInquiry({ board_type: "ASK", item_key: "inq-123" })
 
     expect(mockPost).toHaveBeenCalledWith("/manage/board/delete", {
-      board_type: "INQUIRY",
+      board_type: "ASK",
       item_key: "inq-123",
     })
   })

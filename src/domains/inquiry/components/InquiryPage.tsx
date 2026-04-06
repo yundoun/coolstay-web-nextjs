@@ -68,7 +68,7 @@ function InquiryForm() {
     if (!isValid) return
     try {
       await registerInquiry({
-        board_type: "INQUIRY",
+        board_type: "ASK",
         title: `[${category}] ${content.slice(0, 30)}`,
         option_value: category,
       })
