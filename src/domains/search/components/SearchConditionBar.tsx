@@ -273,31 +273,41 @@ function RegionDropdown({
       }))
   }, [apiRegions])
 
-  // 지하철 목록
-  const subwayList = useMemo(() => {
+  // 지하철 목록 (3단계: 그룹 → 호선 → 역)
+  const subwayGroups = useMemo(() => {
     if (!apiRegions?.subways?.length) return []
     return apiRegions.subways
-      .filter((s) => s.open_yn !== "N")
-      .map((line) => ({
-        name: line.name,
-        code: line.code,
-        stations: (line.sub_regions || [])
-          .filter((s) => s.open_yn === "Y")
-          .map((s) => ({ name: s.name, code: s.code })),
+      .filter((g) => g.open_yn !== "N")
+      .map((group) => ({
+        name: group.name,
+        code: group.code,
+        lines: (group.sub_regions || [])
+          .filter((l) => l.open_yn !== "N")
+          .map((line) => ({
+            name: line.name,
+            code: line.code,
+            stations: (line.sub_regions || [])
+              .filter((s) => s.open_yn !== "N")
+              .map((s) => ({ name: s.name, code: s.code })),
+          })),
       }))
   }, [apiRegions])
 
   const [activeCity, setActiveCity] = useState(regionList[0]?.name || "")
-  const [activeSubwayLine, setActiveSubwayLine] = useState(subwayList[0]?.name || "")
+  const [activeSubwayGroup, setActiveSubwayGroup] = useState(subwayGroups[0]?.name || "")
+  const [selectedLine, setSelectedLine] = useState<string | null>(null)
   const activeCityData = regionList.find((c) => c.name === activeCity)
-  const activeLineData = subwayList.find((l) => l.name === activeSubwayLine)
+  const activeGroupData = subwayGroups.find((g) => g.name === activeSubwayGroup)
+  const activeLineData = selectedLine
+    ? activeGroupData?.lines.find((l) => l.name === selectedLine)
+    : null
 
-  // 지하철 탭 전환 시 첫 번째 노선 선택
+  // 지하철 탭 전환 시 첫 번째 그룹 선택
   useEffect(() => {
-    if (tab === "subway" && subwayList.length && !activeSubwayLine) {
-      setActiveSubwayLine(subwayList[0].name)
+    if (tab === "subway" && subwayGroups.length && !activeSubwayGroup) {
+      setActiveSubwayGroup(subwayGroups[0].name)
     }
-  }, [tab, subwayList, activeSubwayLine])
+  }, [tab, subwayGroups, activeSubwayGroup])
 
   // 상위 지역코드(ALL_XX)는 서버에서 검색 미실행(total_count=-1) → 키워드 검색으로 전환
   const isTopLevelCode = (code: string) => /^ALL_\d{2}$/.test(code)
@@ -315,7 +325,7 @@ function RegionDropdown({
     onSelect("", "")
   }
 
-  const hasSubways = subwayList.length > 0
+  const hasSubways = subwayGroups.length > 0
 
   return (
     <div className="absolute left-0 top-full mt-2 z-50 bg-white rounded-xl shadow-xl border w-[580px] max-h-[min(520px,70vh)] flex flex-col overflow-hidden animate-fade-in-down">
@@ -416,43 +426,76 @@ function RegionDropdown({
         </div>
       ) : (
         <div className="flex flex-1 min-h-0">
-          {/* Subway Lines */}
+          {/* Subway Groups */}
           <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
-            {subwayList.map((line) => (
+            {subwayGroups.map((group) => (
               <button
-                key={line.name}
-                onClick={() => setActiveSubwayLine(line.name)}
+                key={group.name}
+                onClick={() => {
+                  setActiveSubwayGroup(group.name)
+                  setSelectedLine(null)
+                }}
                 className={cn(
                   "w-full text-left px-4 py-2.5 text-sm relative",
-                  activeSubwayLine === line.name
+                  activeSubwayGroup === group.name
                     ? "text-primary font-semibold bg-white"
                     : "text-gray-600 hover:bg-gray-100"
                 )}
               >
-                {activeSubwayLine === line.name && (
+                {activeSubwayGroup === group.name && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />
                 )}
-                {line.name}
+                {group.name}
               </button>
             ))}
           </div>
-          {/* Stations */}
+          {/* Lines → Stations drill-down */}
           <div className="flex-1 py-1 overflow-y-auto">
-            {activeLineData?.stations.map((station) => (
-              <button
-                key={station.code || station.name}
-                onClick={() => handleSelect(station.name, station.code)}
-                className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-              >
-                <Train className="size-3.5 text-gray-400" />
-                <span>{station.name}</span>
-                <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
-              </button>
-            ))}
-            {(!activeLineData?.stations.length) && (
-              <div className="flex items-center justify-center py-10 text-sm text-gray-400">
-                역 정보가 없습니다
-              </div>
+            {selectedLine && activeLineData ? (
+              <>
+                <button
+                  onClick={() => setSelectedLine(null)}
+                  className="w-full flex items-center gap-1.5 px-5 py-2.5 text-sm text-primary font-medium hover:bg-gray-50 border-b border-border/50"
+                >
+                  <ChevronLeft className="size-3.5" />
+                  <span>{selectedLine}</span>
+                </button>
+                {activeLineData.stations.map((station) => (
+                  <button
+                    key={station.code || station.name}
+                    onClick={() => handleSelect(station.name, station.code)}
+                    className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Train className="size-3.5 text-gray-400" />
+                    <span>{station.name}</span>
+                    <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+                  </button>
+                ))}
+                {!activeLineData.stations.length && (
+                  <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                    역 정보가 없습니다
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                {activeGroupData?.lines.map((line) => (
+                  <button
+                    key={line.code || line.name}
+                    onClick={() => setSelectedLine(line.name)}
+                    className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Train className="size-3.5 text-gray-400" />
+                    <span>{line.name}</span>
+                    <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+                  </button>
+                ))}
+                {!activeGroupData?.lines.length && (
+                  <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                    노선 정보가 없습니다
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
