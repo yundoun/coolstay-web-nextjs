@@ -4,12 +4,19 @@ import { useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Hash } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { HASHTAG_KEYWORDS } from "../data/autocomplete"
+import { useKeywordList } from "../hooks/useKeywordData"
 import { buildHashtagToggleParams } from "../utils/searchParams"
 
 export function KeywordSearchSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: keywordData } = useKeywordList()
+
+  // API 키워드 목록에서 상위 12개를 해시태그로 사용
+  const hashtagKeywords = useMemo(() => {
+    const items = keywordData?.keyword_lists ?? []
+    return [...items].sort((a, b) => b.count - a.count).slice(0, 12).map((item) => item.keyword)
+  }, [keywordData])
 
   // URL params를 source of truth로 사용 — 외부에서 keyword가 변경되면 자동 동기화
   // keyword와 regionCode는 배타적 — regionCode가 있으면 keyword 무시
@@ -27,6 +34,8 @@ export function KeywordSearchSection() {
     router.push(`/search?${next.toString()}`, { scroll: false })
   }
 
+  if (hashtagKeywords.length === 0) return null
+
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-2">
@@ -34,7 +43,7 @@ export function KeywordSearchSection() {
         <span className="text-sm font-medium">인기 키워드</span>
       </div>
       <div className="flex flex-wrap gap-2">
-        {HASHTAG_KEYWORDS.map((keyword) => {
+        {hashtagKeywords.map((keyword) => {
           const isActive = activeKeywords.has(keyword)
           return (
             <button

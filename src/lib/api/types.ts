@@ -728,14 +728,34 @@ export interface ReservUsersDeleteRequest {
 
 // ─── Keyword API 응답 ───
 
-// contents/total/keywordList
+// 압축 응답 래퍼 (isCompress=true 시)
+export interface CompressedResult {
+  originalSize: number
+  compressSize: number
+  compressRate: string
+  zipFileName: string
+  base64Data: string
+}
+
+// contents/total/keywordList (압축 해제 후)
 export interface KeywordItem {
-  type: string
+  type: string        // "STORE" | "COOLSTAY"
   keyword: string
   count: number
+}
+
+export interface SearchResultItem {
+  type: string        // "R" (지역) | "S" (지하철) | "M" (숙소)
+  sub_type?: string
+  entity_id?: string
+  v2_entity_id?: string
+  entity_name?: string
+  location?: Location
+  v2_keywords?: string[]
 }
 
 export interface KeywordListResponse {
   total_count: number
   keyword_lists: KeywordItem[]
+  search_results: SearchResultItem[]
 }

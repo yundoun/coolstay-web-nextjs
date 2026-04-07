@@ -5,12 +5,23 @@ import {
   getKeywordSearchList,
   type KeywordSearchParams,
 } from "../api/keywordApi"
+import { getPopularKeywords } from "@/domains/cs/api/csApi"
 
-// 꿀키워드 전체 목록
+// 꿀키워드 전체 목록 (자동완성용)
 export function useKeywordList() {
   return useQuery({
     queryKey: ["contents", "keywordList"],
     queryFn: getKeywordList,
+    retry: 1,
+  })
+}
+
+// 인기 검색어 (CMS 관리)
+export function usePopularKeywords() {
+  return useQuery({
+    queryKey: ["manage", "popularKeyword"],
+    queryFn: getPopularKeywords,
+    staleTime: 5 * 60 * 1000, // 5분 캐시
     retry: 1,
   })
 }

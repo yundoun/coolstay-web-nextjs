@@ -4,7 +4,7 @@ import { useState } from "react"
 import { TrendingUp, Clock, X, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { POPULAR_KEYWORDS } from "../data/autocomplete"
+import { usePopularKeywords } from "../hooks/useKeywordData"
 
 interface PopularKeywordsProps {
   recentSearches: string[]
@@ -20,6 +20,8 @@ export function PopularKeywords({
   onClearRecent,
 }: PopularKeywordsProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const { data: popularData } = usePopularKeywords()
+  const popularKeywords = popularData?.popular_keywords ?? []
 
   return (
     <div className="border-t border-border">
@@ -33,7 +35,7 @@ export function PopularKeywords({
           <span className="font-medium">인기 검색어</span>
           {!isExpanded && (
             <span className="text-xs text-muted-foreground/60 hidden sm:inline">
-              {POPULAR_KEYWORDS.slice(0, 3).join(" · ")}
+              {popularKeywords.slice(0, 3).map((k) => k.keyword).join(" · ")}
             </span>
           )}
         </div>
@@ -90,7 +92,7 @@ export function PopularKeywords({
 
           {/* Popular Keywords */}
           <div className="grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1.5">
-            {POPULAR_KEYWORDS.map((keyword, index) => (
+            {popularKeywords.map(({ ranking, keyword }) => (
               <button
                 key={keyword}
                 onClick={() => onKeywordClick(keyword)}
@@ -99,10 +101,10 @@ export function PopularKeywords({
                 <span
                   className={cn(
                     "w-5 text-center text-xs font-bold",
-                    index < 3 ? "text-primary" : "text-muted-foreground"
+                    ranking <= 3 ? "text-primary" : "text-muted-foreground"
                   )}
                 >
-                  {index + 1}
+                  {ranking}
                 </span>
                 <span className="truncate group-hover:underline underline-offset-2">
                   {keyword}

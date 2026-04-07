@@ -1,16 +1,19 @@
 import { api } from "@/lib/api/client"
+import { decompressResult } from "@/lib/api/decompress"
 import type {
   KeywordListResponse,
+  CompressedResult,
   FilterResponse,
   ContentsListResponse,
   FilterKey,
 } from "@/lib/api/types"
 
-// ─── 꿀키워드 전체 목록 ───
-export function getKeywordList() {
-  return api.get<KeywordListResponse>("/contents/total/keywordList", {
-    isCompress: 0,
+// ─── 꿀키워드 전체 목록 (압축 응답 → 해제) ───
+export async function getKeywordList(): Promise<KeywordListResponse> {
+  const compressed = await api.get<CompressedResult>("/contents/total/keywordList", {
+    isCompress: true,
   })
+  return decompressResult<KeywordListResponse>(compressed)
 }
 
 // ─── 꿀키워드로 제휴점 key 조회 ───

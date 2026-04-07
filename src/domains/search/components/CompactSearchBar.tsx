@@ -1,28 +1,14 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { createPortal } from "react-dom"
-import Image from "next/image"
-import { Search, X, MapPin, TrainFront, Clock } from "lucide-react"
+import { Search, X, Clock, MapPin, TrainFront, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import {
-  POPULAR_KEYWORDS,
-  suggestKeywords,
-  suggestRegions,
-  suggestAccommodations,
-} from "../data/autocomplete"
-
-const ICON_MAP = { pin: MapPin, train: TrainFront } as const
+import { useKeywordList, usePopularKeywords } from "../hooks/useKeywordData"
 
 const sectionHeaderCn = "px-4 py-1.5 text-[11px] font-medium text-muted-foreground uppercase tracking-wider"
-
-/** 헤더용 인기검색어 (상위 6개, 랭킹 포함) */
-const HEADER_POPULAR = POPULAR_KEYWORDS.slice(0, 6).map((keyword, i) => ({
-  rank: i + 1,
-  keyword,
-}))
 
 /* ── 매칭 텍스트 하이라이트 ── */
 
@@ -60,14 +46,41 @@ export function CompactSearchBar() {
 
   useEffect(() => setMounted(true), [])
 
+  // API에서 키워드 목록 가져오기 (자동완성용)
+  const { data: keywordData } = useKeywordList()
+  const keywordItems = keywordData?.keyword_lists ?? []
+  const searchResults = keywordData?.search_results ?? []
+
+  // 인기검색어 API (CMS 관리)
+  const { data: popularData } = usePopularKeywords()
+  const popularKeywords = popularData?.popular_keywords ?? []
+
+  // 자동완성 필터링 (AOS 패턴: 키워드 3개 + 지역/지하철 5개 + 숙소 5개)
   const trimmed = query.trim()
-  const keywords = suggestKeywords(trimmed)
-  const regions = suggestRegions(trimmed)
-  const accommodations = suggestAccommodations(trimmed)
-  const showKeywords = trimmed.length > 0 && keywords.length > 0
-  const showRegions = trimmed.length > 0 && regions.length > 0
-  const showAccommodations = trimmed.length > 0 && accommodations.length > 0
-  const showDropdown = isFocused && (showKeywords || showRegions || showAccommodations || trimmed.length === 0)
+
+  const keywordSuggestions = useMemo(() => {
+    if (!trimmed) return []
+    return keywordItems
+      .filter((item) => item.keyword.includes(trimmed))
+      .slice(0, 3)
+  }, [trimmed, keywordItems])
+
+  const regionSuggestions = useMemo(() => {
+    if (!trimmed) return []
+    return searchResults
+      .filter((item) => (item.type === "R" || item.type === "S") && item.entity_name?.includes(trimmed))
+      .slice(0, 5)
+  }, [trimmed, searchResults])
+
+  const storeSuggestions = useMemo(() => {
+    if (!trimmed) return []
+    return searchResults
+      .filter((item) => item.type === "M" && item.entity_name?.includes(trimmed))
+      .slice(0, 5)
+  }, [trimmed, searchResults])
+
+  const hasSuggestions = trimmed.length > 0 && (keywordSuggestions.length > 0 || regionSuggestions.length > 0 || storeSuggestions.length > 0)
+  const showDropdown = isFocused && (hasSuggestions || trimmed.length === 0)
 
   // 드롭다운 위치 계산
   useEffect(() => {
@@ -148,13 +161,14 @@ export function CompactSearchBar() {
     [router, addRecentSearch]
   )
 
-  const handleAccommodationClick = useCallback(
-    (id: string) => {
+  const handleStoreClick = useCallback(
+    (entityId: string, entityName: string) => {
+      addRecentSearch(entityName)
       setQuery("")
       setIsFocused(false)
-      router.push(`/accommodations/${id}`)
+      router.push(`/accommodations/${entityId}`)
     },
-    [router]
+    [router, addRecentSearch]
   )
 
   const handleKeyDown = useCallback(
@@ -265,10 +279,11 @@ export function CompactSearchBar() {
                   )}
 
                   {/* 인기검색어 */}
+                  {popularKeywords.length > 0 && (
                   <div className={cn("py-1.5", recentSearches.length > 0 && "border-t")}>
                     <p className={sectionHeaderCn}>인기검색어</p>
                     <div className="grid grid-cols-2 gap-x-2">
-                      {HEADER_POPULAR.map(({ rank, keyword }) => (
+                      {popularKeywords.map(({ ranking, keyword }) => (
                         <button
                           key={keyword}
                           onClick={() => handleSelect(keyword)}
@@ -276,86 +291,75 @@ export function CompactSearchBar() {
                         >
                           <span className={cn(
                             "w-5 text-center text-xs font-bold shrink-0",
-                            rank <= 3 ? "text-primary" : "text-muted-foreground"
+                            ranking <= 3 ? "text-primary" : "text-muted-foreground"
                           )}>
-                            {rank}
+                            {ranking}
                           </span>
                           <span>{keyword}</span>
                         </button>
                       ))}
                     </div>
                   </div>
+                  )}
                 </>
               )}
 
-              {/* ① 키워드 자동완성 */}
-              {showKeywords && (
+              {/* ① 키워드 자동완성 (최대 3개) */}
+              {keywordSuggestions.length > 0 && (
                 <div className="py-1.5">
-                  <p className={sectionHeaderCn}>검색어 추천</p>
-                  {keywords.map((keyword) => (
+                  <p className={sectionHeaderCn}>검색어</p>
+                  {keywordSuggestions.map((item) => (
                     <button
-                      key={keyword}
-                      onClick={() => handleSelect(keyword)}
+                      key={`k-${item.keyword}`}
+                      onClick={() => handleSelect(item.keyword)}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
                     >
                       <Search className="size-4 text-muted-foreground shrink-0" />
-                      <span>
-                        <HighlightMatch text={keyword} query={trimmed} />
+                      <span className="flex-1 min-w-0 truncate">
+                        <HighlightMatch text={item.keyword} query={trimmed} />
                       </span>
                     </button>
                   ))}
                 </div>
               )}
 
-              {/* ② 지역 제안 */}
-              {showRegions && (
-                <div className={cn("py-1.5", showKeywords && "border-t")}>
+              {/* ② 지역/지하철 (최대 5개) */}
+              {regionSuggestions.length > 0 && (
+                <div className={cn("py-1.5", keywordSuggestions.length > 0 && "border-t")}>
                   <p className={sectionHeaderCn}>지역</p>
-                  {regions.map((region) => {
-                    const Icon = ICON_MAP[region.icon]
-                    return (
-                      <button
-                        key={region.name}
-                        onClick={() => handleSelect(region.name)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
-                      >
-                        <Icon className="size-4 text-muted-foreground shrink-0" />
-                        <span>
-                          <HighlightMatch text={region.name} query={trimmed} />
-                        </span>
-                      </button>
-                    )
-                  })}
+                  {regionSuggestions.map((item) => (
+                    <button
+                      key={`r-${item.type}-${item.entity_name}`}
+                      onClick={() => handleSelect(item.entity_name ?? "")}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
+                    >
+                      {item.type === "S" ? (
+                        <TrainFront className="size-4 text-muted-foreground shrink-0" />
+                      ) : (
+                        <MapPin className="size-4 text-muted-foreground shrink-0" />
+                      )}
+                      <span className="flex-1 min-w-0 truncate">
+                        <HighlightMatch text={item.entity_name ?? ""} query={trimmed} />
+                      </span>
+                    </button>
+                  ))}
                 </div>
               )}
 
-              {/* ③ 숙소 제안 */}
-              {showAccommodations && (
-                <div className={cn("py-1.5", (showKeywords || showRegions) && "border-t")}>
+              {/* ③ 숙소 (최대 5개, 클릭 시 상세 이동) */}
+              {storeSuggestions.length > 0 && (
+                <div className={cn("py-1.5", (keywordSuggestions.length > 0 || regionSuggestions.length > 0) && "border-t")}>
                   <p className={sectionHeaderCn}>숙소</p>
-                  {accommodations.map((item) => (
+                  {storeSuggestions.map((item) => (
                     <button
-                      key={item.id}
-                      onClick={() => handleAccommodationClick(item.id)}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted transition-colors text-left"
+                      key={`m-${item.v2_entity_id ?? item.entity_id}`}
+                      onClick={() => handleStoreClick(item.v2_entity_id ?? item.entity_id ?? "", item.entity_name ?? "")}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors text-left"
                     >
-                      <div className="relative size-10 rounded-lg overflow-hidden shrink-0 border">
-                        <Image
-                          src={item.imageUrl}
-                          alt={item.name}
-                          fill
-                          className="object-cover"
-                          sizes="40px"
-                        />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">
-                          <HighlightMatch text={item.name} query={trimmed} />
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {item.type} · {item.location}
-                        </p>
-                      </div>
+                      <Building2 className="size-4 text-muted-foreground shrink-0" />
+                      <span className="flex-1 min-w-0 truncate">
+                        <HighlightMatch text={item.entity_name ?? ""} query={trimmed} />
+                      </span>
                     </button>
                   ))}
                 </div>
