@@ -1,7 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { AuthUser, AuthToken } from "@/domains/auth/types"
-import { setClientToken, clearClientToken } from "@/lib/api/client"
+import { setClientToken, clearClientToken, setAuthErrorHandler } from "@/lib/api/client"
 
 interface AuthStore {
   // 상태
@@ -40,6 +40,11 @@ export const useAuthStore = create<AuthStore>()(
             secret: state.token.secret,
           })
         }
+
+        // 인증 에러 시 자동 로그아웃 콜백 등록
+        setAuthErrorHandler(() => {
+          useAuthStore.getState().clearSession()
+        })
       },
     }
   )

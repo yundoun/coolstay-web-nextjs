@@ -63,7 +63,7 @@ export function Header({ variant }: HeaderProps) {
   }, [isHome])
 
   const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
-  const showHeaderSearch = isHome ? !heroSearchVisible : true
+  const showHeaderSearch = true
 
   return (
     <>

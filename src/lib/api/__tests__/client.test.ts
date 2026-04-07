@@ -204,7 +204,7 @@ describe("로그아웃 (clearClientToken)", () => {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 describe("토큰 만료 재시도", () => {
-  it("임시 토큰 만료 시 재발급 후 재시도한다", async () => {
+  it("임시 토큰 만료 시 재시도하지 않는다 (더 할 수 있는 게 없음)", async () => {
     const fetchMock = vi.mocked(fetch)
 
     fetchMock
@@ -212,19 +212,14 @@ describe("토큰 만료 재시도", () => {
       .mockResolvedValueOnce(mockTemporaryTokenResponse("old-temp", "old-secret") as Response)
       // 2. API 호출 → 만료
       .mockResolvedValueOnce(mockExpiredTokenResponse() as Response)
-      // 3. 새 임시 토큰 발급
-      .mockResolvedValueOnce(mockTemporaryTokenResponse("new-temp", "new-secret") as Response)
-      // 4. 재시도 → 성공
-      .mockResolvedValueOnce(mockApiResponse({ retried: true }) as Response)
 
     const { api } = await loadClient()
-    const result = await api.get("/test")
 
-    expect(result).toEqual({ retried: true })
-    expect(fetchMock).toHaveBeenCalledTimes(4)
+    await expect(api.get("/test")).rejects.toThrow("API Error: 40000004")
+    expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it("로그인 토큰 만료 시 임시 토큰으로 폴백한다", async () => {
+  it("로그인 토큰 만료 시 로그아웃 + 임시 토큰으로 재시도한다", async () => {
     const fetchMock = vi.mocked(fetch)
 
     const { api, setClientToken } = await loadClient()
@@ -247,16 +242,19 @@ describe("토큰 만료 재시도", () => {
     expect(headers["app-token"]).toBe("fallback-temp")
   })
 
-  it("재시도도 실패하면 에러를 throw한다", async () => {
+  it("로그인 토큰 재시도도 실패하면 에러를 throw한다", async () => {
     const fetchMock = vi.mocked(fetch)
 
-    fetchMock
-      .mockResolvedValueOnce(mockTemporaryTokenResponse() as Response)
-      .mockResolvedValueOnce(mockExpiredTokenResponse() as Response)
-      .mockResolvedValueOnce(mockTemporaryTokenResponse("new", "new") as Response)
-      .mockResolvedValueOnce(mockErrorResponse("50000000", "서버 에러") as Response)
+    const { api, setClientToken } = await loadClient()
+    setClientToken({ accessToken: "login-token", secret: "login-secret" })
 
-    const { api } = await loadClient()
+    fetchMock
+      // 1. API 호출 → 만료
+      .mockResolvedValueOnce(mockExpiredTokenResponse() as Response)
+      // 2. 임시 토큰 발급
+      .mockResolvedValueOnce(mockTemporaryTokenResponse("new", "new") as Response)
+      // 3. 재시도 → 서버 에러
+      .mockResolvedValueOnce(mockErrorResponse("50000000", "서버 에러") as Response)
 
     await expect(api.get("/test")).rejects.toThrow("API Error: 50000000 서버 에러")
   })

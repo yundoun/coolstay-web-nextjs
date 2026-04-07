@@ -1,34 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Hash } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HASHTAG_KEYWORDS } from "../data/autocomplete"
+import { buildHashtagToggleParams } from "../utils/searchParams"
 
 export function KeywordSearchSection() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [activeKeywords, setActiveKeywords] = useState<Set<string>>(new Set())
+
+  // URL params를 source of truth로 사용 — 외부에서 keyword가 변경되면 자동 동기화
+  // keyword와 regionCode는 배타적 — regionCode가 있으면 keyword 무시
+  const activeKeywords = useMemo(() => {
+    const regionCode = searchParams?.get("regionCode") ?? ""
+    if (regionCode) return new Set<string>()
+    const kw = searchParams?.get("keyword") ?? ""
+    if (!kw) return new Set<string>()
+    return new Set(kw.split(",").map((k) => k.trim()).filter(Boolean))
+  }, [searchParams])
 
   const handleHashtagClick = (keyword: string) => {
-    const next = new Set(activeKeywords)
-    if (next.has(keyword)) {
-      next.delete(keyword)
-    } else {
-      next.add(keyword)
-    }
-    setActiveKeywords(next)
-
-    // 선택된 키워드로 검색 반영 (지역 검색과 충돌 방지: regionCode 제거)
-    const params = new URLSearchParams(searchParams?.toString() ?? "")
-    params.delete("regionCode")
-    if (next.size > 0) {
-      params.set("keyword", Array.from(next).join(","))
-    } else {
-      params.delete("keyword")
-    }
-    router.push(`/search?${params.toString()}`)
+    const current = new URLSearchParams(searchParams?.toString() ?? "")
+    const next = buildHashtagToggleParams(current, keyword)
+    router.push(`/search?${next.toString()}`, { scroll: false })
   }
 
   return (

@@ -51,6 +51,7 @@ function isBetween(d: Date, start: Date, end: Date) {
 
 interface SearchConditionBarProps {
   selectedRegion: string | null
+  keyword?: string | null
   onRegionChange: (region: string, code: string) => void
   checkIn: string
   checkOut: string
@@ -63,6 +64,7 @@ interface SearchConditionBarProps {
 
 export function SearchConditionBar({
   selectedRegion,
+  keyword,
   onRegionChange,
   checkIn,
   checkOut,
@@ -98,7 +100,7 @@ export function SearchConditionBar({
     setOpenDropdown((prev) => (prev === type ? null : type))
   }
 
-  // 라벨
+  // 지역 라벨은 항상 지역만 표시 (키워드와 무관)
   const regionLabel = selectedRegion || "내 주변"
 
   // 모바일 축약 날짜: 3/25~3/26 1박
@@ -123,7 +125,11 @@ export function SearchConditionBar({
       >
         <Search className="size-3.5 text-muted-foreground shrink-0" />
         <span className="flex items-center gap-1.5 truncate">
-          <span className="font-medium">{regionLabel}</span>
+          {keyword ? (
+            <span className="font-medium">&ldquo;{keyword}&rdquo;</span>
+          ) : (
+            <span className="font-medium">{regionLabel}</span>
+          )}
           <span className="text-muted-foreground">·</span>
           <span>{dateLabelShort}</span>
           <span className="text-muted-foreground">·</span>
@@ -134,7 +140,15 @@ export function SearchConditionBar({
 
       {/* PC: 기존 드롭다운 필터 */}
       <div className="hidden md:flex items-center gap-2">
-        {/* Region */}
+        {/* Keyword — 키워드 검색 시에만 표시 */}
+        {keyword && (
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <Search className="size-3.5" />
+            &ldquo;{keyword}&rdquo;
+          </div>
+        )}
+
+        {/* Region — 항상 지역만 표시 */}
         <Button
           variant="outline"
           size="sm"

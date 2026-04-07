@@ -8,10 +8,30 @@ export interface TokenPair {
   secret: string
 }
 
+// 인증 에러 코드 — 토큰 재발급 후 재시도
+const TOKEN_ERROR_CODES = new Set([
+  "40000001", // 잘못된 서버 타입
+  "40000003", // 잘못된 토큰 (필드 부족/잘못된 인증 타입)
+  "40000004", // 만료된 토큰
+])
+
+// 로그아웃 콜백 — auth store에서 등록
+let onAuthError: (() => void) | null = null
+
+/** 인증 에러 시 로그아웃 콜백 등록 */
+export function setAuthErrorHandler(handler: () => void) {
+  onAuthError = handler
+}
+
 let cachedToken: TokenPair | null = null
+let isUserToken = false // true: 로그인 토큰, false: 임시 토큰
 let tokenPromise: Promise<TokenPair> | null = null
+// 토큰 재발급 중 다른 요청이 재시도하지 않도록 직렬화
+let refreshPromise: Promise<TokenPair> | null = null
 
 async function getToken(): Promise<TokenPair> {
+  // 재발급 진행 중이면 그 결과를 기다림
+  if (refreshPromise) return refreshPromise
   if (cachedToken) return cachedToken
   if (tokenPromise) return tokenPromise
 
@@ -45,11 +65,13 @@ function clearToken() {
 /** 로그인 성공 시 호출 — 로그인 토큰으로 교체 */
 export function setClientToken(token: TokenPair) {
   cachedToken = token
+  isUserToken = true
 }
 
 /** 로그아웃 시 호출 — 토큰 초기화 (다음 요청에서 임시 토큰 재발급) */
 export function clearClientToken() {
   cachedToken = null
+  isUserToken = false
 }
 
 // ─── API 클라이언트 ───
@@ -105,13 +127,32 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     throw new Error(`API Error: ${response.status} ${response.statusText}`)
   }
 
-  // 토큰 만료 시 재발급 후 재시도
-  if (data.code === "40000004") {
-    clearToken()
-    const newToken = await getToken()
-    const newSecretCode = await generateSecretCode(newToken.accessToken, newToken.secret)
-    headers["app-token"] = newToken.accessToken
-    headers["app-secret-code"] = newSecretCode
+  // 토큰 에러 처리
+  // 로그인 토큰으로 요청했는데 실패 → 로그아웃 + 임시 토큰으로 재시도
+  // 임시 토큰으로 요청했는데 실패 → 더 할 수 있는 게 없으므로 throw
+  const isTokenError = TOKEN_ERROR_CODES.has(data.code)
+  if (isTokenError && isUserToken) {
+    // 이미 다른 요청이 재발급 중이면 그 결과를 기다림
+    if (refreshPromise) {
+      const refreshedToken = await refreshPromise
+      const retrySecretCode = await generateSecretCode(refreshedToken.accessToken, refreshedToken.secret)
+      headers["app-token"] = refreshedToken.accessToken
+      headers["app-secret-code"] = retrySecretCode
+    } else {
+      // 첫 번째 에러 감지 → 로그아웃 + 임시 토큰 재발급
+      clearToken()
+      isUserToken = false
+      onAuthError?.()
+      refreshPromise = getToken()
+      try {
+        const newToken = await refreshPromise
+        const newSecretCode = await generateSecretCode(newToken.accessToken, newToken.secret)
+        headers["app-token"] = newToken.accessToken
+        headers["app-secret-code"] = newSecretCode
+      } finally {
+        refreshPromise = null
+      }
+    }
 
     const retryResponse = await fetch(buildUrl(path, params), {
       ...rest,
@@ -119,10 +160,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       body: body ? JSON.stringify(body) : undefined,
     })
     const retryData: ApiResponse<T> = await retryResponse.json()
-    if (retryData.code !== "20000000") {
-      throw new Error(`API Error: ${retryData.code} ${retryData.desc}`)
+    if (retryData.code === "20000000") {
+      return retryData.result
     }
-    return retryData.result
+    throw new Error(`API Error: ${retryData.code} ${retryData.desc}`)
   }
 
   if (data.code !== "20000000") {

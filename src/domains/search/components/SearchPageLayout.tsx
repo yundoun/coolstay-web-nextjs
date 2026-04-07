@@ -9,7 +9,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
-import { KeywordSearchSection } from "./KeywordSearchSection"
+import { BusinessTypeFilter } from "./BusinessTypeFilter"
 import { useSearchFilters } from "../hooks"
 import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
 import { useKeywordSearch } from "../hooks/useKeywordData"
@@ -17,6 +17,7 @@ import { useUserLocation } from "../hooks/useUserLocation"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
+import { buildRegionChangeParams } from "../utils/searchParams"
 
 /** YYYY-MM-DD → yyyyMMdd (API 요구 포맷) */
 function toApiDate(date: string) {
@@ -45,9 +46,12 @@ export function SearchPageLayout() {
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
 
   // URL params를 source of truth로 사용
-  const keyword = searchParams?.get("keyword") ?? ""
+  // keyword와 regionCode는 배타적 — 동시에 존재하면 regionCode 우선
+  const rawKeyword = searchParams?.get("keyword") ?? ""
   const regionCode = searchParams?.get("regionCode") ?? ""
   const regionName = searchParams?.get("regionName") ?? ""
+  const keyword = regionCode ? "" : rawKeyword
+  const businessType = searchParams?.get("type") ?? ""
   const checkIn = searchParams?.get("checkIn") || defaultCheckIn
   const checkOut = searchParams?.get("checkOut") || defaultCheckOut
   const adults = Number(searchParams?.get("adults")) || 2
@@ -65,9 +69,10 @@ export function SearchPageLayout() {
       kidsCount: kids,
       latitude: "",
       longitude: "",
+      businessType: businessType || undefined,
       sort,
     }
-  }, [keyword, regionCode, isLocating, checkIn, checkOut, adults, kids, sort])
+  }, [keyword, regionCode, isLocating, checkIn, checkOut, adults, kids, businessType, sort])
 
   const keywordSearch = useKeywordSearch(keywordParams)
 
@@ -84,17 +89,22 @@ export function SearchPageLayout() {
       kidsCount: kids,
       latitude: "",
       longitude: "",
+      businessType: businessType || undefined,
       sort,
     }
-  }, [regionCode, checkIn, checkOut, adults, kids, sort])
+  }, [regionCode, checkIn, checkOut, adults, kids, businessType, sort])
 
   const filterSearch = useFilterSearch(filterParams)
 
   // ─── 키워드·지역 모두 없을 때 내 주변 추천 숙소 ───
   const myAreaParams = useMemo(() => {
     if (regionCode || keyword || isLocating) return undefined
-    return { latitude: userLocation.latitude, longitude: userLocation.longitude }
-  }, [regionCode, keyword, isLocating, userLocation])
+    return {
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+      businessType: businessType || undefined,
+    }
+  }, [regionCode, keyword, isLocating, userLocation, businessType])
   const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
 
   const isLoading = keywordSearch.isLoading || filterSearch.isLoading || isMyAreaLoading
@@ -169,23 +179,11 @@ export function SearchPageLayout() {
 
   const handleRegionChange = useCallback(
     (name: string, code: string) => {
-      if (code) {
-        // 하위 지역 코드가 있으면 → 지역 필터 검색 (keyword는 제거, 표시명은 regionName)
-        pushParams({
-          keyword: undefined,
-          regionCode: code,
-          regionName: name || undefined,
-        })
-      } else {
-        // 코드 없음 (내 주변 or 도시 전체) → 키워드 검색으로 전환
-        pushParams({
-          keyword: name || undefined,
-          regionCode: undefined,
-          regionName: undefined,
-        })
-      }
+      const current = new URLSearchParams(searchParams?.toString() ?? "")
+      const next = buildRegionChangeParams(current, name, code)
+      router.push(`/search?${next.toString()}`, { scroll: false })
     },
-    [pushParams],
+    [searchParams, router],
   )
 
   return (
@@ -193,7 +191,8 @@ export function SearchPageLayout() {
       <Container size="wide" padding="responsive">
         {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
-          selectedRegion={regionName || keyword || selectedRegion}
+          selectedRegion={regionName || selectedRegion}
+          keyword={keyword || null}
           onRegionChange={handleRegionChange}
           checkIn={checkIn}
           checkOut={checkOut}
@@ -204,9 +203,9 @@ export function SearchPageLayout() {
           onSearch={handleSearch}
         />
 
-        {/* 해시태그 필터 */}
-        <div className="py-4">
-          <KeywordSearchSection />
+        {/* 업태 필터 */}
+        <div className="py-3">
+          <BusinessTypeFilter />
         </div>
 
         {/* 결과 정보 + 정렬 */}

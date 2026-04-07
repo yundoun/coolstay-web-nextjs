@@ -7,7 +7,6 @@ import Image from "next/image"
 import { Search, X, MapPin, TrainFront, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useSearchModal } from "@/lib/stores/search-modal"
 import {
   POPULAR_KEYWORDS,
   suggestKeywords,
@@ -42,21 +41,8 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 /* ── 컴포넌트 ── */
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false)
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
-    check()
-    window.addEventListener("resize", check)
-    return () => window.removeEventListener("resize", check)
-  }, [])
-  return isMobile
-}
-
 export function CompactSearchBar() {
   const router = useRouter()
-  const isMobile = useIsMobile()
-  const openModal = useSearchModal((s) => s.open)
   const [query, setQuery] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
@@ -87,10 +73,11 @@ export function CompactSearchBar() {
   useEffect(() => {
     if (!showDropdown || !wrapperRef.current) return
     const rect = wrapperRef.current.getBoundingClientRect()
+    const isMobileWidth = window.innerWidth < 768
     setDropdownPos({
       top: rect.bottom + 8,
-      left: rect.left,
-      width: Math.max(rect.width, 420),
+      left: isMobileWidth ? 8 : rect.left,
+      width: isMobileWidth ? window.innerWidth - 16 : Math.max(rect.width, 420),
     })
   }, [showDropdown])
 
@@ -206,11 +193,6 @@ export function CompactSearchBar() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => {
-              if (isMobile) {
-                inputRef.current?.blur()
-                openModal("region")
-                return
-              }
               setIsFocused(true)
             }}
             onKeyDown={handleKeyDown}

@@ -23,6 +23,7 @@ export interface KeywordSearchParams {
   kidsCount?: number
   latitude?: string
   longitude?: string
+  businessType?: string
   sort?: string
 }
 

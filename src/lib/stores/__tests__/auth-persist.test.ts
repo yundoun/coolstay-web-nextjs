@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 vi.mock("@/lib/api/client", () => ({
   setClientToken: vi.fn(),
   clearClientToken: vi.fn(),
+  setAuthErrorHandler: vi.fn(),
   api: { get: vi.fn(), post: vi.fn() },
 }))
 
