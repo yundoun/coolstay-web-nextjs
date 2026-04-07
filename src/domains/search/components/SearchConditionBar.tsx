@@ -450,12 +450,12 @@ function RegionDropdown({
             ))}
           </div>
           {/* Lines → Stations drill-down */}
-          <div className="flex-1 py-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             {selectedLine && activeLineData ? (
               <>
                 <button
                   onClick={() => setSelectedLine(null)}
-                  className="w-full flex items-center gap-1.5 px-5 py-2.5 text-sm text-primary font-medium hover:bg-gray-50 border-b border-border/50"
+                  className="sticky top-0 z-10 w-full flex items-center gap-1.5 px-5 py-2.5 text-sm text-primary font-medium hover:bg-gray-50 border-b border-border/50 bg-white"
                 >
                   <ChevronLeft className="size-3.5" />
                   <span>{selectedLine}</span>

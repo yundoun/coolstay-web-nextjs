@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-07 14:55** | refactor: 검색 모달 UX 개선 — 모바일 통합 + 파라미터 정합성 | [`db97ce3`](.work-history/entries/2026-04-07_22-00_FIX_search-modal-improvements.md)
 - **2026-04-07 11:32** | fix: 지하철 역 선택 3단계 드릴다운 | [`4250bd4`](.work-history/entries/2026-04-07_21-30_FIX_subway-station-drilldown.md)
 - **2026-04-07 11:24** | 검색 자동완성 + 인기검색어 실데이터 API 연동 | [`c1c2f45`](.work-history/entries/2026-04-07_20-20_search-autocomplete-api.md)
 - **2026-04-07 10:53** | 검색 UI 재설계 + 모바일 검색바 활성화 + 토큰 에러 처리 | [`58b8159`](.work-history/entries/2026-04-07_19-50_search-ui-redesign.md)

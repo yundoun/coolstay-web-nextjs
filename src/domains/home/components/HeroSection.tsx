@@ -61,8 +61,16 @@ export function HeroSection() {
     const effectiveCheckOut = checkOut || defaultCheckOut
 
     const params = new URLSearchParams()
-    if (selectedCity) params.set("keyword", selectedArea || selectedCity)
-    if (regionCode) params.set("regionCode", regionCode)
+    const displayName = selectedArea || selectedCity || ""
+    // ALL_XX 형태의 최상위 지역코드는 API 검색 불가 → 키워드 검색으로 전환
+    const isTopLevel = regionCode ? /^ALL_\d{2}$/.test(regionCode) : false
+    const effectiveRegionCode = regionCode && !isTopLevel ? regionCode : null
+    if (effectiveRegionCode) {
+      params.set("regionCode", effectiveRegionCode)
+      if (displayName) params.set("regionName", displayName)
+    } else if (displayName) {
+      params.set("keyword", displayName)
+    }
     params.set("checkIn", formatDateParam(effectiveCheckIn))
     params.set("checkOut", formatDateParam(effectiveCheckOut))
     params.set("adults", String(adults))
