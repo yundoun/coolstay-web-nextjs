@@ -74,7 +74,7 @@ function DescriptionRenderer({ text }: { text: string }) {
 
 // ─── Coupon section ───
 
-function CouponSection({ coupons, exhibitionKey }: { coupons: Coupon[]; exhibitionKey: number }) {
+function CouponSection({ coupons, exhibitionType }: { coupons: Coupon[]; exhibitionType: string }) {
   const router = useRouter()
   const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
   const [receivedSet, setReceivedSet] = useState<Set<number>>(
@@ -89,11 +89,16 @@ function CouponSection({ coupons, exhibitionKey }: { coupons: Coupon[]; exhibiti
     }
     if (receivedSet.has(couponPk)) return
 
+    // 스펙: EXHIBITION/PACKAGE 타입에서 key는 쿠폰 PK (콤마 구분)
+    const downloadType = exhibitionType === "PACKAGE_EXHIBITION_GROUP"
+      ? COUPON_DOWNLOAD_TYPE.PACKAGE
+      : COUPON_DOWNLOAD_TYPE.EXHIBITION
+
     setLoadingPk(couponPk)
     try {
       await downloadCoupon({
-        type: COUPON_DOWNLOAD_TYPE.EXHIBITION,
-        key: String(exhibitionKey),
+        type: downloadType,
+        key: String(couponPk),
       })
       setReceivedSet((prev) => new Set(prev).add(couponPk))
     } catch {
@@ -361,7 +366,7 @@ export function ExhibitionDetailPage({
 
           {/* Coupons (v2_total_coupons) */}
           {exhibition.v2_total_coupons && exhibition.v2_total_coupons.length > 0 && (
-            <CouponSection coupons={exhibition.v2_total_coupons} exhibitionKey={exhibitionKey} />
+            <CouponSection coupons={exhibition.v2_total_coupons} exhibitionType={exhibitionType} />
           )}
         </div>
       </article>
