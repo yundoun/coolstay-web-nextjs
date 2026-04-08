@@ -1,7 +1,7 @@
 "use client"
 
 import { use } from "react"
-import { ExhibitionDetailPage } from "@/domains/exhibition/components"
+import { ExhibitionDetailPage, PackageExhibitionPage } from "@/domains/exhibition/components"
 
 export default function ExhibitionDetailRoute({
   params,
@@ -12,9 +12,15 @@ export default function ExhibitionDetailRoute({
 }) {
   const { id } = use(params)
   const { type } = use(searchParams)
+  const key = Number(id)
+
+  if (type === "PACKAGE_EXHIBITION_GROUP") {
+    return <PackageExhibitionPage groupKey={key} />
+  }
+
   return (
     <ExhibitionDetailPage
-      exhibitionKey={Number(id)}
+      exhibitionKey={key}
       exhibitionType={type || "EXHIBITION"}
     />
   )
