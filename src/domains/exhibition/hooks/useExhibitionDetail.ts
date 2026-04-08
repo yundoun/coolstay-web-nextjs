@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query"
 import { getExhibitionDetail } from "../api/exhibitionApi"
 
-export function useExhibitionDetail(key: number) {
+export function useExhibitionDetail(key: number, boardSubType: string = "EXHIBITION") {
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["exhibition", "detail", key],
-    queryFn: () => getExhibitionDetail(key),
+    queryKey: ["exhibition", "detail", key, boardSubType],
+    queryFn: () => getExhibitionDetail(key, boardSubType),
     enabled: !!key,
     retry: 1,
   })

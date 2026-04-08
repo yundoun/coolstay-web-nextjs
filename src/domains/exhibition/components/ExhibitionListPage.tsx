@@ -68,7 +68,7 @@ export function ExhibitionListPage() {
           return (
             <Link
               key={item.key}
-              href={`/exhibitions/${item.key}`}
+              href={`/exhibitions/${item.key}?type=${item.type || "EXHIBITION"}`}
               className={cn(
                 "group block rounded-xl border bg-card overflow-hidden",
                 "transition-all duration-200",

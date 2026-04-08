@@ -33,7 +33,7 @@ export function FeatureSection({ exhibitions }: Props) {
 
       {/* 히어로 카드 */}
       <Link
-        href={`/exhibitions/${hero.key}`}
+        href={`/exhibitions/${hero.key}?type=${hero.type || "EXHIBITION"}`}
         className="group relative overflow-hidden rounded-xl block aspect-[2/1] mb-3"
       >
         {(hero.banner_image_url || hero.image_urls?.[0]) ? (
@@ -67,7 +67,7 @@ export function FeatureSection({ exhibitions }: Props) {
           {rest.map((item) => (
             <Link
               key={item.key}
-              href={`/exhibitions/${item.key}`}
+              href={`/exhibitions/${item.key}?type=${item.type || "EXHIBITION"}`}
               className="group relative overflow-hidden rounded-xl aspect-[4/3]"
             >
               {(item.banner_image_url || item.image_urls?.[0]) ? (

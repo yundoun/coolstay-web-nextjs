@@ -206,8 +206,14 @@ function SortTagsSection({ tags }: { tags: BoardItemSortTag[] }) {
 
 // ─── Main ───
 
-export function ExhibitionDetailPage({ exhibitionKey }: { exhibitionKey: number }) {
-  const { exhibition, sortTags, isLoading, isError, refetch } = useExhibitionDetail(exhibitionKey)
+export function ExhibitionDetailPage({
+  exhibitionKey,
+  exhibitionType = "EXHIBITION",
+}: {
+  exhibitionKey: number
+  exhibitionType?: string
+}) {
+  const { exhibition, sortTags, isLoading, isError, refetch } = useExhibitionDetail(exhibitionKey, exhibitionType)
 
   if (isLoading) {
     return (

@@ -12,10 +12,14 @@ export async function getExhibitionList(): Promise<Exhibition[]> {
   return data.exhibitions ?? []
 }
 
-/** 기획전 상세 조회 — GET /manage/board/list (board_type=EVENT) */
-export function getExhibitionDetail(key: number) {
+/** 기획전 상세 조회 — GET /manage/board/list (board_type=MOBILE_BOARD) */
+export function getExhibitionDetail(
+  key: number,
+  boardSubType: string = "EXHIBITION",
+) {
   return api.get<BoardListResponse>("/manage/board/list", {
-    board_type: "EVENT",
+    board_type: "MOBILE_BOARD",
+    board_sub_type: boardSubType,
     board_item_key: String(key),
   })
 }
