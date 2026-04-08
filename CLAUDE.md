@@ -138,6 +138,50 @@ type: `feat`, `fix`, `refactor`, `chore`, `docs`
   2026-03-25_16-00_FIX-1_search-filter-reset.md
 ```
 
+## API 연동 규칙 (필수)
+
+### 유일한 스펙 소스: coolstay-domain-analysis
+
+API 연동, 타입 정의, 파라미터 설계 시 **반드시 domain-analysis 스펙을 먼저 읽고** 시작한다.
+이 레포의 `docs/api/` 디렉토리에는 API 문서를 두지 않는다 (혼란 방지).
+
+```
+스펙 경로: /Users/yundoun/Desktop/WorkSpace/coolstay-backend/coolstay-domain-analysis/
+
+구조:
+  coolstay-service-mobile/
+  ├── <도메인>/                  # home, contents, manage, auth, benefit, reservation
+  │   ├── api-spec.json         # 엔드포인트, 파라미터, 필수/선택, 에러 코드
+  │   ├── nested-objects.md     # 응답 객체 필드 정의 (타입, 설명)
+  │   ├── flow.md               # API 호출 순서, 분기 로직
+  │   └── ui-binding.md         # 화면 바인딩, 매핑 규칙
+  └── _shared/
+      └── enums.md              # 전체 열거형 (검색 타입, 상태 코드, sub_type 등)
+```
+
+### API 연동 3단계 (순서 준수 필수)
+
+```
+1. domain-analysis 스펙 확인 (건너뛰기 금지)
+   - api-spec.json → 엔드포인트, 파라미터 필수/선택 여부
+   - nested-objects.md → 응답 필드 이름, 타입, 위치 (최상위 vs 중첩)
+   - _shared/enums.md → 코드 값 매핑 (검색 타입, 정렬, 상태 등)
+
+2. dev 서버 실측 검증 (curl 또는 Playwright)
+   - 스펙과 실제 응답 diff 확인 (필드명 대소문자, 접두사 유무 등)
+   - 스펙에 없는 필드가 오거나, 스펙과 다른 형식이면 기록
+
+3. 타입 정의 → 구현
+   - 실측 결과 기준으로 TypeScript 타입 작성
+   - 스펙과 실측이 다르면 실측을 따르되, 주석으로 차이 기록
+```
+
+### 하지 말 것
+
+- `docs/api/`에 API 문서 작성하지 않는다
+- AOS 앱 코드의 상수/패턴을 검증 없이 복사하지 않는다
+- 백엔드 Java 클래스의 필드명을 JSON 응답 키로 가정하지 않는다 (직렬화 시 변환될 수 있음)
+
 ## 코드 컨벤션
 
 ### 디렉토리 구조 (도메인 기반)

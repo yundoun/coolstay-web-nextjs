@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-08 15:06** | docs/api 삭제 + API 연동 규칙 추가 | [`15e979d`](.work-history/entries/2026-04-08_15-10_docs-cleanup.md)
 - **2026-04-08 15:06** | 프로모 검색 전국 대상 변경 | [`36a50d7`](.work-history/entries/2026-04-08_15-05_promo-search-fix.md)
 - **2026-04-08 15:06** | v2_support_flag is_ 접두사 제거 | [`13b8bf7`](.work-history/entries/2026-04-08_15-00_support-flag-fix.md)
 - **2026-04-08 15:05** | 기획전 상세 + 검색 혜택 라벨 + 프로모 검색 수정 | [`fe3be02`](.work-history/entries/2026-04-08_14-50_exhibition-search-fix.md)
