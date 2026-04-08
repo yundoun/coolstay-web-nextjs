@@ -86,6 +86,7 @@ export interface Coupon {
   enterable_end_dt: number    // 초 단위 timestamp
   reg_dt: number              // 초 단위 timestamp
   day_codes?: string[]
+  received?: boolean              // 기획전 쿠폰: 이미 받았는지 여부
   constraints: { code: string; value: string; description: string }[]
 }
 
@@ -237,13 +238,13 @@ export interface Motel extends MotelBasic {
     visible_yn: string
     image_url: string
   }[]
-  v2_support_flag: {                        // 스펙: is_ 접두사 (V1ContentItemVO.SupportFlag)
-    is_first_reserve: boolean
-    is_visit_korea: boolean
-    is_low_price_korea: boolean
-    is_favor_coupon_store: boolean
-    is_unlimited_coupon: boolean
-    is_revisit: boolean
+  v2_support_flag: {                        // 실제 API: is_ 접두사 없음 (2026-04-08 검증)
+    first_reserve: boolean
+    visit_korea: boolean
+    low_price_korea: boolean
+    favor_coupon_store: boolean
+    unlimited_coupon: boolean
+    revisit: boolean
   }
   v2_external_links: {
     name: string
@@ -306,13 +307,13 @@ export interface StoreItem {
   area_cd2: number
   cool_consecutive_popup: boolean
   max_discount_amount?: number  // 최대 할인 금액
-  v2_support_flag?: {           // V2 지원 플래그
-    is_first_reserve: boolean
-    is_visit_korea: boolean
-    is_low_price_korea: boolean
-    is_favor_coupon_store: boolean
-    is_unlimited_coupon: boolean
-    is_revisit: boolean
+  v2_support_flag?: {           // V2 지원 플래그 (is_ 접두사 없음, 2026-04-08 검증)
+    first_reserve: boolean
+    visit_korea: boolean
+    low_price_korea: boolean
+    favor_coupon_store: boolean
+    unlimited_coupon: boolean
+    revisit: boolean
   }
   // 상세 조회나 특정 검색 유형(ST006 등)에서 추가 반환되는 필드
   rating?: Rating

@@ -51,7 +51,7 @@ function createMockMotel(overrides: Partial<Motel> = {}): Motel {
     external_events: [],
     payment_benefit: { benefit_more_yn: "N", benefit_preview: "", benefit_contents: { key: "", title: "", start_dt: "", end_dt: "", logo_url: "", contents: [] } },
     extra_services: [],
-    v2_support_flag: { is_first_reserve: true, is_visit_korea: false, is_low_price_korea: true, is_favor_coupon_store: false, is_unlimited_coupon: false, is_revisit: false },
+    v2_support_flag: { first_reserve: true, visit_korea: false, low_price_korea: true, favor_coupon_store: false, unlimited_coupon: false, revisit: false },
     v2_external_links: [],
     v2_low_price_btn: { type: "", sub_type: "", target: "", btn_name: "", thumb_url: "", bg_url: "", bg_color: "", title_color: "", mapping_business_types: [] },
     area_cd1: 11,
@@ -234,24 +234,24 @@ describe("mapMotelToDetail", () => {
     })
   })
 
-  describe("v2_support_flag (is_ 접두사)", () => {
-    it("is_ 접두사가 있는 필드를 그대로 전달한다", () => {
+  describe("v2_support_flag", () => {
+    it("support flag 필드를 그대로 전달한다", () => {
       const motel = createMockMotel({
         v2_support_flag: {
-          is_first_reserve: true,
-          is_visit_korea: false,
-          is_low_price_korea: true,
-          is_favor_coupon_store: false,
-          is_unlimited_coupon: true,
-          is_revisit: false,
+          first_reserve: true,
+          visit_korea: false,
+          low_price_korea: true,
+          favor_coupon_store: false,
+          unlimited_coupon: true,
+          revisit: false,
         },
       })
 
       const result = mapMotelToDetail(motel)
-      expect(result.v2SupportFlag?.is_first_reserve).toBe(true)
-      expect(result.v2SupportFlag?.is_low_price_korea).toBe(true)
-      expect(result.v2SupportFlag?.is_unlimited_coupon).toBe(true)
-      expect(result.v2SupportFlag?.is_visit_korea).toBe(false)
+      expect(result.v2SupportFlag?.first_reserve).toBe(true)
+      expect(result.v2SupportFlag?.low_price_korea).toBe(true)
+      expect(result.v2SupportFlag?.unlimited_coupon).toBe(true)
+      expect(result.v2SupportFlag?.visit_korea).toBe(false)
     })
   })
 })

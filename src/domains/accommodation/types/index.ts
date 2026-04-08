@@ -42,7 +42,7 @@ export interface AccommodationDetail {
   // 연박/특별
   consecutiveYn: string
   coolConsecutivePopup: boolean
-  v2SupportFlag?: { is_first_reserve?: boolean; is_visit_korea?: boolean; is_low_price_korea?: boolean; is_favor_coupon_store?: boolean; is_unlimited_coupon?: boolean; is_revisit?: boolean; [key: string]: boolean | undefined }
+  v2SupportFlag?: { first_reserve?: boolean; visit_korea?: boolean; low_price_korea?: boolean; favor_coupon_store?: boolean; unlimited_coupon?: boolean; revisit?: boolean; [key: string]: boolean | undefined }
 
   // 외부 링크
   v2ExternalLinks: { name: string; link_url: string; icon_url?: string; activate: boolean }[]

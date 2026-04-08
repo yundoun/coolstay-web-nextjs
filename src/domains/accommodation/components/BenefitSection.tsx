@@ -9,12 +9,12 @@ interface BenefitSectionProps {
 }
 
 const SUPPORT_FLAG_LABELS: Record<string, { label: string; icon: React.ElementType }> = {
-  is_first_reserve: { label: "첫 예약 할인", icon: Star },
-  is_low_price_korea: { label: "최저가 보장", icon: Crown },
-  is_visit_korea: { label: "한국관광 인증", icon: Zap },
-  is_favor_coupon_store: { label: "쿠폰 우대 숙소", icon: Ticket },
-  is_unlimited_coupon: { label: "무제한 쿠폰", icon: Gift },
-  is_revisit: { label: "재방문 혜택", icon: Percent },
+  first_reserve: { label: "첫 예약 할인", icon: Star },
+  low_price_korea: { label: "최저가 보장", icon: Crown },
+  visit_korea: { label: "한국관광 인증", icon: Zap },
+  favor_coupon_store: { label: "쿠폰 우대 숙소", icon: Ticket },
+  unlimited_coupon: { label: "무제한 쿠폰", icon: Gift },
+  revisit: { label: "재방문 혜택", icon: Percent },
 }
 
 const BENEFIT_COLORS = [

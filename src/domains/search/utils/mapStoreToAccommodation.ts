@@ -2,13 +2,14 @@ import type { StoreItem } from "@/lib/api/types"
 import type { Accommodation } from "@/components/accommodation"
 
 // v2_support_flag → 사용자 표시 라벨 매핑
+// 실제 API는 is_ 접두사 없이 반환 (2026-04-08 전 API 검증 완료)
 const SUPPORT_FLAG_LABELS: Record<string, string> = {
-  is_first_reserve: "첫 예약",
-  is_low_price_korea: "최저가",
-  is_visit_korea: "숙박대전",
-  is_favor_coupon_store: "찜혜택",
-  is_unlimited_coupon: "무제한쿠폰",
-  is_revisit: "재방문",
+  first_reserve: "첫 예약",
+  low_price_korea: "최저가",
+  visit_korea: "숙박대전",
+  favor_coupon_store: "찜혜택",
+  unlimited_coupon: "무제한쿠폰",
+  revisit: "재방문",
 }
 
 /**
