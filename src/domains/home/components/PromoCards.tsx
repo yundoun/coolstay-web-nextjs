@@ -11,8 +11,28 @@ const PROMO_COLORS = [
   "from-rose-500/10 to-pink-500/10 border-rose-200",
 ]
 
+/**
+ * 프로모 카드 → 검색 타입 매핑
+ * API 응답의 sub_type이 중복(무제한·첫예약 모두 A_HM_11)이므로 btn_name으로 구분
+ *   "무제한" → ST1001 (무제한 쿠폰)
+ *   "최저가" → ST1000 (국내 최저가)
+ *   "첫예약" → ST1002 (첫예약 선물)
+ * AOS: HomeNavigationViewModel → LocationSearchedActivity
+ */
+const PROMO_BY_NAME: Record<string, string> = {
+  무제한: "ST1001",
+  최저가: "ST1000",
+  첫예약: "ST1002",
+}
+
 function getPromoHref(button: LinkItem) {
-  if (button.sub_type === "A_HM_11") return "/search?filter=promo"
+  // btn_name에 키워드가 포함되면 매칭 (e.g. "무제한 쿠폰" → "무제한")
+  for (const [keyword, searchType] of Object.entries(PROMO_BY_NAME)) {
+    if (!button.btn_name.includes(keyword)) continue
+    // ST1001(무제한쿠폰)은 packageType 필수 — 기본 숙박(010102), AOS 동일
+    if (searchType === "ST1001") return `/search?searchType=${searchType}&packageType=010102`
+    return `/search?searchType=${searchType}`
+  }
   return "#"
 }
 

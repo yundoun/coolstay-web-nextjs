@@ -104,27 +104,23 @@ export function SearchPageLayout() {
 
   const filterSearch = useFilterSearch(filterParams)
 
-  // ─── 프로모 카드 검색 (위치 기반 + 전용 search_type) ───
-  // AOS: LocationSearchedActivity → ST1000/ST1001/ST1002 + GPS좌표
-  // ST1001(무제한쿠폰)은 packageType 필수 (api-spec: 없으면 400 에러)
+  // ─── 프로모 카드 검색 (전용 search_type, 전국 대상) ───
+  // extraType/latitude/longitude를 빼면 해당 프로모 타입의 전체 숙소 반환
+  // ST1001(무제한쿠폰)은 packageType 필수
   const packageType = searchParams?.get("packageType") ?? undefined
   const promoParams = useMemo(() => {
-    if (!promoSearchType || isLocating) return undefined
-    const { latitude, longitude } = userLocation
+    if (!promoSearchType) return undefined
     return {
       type: promoSearchType,
-      extraType: `${latitude},${longitude}`,
       checkIn: toApiDate(checkIn),
       checkOut: toApiDate(checkOut),
       adultCount: adults,
       kidsCount: kids,
-      latitude,
-      longitude,
       businessType: businessType || undefined,
-      sort: sort || "DISTANCE",
+      sort: sort || "BENEFIT",
       packageType,
     }
-  }, [promoSearchType, isLocating, userLocation, checkIn, checkOut, adults, kids, businessType, sort, packageType])
+  }, [promoSearchType, checkIn, checkOut, adults, kids, businessType, sort, packageType])
 
   const promoSearch = useFilterSearch(promoParams)
 
