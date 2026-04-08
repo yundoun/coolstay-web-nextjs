@@ -19,6 +19,12 @@ import type { Accommodation } from "@/components/accommodation"
 import type { StoreItem } from "@/lib/api/types"
 import { buildRegionChangeParams } from "../utils/searchParams"
 
+const PROMO_LABEL: Record<string, string> = {
+  ST1001: "무제한 쿠폰",
+  ST1000: "국내 최저가",
+  ST1002: "첫예약 선물",
+}
+
 /** YYYY-MM-DD → yyyyMMdd (API 요구 포맷) */
 function toApiDate(date: string) {
   return date.replace(/-/g, "")
@@ -56,10 +62,12 @@ export function SearchPageLayout() {
   const checkOut = searchParams?.get("checkOut") || defaultCheckOut
   const adults = Number(searchParams?.get("adults")) || 2
   const kids = Number(searchParams?.get("kids")) || 0
+  // 프로모 카드 전용: ST1000(최저가), ST1001(무제한쿠폰), ST1002(첫예약)
+  const promoSearchType = searchParams?.get("searchType") ?? ""
 
   // ─── 키워드 검색 (2단계: search/keyword → keyword/list) ───
   const keywordParams = useMemo(() => {
-    if (!keyword || regionCode || isLocating) return undefined
+    if (!keyword || regionCode || promoSearchType || isLocating) return undefined
     return {
       type: "ST701",
       extraType: keyword,
@@ -72,14 +80,14 @@ export function SearchPageLayout() {
       businessType: businessType || undefined,
       sort,
     }
-  }, [keyword, regionCode, isLocating, checkIn, checkOut, adults, kids, businessType, sort])
+  }, [keyword, regionCode, promoSearchType, isLocating, checkIn, checkOut, adults, kids, businessType, sort])
 
   const keywordSearch = useKeywordSearch(keywordParams)
 
   // ─── 지역 검색 (2단계: filter → filter/list) ───
   // AOS 앱: 지역 검색 시 latitude/longitude를 빈 문자열로 전송
   const filterParams = useMemo(() => {
-    if (!regionCode) return undefined
+    if (promoSearchType || !regionCode) return undefined
     return {
       type: "ST003",
       extraType: regionCode,
@@ -92,25 +100,52 @@ export function SearchPageLayout() {
       businessType: businessType || undefined,
       sort,
     }
-  }, [regionCode, checkIn, checkOut, adults, kids, businessType, sort])
+  }, [promoSearchType, regionCode, checkIn, checkOut, adults, kids, businessType, sort])
 
   const filterSearch = useFilterSearch(filterParams)
 
-  // ─── 키워드·지역 모두 없을 때 내 주변 추천 숙소 ───
+  // ─── 프로모 카드 검색 (위치 기반 + 전용 search_type) ───
+  // AOS: LocationSearchedActivity → ST1000/ST1001/ST1002 + GPS좌표
+  // ST1001(무제한쿠폰)은 packageType 필수 (api-spec: 없으면 400 에러)
+  const packageType = searchParams?.get("packageType") ?? undefined
+  const promoParams = useMemo(() => {
+    if (!promoSearchType || isLocating) return undefined
+    const { latitude, longitude } = userLocation
+    return {
+      type: promoSearchType,
+      extraType: `${latitude},${longitude}`,
+      checkIn: toApiDate(checkIn),
+      checkOut: toApiDate(checkOut),
+      adultCount: adults,
+      kidsCount: kids,
+      latitude,
+      longitude,
+      businessType: businessType || undefined,
+      sort: sort || "DISTANCE",
+      packageType,
+    }
+  }, [promoSearchType, isLocating, userLocation, checkIn, checkOut, adults, kids, businessType, sort, packageType])
+
+  const promoSearch = useFilterSearch(promoParams)
+
+  // ─── 키워드·지역·프로모 모두 없을 때 내 주변 추천 숙소 ───
   const myAreaParams = useMemo(() => {
-    if (regionCode || keyword || isLocating) return undefined
+    if (regionCode || keyword || promoSearchType || isLocating) return undefined
     return {
       latitude: userLocation.latitude,
       longitude: userLocation.longitude,
       businessType: businessType || undefined,
     }
-  }, [regionCode, keyword, isLocating, userLocation, businessType])
+  }, [regionCode, keyword, promoSearchType, isLocating, userLocation, businessType])
   const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
 
-  const isLoading = keywordSearch.isLoading || filterSearch.isLoading || isMyAreaLoading
+  const isLoading = keywordSearch.isLoading || filterSearch.isLoading || promoSearch.isLoading || isMyAreaLoading
 
-  // 우선순위: 키워드 검색 > 지역 검색 > myArea
+  // 우선순위: 프로모 검색 > 키워드 검색 > 지역 검색 > myArea
   const accommodations: Accommodation[] = useMemo(() => {
+    if (promoSearch.data?.motels?.length) {
+      return promoSearch.data.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
+    }
     if (keywordSearch.data?.motels?.length) {
       return keywordSearch.data.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
@@ -121,10 +156,13 @@ export function SearchPageLayout() {
       return myAreaData.motels.map((m: StoreItem) => mapStoreToAccommodation(m))
     }
     return []
-  }, [keywordSearch.data, filterSearch.data, myAreaData])
+  }, [promoSearch.data, keywordSearch.data, filterSearch.data, myAreaData])
 
   // API total_count가 -1 또는 0이면 실제 배열 길이를 폴백으로 사용
   const totalCount = (() => {
+    if (promoSearch.data?.motels?.length) {
+      return promoSearch.totalCount || promoSearch.data.motels.length
+    }
     if (keywordSearch.data?.motels?.length) {
       return keywordSearch.totalCount || keywordSearch.data.motels.length
     }
@@ -192,7 +230,7 @@ export function SearchPageLayout() {
         {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
           selectedRegion={regionName || selectedRegion}
-          keyword={keyword || null}
+          isKeywordSearch={!!keyword}
           onRegionChange={handleRegionChange}
           checkIn={checkIn}
           checkOut={checkOut}
@@ -211,7 +249,11 @@ export function SearchPageLayout() {
         {/* 결과 정보 + 정렬 */}
         <SearchInfoBar
           totalCount={totalCount}
-          regionLabel={regionName || selectedRegion || undefined}
+          regionLabel={
+            promoSearchType
+              ? PROMO_LABEL[promoSearchType]
+              : regionName || selectedRegion || undefined
+          }
           keyword={keyword || undefined}
           sort={sort}
           onSortChange={setSort}

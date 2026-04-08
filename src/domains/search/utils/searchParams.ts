@@ -66,11 +66,6 @@ export function buildRegionChangeParams(
     next.set("regionCode", code)
     if (name) next.set("regionName", name)
     else next.delete("regionName")
-  } else if (name) {
-    // 코드 없이 이름만 (도시 전체) → 키워드 검색으로 전환
-    next.set("keyword", name)
-    next.delete("regionCode")
-    next.delete("regionName")
   } else {
     // 내 주변 (모든 검색 필터 초기화)
     next.delete("keyword")

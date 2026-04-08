@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { createPortal } from "react-dom"
 import { Search, X, Clock, MapPin, TrainFront, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -29,8 +29,15 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 
 export function CompactSearchBar() {
   const router = useRouter()
-  const [query, setQuery] = useState("")
+  const searchParams = useSearchParams()
+  const urlKeyword = searchParams?.get("keyword") ?? ""
+  const [query, setQuery] = useState(urlKeyword)
   const [isFocused, setIsFocused] = useState(false)
+
+  // URL keyword 변경 시 input 동기화
+  useEffect(() => {
+    if (!isFocused) setQuery(urlKeyword)
+  }, [urlKeyword, isFocused])
   const [recentSearches, setRecentSearches] = useState<string[]>(() => {
     if (typeof window === "undefined") return []
     try {
@@ -134,7 +141,7 @@ export function CompactSearchBar() {
   const handleSelect = useCallback(
     (keyword: string) => {
       addRecentSearch(keyword)
-      setQuery("")
+      setQuery(keyword)
       setIsFocused(false)
 
       const today = new Date()

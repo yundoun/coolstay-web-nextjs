@@ -144,13 +144,6 @@ function RegionPanel() {
     close()
   }
 
-  const handleCityOnly = () => {
-    setCity(activeCity)
-    setArea(null)
-    setRegionCode(activeCityData?.code || null)
-    close()
-  }
-
   const handleSubwaySelect = (station: { name: string; code: string }) => {
     setCity(null)
     setArea(station.name)
@@ -246,17 +239,8 @@ function RegionPanel() {
             ))}
           </div>
 
-          {/* Right: Area list */}
+          {/* Right: Area list — 하위 지역만 표시 (상위 코드 ALL_XX는 API 미지원) */}
           <div className="flex-1 py-2 overflow-y-auto">
-            <button
-              onClick={handleCityOnly}
-              className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <MapPin className="size-4 text-gray-400" />
-              <span className="font-medium">{activeCity} 전체</span>
-              <ChevronRight className="size-4 text-gray-300 ml-auto" />
-            </button>
-
             {activeCityData?.subRegions.map((area) => (
               <button
                 key={area.code || area.name}
@@ -856,13 +840,9 @@ function MobileSearchPanel() {
     close()
     const params = new URLSearchParams()
     const displayName = selectedArea || selectedCity || ""
-    const isTopLevel = regionCode ? /^ALL_\d{2}$/.test(regionCode) : false
-    const effectiveRegionCode = regionCode && !isTopLevel ? regionCode : null
-    if (effectiveRegionCode) {
-      params.set("regionCode", effectiveRegionCode)
+    if (regionCode) {
+      params.set("regionCode", regionCode)
       if (displayName) params.set("regionName", displayName)
-    } else if (displayName) {
-      params.set("keyword", displayName)
     }
     const ci = checkIn || today
     const co = checkOut || (() => { const d = new Date(today); d.setDate(d.getDate() + 1); return d })()
@@ -970,14 +950,6 @@ function MobileSearchPanel() {
                   ))}
                 </div>
                 <div className="flex-1 py-1 overflow-y-auto">
-                  <button
-                    onClick={() => handleRegionSelect(activeCity, null, activeCityData?.code || null)}
-                    className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <MapPin className="size-3.5 text-gray-400" />
-                    <span className="font-medium">{activeCity} 전체</span>
-                    <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
-                  </button>
                   {activeCityData?.subRegions.map((area) => (
                     <button
                       key={area.code || area.name}

@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, useMemo, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useRef, useEffect, useMemo } from "react"
 import {
   CalendarDays,
   Users,
@@ -51,7 +50,7 @@ function isBetween(d: Date, start: Date, end: Date) {
 
 interface SearchConditionBarProps {
   selectedRegion: string | null
-  keyword?: string | null
+  isKeywordSearch?: boolean
   onRegionChange: (region: string, code: string) => void
   checkIn: string
   checkOut: string
@@ -64,7 +63,7 @@ interface SearchConditionBarProps {
 
 export function SearchConditionBar({
   selectedRegion,
-  keyword,
+  isKeywordSearch,
   onRegionChange,
   checkIn,
   checkOut,
@@ -125,12 +124,12 @@ export function SearchConditionBar({
       >
         <Search className="size-3.5 text-muted-foreground shrink-0" />
         <span className="flex items-center gap-1.5 truncate">
-          {keyword ? (
-            <span className="font-medium">&ldquo;{keyword}&rdquo;</span>
-          ) : (
-            <span className="font-medium">{regionLabel}</span>
+          {!isKeywordSearch && (
+            <>
+              <span className="font-medium">{regionLabel}</span>
+              <span className="text-muted-foreground">·</span>
+            </>
           )}
-          <span className="text-muted-foreground">·</span>
           <span>{dateLabelShort}</span>
           <span className="text-muted-foreground">·</span>
           <span>{guestLabelShort}</span>
@@ -140,27 +139,21 @@ export function SearchConditionBar({
 
       {/* PC: 기존 드롭다운 필터 */}
       <div className="hidden md:flex items-center gap-2">
-        {/* Keyword — 키워드 검색 시에만 표시 */}
-        {keyword && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-            <Search className="size-3.5" />
-            &ldquo;{keyword}&rdquo;
-          </div>
+        {/* Region — 키워드 검색 시 숨김 (키워드는 헤더 검색바에 표시) */}
+        {!isKeywordSearch && (
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "gap-1.5 rounded-full",
+              openDropdown === "region" && "border-primary text-primary"
+            )}
+            onClick={() => toggle("region")}
+          >
+            <MapPin className="size-3.5" />
+            {regionLabel}
+          </Button>
         )}
-
-        {/* Region — 항상 지역만 표시 */}
-        <Button
-          variant="outline"
-          size="sm"
-          className={cn(
-            "gap-1.5 rounded-full",
-            openDropdown === "region" && "border-primary text-primary"
-          )}
-          onClick={() => toggle("region")}
-        >
-          <MapPin className="size-3.5" />
-          {regionLabel}
-        </Button>
 
         {/* Date */}
         <Button
@@ -309,16 +302,8 @@ function RegionDropdown({
     }
   }, [tab, subwayGroups, activeSubwayGroup])
 
-  // 상위 지역코드(ALL_XX)는 서버에서 검색 미실행(total_count=-1) → 키워드 검색으로 전환
-  const isTopLevelCode = (code: string) => /^ALL_\d{2}$/.test(code)
-
   const handleSelect = (name: string, code: string) => {
-    if (isTopLevelCode(code)) {
-      // "서울 전체" 등 → regionCode 없이 키워드 검색
-      onSelect(name, "")
-    } else {
-      onSelect(name, code)
-    }
+    onSelect(name, code)
   }
 
   const handleMyArea = () => {
@@ -401,16 +386,8 @@ function RegionDropdown({
               </button>
             ))}
           </div>
-          {/* Areas */}
+          {/* Areas — 하위 지역만 표시 (상위 코드 ALL_XX는 API 미지원) */}
           <div className="flex-1 py-1 overflow-y-auto">
-            <button
-              onClick={() => handleSelect(activeCity, activeCityData?.code || "")}
-              className="w-full flex items-center gap-2.5 px-5 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              <MapPin className="size-3.5 text-gray-400" />
-              <span className="font-medium">{activeCity} 전체</span>
-              <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
-            </button>
             {activeCityData?.subRegions.map((area) => (
               <button
                 key={area.code || area.name}
