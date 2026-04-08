@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import {
   Calendar,
   Sparkles,
@@ -10,16 +12,26 @@ import {
   Images,
   Share2,
   Tag,
+  Store,
+  Ticket,
+  Check,
+  Download,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { ErrorState } from "@/components/ui/error-state"
+import { AccommodationCard } from "@/components/accommodation"
 import { cn } from "@/lib/utils"
 import { formatTimestampDot, toMillis } from "@/lib/utils/formatDate"
+import { mapStoreToAccommodation } from "@/domains/search/utils/mapStoreToAccommodation"
+import { downloadCoupon } from "@/domains/coupon/api/couponApi"
+import { COUPON_DOWNLOAD_TYPE } from "@/domains/coupon/types"
+import { useAuthStore } from "@/lib/stores/auth"
 import { useExhibitionDetail } from "../hooks/useExhibitionDetail"
-import type { BoardItem } from "@/domains/cs/types"
+import type { BoardItem, BoardItemSortTag } from "@/domains/cs/types"
+import type { Coupon, StoreItem } from "@/lib/api/types"
 
 // ─── Date-based status (reused from list) ───
 
@@ -60,10 +72,142 @@ function DescriptionRenderer({ text }: { text: string }) {
   )
 }
 
+// ─── Coupon section ───
+
+function CouponSection({ coupons, exhibitionKey }: { coupons: Coupon[]; exhibitionKey: number }) {
+  const router = useRouter()
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
+  const [receivedSet, setReceivedSet] = useState<Set<number>>(
+    () => new Set(coupons.filter((c) => c.received).map((c) => c.coupon_pk))
+  )
+  const [loadingPk, setLoadingPk] = useState<number | null>(null)
+
+  const handleDownload = async (couponPk: number) => {
+    if (!isLoggedIn) {
+      router.push("/login")
+      return
+    }
+    if (receivedSet.has(couponPk)) return
+
+    setLoadingPk(couponPk)
+    try {
+      await downloadCoupon({
+        type: COUPON_DOWNLOAD_TYPE.EXHIBITION,
+        key: String(exhibitionKey),
+      })
+      setReceivedSet((prev) => new Set(prev).add(couponPk))
+    } catch {
+      // 이미 받은 쿠폰이거나 에러 — 조용히 처리
+    } finally {
+      setLoadingPk(null)
+    }
+  }
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center gap-1.5 mb-3 text-sm font-medium text-muted-foreground">
+        <Ticket className="size-4" />
+        쿠폰 ({coupons.length})
+      </div>
+      <div className="space-y-2">
+        {coupons.map((coupon) => {
+          const isReceived = receivedSet.has(coupon.coupon_pk)
+          const isLoading = loadingPk === coupon.coupon_pk
+
+          return (
+            <div
+              key={coupon.coupon_pk}
+              className="flex items-center gap-3 rounded-lg border bg-card p-3"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium truncate">{coupon.title}</p>
+                  <Badge variant="default" className="shrink-0 bg-primary/90">
+                    {coupon.discount_type === "RATE"
+                      ? `${coupon.discount_amount}%`
+                      : `${coupon.discount_amount.toLocaleString()}원`}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {coupon.description}
+                </p>
+              </div>
+              <Button
+                variant={isReceived ? "outline" : "default"}
+                size="sm"
+                className="shrink-0 gap-1"
+                disabled={isReceived || isLoading}
+                onClick={() => handleDownload(coupon.coupon_pk)}
+              >
+                {isReceived ? (
+                  <>
+                    <Check className="size-3.5" />
+                    받음
+                  </>
+                ) : isLoading ? (
+                  "받는 중..."
+                ) : (
+                  <>
+                    <Download className="size-3.5" />
+                    받기
+                  </>
+                )}
+              </Button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── Linked stores section ───
+
+function LinkedStoresSection({ stores }: { stores: StoreItem[] }) {
+  return (
+    <div className="mt-6">
+      <div className="flex items-center gap-1.5 mb-3 text-sm font-medium text-muted-foreground">
+        <Store className="size-4" />
+        참여 숙소 ({stores.length})
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {stores.map((store) => (
+          <AccommodationCard
+            key={store.key}
+            accommodation={mapStoreToAccommodation(store)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Sort tags section ───
+
+function SortTagsSection({ tags }: { tags: BoardItemSortTag[] }) {
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {tags.map((tag) => (
+        <Badge
+          key={tag.key}
+          variant="secondary"
+          className={cn(
+            "gap-1 text-xs font-normal",
+            "bg-primary/10 text-primary hover:bg-primary/20"
+          )}
+        >
+          <Tag className="size-3" />
+          {tag.name}
+        </Badge>
+      ))}
+    </div>
+  )
+}
+
 // ─── Main ───
 
 export function ExhibitionDetailPage({ exhibitionKey }: { exhibitionKey: number }) {
-  const { exhibition, isLoading, isError, refetch } = useExhibitionDetail(exhibitionKey)
+  const { exhibition, sortTags, isLoading, isError, refetch } = useExhibitionDetail(exhibitionKey)
 
   if (isLoading) {
     return (
@@ -173,24 +317,8 @@ export function ExhibitionDetailPage({ exhibitionKey }: { exhibitionKey: number 
             )}
           </div>
 
-          {/* Sort tags */}
-          {exhibition.sort_tags && exhibition.sort_tags.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {exhibition.sort_tags.map((tag) => (
-                <Badge
-                  key={tag.key}
-                  variant="secondary"
-                  className={cn(
-                    "gap-1 text-xs font-normal",
-                    "bg-primary/10 text-primary hover:bg-primary/20"
-                  )}
-                >
-                  <Tag className="size-3" />
-                  {tag.name}
-                </Badge>
-              ))}
-            </div>
-          )}
+          {/* Sort tags — result 최상위에서 가져온 값 */}
+          {sortTags.length > 0 && <SortTagsSection tags={sortTags} />}
 
           {/* Description */}
           {exhibition.description && exhibition.description !== "." && (
@@ -224,8 +352,20 @@ export function ExhibitionDetailPage({ exhibitionKey }: { exhibitionKey: number 
               </div>
             </div>
           )}
+
+          {/* Coupons (v2_total_coupons) */}
+          {exhibition.v2_total_coupons && exhibition.v2_total_coupons.length > 0 && (
+            <CouponSection coupons={exhibition.v2_total_coupons} exhibitionKey={exhibitionKey} />
+          )}
         </div>
       </article>
+
+      {/* Linked stores — 기획전 참여 숙소 */}
+      {exhibition.linked_stores && exhibition.linked_stores.length > 0 && (
+        <div className="mt-6">
+          <LinkedStoresSection stores={exhibition.linked_stores} />
+        </div>
+      )}
     </Container>
   )
 }

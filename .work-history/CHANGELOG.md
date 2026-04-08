@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-08 15:05** | 기획전 상세 + 검색 혜택 라벨 + 프로모 검색 수정 | [`fe3be02`](.work-history/entries/2026-04-08_14-50_exhibition-search-fix.md)
 - **2026-04-08 09:17** | 검색 UI 지역/키워드 완전 분리 | [`c3bfb98`](.work-history/entries/2026-04-08_09-10_search-region-keyword-separation.md)
 - **2026-04-07 14:55** | refactor: 검색 모달 UX 개선 — 모바일 통합 + 파라미터 정합성 | [`db97ce3`](.work-history/entries/2026-04-07_22-00_FIX_search-modal-improvements.md)
 - **2026-04-07 11:32** | fix: 지하철 역 선택 3단계 드릴다운 | [`4250bd4`](.work-history/entries/2026-04-07_21-30_FIX_subway-station-drilldown.md)

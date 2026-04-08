@@ -69,6 +69,7 @@ export interface BoardListResponse {
   total_count: number
   next_cursor?: string
   board_items: BoardItem[]
+  sort_tags?: BoardItemSortTag[]   // 기획전 상세 시 result 최상위에 반환
 }
 
 // ─── 게시판 등록 (1:1 문의) ───

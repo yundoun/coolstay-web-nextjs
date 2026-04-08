@@ -13,6 +13,7 @@ export function useExhibitionDetail(key: number) {
 
   return {
     exhibition: data?.board_items?.[0] ?? null,
+    sortTags: data?.sort_tags ?? [],       // result 최상위의 sort_tags
     isLoading,
     isError,
     refetch,
