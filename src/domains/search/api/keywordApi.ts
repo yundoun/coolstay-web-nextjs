@@ -22,8 +22,8 @@ export interface KeywordSearchParams {
   extraType?: string
   checkIn?: string
   checkOut?: string
-  adultCount?: number
-  kidsCount?: number
+  adultCnt?: number
+  kidCnt?: number
   latitude?: string
   longitude?: string
   businessType?: string
@@ -41,8 +41,8 @@ export function getKeywordSearchKeys(params: KeywordSearchParams) {
 export interface KeywordListSearchParams {
   checkIn: string
   checkOut: string
-  adultCount?: number
-  kidsCount?: number
+  adultCnt?: number
+  kidCnt?: number
   latitude?: string
   longitude?: string
   type?: string

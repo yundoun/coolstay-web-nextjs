@@ -49,8 +49,8 @@ export interface FilterParams {
   extraType?: string
   checkIn?: string
   checkOut?: string
-  adultCount?: number
-  kidsCount?: number
+  adultCnt?: number
+  kidCnt?: number
   latitude?: string
   longitude?: string
   businessType?: string
@@ -69,8 +69,8 @@ export function getFilterKeys(params: FilterParams) {
 export interface FilterListParams {
   checkIn: string
   checkOut: string
-  adultCount?: number
-  kidsCount?: number
+  adultCnt?: number
+  kidCnt?: number
   type?: string
   latitude?: string
   longitude?: string

@@ -52,8 +52,8 @@ export function useKeywordSearch(params: KeywordSearchParams | undefined) {
         {
           checkIn: params!.checkIn!,
           checkOut: params!.checkOut!,
-          adultCount: params!.adultCount,
-          kidsCount: params!.kidsCount,
+          adultCnt: params!.adultCnt,
+          kidCnt: params!.kidCnt,
           latitude: params!.latitude || undefined,
           longitude: params!.longitude || undefined,
         },

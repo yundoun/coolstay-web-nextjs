@@ -13,6 +13,9 @@ interface SearchModalStore {
   checkOut: Date | null
   adults: number
   kids: number
+  // 업태 클릭 → 지역 선택 플로우용
+  businessType: string | null              // 선택된 업태 (MOTEL, HOTEL 등)
+  mappingBusinessTypes: string[] | null     // 업태 매핑 배열
   // 액션
   open: (step?: SearchStep) => void
   close: () => void
@@ -24,6 +27,7 @@ interface SearchModalStore {
   setCheckOut: (date: Date | null) => void
   setAdults: (n: number) => void
   setKids: (n: number) => void
+  openWithBusinessType: (businessType: string, mappingTypes?: string[]) => void
   reset: () => void
 }
 
@@ -37,8 +41,10 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
   checkOut: null,
   adults: 2,
   kids: 0,
+  businessType: null,
+  mappingBusinessTypes: null,
   open: (step = "region") => set({ isOpen: true, step }),
-  close: () => set({ isOpen: false, step: null }),
+  close: () => set({ isOpen: false, step: null, businessType: null, mappingBusinessTypes: null }),
   setStep: (step) => set({ step }),
   setCity: (city) => set({ selectedCity: city, selectedArea: null, regionCode: null }),
   setArea: (area) => set({ selectedArea: area }),
@@ -47,6 +53,8 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
   setCheckOut: (date) => set({ checkOut: date }),
   setAdults: (n) => set({ adults: n }),
   setKids: (n) => set({ kids: n }),
+  openWithBusinessType: (businessType, mappingTypes) =>
+    set({ isOpen: true, step: "region", businessType, mappingBusinessTypes: mappingTypes || null }),
   reset: () =>
     set({
       selectedCity: null,
@@ -56,5 +64,7 @@ export const useSearchModal = create<SearchModalStore>((set) => ({
       checkOut: null,
       adults: 2,
       kids: 0,
+      businessType: null,
+      mappingBusinessTypes: null,
     }),
 }))

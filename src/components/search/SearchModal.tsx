@@ -31,6 +31,23 @@ function isBetween(d: Date, start: Date, end: Date) {
   return d.getTime() > start.getTime() && d.getTime() < end.getTime()
 }
 
+// regions API에서 유효한 category_code 목록
+const VALID_REGION_CATEGORIES = new Set(["ALL", "MOTEL", "HOTEL", "CAMPING", "PENSION", "GUESTHOUSE"])
+
+/** mapping_business_types에서 유효한 region category를 찾고, 없으면 ALL로 fallback */
+function getRegionCategoryCode(businessType: string, mappingTypes: string[] | null): string {
+  // businessType이 콤마 구분일 수 있음 (HANOK,GUESTHOUSE)
+  const types = businessType.split(",")
+  const validFromBizType = types.find((t) => VALID_REGION_CATEGORIES.has(t))
+  if (validFromBizType) return validFromBizType
+  // mappingTypes에서 유효한 것 찾기
+  if (mappingTypes) {
+    const valid = mappingTypes.find((t) => VALID_REGION_CATEGORIES.has(t))
+    if (valid) return valid
+  }
+  return "ALL"
+}
+
 // ─── SearchModal ───────────────────────────────────────────
 
 export function SearchModal() {
@@ -78,8 +95,14 @@ export function SearchModal() {
 // ─── 지역 선택 패널 ─────────────────────────────────────────
 
 function RegionPanel() {
-  const { selectedCity, setCity, setArea, setRegionCode, setStep, close } = useSearchModal()
-  const { data: apiRegions, isLoading } = useRegions()
+  const { selectedCity, setCity, setArea, setRegionCode, setStep, close, businessType, mappingBusinessTypes } = useSearchModal()
+  const router = useRouter()
+  // 업태 플로우: 해당 업태의 지역 코드 사용 (MOTEL → MOTEL_xxxxx), 일반: ALL,SUBWAY
+  // regions API category_code로 유효한 값: ALL, MOTEL, HOTEL, CAMPING, PENSION, GUESTHOUSE
+  const regionCategoryCode = businessType
+    ? `${getRegionCategoryCode(businessType, mappingBusinessTypes)},SUBWAY`
+    : undefined
+  const { data: apiRegions, isLoading } = useRegions(regionCategoryCode)
   const [tab, setTab] = useState<"region" | "subway">("region")
 
   // 지역 목록
@@ -137,7 +160,23 @@ function RegionPanel() {
     }
   }, [tab, subwayGroups, activeSubwayGroup])
 
+  // 업태 클릭 → 지역 선택 시: 바로 검색 페이지로 이동
+  const navigateWithBusinessType = (regionName: string, regionCode: string | null) => {
+    const params = new URLSearchParams()
+    if (businessType) params.set("type", businessType)
+    if (regionCode) {
+      params.set("regionCode", regionCode)
+      if (regionName) params.set("regionName", regionName)
+    }
+    close()
+    router.push(`/search?${params.toString()}`)
+  }
+
   const handleAreaClick = (area: { name: string; code: string }) => {
+    if (businessType) {
+      navigateWithBusinessType(area.name, area.code || activeCityData?.code || null)
+      return
+    }
     setCity(activeCity)
     setArea(area.name)
     setRegionCode(area.code || activeCityData?.code || null)
@@ -145,6 +184,10 @@ function RegionPanel() {
   }
 
   const handleSubwaySelect = (station: { name: string; code: string }) => {
+    if (businessType) {
+      navigateWithBusinessType(station.name, station.code)
+      return
+    }
     setCity(null)
     setArea(station.name)
     setRegionCode(station.code)
@@ -152,6 +195,10 @@ function RegionPanel() {
   }
 
   const handleMyArea = () => {
+    if (businessType) {
+      navigateWithBusinessType("", null)
+      return
+    }
     setCity(null)
     setArea(null)
     setRegionCode(null)
@@ -164,7 +211,9 @@ function RegionPanel() {
     <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b shrink-0">
-        <h2 className="text-lg font-bold">지역 선택</h2>
+        <h2 className="text-lg font-bold">
+          {businessType ? "지역을 선택해주세요" : "지역 선택"}
+        </h2>
         <button
           onClick={close}
           className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -223,7 +272,14 @@ function RegionPanel() {
             {regionList.map((region) => (
               <button
                 key={region.name}
-                onClick={() => setCity(region.name)}
+                onClick={() => {
+                  // 하위 지역이 없으면 도시 자체를 바로 선택
+                  if (!region.subRegions.length) {
+                    handleAreaClick({ name: region.name, code: region.code })
+                  } else {
+                    setCity(region.name)
+                  }
+                }}
                 className={cn(
                   "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
                   activeCity === region.name
@@ -239,7 +295,7 @@ function RegionPanel() {
             ))}
           </div>
 
-          {/* Right: Area list — 하위 지역만 표시 (상위 코드 ALL_XX는 API 미지원) */}
+          {/* Right: Area list — 하위 지역만 표시 */}
           <div className="flex-1 py-2 overflow-y-auto">
             {activeCityData?.subRegions.map((area) => (
               <button
@@ -741,9 +797,15 @@ function MobileSearchPanel() {
     setCity, setArea, setRegionCode,
     checkIn, checkOut, setCheckIn, setCheckOut,
     adults, kids, setAdults, setKids,
+    businessType, mappingBusinessTypes,
   } = useSearchModal()
   const router = useRouter()
-  const { data: apiRegions, isLoading } = useRegions()
+  // 업태 플로우: 해당 업태의 지역 코드 사용 (MOTEL → MOTEL_xxxxx), 일반: ALL,SUBWAY
+  // regions API category_code로 유효한 값: ALL, MOTEL, HOTEL, CAMPING, PENSION, GUESTHOUSE
+  const regionCategoryCode = businessType
+    ? `${getRegionCategoryCode(businessType, mappingBusinessTypes)},SUBWAY`
+    : undefined
+  const { data: apiRegions, isLoading } = useRegions(regionCategoryCode)
 
   const activeTab: MobileTab = (step as MobileTab) || "region"
 
@@ -810,6 +872,19 @@ function MobileSearchPanel() {
 
   // ─── 핸들러 ───
   const handleRegionSelect = (city: string | null, area: string | null, code: string | null) => {
+    // 업태 클릭 → 지역 선택 시: 바로 검색 페이지로 이동
+    if (businessType) {
+      const params = new URLSearchParams()
+      params.set("type", businessType)
+      if (code) {
+        params.set("regionCode", code)
+        const displayName = area || city || ""
+        if (displayName) params.set("regionName", displayName)
+      }
+      close()
+      router.push(`/search?${params.toString()}`)
+      return
+    }
     setCity(city)
     setArea(area)
     setRegionCode(code)
@@ -839,6 +914,7 @@ function MobileSearchPanel() {
   const handleSearch = () => {
     close()
     const params = new URLSearchParams()
+    if (businessType) params.set("type", businessType)
     const displayName = selectedArea || selectedCity || ""
     if (regionCode) {
       params.set("regionCode", regionCode)
@@ -938,7 +1014,14 @@ function MobileSearchPanel() {
                   {regionList.map((region) => (
                     <button
                       key={region.name}
-                      onClick={() => setCity(region.name)}
+                      onClick={() => {
+                        // 하위 지역이 없으면 도시 자체를 바로 선택
+                        if (!region.subRegions.length) {
+                          handleRegionSelect(region.name, region.name, region.code || null)
+                        } else {
+                          setCity(region.name)
+                        }
+                      }}
                       className={cn(
                         "w-full text-left px-4 py-3 text-sm relative",
                         activeCity === region.name ? "text-primary font-semibold bg-white" : "text-gray-600 hover:bg-gray-100"

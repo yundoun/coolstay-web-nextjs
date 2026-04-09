@@ -65,8 +65,8 @@ export function useFilterSearch(params: FilterParams | undefined) {
         {
           checkIn: params!.checkIn!,
           checkOut: params!.checkOut!,
-          adultCount: params!.adultCount,
-          kidsCount: params!.kidsCount,
+          adultCnt: params!.adultCnt,
+          kidCnt: params!.kidCnt,
           type: params!.type,
           latitude: params!.latitude || undefined,
           longitude: params!.longitude || undefined,
