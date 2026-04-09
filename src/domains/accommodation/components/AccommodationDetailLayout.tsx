@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Coins, CalendarDays, Users, RefreshCw } from "lucide-react"
+import { useState, useMemo, useEffect, useRef } from "react"
+import { Coins, CalendarDays, Users, Loader2 } from "lucide-react"
 import { useSearchModal } from "@/lib/stores/search-modal"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
@@ -24,19 +24,8 @@ import type { AccommodationDetail, Room } from "../types"
 
 interface AccommodationDetailLayoutProps {
   accommodation: AccommodationDetail
-}
-
-// Apply a date-based price variation to simulate server refresh
-function applyDateVariation(rooms: Room[], seed: number): Room[] {
-  return rooms.map((room, i) => {
-    // Deterministic variation based on seed and room index
-    const factor = 1 + ((((seed * 7 + i * 13) % 20) - 10) / 100) // -10% to +10%
-    return {
-      ...room,
-      stayPrice: Math.round(room.stayPrice * factor),
-      rentalPrice: room.rentalPrice ? Math.round(room.rentalPrice * factor) : undefined,
-    }
-  })
+  onApply: (checkIn: Date, checkOut: Date) => void
+  isRefetching?: boolean
 }
 
 function formatDate(date: Date) {
@@ -46,8 +35,15 @@ function formatDate(date: Date) {
   return `${month}/${day} (${weekdays[date.getDay()]})`
 }
 
+/** 선택 인원으로 수용 가능한 객실만 필터 */
+function filterRoomsByGuests(rooms: Room[], adults: number, kids: number): Room[] {
+  return rooms.filter((room) => adults + kids <= room.maxGuests)
+}
+
 export function AccommodationDetailLayout({
   accommodation,
+  onApply,
+  isRefetching,
 }: AccommodationDetailLayoutProps) {
   const today = new Date()
   const tomorrow = new Date(today)
@@ -55,28 +51,51 @@ export function AccommodationDetailLayout({
 
   const [checkIn, setCheckIn] = useState(today)
   const [checkOut, setCheckOut] = useState(tomorrow)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [dateSeed, setDateSeed] = useState(0)
+  const [appliedAdults, setAppliedAdults] = useState(2)
+  const [appliedKids, setAppliedKids] = useState(0)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [rentalRoom, setRentalRoom] = useState<Room | null>(null)
   const [rentalModalOpen, setRentalModalOpen] = useState(false)
 
-  // Rooms with date-based price variation
-  const adjustedRooms = useMemo(() => {
-    if (dateSeed === 0) return accommodation.rooms
-    return applyDateVariation(accommodation.rooms, dateSeed)
-  }, [accommodation.rooms, dateSeed])
-
-  // SearchModal에서 날짜 변경 시 store 업데이트 → 추후 API 재조회 연동
+  // SearchModal 전역 상태
   const modalCheckIn = useSearchModal((s) => s.checkIn)
   const modalCheckOut = useSearchModal((s) => s.checkOut)
+  const modalAdults = useSearchModal((s) => s.adults)
+  const modalKids = useSearchModal((s) => s.kids)
+  const setOnApply = useSearchModal((s) => s.setOnApply)
 
-  // SearchModal에서 날짜가 변경되면 반영
-  useMemo(() => {
-    if (modalCheckIn) setCheckIn(modalCheckIn)
-    if (modalCheckOut) setCheckOut(modalCheckOut)
-  }, [modalCheckIn, modalCheckOut])
+  // 모달 적용 콜백 등록 — 모달에서 "적용하기" 클릭 시 재조회
+  const stateRef = useRef({ checkIn, checkOut, modalAdults, modalKids })
+  stateRef.current = { checkIn, checkOut, modalAdults, modalKids }
+
+  useEffect(() => {
+    setOnApply(() => {
+      const { checkIn: ci, checkOut: co, modalAdults: a, modalKids: k } = stateRef.current
+      // 날짜 동기화 후 API 재조회
+      const effectiveCheckIn = useSearchModal.getState().checkIn ?? ci
+      const effectiveCheckOut = useSearchModal.getState().checkOut ?? co
+      const effectiveAdults = useSearchModal.getState().adults
+      const effectiveKids = useSearchModal.getState().kids
+
+      setCheckIn(effectiveCheckIn)
+      setCheckOut(effectiveCheckOut)
+      setAppliedAdults(effectiveAdults)
+      setAppliedKids(effectiveKids)
+      onApply(effectiveCheckIn, effectiveCheckOut)
+    })
+    return () => setOnApply(null)
+  }, [onApply, setOnApply])
+
+  // 인원 기반 필터링된 객실
+  const availableRooms = useMemo(
+    () => filterRoomsByGuests(accommodation.rooms, appliedAdults, appliedKids),
+    [accommodation.rooms, appliedAdults, appliedKids],
+  )
+
+  const guestLabel = appliedKids > 0
+    ? `성인 ${appliedAdults}, 아동 ${appliedKids}`
+    : `성인 ${appliedAdults}명`
 
   return (
     <div className="min-h-screen pb-20 lg:pb-16">
@@ -115,19 +134,35 @@ export function AccommodationDetailLayout({
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">객실 선택</h2>
-                {dateSeed > 0 && (
-                  <div className="flex items-center gap-1 text-xs text-primary">
-                    <RefreshCw className="size-3" />
-                    <span>가격이 업데이트되었습니다</span>
-                  </div>
-                )}
+                <p className="text-sm text-muted-foreground">
+                  {availableRooms.length === accommodation.rooms.length
+                    ? `총 ${accommodation.rooms.length}개`
+                    : `${accommodation.rooms.length}개 중 ${availableRooms.length}개 예약 가능`}
+                </p>
               </div>
               <div
                 className={`space-y-4 transition-opacity duration-300 ${
-                  isRefreshing ? "opacity-50" : "opacity-100"
+                  isRefetching ? "opacity-50 pointer-events-none" : "opacity-100"
                 }`}
               >
-                {adjustedRooms.map((room) => (
+                {isRefetching && (
+                  <div className="flex items-center justify-center py-8 gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" />
+                    <span>객실 정보를 업데이트하고 있습니다</span>
+                  </div>
+                )}
+                {!isRefetching && availableRooms.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Users className="size-10 text-muted-foreground/40 mb-3" />
+                    <p className="text-base font-medium text-muted-foreground">
+                      선택 인원을 수용할 수 있는 객실이 없습니다
+                    </p>
+                    <p className="text-sm text-muted-foreground/70 mt-1">
+                      인원 수를 줄여서 다시 검색해 보세요
+                    </p>
+                  </div>
+                )}
+                {availableRooms.map((room) => (
                   <RoomCard
                     key={room.id}
                     room={room}
@@ -182,9 +217,12 @@ export function AccommodationDetailLayout({
             <div className="sticky top-24">
               <BookingWidget
                 accommodation={accommodation}
-                rooms={adjustedRooms}
+                rooms={availableRooms}
+                allRoomsCount={accommodation.rooms.length}
                 checkIn={checkIn}
                 checkOut={checkOut}
+                guestLabel={guestLabel}
+                isRefetching={isRefetching}
               />
             </div>
           </div>
@@ -192,7 +230,12 @@ export function AccommodationDetailLayout({
       </Container>
 
       {/* Mobile Bottom Bar */}
-      <MobileBookingBar accommodation={accommodation} />
+      <MobileBookingBar
+        accommodation={accommodation}
+        availableRooms={availableRooms}
+        checkIn={checkIn}
+        guestLabel={guestLabel}
+      />
 
       {/* Room Detail Modal */}
       <RoomDetailModal
@@ -218,30 +261,36 @@ export function AccommodationDetailLayout({
 function BookingWidget({
   accommodation,
   rooms,
+  allRoomsCount,
   checkIn,
   checkOut,
+  guestLabel,
+  isRefetching,
 }: {
   accommodation: AccommodationDetail
   rooms: Room[]
+  allRoomsCount: number
   checkIn: Date
   checkOut: Date
+  guestLabel: string
+  isRefetching?: boolean
 }) {
   const openModal = useSearchModal((s) => s.open)
-  const adults = useSearchModal((s) => s.adults)
-  const kids = useSearchModal((s) => s.kids)
 
-  const lowestStayPrice = Math.min(
-    ...rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
-  )
-  const lowestOriginal = accommodation.rooms.find(
-    (r) => r.stayPrice === Math.min(...accommodation.rooms.filter((r2) => r2.stayAvailable).map((r2) => r2.stayPrice))
-  )?.stayOriginalPrice
-
-  const discount = lowestOriginal
-    ? Math.round(((lowestOriginal - lowestStayPrice) / lowestOriginal) * 100)
+  const stayRooms = rooms.filter((r) => r.stayAvailable)
+  const lowestStayPrice = stayRooms.length > 0
+    ? Math.min(...stayRooms.map((r) => r.stayPrice))
     : null
 
-  const guestLabel = kids > 0 ? `성인 ${adults}, 아동 ${kids}` : `성인 ${adults}명`
+  const lowestOriginal = lowestStayPrice != null
+    ? accommodation.rooms.find(
+        (r) => r.stayPrice === Math.min(...accommodation.rooms.filter((r2) => r2.stayAvailable).map((r2) => r2.stayPrice))
+      )?.stayOriginalPrice
+    : undefined
+
+  const discount = lowestOriginal && lowestStayPrice
+    ? Math.round(((lowestOriginal - lowestStayPrice) / lowestOriginal) * 100)
+    : null
 
   return (
     <div className="rounded-xl border bg-card p-6 shadow-lg">
@@ -255,23 +304,29 @@ function BookingWidget({
 
       {/* Price */}
       <div className="mb-4">
-        {lowestOriginal && (
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm text-muted-foreground line-through">
-              {lowestOriginal.toLocaleString()}원
-            </span>
-            {discount && (
-              <span className="text-sm font-bold text-destructive">{discount}%</span>
+        {lowestStayPrice != null ? (
+          <>
+            {lowestOriginal && (
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm text-muted-foreground line-through">
+                  {lowestOriginal.toLocaleString()}원
+                </span>
+                {discount && (
+                  <span className="text-sm font-bold text-destructive">{discount}%</span>
+                )}
+              </div>
             )}
-          </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-3xl font-bold">
+                {lowestStayPrice.toLocaleString()}
+              </span>
+              <span className="text-muted-foreground">원~</span>
+              <span className="text-sm text-muted-foreground">/박</span>
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">예약 가능한 객실이 없습니다</p>
         )}
-        <div className="flex items-baseline gap-1">
-          <span className="text-3xl font-bold">
-            {lowestStayPrice.toLocaleString()}
-          </span>
-          <span className="text-muted-foreground">원~</span>
-          <span className="text-sm text-muted-foreground">/박</span>
-        </div>
       </div>
 
       {/* Date/Guest Selection — 클릭 시 SearchModal 오픈 */}
@@ -318,43 +373,87 @@ function BookingWidget({
           </div>
         </Button>
       </div>
+
+      {/* 로딩 표시 */}
+      {isRefetching && (
+        <div className="flex items-center justify-center gap-2 mt-3 text-xs text-muted-foreground">
+          <Loader2 className="size-3 animate-spin" />
+          <span>가격 업데이트 중...</span>
+        </div>
+      )}
+
+      {/* 필터 결과 안내 */}
+      {rooms.length < allRoomsCount && (
+        <p className="text-xs text-center text-muted-foreground mt-3">
+          {guestLabel} 기준 {allRoomsCount}개 중 {rooms.length}개 객실 이용 가능
+        </p>
+      )}
     </div>
   )
 }
 
-function MobileBookingBar({ accommodation }: { accommodation: AccommodationDetail }) {
+function MobileBookingBar({
+  accommodation,
+  availableRooms,
+  checkIn,
+  guestLabel,
+}: {
+  accommodation: AccommodationDetail
+  availableRooms: Room[]
+  checkIn: Date
+  guestLabel: string
+}) {
   const openModal = useSearchModal((s) => s.open)
-  const lowestStayPrice = Math.min(
-    ...accommodation.rooms.filter((r) => r.stayAvailable).map((r) => r.stayPrice)
-  )
+
+  const stayRooms = availableRooms.filter((r) => r.stayAvailable)
+  const lowestStayPrice = stayRooms.length > 0
+    ? Math.min(...stayRooms.map((r) => r.stayPrice))
+    : null
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[var(--z-fixed)] lg:hidden bg-background/95 backdrop-blur-md border-t px-4 py-3">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {/* 가격 */}
         <div className="flex-1 min-w-0">
-          {accommodation.benefitPointRate > 0 && (
-            <p className="text-xs text-primary font-medium">
-              +{accommodation.benefitPointRate}% 적립
-            </p>
+          {lowestStayPrice != null ? (
+            <>
+              {accommodation.benefitPointRate > 0 && (
+                <p className="text-xs text-primary font-medium">
+                  +{accommodation.benefitPointRate}% 적립
+                </p>
+              )}
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-bold">
+                  {lowestStayPrice.toLocaleString()}
+                </span>
+                <span className="text-sm text-muted-foreground">원~/박</span>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">예약 가능 객실 없음</p>
           )}
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold">
-              {lowestStayPrice.toLocaleString()}
-            </span>
-            <span className="text-sm text-muted-foreground">원~/박</span>
-          </div>
         </div>
 
         {/* 날짜 변경 */}
         <Button
           variant="outline"
           size="sm"
-          className="rounded-xl gap-1.5 shrink-0"
+          className="rounded-xl gap-1 shrink-0"
           onClick={() => openModal("date")}
         >
-          <CalendarDays className="size-4" />
-          날짜 변경
+          <CalendarDays className="size-3.5" />
+          <span className="text-xs">{formatDate(checkIn)}</span>
+        </Button>
+
+        {/* 인원 변경 */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="rounded-xl gap-1 shrink-0"
+          onClick={() => openModal("guest")}
+        >
+          <Users className="size-3.5" />
+          <span className="text-xs">{guestLabel}</span>
         </Button>
       </div>
     </div>

@@ -75,6 +75,8 @@ export interface Room {
   imageUrl: string
   images: string[]
   maxGuests: number
+  maxAdults: number
+  maxKids: number
   amenities: string[]
   isAvailable: boolean
   remainingCount: number

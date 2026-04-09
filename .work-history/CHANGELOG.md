@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-09 16:05** | 숙소 상세 날짜/인원 선택 → 재조회 및 객실 필터링 | [`030e951`](.work-history/entries/2026-04-09_16-00_FEAT_accommodation-date-guest-filter.md)
 - **2026-04-09 14:31** | feat: 업태 클릭 → 지역 선택 → 검색 플로우 구현 | [`344916d`](.work-history/entries/2026-04-09_14-30_FEAT_business-type-region-flow.md)
 - **2026-04-08 16:48** | 패키지형 기획전 하위 목록 페이지 구현 | [`2deb8b5`](.work-history/entries/2026-04-08_16-05_FEAT_package-exhibition-list.md)
 - **2026-04-08 15:36** | 기획전 쿠폰 다운로드 key/type 수정 | [`c6d1fdb`](.work-history/entries/2026-04-08_15-35_FIX_coupon-download-key.md)

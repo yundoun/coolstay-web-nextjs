@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Building2 } from "lucide-react"
 import { useStoreDetail } from "../hooks/useDetailData"
 import { mapMotelToDetail } from "../utils/mapMotelToDetail"
@@ -9,17 +9,33 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { addRecentStoreKey } from "@/domains/home/api/homeApi"
 
+function toApiDate(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, "0")
+  const d = String(date.getDate()).padStart(2, "0")
+  return `${y}${m}${d}`
+}
+
 interface Props {
   storeKey: string
 }
 
 export function AccommodationDetailPage({ storeKey }: Props) {
-  const { data: apiData, isLoading } = useStoreDetail(storeKey)
+  const [dates, setDates] = useState<{ start: string; end: string } | undefined>(undefined)
+  const { data: apiData, isLoading, isFetching } = useStoreDetail(storeKey, dates)
 
   // 비회원용 최근 본 숙소 기록
   useEffect(() => {
     if (storeKey) addRecentStoreKey(storeKey)
   }, [storeKey])
+
+  // 날짜 변경 시 API 재조회
+  const handleApply = useCallback((checkIn: Date, checkOut: Date) => {
+    setDates({
+      start: toApiDate(checkIn),
+      end: toApiDate(checkOut),
+    })
+  }, [])
 
   // API 데이터 → AccommodationDetail 변환
   const detail = apiData?.motel
@@ -42,5 +58,11 @@ export function AccommodationDetailPage({ storeKey }: Props) {
     )
   }
 
-  return <AccommodationDetailLayout accommodation={detail} />
+  return (
+    <AccommodationDetailLayout
+      accommodation={detail}
+      onApply={handleApply}
+      isRefetching={isFetching && !isLoading}
+    />
+  )
 }

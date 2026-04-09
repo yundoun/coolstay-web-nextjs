@@ -61,9 +61,15 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     const rentPrice = rentItem?.discount_price ?? rentItem?.price
     const rentOriginal = rentItem?.price !== rentItem?.discount_price ? rentItem?.price : undefined
 
-    // extras에서 인원 정보 추출
+    // extras에서 인원 정보 추출 (daily_extras의 MAX_ADULT/MAX_KIDS, 또는 item.extras의 MAX)
+    const stayExtras = stayItem?.daily_extras?.[0]?.extras ?? []
+    const rentExtras = rentItem?.daily_extras?.[0]?.extras ?? []
+    const dailyExtras = stayExtras.length > 0 ? stayExtras : rentExtras
+    const maxAdults = parseInt(dailyExtras.find((e) => e.code === "MAX_ADULT")?.value ?? "0")
+    const maxKids = parseInt(dailyExtras.find((e) => e.code === "MAX_KIDS")?.value ?? "0")
+    // MAX 코드 fallback (item.extras)
     const maxExtra = (item.extras ?? []).find((e) => e.code === "MAX")
-    const maxGuests = maxExtra ? parseInt(maxExtra.value) : 2
+    const maxGuests = (maxAdults + maxKids) || (maxExtra ? parseInt(maxExtra.value) : 2)
 
     // 객실 이미지
     const roomImages = (item.images ?? []).map((img) => img.url)
@@ -75,6 +81,8 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
       imageUrl: roomImages[0] ?? images[0] ?? "",
       images: roomImages.length > 0 ? roomImages : images.slice(0, 3),
       maxGuests,
+      maxAdults: maxAdults || maxGuests,
+      maxKids: maxKids,
       amenities: [],
       isAvailable: true,
       remainingCount: parseInt(getExtra(stayItem, "CUR_SALES") || getExtra(rentItem, "CUR_SALES") || "0"),
