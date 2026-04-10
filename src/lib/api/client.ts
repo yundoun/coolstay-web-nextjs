@@ -131,7 +131,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   // 로그인 토큰으로 요청했는데 실패 → 로그아웃 + 임시 토큰으로 재시도
   // 임시 토큰으로 요청했는데 실패 → 더 할 수 있는 게 없으므로 throw
   const isTokenError = TOKEN_ERROR_CODES.has(data.code)
-  if (isTokenError && isUserToken) {
+  if (isTokenError) {
     // 이미 다른 요청이 재발급 중이면 그 결과를 기다림
     if (refreshPromise) {
       const refreshedToken = await refreshPromise
@@ -139,10 +139,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       headers["app-token"] = refreshedToken.accessToken
       headers["app-secret-code"] = retrySecretCode
     } else {
-      // 첫 번째 에러 감지 → 로그아웃 + 임시 토큰 재발급
+      // 첫 번째 에러 감지 → 토큰 재발급
+      if (isUserToken) onAuthError?.() // 로그인 토큰이었으면 로그아웃 처리
       clearToken()
       isUserToken = false
-      onAuthError?.()
       refreshPromise = getToken()
       try {
         const newToken = await refreshPromise

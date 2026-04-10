@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { useAuthStore } from "@/lib/stores/auth"
 
 export default function ProtectedLayout({
@@ -11,6 +11,7 @@ export default function ProtectedLayout({
 }) {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const router = useRouter()
   const [hydrated, setHydrated] = useState(false)
 
@@ -29,9 +30,11 @@ export default function ProtectedLayout({
   // 로그아웃 시 로그인 페이지로 이동
   useEffect(() => {
     if (hydrated && !isLoggedIn) {
-      router.replace(`/login?redirect=${encodeURIComponent(pathname ?? "/")}`)
+      const search = searchParams?.toString()
+      const fullPath = search ? `${pathname}?${search}` : (pathname ?? "/")
+      router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`)
     }
-  }, [hydrated, isLoggedIn, pathname, router])
+  }, [hydrated, isLoggedIn, pathname, searchParams, router])
 
   // hydration 완료 전이거나 비로그인 상태면 로딩 표시
   if (!hydrated || !isLoggedIn) {
