@@ -1,6 +1,7 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const querystring = require("querystring");
 
 const PORT = 3001;
 const ROOT = __dirname;
@@ -27,6 +28,9 @@ const DYNAMIC_ROUTES = [
   { pattern: /^\/booking\/[^/]+\/?$/, template: "booking/_/index.html" },
   { pattern: /^\/booking\/[^/]+\/complete\/?$/, template: "booking/_/complete/index.html" },
   { pattern: /^\/bookings\/[^/]+\/?$/, template: "bookings/_/index.html" },
+  { pattern: /^\/payment\/complete\/?$/, template: "payment/complete/index.html" },
+  { pattern: /^\/magazine\/package\/[^/]+\/?$/, template: "magazine/package/_/index.html" },
+  { pattern: /^\/magazine\/board\/[^/]+\/?$/, template: "magazine/board/_/index.html" },
 ];
 
 function findDynamicTemplate(url) {
@@ -38,8 +42,54 @@ function findDynamicTemplate(url) {
   return null;
 }
 
-const server = http.createServer((req, res) => {
+/** POST body 파싱 */
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => resolve(querystring.parse(body)));
+    req.on("error", reject);
+  });
+}
+
+const server = http.createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split("?")[0]);
+
+  // ─── 이니시스 결제 콜백 (returnUrl) ───
+  // 결제 인증 결과를 localStorage에 저장하고 완료 페이지로 이동 (UI 플로우만)
+  if (url === "/pg/payment/return" && req.method === "POST") {
+    const body = await parseBody(req);
+    console.log("[Payment Return]", JSON.stringify(body, null, 2));
+
+    const basePath = process.env.BASE_PATH || "/web/coolstay";
+    const resultCode = body.resultCode || "";
+    const resultMsg = body.resultMsg || "";
+    const orderNumber = body.orderNumber || body.MOID || "";
+    const isSuccess = resultCode === "0000";
+
+    const result = JSON.stringify({
+      resultCode: isSuccess ? "0000" : "FAIL",
+      resultMsg: isSuccess ? "결제가 완료되었습니다." : (resultMsg || "결제가 취소되었습니다."),
+      merchantUid: orderNumber,
+    }).replace(/"/g, '\\"');
+
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+      <p>결제 결과를 처리하고 있습니다...</p>
+      <script>
+        try { localStorage.setItem("inicisPaymentResult", "${result}"); } catch(e) {}
+        location.href="${basePath}/payment/complete/";
+      </script></body></html>`);
+    return;
+  }
+
+  if (url === "/pg/payment/close") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("<script>window.close()</script>");
+    return;
+  }
+
+  // ─── 정적 파일 서빙 ───
   let filePath = path.join(ROOT, url);
 
   // 디렉토리면 index.html 찾기

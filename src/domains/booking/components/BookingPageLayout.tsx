@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { useBookingForm } from "../hooks/useBookingForm"
 import { useBookingSubmit } from "../hooks/useBookingSubmit"
+import { InicisPaymentForm } from "./InicisPaymentForm"
 import { RoomSummaryCard } from "./RoomSummaryCard"
 import { TimeSlotSelector } from "./TimeSlotSelector"
 import { BookerInfoForm } from "./BookerInfoForm"
@@ -23,9 +25,34 @@ interface BookingPageLayoutProps {
 
 export function BookingPageLayout({ context }: BookingPageLayoutProps) {
   const form = useBookingForm(context)
-  const { submit, isLoading, error } = useBookingSubmit()
+  const { submit, isLoading, error, inicisParams } = useBookingSubmit()
+  const router = useRouter()
   const [selectedTime, setSelectedTime] = useState("12:00")
   const isRental = context.bookingType === "rental"
+
+  // 이니시스 팝업에서 결제 결과 수신 → 완료 페이지로 이동
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.data?.type !== "INICIS_PAYMENT_RESULT") return
+      const { resultCode } = event.data.payload
+      if (resultCode === "0000") {
+        // bookingResult는 useBookingSubmit에서 이미 localStorage에 저장됨
+        const bookingResult = localStorage.getItem("bookingResult")
+        if (bookingResult) {
+          sessionStorage.setItem("bookingResult", bookingResult)
+          localStorage.removeItem("bookingResult")
+        }
+        localStorage.removeItem("pendingBookingAccommodationId")
+        localStorage.removeItem("pendingBookingBookId")
+        localStorage.removeItem("pendingPaymentInfo")
+        router.push(`/booking/${context.accommodation.id}/complete`)
+      } else {
+        alert("결제가 취소되었습니다.")
+      }
+    }
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
+  }, [context.accommodation.id, router])
 
   const handleSubmit = () => {
     if (!form.isValid || isLoading) return
@@ -140,6 +167,9 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
           </div>
         </div>
       </Container>
+
+      {/* 이니시스 결제 폼 */}
+      <InicisPaymentForm params={inicisParams} />
 
       {/* Error Message */}
       {error && (

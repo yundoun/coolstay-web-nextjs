@@ -617,12 +617,13 @@ export interface ReservReadyResponse {
 
 // reserv/register (request body)
 export interface ReservRegisterRequest {
+  merchant_uid: string
   payment_pg?: string
   payment_method?: string
   payment_imp_uid?: string
-  merchant_uid: string
-  item_name?: string
   price?: number
+  motel_key?: string
+  item_name?: string
   name?: string
   email?: string
   phone_number?: string

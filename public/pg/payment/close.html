@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>결제 취소</title></head>
+<body>
+<script>
+  try {
+    localStorage.setItem('inicisPaymentResult', JSON.stringify({
+      resultCode: 'FAIL',
+      resultMsg: '결제가 취소되었습니다.'
+    }));
+    if (window.opener) {
+      window.opener.postMessage({ type: 'INICIS_PAYMENT_RESULT', payload: { resultCode: 'FAIL' } }, '*');
+    }
+  } catch(e) {}
+  window.close();
+</script>
+</body>
+</html>

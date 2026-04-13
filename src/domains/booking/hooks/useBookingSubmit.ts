@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { prepareBooking, confirmBooking } from "../api/reservationApi"
 import type { ReservReadyRequest } from "@/lib/api/types"
 import type { BookingContext, BookerInfo, PaymentMethod, PaymentSummary, BookingResult } from "../types"
+import type { InicisPaymentParams } from "../utils/inicis"
 
 interface SubmitParams {
   context: BookingContext
@@ -17,20 +18,28 @@ interface SubmitParams {
   selectedTime?: string
 }
 
-/** 웹 결제수단 → API payment_method / payment_pg 매핑
- *  TODO: PG SDK 연동 후 실제 PG 코드 사용 (INICIS, TOSS_PAYMENTS 등)
- *        현재는 PG SDK 미연동이므로 모든 결제를 현장결제(SITE)로 처리
- */
+/** 웹 결제수단 → API payment_method / payment_pg 매핑 */
 function mapPaymentToApi(method: PaymentMethod) {
   switch (method) {
     case "card":
+      return { payment_pg: "INICIS_DIR", payment_method: "CARD" }
     case "transfer":
+      return { payment_pg: "INICIS_DIR", payment_method: "TRANS" }
     case "phone":
-      // PG SDK 연동 전까지 현장결제로 대체
-      return { payment_pg: "", payment_method: "SITE" }
+      return { payment_pg: "INICIS_DIR", payment_method: "PHONE" }
     case "onsite":
     default:
       return { payment_pg: "", payment_method: "SITE" }
+  }
+}
+
+/** 결제수단 → 이니시스 PC 웹표준 gopaymethod */
+function toInicisPayMethod(method: PaymentMethod): string {
+  switch (method) {
+    case "card": return "Card"
+    case "transfer": return "DirectBank"
+    case "phone": return "HPP"
+    default: return "Card"
   }
 }
 
@@ -48,6 +57,7 @@ export function useBookingSubmit() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [inicisParams, setInicisParams] = useState<InicisPaymentParams | null>(null)
 
   const submit = useCallback(async (params: SubmitParams) => {
     const {
@@ -59,26 +69,23 @@ export function useBookingSubmit() {
     setError(null)
 
     try {
-      // 체크인/체크아웃 시간 계산 (daily_extras의 STIME/ETIME/UTIME 사용)
+      // 체크인/체크아웃 시간 계산
       const now = new Date()
       const checkIn = new Date(now)
       const checkOut = new Date(now)
 
       if (context.bookingType === "rental") {
-        // 대실: 선택한 시간 or STIME부터, UTIME 시간 후 종료
         const useHours = context.useHours || 4
         if (selectedTime) {
           const [h, m] = selectedTime.split(":").map(Number)
           checkIn.setHours(h, m, 0, 0)
           checkOut.setHours(h + useHours, m, 0, 0)
         } else {
-          // 시간 미선택 시 STIME 기본값 사용
           const startH = context.startHour ?? 10
           checkIn.setHours(startH, 0, 0, 0)
           checkOut.setHours(startH + useHours, 0, 0, 0)
         }
       } else {
-        // 숙박: STIME으로 체크인, 다음날 ETIME으로 체크아웃
         const ciH = context.startHour ?? parseInt((context.accommodation.checkInTime || "15").split(":")[0])
         const coH = context.endHour ?? parseInt((context.accommodation.checkOutTime || "11").split(":")[0])
         checkIn.setHours(ciH, 0, 0, 0)
@@ -86,7 +93,7 @@ export function useBookingSubmit() {
         checkOut.setHours(coH, 0, 0, 0)
       }
 
-      // 쿠폰 정보 구성 — rawCoupons에서 원본 데이터 매핑
+      // 쿠폰 정보 구성
       const coupons = selectedCouponId
         ? (context.rawCoupons || [])
             .filter((c) => String(c.coupon_pk) === selectedCouponId)
@@ -138,13 +145,60 @@ export function useBookingSubmit() {
       const readyResult = await prepareBooking(readyBody)
       const bookId = readyResult.book_id
 
-      // Step 2: 현장결제/SITE는 ready만으로 완료, 온라인결제는 PG→register 필요
-      // TODO: PG SDK 연동 후 온라인 결제 플로우 구현
-      //   1. PG 결제 모듈 호출 → imp_uid 획득
-      //   2. confirmBooking({ merchant_uid: bookId, payment_imp_uid: imp_uid, ... })
-      // 현재는 모든 결제가 SITE(현장결제)로 처리되므로 register 호출 불필요
+      // Step 2: PG 결제 or 현장결제
+      if (paymentMethod === "card" || paymentMethod === "transfer" || paymentMethod === "phone") {
+        // PG 결제: 결제 완료 정보를 sessionStorage에 저장 후 이니시스 호출
+        const fmt = (d: Date) => {
+          const y = d.getFullYear()
+          const m = String(d.getMonth() + 1).padStart(2, "0")
+          const day = String(d.getDate()).padStart(2, "0")
+          return `${y}-${m}-${day}`
+        }
 
-      // 예약 완료 결과 구성
+        const result: BookingResult = {
+          bookingId: bookId,
+          accommodationName: context.accommodation.name,
+          roomName: context.room.name,
+          bookingType: context.bookingType,
+          checkIn: fmt(checkIn),
+          checkOut: fmt(checkOut),
+          usageTime: context.usageTime,
+          bookerName: bookerInfo.name,
+          bookerPhone: bookerInfo.phone,
+          paymentMethod,
+          totalAmount: paymentSummary.totalAmount,
+          earnedMileage: Math.floor(
+            paymentSummary.totalAmount * (context.benefitPointRate / 100)
+          ),
+        }
+        localStorage.setItem("bookingResult", JSON.stringify(result))
+        localStorage.setItem("pendingBookingAccommodationId", context.accommodation.id)
+        localStorage.setItem("pendingBookingBookId", bookId)
+        // confirmBooking 호출에 필요한 결제 정보 저장
+        localStorage.setItem("pendingPaymentInfo", JSON.stringify({
+          payment_pg,
+          payment_method,
+          price: paymentSummary.totalAmount,
+          motel_key: context.accommodation.id,
+          phone_number: bookerInfo.phone.replace(/-/g, ""),
+          booker_name: bookerInfo.name,
+        }))
+
+        // 이니시스 결제창 호출
+        setInicisParams({
+          orderId: bookId,
+          goodName: `${context.accommodation.name} - ${context.room.name}`,
+          price: paymentSummary.totalAmount,
+          buyerName: bookerInfo.name,
+          buyerTel: bookerInfo.phone.replace(/-/g, ""),
+          payMethod: toInicisPayMethod(paymentMethod),
+        })
+
+        setIsLoading(false)
+        return // 이니시스 결제창이 열리고, 결과는 returnUrl로 처리
+      }
+
+      // 현장결제: 바로 완료
       const fmt = (d: Date) => {
         const y = d.getFullYear()
         const m = String(d.getMonth() + 1).padStart(2, "0")
@@ -179,5 +233,5 @@ export function useBookingSubmit() {
     }
   }, [router])
 
-  return { submit, isLoading, error }
+  return { submit, isLoading, error, inicisParams }
 }

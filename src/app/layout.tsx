@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
+import Script from "next/script"
 import "@/styles/globals.css"
 import { Header, Footer, MainContent, BottomNav } from "@/components/layout"
 import { SearchModal } from "@/components/search/SearchModal"
@@ -17,7 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
+      <head />
       <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
+        <Script
+          src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js"
+          strategy="beforeInteractive"
+        />
         <Providers>
           <Suspense>
             <Header />

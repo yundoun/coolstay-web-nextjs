@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>결제 처리 중...</title></head>
+<body>
+<p>결제 결과를 처리하고 있습니다...</p>
+<script>
+  // 결제 성공으로 간주하고 localStorage에 저장 (UI 플로우만 구현)
+  try {
+    localStorage.setItem('inicisPaymentResult', JSON.stringify({
+      resultCode: '0000',
+      resultMsg: '결제가 완료되었습니다.'
+    }));
+  } catch(e) {}
+
+  // basePath 추론: /pg/payment/return.html 앞의 경로
+  var path = window.location.pathname;
+  var idx = path.indexOf('/pg/payment/');
+  var basePath = idx > 0 ? path.substring(0, idx) : '';
+
+  // 팝업 모드: opener가 있으면 postMessage 후 닫기
+  if (window.opener) {
+    try {
+      window.opener.postMessage({ type: 'INICIS_PAYMENT_RESULT', payload: { resultCode: '0000' } }, '*');
+    } catch(e) {}
+    setTimeout(function() { window.close(); }, 300);
+  } else {
+    // 같은 창: /payment/complete로 이동
+    window.location.replace(basePath + '/payment/complete');
+  }
+</script>
+</body>
+</html>

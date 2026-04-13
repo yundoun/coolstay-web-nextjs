@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import type { PaymentMethod } from "../types"
 
 const METHODS: { value: PaymentMethod; label: string; icon: React.ElementType; pgDisabled?: boolean }[] = [
-  { value: "card", label: "카드결제", icon: CreditCard, pgDisabled: true },
+  { value: "card", label: "카드결제", icon: CreditCard },
   { value: "transfer", label: "계좌이체", icon: Landmark, pgDisabled: true },
   { value: "phone", label: "휴대폰결제", icon: Smartphone, pgDisabled: true },
   { value: "onsite", label: "현장결제", icon: Building2 },
