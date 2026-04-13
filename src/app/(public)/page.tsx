@@ -93,17 +93,24 @@ export default function HomePage() {
         <EventSection />
       </Section>
 
-      {/* 9. 매거진 */}
-      {data?.ai_magazines && data.ai_magazines.length > 0 && (
-        <Section
-          title="매거진"
-          description="여행이 더 즐거워지는 이야기"
-          spacing="lg"
-          background="muted"
-        >
-          <MagazineSection magazines={data.ai_magazines} />
-        </Section>
-      )}
+      {/* 9. 매거진 — 자체 API(/aiMagazine/home) 호출 */}
+      <Section
+        title="매거진"
+        description="여행이 더 즐거워지는 이야기"
+        spacing="lg"
+        background="muted"
+        headerAction={
+          <Link
+            href="/magazine"
+            className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            전체보기
+            <ArrowRight className="size-3.5" />
+          </Link>
+        }
+      >
+        <MagazineSection />
+      </Section>
     </main>
   )
 }

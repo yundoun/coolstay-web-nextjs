@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-13 17:25** | AI 매거진 도메인 구현 | [`f151b48`](.work-history/entries/2026-04-13_17-30_FEAT_ai-magazine-domain.md)
 - **2026-04-13 12:48** | 정적 빌드(SPA) 배포 지원 | [`4734c53`](.work-history/entries/2026-04-13_12-45_DEPLOY_static-spa-build.md)
 - **2026-04-10 10:46** | fix: HTTP 네트워크 IP 환경에서 API 호출 불가 수정 | [`1552c40`](.work-history/entries/2026-04-10_10-15_FIX_http-network-api.md)
 - **2026-04-09 16:05** | 숙소 상세 날짜/인원 선택 → 재조회 및 객실 필터링 | [`030e951`](.work-history/entries/2026-04-09_16-00_FEAT_accommodation-date-guest-filter.md)
