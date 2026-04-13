@@ -1,4 +1,4 @@
-import { GetServerSideProps } from 'next';
+import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useState } from 'react';
 
@@ -36,7 +36,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { SearchBar } from '@/components/ui/search-bar';
 
 // 개발 모드에서만 접근 가능
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   if (process.env.NODE_ENV === 'production') {
     return { notFound: true };
   }

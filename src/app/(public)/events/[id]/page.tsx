@@ -1,13 +1,9 @@
-"use client"
+import { EventDetailClient } from "./client"
 
-import { use } from "react"
-import { EventDetailPage } from "@/domains/event/components"
+export function generateStaticParams() {
+  return [{ id: "_" }]
+}
 
-export default function EventDetailRoute({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  return <EventDetailPage eventKey={Number(id)} />
+export default function EventDetailRoute() {
+  return <EventDetailClient />
 }

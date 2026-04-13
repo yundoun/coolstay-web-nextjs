@@ -1,18 +1,9 @@
-import { AccommodationDetailPage } from "@/domains/accommodation/components/AccommodationDetailPage"
+import { AccommodationDetailClient } from "./client"
 
-interface AccommodationPageProps {
-  params: Promise<{ id: string }>
+export function generateStaticParams() {
+  return [{ id: "_" }]
 }
 
-export async function generateMetadata({ params }: AccommodationPageProps) {
-  const { id } = await params
-  return {
-    title: `숙소 상세 | 꿀스테이`,
-    description: `숙소 ${id} 상세 정보`,
-  }
-}
-
-export default async function Page({ params }: AccommodationPageProps) {
-  const { id } = await params
-  return <AccommodationDetailPage storeKey={id} />
+export default function Page() {
+  return <AccommodationDetailClient />
 }

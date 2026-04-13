@@ -1,27 +1,14 @@
-"use client"
+import { Suspense } from "react"
+import { ExhibitionDetailClient } from "./client"
 
-import { use } from "react"
-import { ExhibitionDetailPage, PackageExhibitionPage } from "@/domains/exhibition/components"
+export function generateStaticParams() {
+  return [{ id: "_" }]
+}
 
-export default function ExhibitionDetailRoute({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ type?: string }>
-}) {
-  const { id } = use(params)
-  const { type } = use(searchParams)
-  const key = Number(id)
-
-  if (type === "PACKAGE_EXHIBITION_GROUP") {
-    return <PackageExhibitionPage groupKey={key} />
-  }
-
+export default function ExhibitionDetailRoute() {
   return (
-    <ExhibitionDetailPage
-      exhibitionKey={key}
-      exhibitionType={type || "EXHIBITION"}
-    />
+    <Suspense>
+      <ExhibitionDetailClient />
+    </Suspense>
   )
 }

@@ -1,13 +1,9 @@
-"use client"
+import { BookingDetailClient } from "./client"
 
-import { use } from "react"
-import { BookingDetailPage } from "@/domains/booking/components"
+export function generateStaticParams() {
+  return [{ id: "_" }]
+}
 
-export default function BookingDetailRoute({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = use(params)
-  return <BookingDetailPage bookingId={id} />
+export default function BookingDetailRoute() {
+  return <BookingDetailClient />
 }

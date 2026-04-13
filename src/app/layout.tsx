@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Suspense } from "react"
 import "@/styles/globals.css"
 import { Header, Footer, MainContent, BottomNav } from "@/components/layout"
 import { SearchModal } from "@/components/search/SearchModal"
@@ -18,11 +19,15 @@ export default function RootLayout({
     <html lang="ko">
       <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
         <Providers>
-          <Header />
+          <Suspense>
+            <Header />
+          </Suspense>
           <MainContent>{children}</MainContent>
           <Footer />
           <BottomNav />
-          <SearchModal />
+          <Suspense>
+            <SearchModal />
+          </Suspense>
         </Providers>
       </body>
     </html>

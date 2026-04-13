@@ -40,7 +40,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <Image
-                src="/coolstay_logo.png"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/coolstay_logo.png`}
                 alt="꿀스테이"
                 width={120}
                 height={40}

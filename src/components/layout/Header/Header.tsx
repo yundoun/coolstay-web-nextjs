@@ -82,7 +82,7 @@ export function Header({ variant }: HeaderProps) {
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <Image
-                src="/coolstay_logo.png"
+                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/coolstay_logo.png`}
                 alt="꿀스테이"
                 width={120}
                 height={40}
