@@ -38,8 +38,7 @@ yarn-error.log*
 
 
 # 루트 스크린샷 (디버깅/검증용 임시 캡처)
-screenshot-*.png
-accommodation-*.png
+/*.png
 
 # 임시 스냅샷
 home-snapshot.md
