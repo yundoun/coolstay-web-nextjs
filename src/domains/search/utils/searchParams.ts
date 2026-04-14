@@ -32,7 +32,6 @@ export interface SearchState {
   checkIn: string
   checkOut: string
   adults: number
-  kids: number
 }
 
 /** URL params에서 SearchState를 파싱 */
@@ -48,7 +47,6 @@ export function parseSearchParams(
     checkIn: params.get("checkIn") || defaults.checkIn,
     checkOut: params.get("checkOut") || defaults.checkOut,
     adults: Number(params.get("adults")) || 2,
-    kids: Number(params.get("kids")) || 0,
   }
 }
 

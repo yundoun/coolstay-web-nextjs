@@ -673,9 +673,7 @@ function CalendarMonth({
 function GuestPanel() {
   const {
     adults,
-    kids,
     setAdults,
-    setKids,
     close,
   } = useSearchModal()
 
@@ -702,7 +700,6 @@ function GuestPanel() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-base font-semibold">성인</p>
-            <p className="text-sm text-muted-foreground">만 13세 이상</p>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -733,40 +730,6 @@ function GuestPanel() {
           </div>
         </div>
 
-        {/* 아동 */}
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-base font-semibold">아동</p>
-            <p className="text-sm text-muted-foreground">만 12세 이하</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              disabled={kids <= 0}
-              onClick={() => setKids(kids - 1)}
-              className={cn(
-                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
-                kids <= 0
-                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-              )}
-            >
-              <Minus className="size-4" />
-            </button>
-            <span className="w-8 text-center text-lg font-bold">{kids}</span>
-            <button
-              disabled={kids >= 5}
-              onClick={() => setKids(kids + 1)}
-              className={cn(
-                "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
-                kids >= 5
-                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-              )}
-            >
-              <Plus className="size-4" />
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* 적용 버튼 */}
@@ -775,7 +738,7 @@ function GuestPanel() {
           className="w-full py-6 rounded-xl text-base font-semibold"
           onClick={handleApply}
         >
-          성인 {adults}, 아동 {kids} 적용하기
+          성인 {adults}명 적용하기
         </Button>
       </div>
     </div>
@@ -796,7 +759,7 @@ function MobileSearchPanel() {
     selectedCity, selectedArea, regionCode,
     setCity, setArea, setRegionCode,
     checkIn, checkOut, setCheckIn, setCheckOut,
-    adults, kids, setAdults, setKids,
+    adults, setAdults,
     businessType, mappingBusinessTypes,
   } = useSearchModal()
   const router = useRouter()
@@ -868,7 +831,7 @@ function MobileSearchPanel() {
   const dateDisplay = checkIn
     ? `${formatDateKr(checkIn)} - ${checkOut ? formatDateKr(checkOut) : "?"} ${checkOut ? `${nights}박` : ""}`
     : "날짜 선택"
-  const guestDisplay = kids > 0 ? `성인 ${adults}, 아동 ${kids}` : `성인 ${adults}명`
+  const guestDisplay = `성인 ${adults}명`
 
   // ─── 핸들러 ───
   const handleRegionSelect = (city: string | null, area: string | null, code: string | null) => {
@@ -925,7 +888,6 @@ function MobileSearchPanel() {
     params.set("checkIn", formatDateParam(ci))
     params.set("checkOut", formatDateParam(co))
     params.set("adults", String(adults))
-    if (kids > 0) params.set("kids", String(kids))
     router.push(`/search?${params.toString()}`)
   }
 
@@ -1158,8 +1120,7 @@ function MobileSearchPanel() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-base font-semibold">성인</p>
-                <p className="text-sm text-muted-foreground">만 13세 이상</p>
-              </div>
+                  </div>
               <div className="flex items-center gap-4">
                 <button disabled={adults <= 1} onClick={() => setAdults(adults - 1)}
                   className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults <= 1 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
@@ -1168,23 +1129,6 @@ function MobileSearchPanel() {
                 <span className="w-8 text-center text-lg font-bold">{adults}</span>
                 <button disabled={adults >= 10} onClick={() => setAdults(adults + 1)}
                   className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults >= 10 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
-                  <Plus className="size-4" />
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-base font-semibold">아동</p>
-                <p className="text-sm text-muted-foreground">만 12세 이하</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <button disabled={kids <= 0} onClick={() => setKids(kids - 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids <= 0 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
-                  <Minus className="size-4" />
-                </button>
-                <span className="w-8 text-center text-lg font-bold">{kids}</span>
-                <button disabled={kids >= 5} onClick={() => setKids(kids + 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids >= 5 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
                   <Plus className="size-4" />
                 </button>
               </div>

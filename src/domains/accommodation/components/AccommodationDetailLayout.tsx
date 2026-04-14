@@ -48,8 +48,8 @@ function diffDays(a: Date, b: Date) {
 }
 
 /** 선택 인원으로 수용 가능한 객실만 필터 */
-function filterRoomsByGuests(rooms: Room[], adults: number, kids: number): Room[] {
-  return rooms.filter((room) => adults + kids <= room.maxGuests)
+function filterRoomsByGuests(rooms: Room[], adults: number): Room[] {
+  return rooms.filter((room) => adults <= room.maxGuests)
 }
 
 // ─── 탭 정의 ────────────────────────────────────────────────
@@ -78,7 +78,6 @@ export function AccommodationDetailLayout({
   const [checkIn, setCheckIn] = useState(today)
   const [checkOut, setCheckOut] = useState(tomorrow)
   const [appliedAdults, setAppliedAdults] = useState(2)
-  const [appliedKids, setAppliedKids] = useState(0)
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
   const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [rentalRoom, setRentalRoom] = useState<Room | null>(null)
@@ -106,22 +105,19 @@ export function AccommodationDetailLayout({
     [onApply],
   )
 
-  const handleGuestApply = useCallback((newAdults: number, newKids: number) => {
+  const handleGuestApply = useCallback((newAdults: number) => {
     setAppliedAdults(newAdults)
-    setAppliedKids(newKids)
   }, [])
 
   // 인원 기반 필터링된 객실
   const availableRooms = useMemo(
-    () => filterRoomsByGuests(accommodation.rooms, appliedAdults, appliedKids),
-    [accommodation.rooms, appliedAdults, appliedKids],
+    () => filterRoomsByGuests(accommodation.rooms, appliedAdults),
+    [accommodation.rooms, appliedAdults],
   )
 
   const nights = diffDays(checkIn, checkOut)
   const dateLabel = `${formatDateShort(checkIn)}~${formatDateShort(checkOut)}, ${nights}박`
-  const guestLabel = appliedKids > 0
-    ? `성인 ${appliedAdults}, 아동 ${appliedKids}`
-    : `성인 ${appliedAdults}명`
+  const guestLabel = `성인 ${appliedAdults}명`
 
   // ─── 섹션들 (기존 컴포넌트 그대로, id만 부여) ───
 
@@ -383,7 +379,6 @@ export function AccommodationDetailLayout({
       {guestPickerOpen && (
         <GuestPickerModal
           adults={appliedAdults}
-          kids={appliedKids}
           onApply={handleGuestApply}
           onClose={() => setGuestPickerOpen(false)}
         />

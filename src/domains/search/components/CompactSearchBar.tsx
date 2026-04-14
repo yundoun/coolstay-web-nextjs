@@ -158,8 +158,6 @@ export function CompactSearchBar() {
       params.set("checkIn", currentParams.get("checkIn") || fmt(today))
       params.set("checkOut", currentParams.get("checkOut") || fmt(tomorrow))
       params.set("adults", currentParams.get("adults") || "2")
-      const kids = currentParams.get("kids")
-      if (kids) params.set("kids", kids)
       // sort 보존
       const sort = currentParams.get("sort")
       if (sort) params.set("sort", sort)

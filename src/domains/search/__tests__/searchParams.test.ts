@@ -24,7 +24,6 @@ describe("parseSearchParams", () => {
       checkIn: "2026-04-07",
       checkOut: "2026-04-08",
       adults: 2,
-      kids: 0,
     })
   })
 
@@ -38,7 +37,6 @@ describe("parseSearchParams", () => {
         checkIn: "2026-05-01",
         checkOut: "2026-05-02",
         adults: "3",
-        kids: "1",
       }),
       DEFAULTS,
     )
@@ -47,7 +45,6 @@ describe("parseSearchParams", () => {
     expect(state.regionName).toBe("서울")
     expect(state.businessType).toBe("HOTEL")
     expect(state.adults).toBe(3)
-    expect(state.kids).toBe(1)
   })
 
   it("type 파라미터로 businessType을 파싱한다", () => {
@@ -208,7 +205,6 @@ describe("getDisplayLabels", () => {
       checkIn: "",
       checkOut: "",
       adults: 2,
-      kids: 0,
     })
 
     expect(labels.mode).toBe("myArea")
@@ -226,7 +222,6 @@ describe("getDisplayLabels", () => {
       checkIn: "",
       checkOut: "",
       adults: 2,
-      kids: 0,
     })
 
     expect(labels.mode).toBe("keyword")
@@ -244,7 +239,6 @@ describe("getDisplayLabels", () => {
       checkIn: "",
       checkOut: "",
       adults: 2,
-      kids: 0,
     })
 
     expect(labels.mode).toBe("region")
@@ -263,7 +257,6 @@ describe("getDisplayLabels", () => {
       checkIn: "",
       checkOut: "",
       adults: 2,
-      kids: 0,
     })
 
     expect(labels.mode).toBe("keyword")

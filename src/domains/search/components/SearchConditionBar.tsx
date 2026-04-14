@@ -55,9 +55,8 @@ interface SearchConditionBarProps {
   checkIn: string
   checkOut: string
   adults: number
-  kids: number
   onDateChange: (checkIn: string, checkOut: string) => void
-  onGuestChange: (adults: number, kids: number) => void
+  onGuestChange: (adults: number) => void
   onSearch?: () => void
 }
 
@@ -68,7 +67,6 @@ export function SearchConditionBar({
   checkIn,
   checkOut,
   adults,
-  kids,
   onDateChange,
   onGuestChange,
   onSearch,
@@ -109,9 +107,8 @@ export function SearchConditionBar({
   const dateLabelShort = `${ciDate.getMonth() + 1}/${ciDate.getDate()}~${coDate.getMonth() + 1}/${coDate.getDate()} ${nights}박`
   const dateLabelFull = `${checkIn} ~ ${checkOut}`
 
-  const totalGuests = adults + kids
-  const guestLabelShort = `${totalGuests}명`
-  const guestLabelFull = kids > 0 ? `성인 ${adults} 아동 ${kids}` : `성인 ${adults}`
+  const guestLabelShort = `${adults}명`
+  const guestLabelFull = `성인 ${adults}`
 
   const openModal = useSearchModal((s) => s.open)
 
@@ -220,9 +217,8 @@ export function SearchConditionBar({
       {openDropdown === "guest" && (
         <GuestDropdown
           adults={adults}
-          kids={kids}
-          onGuestChange={(a, k) => {
-            onGuestChange(a, k)
+          onGuestChange={(a) => {
+            onGuestChange(a)
             setOpenDropdown(null)
           }}
           onClose={() => setOpenDropdown(null)}
@@ -715,17 +711,14 @@ function CalendarMonth({
 
 function GuestDropdown({
   adults,
-  kids,
   onGuestChange,
   onClose,
 }: {
   adults: number
-  kids: number
-  onGuestChange: (adults: number, kids: number) => void
+  onGuestChange: (adults: number) => void
   onClose: () => void
 }) {
   const [localAdults, setLocalAdults] = useState(adults)
-  const [localKids, setLocalKids] = useState(kids)
 
   return (
     <div className="absolute left-0 top-full mt-2 z-50 bg-background rounded-xl shadow-xl border w-[360px] overflow-hidden animate-fade-in-down">
@@ -739,7 +732,6 @@ function GuestDropdown({
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-semibold">성인</p>
-            <p className="text-xs text-muted-foreground">만 13세 이상</p>
           </div>
           <div className="flex items-center gap-3">
             <button
@@ -769,46 +761,13 @@ function GuestDropdown({
             </button>
           </div>
         </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-semibold">아동</p>
-            <p className="text-xs text-muted-foreground">만 12세 이하</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              disabled={localKids <= 0}
-              onClick={() => setLocalKids(localKids - 1)}
-              className={cn(
-                "size-8 rounded-full border-2 flex items-center justify-center",
-                localKids <= 0
-                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-              )}
-            >
-              <Minus className="size-3.5" />
-            </button>
-            <span className="w-6 text-center text-base font-bold">{localKids}</span>
-            <button
-              disabled={localKids >= 5}
-              onClick={() => setLocalKids(localKids + 1)}
-              className={cn(
-                "size-8 rounded-full border-2 flex items-center justify-center",
-                localKids >= 5
-                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
-                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
-              )}
-            >
-              <Plus className="size-3.5" />
-            </button>
-          </div>
-        </div>
       </div>
       <div className="px-5 pb-4">
         <Button
           className="w-full py-5 rounded-lg text-sm font-semibold"
-          onClick={() => onGuestChange(localAdults, localKids)}
+          onClick={() => onGuestChange(localAdults)}
         >
-          성인 {localAdults}, 아동 {localKids} 적용하기
+          성인 {localAdults}명 적용하기
         </Button>
       </div>
     </div>

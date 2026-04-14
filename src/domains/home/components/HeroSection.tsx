@@ -39,7 +39,6 @@ export function HeroSection() {
     checkIn,
     checkOut,
     adults,
-    kids,
   } = useSearchModal()
 
   const locationDisplay = selectedArea || selectedCity || "내 주변"
@@ -52,8 +51,7 @@ export function HeroSection() {
   const dateDisplay = `${formatDateKr(effectiveCheckIn)} - ${formatDateKr(effectiveCheckOut)} · ${nights}박`
   const dateLabel = checkIn ? "선택된 날짜" : "날짜"
 
-  const guestDisplay =
-    kids > 0 ? `성인 ${adults}, 아동 ${kids}` : `성인 ${adults}명`
+  const guestDisplay = `성인 ${adults}명`
 
   const handleSearch = () => {
     const { defaultCheckIn, defaultCheckOut } = getDefaultDates()
@@ -74,7 +72,6 @@ export function HeroSection() {
     params.set("checkIn", formatDateParam(effectiveCheckIn))
     params.set("checkOut", formatDateParam(effectiveCheckOut))
     params.set("adults", String(adults))
-    if (kids > 0) params.set("kids", String(kids))
     router.push(`/search?${params.toString()}`)
   }
 

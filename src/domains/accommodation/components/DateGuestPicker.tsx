@@ -164,17 +164,15 @@ export function DatePickerModal({ checkIn, checkOut, onApply, onClose }: DatePic
 
 interface GuestPickerModalProps {
   adults: number
-  kids: number
-  onApply: (adults: number, kids: number) => void
+  onApply: (adults: number) => void
   onClose: () => void
 }
 
-export function GuestPickerModal({ adults, kids, onApply, onClose }: GuestPickerModalProps) {
+export function GuestPickerModal({ adults, onApply, onClose }: GuestPickerModalProps) {
   const [tempAdults, setTempAdults] = useState(adults)
-  const [tempKids, setTempKids] = useState(kids)
 
   const handleApply = () => {
-    onApply(tempAdults, tempKids)
+    onApply(tempAdults)
     onClose()
   }
 
@@ -188,12 +186,11 @@ export function GuestPickerModal({ adults, kids, onApply, onClose }: GuestPicker
           </button>
         </div>
         <div className="px-6 py-6 space-y-6">
-          <CounterRow label="성인" desc="만 13세 이상" value={tempAdults} min={1} max={10} onChange={setTempAdults} />
-          <CounterRow label="아동" desc="만 12세 이하" value={tempKids} min={0} max={5} onChange={setTempKids} />
+          <CounterRow label="성인" desc="" value={tempAdults} min={1} max={10} onChange={setTempAdults} />
         </div>
         <div className="px-6 pb-6">
           <Button className="w-full py-6 rounded-xl text-base font-semibold" onClick={handleApply}>
-            성인 {tempAdults}, 아동 {tempKids} 적용하기
+            성인 {tempAdults}명 적용하기
           </Button>
         </div>
       </div>
@@ -231,7 +228,7 @@ function CounterRow({ label, desc, value, min, max, onChange }: {
     <div className="flex items-center justify-between">
       <div>
         <p className="text-base font-semibold">{label}</p>
-        <p className="text-sm text-muted-foreground">{desc}</p>
+        {desc && <p className="text-sm text-muted-foreground">{desc}</p>}
       </div>
       <div className="flex items-center gap-4">
         <button disabled={value <= min} onClick={() => onChange(value - 1)} className={cn("size-9 rounded-full border-2 flex items-center justify-center transition-colors", value <= min ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>

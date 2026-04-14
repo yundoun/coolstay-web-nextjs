@@ -61,7 +61,7 @@ export function SearchPageLayout() {
   const checkIn = searchParams?.get("checkIn") || defaultCheckIn
   const checkOut = searchParams?.get("checkOut") || defaultCheckOut
   const adults = Number(searchParams?.get("adults")) || 2
-  const kids = Number(searchParams?.get("kids")) || 0
+  const kids = 0  // 아동 미사용 — API kidCnt 호환용
   // 프로모 카드 전용: ST1000(최저가), ST1001(무제한쿠폰), ST1002(첫예약)
   const promoSearchType = searchParams?.get("searchType") ?? ""
 
@@ -193,10 +193,9 @@ export function SearchPageLayout() {
   )
 
   const handleGuestChange = useCallback(
-    (newAdults: number, newKids: number) => {
+    (newAdults: number) => {
       pushParams({
         adults: String(newAdults),
-        kids: newKids > 0 ? String(newKids) : undefined,
       })
     },
     [pushParams],
@@ -207,9 +206,8 @@ export function SearchPageLayout() {
       checkIn,
       checkOut,
       adults: String(adults),
-      kids: kids > 0 ? String(kids) : undefined,
     })
-  }, [pushParams, checkIn, checkOut, adults, kids])
+  }, [pushParams, checkIn, checkOut, adults])
 
   const handleRegionChange = useCallback(
     (name: string, code: string) => {
@@ -231,7 +229,6 @@ export function SearchPageLayout() {
           checkIn={checkIn}
           checkOut={checkOut}
           adults={adults}
-          kids={kids}
           onDateChange={handleDateChange}
           onGuestChange={handleGuestChange}
           onSearch={handleSearch}

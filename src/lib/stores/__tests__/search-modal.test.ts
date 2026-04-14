@@ -59,7 +59,6 @@ describe("search-modal store", () => {
       expect(state.businessType).toBeNull()
       expect(state.mappingBusinessTypes).toBeNull()
       expect(state.adults).toBe(2)
-      expect(state.kids).toBe(0)
     })
   })
 
