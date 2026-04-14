@@ -208,7 +208,7 @@ function RegionPanel() {
   const hasSubways = subwayGroups.length > 0
 
   return (
-    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
+    <div className="bg-background rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[640px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b shrink-0">
         <h2 className="text-lg font-bold">
@@ -216,9 +216,9 @@ function RegionPanel() {
         </h2>
         <button
           onClick={close}
-          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-1 rounded-full hover:bg-muted transition-colors"
         >
-          <X className="size-5 text-gray-500" />
+          <X className="size-5 text-muted-foreground" />
         </button>
       </div>
 
@@ -238,7 +238,7 @@ function RegionPanel() {
               "flex items-center gap-1 px-3.5 py-2 text-xs rounded-full transition-colors",
               tab === "region"
                 ? "bg-primary text-white font-semibold"
-                : "text-gray-500 hover:bg-gray-100"
+                : "text-muted-foreground hover:bg-muted"
             )}
           >
             <MapPin className="size-3.5" />
@@ -251,7 +251,7 @@ function RegionPanel() {
                 "flex items-center gap-1 px-3.5 py-2 text-xs rounded-full transition-colors",
                 tab === "subway"
                   ? "bg-primary text-white font-semibold"
-                  : "text-gray-500 hover:bg-gray-100"
+                  : "text-muted-foreground hover:bg-muted"
               )}
             >
               <Train className="size-3.5" />
@@ -268,7 +268,7 @@ function RegionPanel() {
       ) : tab === "region" ? (
         <div className="flex flex-1 min-h-0 md:min-h-[400px]">
           {/* Left: City list */}
-          <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
+          <div className="w-[140px] border-r bg-muted/50 py-2 overflow-y-auto">
             {regionList.map((region) => (
               <button
                 key={region.name}
@@ -283,8 +283,8 @@ function RegionPanel() {
                 className={cn(
                   "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
                   activeCity === region.name
-                    ? "text-primary font-semibold bg-white"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "text-primary font-semibold bg-background"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
               >
                 {activeCity === region.name && (
@@ -301,11 +301,11 @@ function RegionPanel() {
               <button
                 key={area.code || area.name}
                 onClick={() => handleAreaClick(area)}
-                className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
               >
-                <MapPin className="size-4 text-gray-400" />
+                <MapPin className="size-4 text-muted-foreground" />
                 <span>{area.name}</span>
-                <ChevronRight className="size-4 text-gray-300 ml-auto" />
+                <ChevronRight className="size-4 text-muted-foreground/40 ml-auto" />
               </button>
             ))}
           </div>
@@ -313,7 +313,7 @@ function RegionPanel() {
       ) : (
         <div className="flex flex-1 min-h-0 md:min-h-[400px]">
           {/* Left: Subway groups */}
-          <div className="w-[140px] border-r bg-gray-50/50 py-2 overflow-y-auto">
+          <div className="w-[140px] border-r bg-muted/50 py-2 overflow-y-auto">
             {subwayGroups.map((group) => (
               <button
                 key={group.name}
@@ -324,8 +324,8 @@ function RegionPanel() {
                 className={cn(
                   "w-full text-left px-5 py-3.5 text-sm transition-colors relative",
                   activeSubwayGroup === group.name
-                    ? "text-primary font-semibold bg-white"
-                    : "text-gray-600 hover:bg-gray-100"
+                    ? "text-primary font-semibold bg-background"
+                    : "text-muted-foreground hover:bg-muted"
                 )}
               >
                 {activeSubwayGroup === group.name && (
@@ -342,7 +342,7 @@ function RegionPanel() {
               <>
                 <button
                   onClick={() => setSelectedLine(null)}
-                  className="sticky top-0 z-10 w-full flex items-center gap-2 px-6 py-3 text-sm text-primary font-medium hover:bg-gray-50 transition-colors border-b border-border/50 bg-white"
+                  className="sticky top-0 z-10 w-full flex items-center gap-2 px-6 py-3 text-sm text-primary font-medium hover:bg-muted/50 transition-colors border-b border-border/50 bg-background"
                 >
                   <ChevronLeft className="size-4" />
                   <span>{selectedLine}</span>
@@ -351,15 +351,15 @@ function RegionPanel() {
                   <button
                     key={station.code || station.name}
                     onClick={() => handleSubwaySelect(station)}
-                    className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                   >
-                    <Train className="size-4 text-gray-400" />
+                    <Train className="size-4 text-muted-foreground" />
                     <span>{station.name}</span>
-                    <ChevronRight className="size-4 text-gray-300 ml-auto" />
+                    <ChevronRight className="size-4 text-muted-foreground/40 ml-auto" />
                   </button>
                 ))}
                 {!activeLineData.stations.length && (
-                  <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                  <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                     역 정보가 없습니다
                   </div>
                 )}
@@ -370,15 +370,15 @@ function RegionPanel() {
                   <button
                     key={line.code || line.name}
                     onClick={() => setSelectedLine(line.name)}
-                    className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center gap-3 px-6 py-3.5 text-sm text-foreground hover:bg-muted/50 transition-colors"
                   >
-                    <Train className="size-4 text-gray-400" />
+                    <Train className="size-4 text-muted-foreground" />
                     <span>{line.name}</span>
-                    <ChevronRight className="size-4 text-gray-300 ml-auto" />
+                    <ChevronRight className="size-4 text-muted-foreground/40 ml-auto" />
                   </button>
                 ))}
                 {!activeGroupData?.lines.length && (
-                  <div className="flex items-center justify-center py-10 text-sm text-gray-400">
+                  <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
                     노선 정보가 없습니다
                   </div>
                 )}
@@ -464,29 +464,29 @@ function DatePanel() {
   rightMonth.setMonth(rightMonth.getMonth() + 1)
 
   return (
-    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[780px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
+    <div className="bg-background rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[780px] h-[85vh] md:h-auto md:max-h-[80vh] flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b shrink-0">
         <h2 className="text-lg font-bold">날짜 선택</h2>
         <button
           onClick={close}
-          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-1 rounded-full hover:bg-muted transition-colors"
         >
-          <X className="size-5 text-gray-500" />
+          <X className="size-5 text-muted-foreground" />
         </button>
       </div>
 
       {/* 체크인/아웃 요약 */}
       <div className="flex items-center justify-center gap-6 py-5 border-b shrink-0">
         <div className="text-center">
-          <p className="text-xs text-gray-400 mb-1">체크인</p>
+          <p className="text-xs text-muted-foreground mb-1">체크인</p>
           <p className="text-lg font-bold">{formatDateKr(effectiveCheckIn)}</p>
         </div>
         <div className="flex items-center justify-center size-10 rounded-full bg-primary text-primary-foreground text-sm font-bold">
           {nights > 0 ? `${nights}박` : "-"}
         </div>
         <div className="text-center">
-          <p className="text-xs text-gray-400 mb-1">체크아웃</p>
+          <p className="text-xs text-muted-foreground mb-1">체크아웃</p>
           <p className="text-lg font-bold">
             {checkOut ? formatDateKr(effectiveCheckOut) : "-"}
           </p>
@@ -499,24 +499,24 @@ function DatePanel() {
         <div className="flex items-center justify-between px-6 md:px-8 pt-5 pb-2">
           <button
             onClick={handlePrev}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full hover:bg-muted transition-colors"
           >
-            <ChevronLeft className="size-5 text-gray-500" />
+            <ChevronLeft className="size-5 text-muted-foreground" />
           </button>
           <div className="flex items-center gap-6 text-sm font-semibold">
             <span>
               {baseMonth.getFullYear()}년 {baseMonth.getMonth() + 1}월
             </span>
-            <span className="hidden md:inline text-gray-300">|</span>
+            <span className="hidden md:inline text-muted-foreground/40">|</span>
             <span className="hidden md:inline">
               {rightMonth.getFullYear()}년 {rightMonth.getMonth() + 1}월
             </span>
           </div>
           <button
             onClick={handleNext}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-1 rounded-full hover:bg-muted transition-colors"
           >
-            <ChevronRight className="size-5 text-gray-500" />
+            <ChevronRight className="size-5 text-muted-foreground" />
           </button>
         </div>
 
@@ -595,7 +595,7 @@ function CalendarMonth({
             key={day}
             className={cn(
               "text-center text-xs font-medium py-2",
-              i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-gray-400"
+              i === 0 ? "text-red-400" : i === 6 ? "text-blue-400" : "text-muted-foreground"
             )}
           >
             {day}
@@ -630,8 +630,8 @@ function CalendarMonth({
               onClick={() => onDateClick(date)}
               className={cn(
                 "h-10 text-sm relative flex flex-col items-center justify-center transition-colors",
-                isPast && "text-gray-200 cursor-not-allowed",
-                !isPast && !isSelected && !isInRange && "hover:bg-gray-100 rounded-full",
+                isPast && "text-muted-foreground/30 cursor-not-allowed",
+                !isPast && !isSelected && !isInRange && "hover:bg-muted rounded-full",
                 !isPast &&
                   !isSelected &&
                   !isInRange &&
@@ -684,15 +684,15 @@ function GuestPanel() {
   }
 
   return (
-    <div className="bg-white rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[420px] overflow-hidden">
+    <div className="bg-background rounded-t-2xl md:rounded-2xl shadow-2xl w-full md:w-[90vw] md:max-w-[420px] overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b">
         <h2 className="text-lg font-bold">인원 선택</h2>
         <button
           onClick={close}
-          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-1 rounded-full hover:bg-muted transition-colors"
         >
-          <X className="size-5 text-gray-500" />
+          <X className="size-5 text-muted-foreground" />
         </button>
       </div>
 
@@ -702,7 +702,7 @@ function GuestPanel() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-base font-semibold">성인</p>
-            <p className="text-sm text-gray-400">만 13세 이상</p>
+            <p className="text-sm text-muted-foreground">만 13세 이상</p>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -711,8 +711,8 @@ function GuestPanel() {
               className={cn(
                 "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
                 adults <= 1
-                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
-                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               )}
             >
               <Minus className="size-4" />
@@ -724,8 +724,8 @@ function GuestPanel() {
               className={cn(
                 "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
                 adults >= 10
-                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
-                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               )}
             >
               <Plus className="size-4" />
@@ -737,7 +737,7 @@ function GuestPanel() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-base font-semibold">아동</p>
-            <p className="text-sm text-gray-400">만 12세 이하</p>
+            <p className="text-sm text-muted-foreground">만 12세 이하</p>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -746,8 +746,8 @@ function GuestPanel() {
               className={cn(
                 "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
                 kids <= 0
-                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
-                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               )}
             >
               <Minus className="size-4" />
@@ -759,8 +759,8 @@ function GuestPanel() {
               className={cn(
                 "size-9 rounded-full border-2 flex items-center justify-center transition-colors",
                 kids >= 5
-                  ? "border-gray-200 text-gray-200 cursor-not-allowed"
-                  : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary"
+                  ? "border-border/50 text-muted-foreground/30 cursor-not-allowed"
+                  : "border-border text-muted-foreground hover:border-primary hover:text-primary"
               )}
             >
               <Plus className="size-4" />
@@ -936,12 +936,12 @@ function MobileSearchPanel() {
   ]
 
   return (
-    <div className="bg-white h-full flex flex-col">
+    <div className="bg-background h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b shrink-0">
         <h2 className="text-lg font-bold">검색</h2>
-        <button onClick={close} className="p-1 rounded-full hover:bg-gray-100">
-          <X className="size-5 text-gray-500" />
+        <button onClick={close} className="p-1 rounded-full hover:bg-muted">
+          <X className="size-5 text-muted-foreground" />
         </button>
       </div>
 
@@ -955,7 +955,7 @@ function MobileSearchPanel() {
               "flex-1 flex flex-col items-center gap-0.5 py-3 text-xs transition-colors relative",
               activeTab === t.key
                 ? "text-primary font-semibold"
-                : "text-gray-400"
+                : "text-muted-foreground"
             )}
           >
             <t.icon className="size-4" />
@@ -985,7 +985,7 @@ function MobileSearchPanel() {
                   onClick={() => setRegionTab("region")}
                   className={cn(
                     "flex items-center gap-1 px-3 py-1.5 text-xs rounded-full transition-colors",
-                    regionTab === "region" ? "bg-primary text-white font-semibold" : "text-gray-500 hover:bg-gray-100"
+                    regionTab === "region" ? "bg-primary text-white font-semibold" : "text-muted-foreground hover:bg-muted"
                   )}
                 >
                   <MapPin className="size-3" /> 지역
@@ -995,7 +995,7 @@ function MobileSearchPanel() {
                     onClick={() => setRegionTab("subway")}
                     className={cn(
                       "flex items-center gap-1 px-3 py-1.5 text-xs rounded-full transition-colors",
-                      regionTab === "subway" ? "bg-primary text-white font-semibold" : "text-gray-500 hover:bg-gray-100"
+                      regionTab === "subway" ? "bg-primary text-white font-semibold" : "text-muted-foreground hover:bg-muted"
                     )}
                   >
                     <Train className="size-3" /> 지하철
@@ -1010,7 +1010,7 @@ function MobileSearchPanel() {
               </div>
             ) : regionTab === "region" ? (
               <div className="flex min-h-[360px]">
-                <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
+                <div className="w-[120px] border-r bg-muted/50 py-1 overflow-y-auto">
                   {regionList.map((region) => (
                     <button
                       key={region.name}
@@ -1024,7 +1024,7 @@ function MobileSearchPanel() {
                       }}
                       className={cn(
                         "w-full text-left px-4 py-3 text-sm relative",
-                        activeCity === region.name ? "text-primary font-semibold bg-white" : "text-gray-600 hover:bg-gray-100"
+                        activeCity === region.name ? "text-primary font-semibold bg-background" : "text-muted-foreground hover:bg-muted"
                       )}
                     >
                       {activeCity === region.name && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />}
@@ -1037,25 +1037,25 @@ function MobileSearchPanel() {
                     <button
                       key={area.code || area.name}
                       onClick={() => handleRegionSelect(activeCity, area.name, area.code || activeCityData?.code || null)}
-                      className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                      className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-foreground hover:bg-muted/50"
                     >
-                      <MapPin className="size-3.5 text-gray-400" />
+                      <MapPin className="size-3.5 text-muted-foreground" />
                       <span>{area.name}</span>
-                      <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+                      <ChevronRight className="size-3.5 text-muted-foreground/40 ml-auto" />
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="flex min-h-[360px]">
-                <div className="w-[120px] border-r bg-gray-50/50 py-1 overflow-y-auto">
+                <div className="w-[120px] border-r bg-muted/50 py-1 overflow-y-auto">
                   {subwayGroups.map((group) => (
                     <button
                       key={group.name}
                       onClick={() => { setActiveSubwayGroup(group.name); setSelectedLine(null) }}
                       className={cn(
                         "w-full text-left px-4 py-3 text-sm relative",
-                        activeSubwayGroup === group.name ? "text-primary font-semibold bg-white" : "text-gray-600 hover:bg-gray-100"
+                        activeSubwayGroup === group.name ? "text-primary font-semibold bg-background" : "text-muted-foreground hover:bg-muted"
                       )}
                     >
                       {activeSubwayGroup === group.name && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-4 bg-primary rounded-r-full" />}
@@ -1068,7 +1068,7 @@ function MobileSearchPanel() {
                     <>
                       <button
                         onClick={() => setSelectedLine(null)}
-                        className="sticky top-0 z-10 w-full flex items-center gap-1.5 px-5 py-2.5 text-sm text-primary font-medium hover:bg-gray-50 border-b border-border/50 bg-white"
+                        className="sticky top-0 z-10 w-full flex items-center gap-1.5 px-5 py-2.5 text-sm text-primary font-medium hover:bg-muted/50 border-b border-border/50 bg-background"
                       >
                         <ChevronLeft className="size-3.5" />
                         <span>{selectedLine}</span>
@@ -1077,15 +1077,15 @@ function MobileSearchPanel() {
                         <button
                           key={station.code || station.name}
                           onClick={() => handleRegionSelect(null, station.name, station.code)}
-                          className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                          className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-foreground hover:bg-muted/50"
                         >
-                          <Train className="size-3.5 text-gray-400" />
+                          <Train className="size-3.5 text-muted-foreground" />
                           <span>{station.name}</span>
-                          <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+                          <ChevronRight className="size-3.5 text-muted-foreground/40 ml-auto" />
                         </button>
                       ))}
                       {!activeLineData.stations.length && (
-                        <div className="flex items-center justify-center py-10 text-sm text-gray-400">역 정보가 없습니다</div>
+                        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">역 정보가 없습니다</div>
                       )}
                     </>
                   ) : (
@@ -1094,15 +1094,15 @@ function MobileSearchPanel() {
                         <button
                           key={line.code || line.name}
                           onClick={() => setSelectedLine(line.name)}
-                          className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                          className="w-full flex items-center gap-2.5 px-5 py-3 text-sm text-foreground hover:bg-muted/50"
                         >
-                          <Train className="size-3.5 text-gray-400" />
+                          <Train className="size-3.5 text-muted-foreground" />
                           <span>{line.name}</span>
-                          <ChevronRight className="size-3.5 text-gray-300 ml-auto" />
+                          <ChevronRight className="size-3.5 text-muted-foreground/40 ml-auto" />
                         </button>
                       ))}
                       {!activeGroupData?.lines.length && (
-                        <div className="flex items-center justify-center py-10 text-sm text-gray-400">노선 정보가 없습니다</div>
+                        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">노선 정보가 없습니다</div>
                       )}
                     </>
                   )}
@@ -1117,28 +1117,28 @@ function MobileSearchPanel() {
             {/* 체크인/아웃 요약 */}
             <div className="flex items-center justify-center gap-5 py-4 border-b">
               <div className="text-center">
-                <p className="text-xs text-gray-400 mb-0.5">체크인</p>
+                <p className="text-xs text-muted-foreground mb-0.5">체크인</p>
                 <p className="text-base font-bold">{formatDateKr(effectiveCheckIn)}</p>
               </div>
               <div className="flex items-center justify-center size-8 rounded-full bg-primary text-primary-foreground text-xs font-bold">
                 {nights > 0 ? `${nights}박` : "-"}
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-400 mb-0.5">체크아웃</p>
+                <p className="text-xs text-muted-foreground mb-0.5">체크아웃</p>
                 <p className="text-base font-bold">{checkOut ? formatDateKr(effectiveCheckOut) : "-"}</p>
               </div>
             </div>
 
             {/* 캘린더 네비게이션 */}
             <div className="flex items-center justify-between pt-4 pb-1">
-              <button onClick={handlePrev} className="p-1 rounded-full hover:bg-gray-100">
-                <ChevronLeft className="size-5 text-gray-500" />
+              <button onClick={handlePrev} className="p-1 rounded-full hover:bg-muted">
+                <ChevronLeft className="size-5 text-muted-foreground" />
               </button>
               <span className="text-sm font-semibold">
                 {baseMonth.getFullYear()}년 {baseMonth.getMonth() + 1}월
               </span>
-              <button onClick={handleNext} className="p-1 rounded-full hover:bg-gray-100">
-                <ChevronRight className="size-5 text-gray-500" />
+              <button onClick={handleNext} className="p-1 rounded-full hover:bg-muted">
+                <ChevronRight className="size-5 text-muted-foreground" />
               </button>
             </div>
 
@@ -1158,16 +1158,16 @@ function MobileSearchPanel() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-base font-semibold">성인</p>
-                <p className="text-sm text-gray-400">만 13세 이상</p>
+                <p className="text-sm text-muted-foreground">만 13세 이상</p>
               </div>
               <div className="flex items-center gap-4">
                 <button disabled={adults <= 1} onClick={() => setAdults(adults - 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults <= 1 ? "border-gray-200 text-gray-200 cursor-not-allowed" : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary")}>
+                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults <= 1 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
                   <Minus className="size-4" />
                 </button>
                 <span className="w-8 text-center text-lg font-bold">{adults}</span>
                 <button disabled={adults >= 10} onClick={() => setAdults(adults + 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults >= 10 ? "border-gray-200 text-gray-200 cursor-not-allowed" : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary")}>
+                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", adults >= 10 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
                   <Plus className="size-4" />
                 </button>
               </div>
@@ -1175,16 +1175,16 @@ function MobileSearchPanel() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-base font-semibold">아동</p>
-                <p className="text-sm text-gray-400">만 12세 이하</p>
+                <p className="text-sm text-muted-foreground">만 12세 이하</p>
               </div>
               <div className="flex items-center gap-4">
                 <button disabled={kids <= 0} onClick={() => setKids(kids - 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids <= 0 ? "border-gray-200 text-gray-200 cursor-not-allowed" : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary")}>
+                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids <= 0 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
                   <Minus className="size-4" />
                 </button>
                 <span className="w-8 text-center text-lg font-bold">{kids}</span>
                 <button disabled={kids >= 5} onClick={() => setKids(kids + 1)}
-                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids >= 5 ? "border-gray-200 text-gray-200 cursor-not-allowed" : "border-gray-300 text-gray-500 hover:border-primary hover:text-primary")}>
+                  className={cn("size-9 rounded-full border-2 flex items-center justify-center", kids >= 5 ? "border-border/50 text-muted-foreground/30 cursor-not-allowed" : "border-border text-muted-foreground hover:border-primary hover:text-primary")}>
                   <Plus className="size-4" />
                 </button>
               </div>

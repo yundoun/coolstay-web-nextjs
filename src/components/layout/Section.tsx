@@ -13,7 +13,8 @@ const sectionVariants = cva("", {
       xl: "py-16 md:py-24",
     },
     background: {
-      default: "bg-background",
+      default: "",
+      surface: "bg-background",
       muted: "bg-muted",
       card: "bg-card",
     },

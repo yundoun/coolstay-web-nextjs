@@ -53,7 +53,7 @@ export function PackageDetailPage({ packageKey }: Props) {
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <div className="mx-auto max-w-3xl">
               {isClosed && (
-                <Badge className="mb-2 bg-gray-500 text-white border-none">마감</Badge>
+                <Badge className="mb-2 bg-muted-foreground text-white border-none">마감</Badge>
               )}
               <h1 className="text-xl sm:text-2xl font-bold text-white">{item.title}</h1>
               {item.start_dt && item.end_dt && (
@@ -140,8 +140,7 @@ export function PackageDetailPage({ packageKey }: Props) {
           title="연결 숙소"
           description="이 패키지에 참여하는 숙소"
           spacing="md"
-          background="muted"
-        >
+                 >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {item.linked_stores.map((store) => (
               <LinkedStoreCard key={store.key} store={store} />

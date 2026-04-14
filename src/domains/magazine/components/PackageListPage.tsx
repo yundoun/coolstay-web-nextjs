@@ -104,7 +104,7 @@ function PackageCard({ item }: { item: BoardItem }) {
           <div className="h-full w-full bg-gradient-to-br from-primary/10 to-primary/5" />
         )}
         {isClosed && (
-          <Badge className="absolute top-2.5 left-2.5 bg-gray-500 text-white border-none">
+          <Badge className="absolute top-2.5 left-2.5 bg-muted-foreground text-white border-none">
             마감
           </Badge>
         )}

@@ -69,7 +69,6 @@ export default function HomePage() {
           title="기획전"
           description="꿀스테이가 엄선한 테마별 숙소 모음"
           spacing="lg"
-          background="muted"
         >
           <FeatureSection exhibitions={data.exhibitions} />
         </Section>
@@ -98,7 +97,6 @@ export default function HomePage() {
         title="매거진"
         description="여행이 더 즐거워지는 이야기"
         spacing="lg"
-        background="muted"
         headerAction={
           <Link
             href="/magazine"

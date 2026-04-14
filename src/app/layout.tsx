@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head />
-      <body className="flex min-h-screen flex-col bg-background font-sans antialiased">
+      <body className="flex min-h-screen flex-col bg-muted font-sans antialiased">
         <Script
           src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js"
           strategy="beforeInteractive"

@@ -17,7 +17,7 @@ export function VehicleSelector({ hasVehicle, onChange, parkingInfo }: VehicleSe
             "flex items-center justify-center gap-2 p-4 rounded-xl border-2 text-sm font-medium transition-colors",
             !hasVehicle
               ? "border-primary bg-primary/5 text-primary"
-              : "border-border text-muted-foreground hover:border-gray-300"
+              : "border-border text-muted-foreground hover:border-border"
           )}
         >
           <Footprints className="size-5" />
@@ -29,7 +29,7 @@ export function VehicleSelector({ hasVehicle, onChange, parkingInfo }: VehicleSe
             "flex items-center justify-center gap-2 p-4 rounded-xl border-2 text-sm font-medium transition-colors",
             hasVehicle
               ? "border-primary bg-primary/5 text-primary"
-              : "border-border text-muted-foreground hover:border-gray-300"
+              : "border-border text-muted-foreground hover:border-border"
           )}
         >
           <Car className="size-5" />

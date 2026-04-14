@@ -75,9 +75,9 @@ export function RentalTimeModal({
             </div>
             <button
               onClick={() => onOpenChange(false)}
-              className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+              className="p-1 rounded-full hover:bg-muted transition-colors"
             >
-              <X className="size-5 text-gray-500" />
+              <X className="size-5 text-muted-foreground" />
             </button>
           </div>
 

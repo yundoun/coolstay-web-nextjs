@@ -229,7 +229,7 @@ function StatusBadge({
         "inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm shadow-sm",
         status.color === "emerald" && "bg-emerald-500/90 text-white",
         status.color === "blue" && "bg-blue-500/90 text-white",
-        status.color === "gray" && "bg-gray-500/70 text-white/80",
+        status.color === "gray" && "bg-muted-foreground/70 text-white/80",
         className
       )}
     >

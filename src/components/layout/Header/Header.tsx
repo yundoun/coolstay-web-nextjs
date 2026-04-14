@@ -72,7 +72,7 @@ export function Header({ variant }: HeaderProps) {
         data-slot="header"
         className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
       >
-        <Container size="wide" className="h-14 md:h-[var(--header-height)]">
+        <Container size="normal" className="h-14 md:h-[var(--header-height)]">
           <div className="flex h-full items-center">
             {/* 뒤로가기 */}
             <Button
@@ -136,7 +136,7 @@ export function Header({ variant }: HeaderProps) {
         data-slot="header"
         className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
       >
-        <Container size="wide" className="h-14 md:h-[var(--header-height)]">
+        <Container size="normal" className="h-14 md:h-[var(--header-height)]">
           <div className="flex h-full items-center justify-center">
             <Button variant="ghost" size="icon" asChild>
               <Link href="/">
@@ -166,7 +166,7 @@ export function Header({ variant }: HeaderProps) {
           : "bg-transparent"
       )}
     >
-      <Container size="wide" className="h-16 md:h-[var(--header-height)]">
+      <Container size="normal" className="h-16 md:h-[var(--header-height)]">
         <div className="flex h-full items-center justify-between gap-3 md:gap-4">
           {/* Logo */}
           <Link href="/" className="shrink-0">

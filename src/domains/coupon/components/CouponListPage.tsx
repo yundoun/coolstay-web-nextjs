@@ -23,7 +23,7 @@ function filterConstraints(constraints: CouponConstraint[]): CouponConstraint[] 
 
 /** 할인 금액 크기별 왼쪽 accent 색상 */
 function getAccentColor(coupon: Coupon): string {
-  if (coupon.dimmed_yn === "Y") return "border-l-gray-300"
+  if (coupon.dimmed_yn === "Y") return "border-l-border"
   if (coupon.discount_type === "RATE") {
     if (coupon.discount_amount >= 20) return "border-l-rose-500"
     if (coupon.discount_amount >= 10) return "border-l-orange-500"

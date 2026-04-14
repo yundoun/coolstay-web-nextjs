@@ -87,7 +87,7 @@ export function BoardDetailPage({ boardKey }: Props) {
 
       {/* 패키지 배너 */}
       {detail.package_banner?.banner_image_url && detail.package_banner?.package_key && (
-        <Section spacing="md" background="muted">
+        <Section spacing="md">
           <Link
             href={`/magazine/package/${detail.package_banner.package_key}`}
             className="block rounded-xl overflow-hidden transition-shadow hover:shadow-lg"

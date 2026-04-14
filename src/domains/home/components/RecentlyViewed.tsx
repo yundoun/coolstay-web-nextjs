@@ -55,7 +55,7 @@ export function RecentlyViewed({ stores }: Props) {
 
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0"
+        className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory"
       >
         {stores.map((store) => {
           const stayItem = store.items?.find((i) => i.category.code === "010102")

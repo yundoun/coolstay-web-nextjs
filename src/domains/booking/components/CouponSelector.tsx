@@ -35,7 +35,7 @@ export function CouponSelector({ coupons, selectedId, onSelect, roomPrice }: Cou
             "w-full flex items-center gap-3 p-3 rounded-lg border text-sm text-left transition-colors",
             selectedId === null
               ? "border-primary bg-primary/5"
-              : "border-border hover:border-gray-300"
+              : "border-border hover:border-border"
           )}
         >
           <Ticket className="size-4 text-muted-foreground shrink-0" />
@@ -50,7 +50,7 @@ export function CouponSelector({ coupons, selectedId, onSelect, roomPrice }: Cou
               "w-full flex items-center gap-3 p-3 rounded-lg border text-sm text-left transition-colors",
               selectedId === coupon.id
                 ? "border-primary bg-primary/5"
-                : "border-border hover:border-gray-300"
+                : "border-border hover:border-border"
             )}
           >
             <Ticket className="size-4 text-primary shrink-0" />

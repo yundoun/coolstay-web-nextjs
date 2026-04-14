@@ -106,7 +106,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen">
       {/* ─── 히어로 섹션 (풀블리드) ─── */}
       <div className="relative">
         {/* 히어로 이미지 (썸네일 배너) */}
@@ -171,7 +171,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
                     "bg-emerald-500/90 text-white shadow-lg shadow-emerald-500/30",
                   status.label === "예정" &&
                     "bg-blue-500/90 text-white shadow-lg shadow-blue-500/30",
-                  status.label === "종료" && "bg-gray-500/80 text-white/80"
+                  status.label === "종료" && "bg-muted-foreground/80 text-white/80"
                 )}
               >
                 <StatusIcon className="size-3" />

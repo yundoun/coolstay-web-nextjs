@@ -349,7 +349,7 @@ function StatusBadge({
         isLg ? "text-xs px-3 py-1 shadow-sm" : "text-[10px] px-2 py-0.5",
         status.label === "진행중" && "bg-emerald-500/90 text-white",
         status.label === "예정" && "bg-blue-500/90 text-white",
-        status.label === "종료" && "bg-gray-500/70 text-white/80"
+        status.label === "종료" && "bg-muted-foreground/70 text-white/80"
       )}
     >
       <StatusIcon className={cn(isLg ? "size-3" : "size-2.5")} />

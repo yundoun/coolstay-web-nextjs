@@ -30,7 +30,7 @@ const categoryIcons: Record<string, { icon: React.ElementType; color: string }> 
   ACTIVITY: { icon: PenLine, color: "text-green-500 bg-green-50" },
   EVENT: { icon: PartyPopper, color: "text-purple-500 bg-purple-50" },
 }
-const defaultIcon = { icon: Info, color: "text-gray-500 bg-gray-50" }
+const defaultIcon = { icon: Info, color: "text-muted-foreground bg-muted/50" }
 
 function getRelativeTime(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime()

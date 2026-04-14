@@ -77,7 +77,6 @@ export function MagazineHomePage() {
           title="패키지"
           description="특별한 혜택이 담긴 숙소 패키지"
           spacing="md"
-          background="muted"
         >
           <PackageCardGrid packages={data.magazine_package} />
         </Section>
