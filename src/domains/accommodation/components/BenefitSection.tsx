@@ -1,8 +1,11 @@
 "use client"
 
-import { Gift, Ticket, Star, Crown, Percent, Zap } from "lucide-react"
+import { useState } from "react"
+import { Gift, Ticket, Star, Crown, Percent, Zap, ChevronDown, ChevronUp } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { AccommodationDetail } from "../types"
+
+const BENEFIT_PREVIEW_COUNT = 3
 
 interface BenefitSectionProps {
   accommodation: AccommodationDetail
@@ -99,36 +102,54 @@ export function BenefitSection({ accommodation }: BenefitSectionProps) {
 
       {/* Benefit Cards */}
       {activeBenefits.length > 0 && (
-        <div className="grid gap-3">
-          {activeBenefits
-            .sort((a, b) => a.priority - b.priority)
-            .map((benefit, index) => {
-              const colorClass =
-                BENEFIT_COLORS[index % BENEFIT_COLORS.length]
-              return (
-                <div
-                  key={`${benefit.name}-${index}`}
-                  className={`flex items-start gap-3 p-4 rounded-xl border ${colorClass}`}
-                >
-                  {benefit.image_url ? (
-                    <img
-                      src={benefit.image_url}
-                      alt={benefit.name}
-                      className="size-8 rounded-md object-cover shrink-0"
-                    />
-                  ) : (
-                    <Gift className="size-5 mt-0.5 shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold">{benefit.name}</p>
-                    <p className="text-xs mt-0.5 opacity-80">
-                      {benefit.description}
-                    </p>
-                  </div>
-                </div>
-              )
-            })}
-        </div>
+        <BenefitCardList benefits={activeBenefits} />
+      )}
+    </div>
+  )
+}
+
+function BenefitCardList({ benefits }: { benefits: AccommodationDetail["benefits"] }) {
+  const sorted = [...benefits].sort((a, b) => a.priority - b.priority)
+  const [expanded, setExpanded] = useState(false)
+  const hasMore = sorted.length > BENEFIT_PREVIEW_COUNT
+  const visible = expanded ? sorted : sorted.slice(0, BENEFIT_PREVIEW_COUNT)
+
+  return (
+    <div className="grid gap-3">
+      {visible.map((benefit, index) => {
+        const colorClass = BENEFIT_COLORS[index % BENEFIT_COLORS.length]
+        return (
+          <div
+            key={`${benefit.name}-${index}`}
+            className={`flex items-start gap-3 p-4 rounded-xl border ${colorClass}`}
+          >
+            {benefit.image_url ? (
+              <img
+                src={benefit.image_url}
+                alt={benefit.name}
+                className="size-8 rounded-md object-cover shrink-0"
+              />
+            ) : (
+              <Gift className="size-5 mt-0.5 shrink-0" />
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">{benefit.name}</p>
+              <p className="text-xs mt-0.5 opacity-80">{benefit.description}</p>
+            </div>
+          </div>
+        )
+      })}
+      {hasMore && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center justify-center gap-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {expanded ? (
+            <>접기 <ChevronUp className="size-4" /></>
+          ) : (
+            <>혜택 {sorted.length - BENEFIT_PREVIEW_COUNT}개 더보기 <ChevronDown className="size-4" /></>
+          )}
+        </button>
       )}
     </div>
   )

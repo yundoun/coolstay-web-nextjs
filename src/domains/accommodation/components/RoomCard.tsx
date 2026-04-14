@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
+import type { Coupon } from "@/lib/api/types"
 
 interface RoomCardProps {
   room: Room
@@ -95,83 +96,124 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
           <div className="mt-4 flex flex-col sm:flex-row gap-3" onClick={(e) => e.stopPropagation()}>
             {/* 대실 */}
             {room.rentalAvailable && room.rentalPrice && (
-              <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/50 border">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                    <Clock className="size-3" />
-                    <span>대실</span>
-                    {room.rentalTime && (
-                      <span className="text-muted-foreground/60">({room.rentalTime})</span>
-                    )}
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    {room.rentalOriginalPrice && (
-                      <span className="text-xs text-muted-foreground line-through">
-                        {room.rentalOriginalPrice.toLocaleString()}
-                      </span>
-                    )}
-                    <span className="text-base font-bold">
-                      {room.rentalPrice.toLocaleString()}원
-                    </span>
-                  </div>
-                  {room.rentalCoupons && room.rentalCoupons.length > 0 && (
-                    <div className="mt-1 flex items-center gap-1 text-xs text-primary">
-                      <Ticket className="size-3" />
-                      <span>-{Math.max(...room.rentalCoupons.map(c => c.discount_amount)).toLocaleString()}원</span>
+              <div className="flex-1 rounded-xl bg-muted/50 border overflow-hidden">
+                <div className="flex items-center justify-between p-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                      <Clock className="size-3" />
+                      <span>대실</span>
+                      {room.rentalTime && (
+                        <span className="text-muted-foreground/60">({room.rentalTime})</span>
+                      )}
                     </div>
-                  )}
+                    <div className="flex items-baseline gap-1">
+                      {room.rentalOriginalPrice && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {room.rentalOriginalPrice.toLocaleString()}
+                        </span>
+                      )}
+                      <span className="text-base font-bold">
+                        {room.rentalPrice.toLocaleString()}원
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!room.isAvailable}
+                    onClick={() => onRentalClick?.(room)}
+                  >
+                    {room.isAvailable ? "예약" : "매진"}
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={!room.isAvailable}
-                  onClick={() => onRentalClick?.(room)}
-                >
-                  {room.isAvailable ? "예약" : "매진"}
-                </Button>
+                <CouponList coupons={room.rentalCoupons} price={room.rentalPrice!} />
               </div>
             )}
 
             {/* 숙박 */}
-            <div className="flex-1 flex items-center justify-between p-3 rounded-xl bg-muted/50 border">
-              <div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                  <Moon className="size-3" />
-                  <span>숙박</span>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  {room.stayOriginalPrice && (
-                    <span className="text-xs text-muted-foreground line-through">
-                      {room.stayOriginalPrice.toLocaleString()}
-                    </span>
-                  )}
-                  <span className="text-base font-bold">
-                    {room.stayPrice.toLocaleString()}원
-                  </span>
-                </div>
-                {room.stayCoupons && room.stayCoupons.length > 0 && (
-                  <div className="mt-1 flex items-center gap-1 text-xs text-primary">
-                    <Ticket className="size-3" />
-                    <span>-{Math.max(...room.stayCoupons.map(c => c.discount_amount)).toLocaleString()}원</span>
+            <div className="flex-1 rounded-xl bg-muted/50 border overflow-hidden">
+              <div className="flex items-center justify-between p-3">
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
+                    <Moon className="size-3" />
+                    <span>숙박</span>
                   </div>
-                )}
+                  <div className="flex items-baseline gap-1">
+                    {room.stayOriginalPrice && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {room.stayOriginalPrice.toLocaleString()}
+                      </span>
+                    )}
+                    <span className="text-base font-bold">
+                      {room.stayPrice.toLocaleString()}원
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  disabled={!room.stayAvailable}
+                  asChild={room.stayAvailable}
+                >
+                  {room.stayAvailable ? (
+                    <Link href={`/booking/${accommodationId}?room=${room.id}&type=stay`}>
+                      예약
+                    </Link>
+                  ) : (
+                    "매진"
+                  )}
+                </Button>
               </div>
-              <Button
-                size="sm"
-                disabled={!room.stayAvailable}
-                asChild={room.stayAvailable}
-              >
-                {room.stayAvailable ? (
-                  <Link href={`/booking/${accommodationId}?room=${room.id}&type=stay`}>
-                    예약
-                  </Link>
-                ) : (
-                  "매진"
-                )}
-              </Button>
+              <CouponList coupons={room.stayCoupons} price={room.stayPrice} />
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/** 쿠폰 1장의 실 할인금액 계산 */
+function calcCouponDiscount(coupon: Coupon, price: number): number {
+  if (coupon.discount_type === "RATE") {
+    let discount = Math.floor(price * (coupon.discount_amount / 100))
+    const cc009 = coupon.constraints?.find(c => c.code === "CC009")
+    if (cc009) {
+      const limit = parseInt(cc009.value)
+      if (limit > 0) discount = Math.min(discount, limit)
+    }
+    return discount
+  }
+  return coupon.discount_amount
+}
+
+/** 가격 박스 내 쿠폰 리스트 + 적용가 */
+function CouponList({ coupons, price }: { coupons?: Coupon[]; price: number }) {
+  const usable = coupons?.filter(c => c.usable_yn === "Y" && c.dimmed_yn !== "Y")
+  if (!usable || usable.length === 0) return null
+
+  const bestDiscount = Math.max(...usable.map(c => calcCouponDiscount(c, price)))
+  const appliedPrice = Math.max(0, price - bestDiscount)
+
+  return (
+    <div className="border-t border-dashed px-3 py-2 space-y-1.5 bg-primary/[0.03]">
+      {usable.map((coupon, i) => {
+        const isRate = coupon.discount_type === "RATE"
+        const discount = calcCouponDiscount(coupon, price)
+        const label = isRate
+          ? `-${discount.toLocaleString()}원 (${coupon.discount_amount}%)`
+          : `-${discount.toLocaleString()}원`
+
+        return (
+          <div key={coupon.coupon_pk || i} className="flex items-center gap-1.5 text-xs">
+            <Ticket className="size-3 text-primary shrink-0" />
+            <span className="font-semibold text-primary">{label}</span>
+            <span className="text-muted-foreground truncate">{coupon.title}</span>
+          </div>
+        )
+      })}
+      <div className="flex items-center justify-between pt-1 border-t border-dashed">
+        <span className="text-xs text-muted-foreground">쿠폰 적용 시</span>
+        <span className="text-sm font-bold text-primary">{appliedPrice.toLocaleString()}원</span>
       </div>
     </div>
   )

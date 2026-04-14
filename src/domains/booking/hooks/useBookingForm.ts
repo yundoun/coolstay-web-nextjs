@@ -16,10 +16,40 @@ const DEFAULT_AGREEMENTS: AgreementItem[] = [
   { id: "marketing", label: "마케팅 정보 수신 동의", required: false, checked: false },
 ]
 
+/** 할인금액이 가장 큰 쿠폰의 ID 반환 */
+function findBestCouponId(context: BookingContext): string | null {
+  const { availableCoupons, rawCoupons, price, originalPrice } = context
+  if (availableCoupons.length === 0) return null
+
+  let bestId: string | null = null
+  let bestDiscount = 0
+
+  for (const coupon of availableCoupons) {
+    let discount: number
+    if (coupon.discountType === "fixed") {
+      discount = coupon.discountValue
+    } else {
+      const oneDayPrice = originalPrice ?? price
+      discount = Math.floor(oneDayPrice * (coupon.discountValue / 100))
+      const raw = rawCoupons?.find(c => String(c.coupon_pk) === coupon.id)
+      const cc009 = raw?.constraints?.find(c => c.code === "CC009")
+      if (cc009) {
+        const limit = parseInt(cc009.value)
+        if (limit > 0) discount = Math.min(discount, limit)
+      }
+    }
+    if (discount > bestDiscount) {
+      bestDiscount = discount
+      bestId = coupon.id
+    }
+  }
+  return bestId
+}
+
 export function useBookingForm(context: BookingContext) {
   const [bookerInfo, setBookerInfo] = useState<BookerInfo>({ name: "", phone: "" })
   const [hasVehicle, setHasVehicle] = useState(false)
-  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(null)
+  const [selectedCouponId, setSelectedCouponId] = useState<string | null>(() => findBestCouponId(context))
   const [mileageUsed, setMileageUsed] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("onsite")
   const [agreements, setAgreements] = useState<AgreementItem[]>(DEFAULT_AGREEMENTS)

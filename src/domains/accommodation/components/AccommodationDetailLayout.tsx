@@ -280,8 +280,8 @@ export function AccommodationDetailLayout({
       <Separator />
       {reviewsContent}
       {/* 꿀혜택: 모바일에서만 표시 (데스크톱은 사이드바 위젯으로 대체) */}
+      <Separator className="lg:hidden" />
       <div className="lg:hidden">
-        <Separator />
         {benefitsContent}
       </div>
       <Separator />

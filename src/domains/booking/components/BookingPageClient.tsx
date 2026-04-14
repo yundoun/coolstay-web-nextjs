@@ -14,12 +14,15 @@ import type { Coupon as ApiCoupon } from "@/domains/coupon/types"
 import { BookingPageLayout } from "./BookingPageLayout"
 import type { BookingContext, BookingType, Coupon } from "../types"
 
-/** YYYYMMDD 포맷 */
-function toDateStr(d: Date): string {
+/** yyyyMMddHHmmss 포맷 (백엔드 V1_MOBILE_RESERV_DATE_TIME_FORMAT) */
+function toDateTimeStr(d: Date): string {
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, "0")
   const day = String(d.getDate()).padStart(2, "0")
-  return `${y}${m}${day}`
+  const h = String(d.getHours()).padStart(2, "0")
+  const min = String(d.getMinutes()).padStart(2, "0")
+  const sec = String(d.getSeconds()).padStart(2, "0")
+  return `${y}${m}${day}${h}${min}${sec}`
 }
 
 /** API 쿠폰 → 예약 UI용 쿠폰 변환 */
@@ -72,36 +75,47 @@ export function BookingPageClient({
         const endHour = isRental ? room.rentalEndHour : room.stayEndHour
         const useHours = isRental ? room.rentalUseHours : undefined
 
-        // 쿠폰 목록 조회
+        // 쿠폰 목록: 객실 내장 쿠폰 + 사용자 쿠폰함(API) 병합
         let availableCoupons: Coupon[] = []
         let rawCoupons: ApiCoupon[] = []
-        try {
-          const today = new Date()
-          const tomorrow = new Date(today)
-          tomorrow.setDate(tomorrow.getDate() + 1)
 
+        // 1) 객실 내장 쿠폰 (숙소 상세 API에서 이미 받은 것)
+        const roomCoupons = (isRental ? room.rentalCoupons : room.stayCoupons) ?? []
+        const usableRoomCoupons = roomCoupons.filter(
+          (c) => c.usable_yn === "Y" && c.dimmed_yn !== "Y"
+        ) as unknown as ApiCoupon[]
+
+        // 2) 사용자 쿠폰함 조회 (ST602)
+        try {
           const couponRes = await getCouponList({
-            search_type: "ST601",
+            search_type: "ST602",
+            search_extra: accommodationId,
             item_category_code: isRental ? "010101" : "010102",
-            book_dt: toDateStr(today),
-            book_out_dt: toDateStr(isRental ? today : tomorrow),
+            book_dt: toDateTimeStr(new Date()),
             discount_price: String(price),
           })
 
-          rawCoupons = couponRes.coupons.filter((c) => {
+          const apiCoupons = (couponRes.coupons ?? []).filter((c) => {
             if (c.usable_yn !== "Y" || c.dimmed_yn === "Y") return false
-            // CC004: 적용 제휴점 제한 — 값이 있으면 현재 숙소 key 포함 여부 확인
             const storeConstraint = c.constraints?.find((ct) => ct.code === "CC004")
             if (storeConstraint && !storeConstraint.value.includes(accommodationId)) return false
-            // CC001: 최소 객실 금액
             const minPriceConstraint = c.constraints?.find((ct) => ct.code === "CC001")
             if (minPriceConstraint && Number(minPriceConstraint.value) > price) return false
             return true
           })
-          availableCoupons = rawCoupons.map(mapApiCouponToBooking)
+
+          // 병합 (중복 제거: coupon_pk 기준)
+          const seenPks = new Set(usableRoomCoupons.map((c) => c.coupon_pk))
+          rawCoupons = [
+            ...usableRoomCoupons,
+            ...apiCoupons.filter((c) => !seenPks.has(c.coupon_pk)),
+          ]
         } catch (e) {
           console.error("[BookingPageClient] 쿠폰 조회 실패:", e)
+          rawCoupons = usableRoomCoupons
         }
+
+        availableCoupons = rawCoupons.map(mapApiCouponToBooking)
 
         setContext({
           accommodation: {

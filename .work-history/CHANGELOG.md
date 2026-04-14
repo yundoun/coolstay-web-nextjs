@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-14 16:04** | 쿠폰 적용 UI + 혜택 섹션 개선 | [`0e7bdb5`](.work-history/entries/2026-04-14_22-00_FEAT_coupon-roomcard-booking-benefit-ui.md)
 - **2026-04-14 15:19** | static export useParams → usePathname 수정 | [`7e620c6`](.work-history/entries/2026-04-14_21-30_FIX_static-export-useparams.md)
 - **2026-04-14 15:05** | 리뷰 페이지 generateStaticParams 추가 | [`add8ad9`](.work-history/entries/2026-04-14_21-00_FIX_reviews-static-params.md)
 - **2026-04-14 15:01** | 숙소 상세 탭 재구성 | [`b03ee75`](.work-history/entries/2026-04-14_20-30_REFACTOR_tab-restructure-mobile-benefit.md)
