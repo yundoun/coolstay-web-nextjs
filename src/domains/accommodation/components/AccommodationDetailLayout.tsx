@@ -190,12 +190,17 @@ export function AccommodationDetailLayout({
   const benefitsContent = (
     <div id="section-benefits">
       <BenefitSection accommodation={accommodation} />
-      <ExtraServiceSection accommodation={accommodation} />
       {accommodation.events.length > 0 && (
         <div className="mt-8">
           <EventBanner events={accommodation.events} />
         </div>
       )}
+    </div>
+  )
+
+  const extraServiceContent = (
+    <div>
+      <ExtraServiceSection accommodation={accommodation} />
     </div>
   )
 
@@ -286,6 +291,8 @@ export function AccommodationDetailLayout({
       </div>
       <Separator />
       {roomsContent}
+      {/* 부가 서비스: PC/모바일 모두 표시 */}
+      {extraServiceContent}
       <Separator />
       {introContent}
       <Separator />
