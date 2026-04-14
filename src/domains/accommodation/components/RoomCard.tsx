@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
 import type { Coupon } from "@/lib/api/types"
+import { calcCouponDiscount } from "@/lib/utils/coupon"
 
 interface RoomCardProps {
   room: Room
@@ -170,20 +171,6 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
       </div>
     </div>
   )
-}
-
-/** 쿠폰 1장의 실 할인금액 계산 */
-function calcCouponDiscount(coupon: Coupon, price: number): number {
-  if (coupon.discount_type === "RATE") {
-    let discount = Math.floor(price * (coupon.discount_amount / 100))
-    const cc009 = coupon.constraints?.find(c => c.code === "CC009")
-    if (cc009) {
-      const limit = parseInt(cc009.value)
-      if (limit > 0) discount = Math.min(discount, limit)
-    }
-    return discount
-  }
-  return coupon.discount_amount
 }
 
 /** 가격 박스 내 쿠폰 리스트 + 적용가 */

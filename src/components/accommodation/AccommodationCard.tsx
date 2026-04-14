@@ -30,6 +30,15 @@ export interface Accommodation {
   benefitTags?: string[]       // 혜택 태그 (benefit_tags)
   gradeTags?: string[]         // 등급 태그 (grade_tags, 호텔 성급 등)
   supportFlags?: string[]      // v2_support_flag에서 활성화된 라벨 목록
+  // 대실/숙박 별도 가격
+  rentPrice?: number
+  rentOriginalPrice?: number
+  rentCouponAppliedPrice?: number  // 쿠폰 적용 후 대실 가격
+  rentCouponLabel?: string         // 쿠폰 라벨 (무제한, 선착순 등)
+  stayPrice?: number
+  stayOriginalPrice?: number
+  stayCouponAppliedPrice?: number  // 쿠폰 적용 후 숙박 가격
+  stayCouponLabel?: string         // 쿠폰 라벨
 }
 
 export interface AccommodationCardProps {
@@ -190,24 +199,112 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             </div>
           )}
 
-          {/* Price */}
-          <div className="mt-3 flex items-baseline gap-2">
-            {accommodation.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
-                {accommodation.originalPrice.toLocaleString()}원
+          {/* Price — 대실/숙박 행 */}
+          {(accommodation.rentPrice != null || accommodation.stayPrice != null) ? (
+            <div className="mt-3 space-y-2">
+              {accommodation.rentPrice != null && (
+                <PriceRow
+                  label="대실"
+                  price={accommodation.rentPrice}
+                  originalPrice={accommodation.rentOriginalPrice}
+                  couponAppliedPrice={accommodation.rentCouponAppliedPrice}
+                  couponLabel={accommodation.rentCouponLabel}
+                />
+              )}
+              {accommodation.stayPrice != null && (
+                <PriceRow
+                  label="숙박"
+                  price={accommodation.stayPrice}
+                  originalPrice={accommodation.stayOriginalPrice}
+                  couponAppliedPrice={accommodation.stayCouponAppliedPrice}
+                  couponLabel={accommodation.stayCouponLabel}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="mt-3 flex items-baseline gap-2">
+              {accommodation.originalPrice && (
+                <span className="text-sm text-muted-foreground line-through">
+                  {accommodation.originalPrice.toLocaleString()}원
+                </span>
+              )}
+              <span className="text-lg font-bold text-foreground">
+                {accommodation.price.toLocaleString()}원
               </span>
-            )}
-            <span className="text-lg font-bold text-foreground">
-              {accommodation.price.toLocaleString()}원
-            </span>
-            {accommodation.priceLabel && (
-              <span className="text-sm text-muted-foreground">
-                {accommodation.priceLabel}
-              </span>
-            )}
-          </div>
+              {accommodation.priceLabel && (
+                <span className="text-sm text-muted-foreground">
+                  {accommodation.priceLabel}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </article>
     </Link>
+  )
+}
+
+/** 대실/숙박 가격 행 */
+function PriceRow({
+  label,
+  price,
+  originalPrice,
+  couponAppliedPrice,
+  couponLabel,
+}: {
+  label: string
+  price: number
+  originalPrice?: number
+  couponAppliedPrice?: number
+  couponLabel?: string
+}) {
+  const discountRate =
+    originalPrice != null && originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : null
+
+  const hasCoupon = couponAppliedPrice != null && couponAppliedPrice < price
+  const couponDiscountAmount = hasCoupon ? price - couponAppliedPrice! : 0
+
+  return (
+    <div className="rounded-lg bg-muted/40 px-3 py-2.5">
+      {/* 상단: 라벨 + 정가/할인율 + 할인가 */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <span className="rounded-full bg-foreground px-2 py-0.5 text-[11px] font-bold text-background">
+            {label}
+          </span>
+          {discountRate != null && discountRate > 0 && (
+            <span className="text-sm font-extrabold text-rose-500">{discountRate}%</span>
+          )}
+          {originalPrice != null && originalPrice > price && (
+            <span className="text-xs text-muted-foreground line-through">
+              {originalPrice.toLocaleString()}원
+            </span>
+          )}
+        </div>
+        <span className={cn(
+          "font-bold",
+          hasCoupon
+            ? "text-sm text-muted-foreground line-through"
+            : "text-lg text-foreground"
+        )}>
+          {price.toLocaleString()}원
+        </span>
+      </div>
+
+      {/* 하단: 쿠폰 실결제가 — 최종 가격이 가장 크고 진하게 */}
+      {hasCoupon && (
+        <div className="mt-1.5 flex items-center justify-between rounded-md bg-rose-50 px-2.5 py-1.5">
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-rose-500">
+            <Ticket className="size-3" />
+            {couponLabel} -{couponDiscountAmount.toLocaleString()}원
+          </span>
+          <span className="text-lg font-extrabold text-foreground">
+            {couponAppliedPrice!.toLocaleString()}원
+          </span>
+        </div>
+      )}
+    </div>
   )
 }

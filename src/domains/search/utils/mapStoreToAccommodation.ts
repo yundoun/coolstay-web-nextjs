@@ -1,5 +1,6 @@
 import type { StoreItem } from "@/lib/api/types"
 import type { Accommodation } from "@/components/accommodation"
+import { calcBestCouponPrice } from "@/lib/utils/coupon"
 
 // v2_support_flag → 사용자 표시 라벨 매핑
 // 실제 API는 is_ 접두사 없이 반환 (2026-04-08 전 API 검증 완료)
@@ -37,6 +38,20 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
       ? priceItem.price
       : undefined
   const priceLabel = stayItem ? "숙박" : rentItem ? "대실" : undefined
+
+  // 대실/숙박 별도 가격
+  const rentPrice = rentItem ? (rentItem.discount_price ?? rentItem.price) : undefined
+  const rentOriginalPrice =
+    rentItem && rentItem.price > rentItem.discount_price ? rentItem.price : undefined
+  const stayPrice = stayItem ? (stayItem.discount_price ?? stayItem.price) : undefined
+  const stayOriginalPrice =
+    stayItem && stayItem.price > stayItem.discount_price ? stayItem.price : undefined
+
+  // 쿠폰 적용 최저가 — sub_item 쿠폰 우선, 없으면 store 쿠폰 사용
+  const rentCoupons = rentItem?.coupons?.length ? rentItem.coupons : store.coupons
+  const stayCoupons = stayItem?.coupons?.length ? stayItem.coupons : store.coupons
+  const rentCouponResult = rentPrice != null ? calcBestCouponPrice(rentCoupons, rentPrice) : null
+  const stayCouponResult = stayPrice != null ? calcBestCouponPrice(stayCoupons, stayPrice) : null
 
   // 대표 이미지
   const mainImage = store.images?.[0]
@@ -90,5 +105,13 @@ export function mapStoreToAccommodation(store: StoreItem): Accommodation {
     benefitTags: store.benefit_tags?.length ? store.benefit_tags : undefined,
     gradeTags: store.grade_tags?.length ? store.grade_tags : undefined,
     supportFlags: supportFlags.length > 0 ? supportFlags : undefined,
+    rentPrice,
+    rentOriginalPrice,
+    rentCouponAppliedPrice: rentCouponResult?.appliedPrice,
+    rentCouponLabel: rentCouponResult?.label,
+    stayPrice,
+    stayOriginalPrice,
+    stayCouponAppliedPrice: stayCouponResult?.appliedPrice,
+    stayCouponLabel: stayCouponResult?.label,
   }
 }
