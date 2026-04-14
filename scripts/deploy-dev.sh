@@ -15,7 +15,7 @@ NEXT_PUBLIC_BASE_PATH=/web/coolstay \
 pnpm build
 
 echo "📦 업로드 중..."
-sshpass -p "$PASS" rsync -avz --delete --exclude='serve.js' out/ "$HOST:$REMOTE_DIR/"
+sshpass -p "$PASS" rsync -avz --delete --filter='protect serve.js' --filter='protect /tmp/' out/ "$HOST:$REMOTE_DIR/"
 
 echo "🔄 서버 재시작 중..."
 sshpass -p "$PASS" ssh "$HOST" "kill \$(ps aux | grep 'node serve' | grep -v grep | awk '{print \$2}') 2>/dev/null; cd ~/$REMOTE_DIR && nohup node serve.js > /tmp/serve.log 2>&1 &"
