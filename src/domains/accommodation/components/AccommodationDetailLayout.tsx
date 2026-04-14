@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
@@ -55,13 +55,13 @@ function filterRoomsByGuests(rooms: Room[], adults: number, kids: number): Room[
 // ─── 탭 정의 ────────────────────────────────────────────────
 
 const SECTION_TABS: SectionTab[] = [
-  { id: "section-info", label: "숙소소개" },
-  { id: "section-reviews", label: "후기요약" },
+  { id: "section-reviews", label: "리뷰" },
+  { id: "section-benefits", label: "꿀혜택", mobileOnly: true },
   { id: "section-rooms", label: "객실선택" },
-  { id: "section-benefits", label: "꿀혜택" },
+  { id: "section-intro", label: "숙소소개" },
   { id: "section-amenities", label: "시설/서비스" },
   { id: "section-location", label: "위치/교통" },
-  { id: "section-policy", label: "이용안내" },
+  { id: "section-etc", label: "기타" },
 ]
 
 // ─── Main Layout ────────────────────────────────────────────
@@ -86,22 +86,15 @@ export function AccommodationDetailLayout({
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [guestPickerOpen, setGuestPickerOpen] = useState(false)
   const [showSubNav, setShowSubNav] = useState(false)
-  const galleryRef = useRef<HTMLDivElement>(null)
 
-  // 이미지 갤러리가 뷰포트를 벗어나면 서브 네비 표시
+  // 스크롤 시 서브 네비 표시 (최상위에서는 숨김)
   useEffect(() => {
-    const el = galleryRef.current
-    if (!el) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setShowSubNav(!entry.isIntersecting)
-      },
-      { threshold: 0, rootMargin: "-56px 0px 0px 0px" },
-    )
-
-    observer.observe(el)
-    return () => observer.disconnect()
+    const handleScroll = () => {
+      setShowSubNav(window.scrollY > 0)
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    handleScroll()
+    return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const handleDateApply = useCallback(
@@ -223,10 +216,9 @@ export function AccommodationDetailLayout({
     </div>
   )
 
-  const policyContent = (
-    <div id="section-policy">
+  const etcContent = (
+    <div id="section-etc" className="space-y-8">
       <PolicySection policies={accommodation.policies} />
-      <Separator className="my-8" />
       <ExternalLinkSection accommodation={accommodation} />
       <BusinessInfoSection accommodation={accommodation} />
     </div>
@@ -253,55 +245,62 @@ export function AccommodationDetailLayout({
     </div>
   )
 
-  // 숙소소개 섹션 (탭 스크롤 대상)
+  // 상단 헤더 (태그, 숙소명, 주소, 평점, 액션 — 탭 밖)
   const infoContent = (
-    <div id="section-info">
+    <div>
       <AccommodationInfo accommodation={accommodation} />
     </div>
   )
 
-  // 사장님 인사말 (편의시설과 위치 사이 배치)
-  const greetingContent = accommodation.greetingMsg ? (
-    <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
-      <div className="flex items-center gap-2 mb-2">
-        <MessageCircle className="size-4 text-primary" />
-        <p className="text-sm font-semibold text-primary">사장님 인사말</p>
-      </div>
+  // 숙소 소개 (description + 사장님 인사말 — 탭 4번째)
+  const introContent = (
+    <div id="section-intro">
+      <h2 className="text-xl font-semibold mb-4">숙소 소개</h2>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        {accommodation.greetingMsg}
+        {accommodation.description}
       </p>
+      {accommodation.greetingMsg && (
+        <div className="mt-6 p-5 rounded-xl bg-primary/5 border border-primary/10">
+          <div className="flex items-center gap-2 mb-2">
+            <MessageCircle className="size-4 text-primary" />
+            <p className="text-sm font-semibold text-primary">사장님 인사말</p>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {accommodation.greetingMsg}
+          </p>
+        </div>
+      )}
     </div>
-  ) : null
+  )
 
-  // 섹션 순서: 숙소소개 → 리뷰 → 객실 → 꿀혜택 → 시설/서비스 → (사장님 인사말) → 위치 → 이용안내
+  // 섹션 순서: 헤더 → 리뷰 → 꿀혜택(모바일) → 객실 → 숙소소개 → 시설/서비스 → 위치 → 기타
   const orderedSections = (
     <div className="space-y-8">
       {infoContent}
       <Separator />
       {reviewsContent}
+      {/* 꿀혜택: 모바일에서만 표시 (데스크톱은 사이드바 위젯으로 대체) */}
+      <div className="lg:hidden">
+        <Separator />
+        {benefitsContent}
+      </div>
       <Separator />
       {roomsContent}
       <Separator />
-      {benefitsContent}
+      {introContent}
       <Separator />
       {amenitiesContent}
-      {greetingContent && (
-        <>
-          <Separator />
-          {greetingContent}
-        </>
-      )}
       <Separator />
       {locationContent}
       <Separator />
-      {policyContent}
+      {etcContent}
     </div>
   )
 
   return (
     <div className="min-h-screen">
       {/* ─── 이미지 갤러리 ─── */}
-      <div ref={galleryRef}>
+      <div>
         <Container size="wide" padding="responsive" className="pt-4">
           <ImageGallery images={accommodation.images} name={accommodation.name} />
         </Container>

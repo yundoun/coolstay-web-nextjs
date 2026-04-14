@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils"
 export interface SectionTab {
   id: string
   label: string
+  /** 모바일에서만 표시 (데스크톱 lg+ 숨김) */
+  mobileOnly?: boolean
 }
 
 interface SectionTabNavProps {
@@ -100,6 +102,7 @@ export function SectionTabNav({ tabs, stickyTop = 56, className, variant = "stic
             onClick={() => handleClick(tab.id)}
             className={cn(
               "shrink-0 font-medium whitespace-nowrap transition-all",
+              tab.mobileOnly && "lg:hidden",
               isInline
                 ? cn(
                     "text-[13px] px-3 py-1.5 rounded-full border",

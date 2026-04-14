@@ -14,7 +14,7 @@ export function ExternalLinkSection({ accommodation }: ExternalLinkSectionProps)
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">외부 링크</h2>
+      <h2 className="text-xl font-semibold mb-4">국내 최저가</h2>
       <div className="flex flex-wrap gap-3">
         {activeLinks.map((link, index) => (
           <a

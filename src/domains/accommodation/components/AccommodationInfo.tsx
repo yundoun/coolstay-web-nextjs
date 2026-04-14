@@ -73,16 +73,6 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
         </div>
       </div>
 
-      <Separator />
-
-      {/* Description */}
-      <div>
-        <h2 className="text-xl font-semibold mb-2">숙소 소개</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {accommodation.description}
-        </p>
-      </div>
-
       {accommodation.parkingInfo && (
         <div className="p-4 rounded-xl bg-muted/50">
           <p className="text-sm">
