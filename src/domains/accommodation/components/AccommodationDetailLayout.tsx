@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap } from "lucide-react"
+import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap, ChevronDown, ChevronUp } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -485,42 +485,57 @@ function BenefitSidebarWidget({
           })}
         </div>
 
-        {/* 혜택 카드 리스트 (최대 3개) */}
+        {/* 혜택 카드 리스트 */}
         {activeBenefits.length > 0 && (
-          <div className="space-y-2">
-            {activeBenefits
-              .sort((a, b) => a.priority - b.priority)
-              .slice(0, 3)
-              .map((benefit, index) => (
-                <div
-                  key={`${benefit.name}-${index}`}
-                  className="flex items-start gap-2.5 p-3 rounded-lg border bg-muted/30"
-                >
-                  {benefit.image_url ? (
-                    <img
-                      src={benefit.image_url}
-                      alt={benefit.name}
-                      className="size-7 rounded-md object-cover shrink-0"
-                    />
-                  ) : (
-                    <Gift className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium leading-tight">{benefit.name}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                      {benefit.description}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            {activeBenefits.length > 3 && (
-              <p className="text-xs text-center text-muted-foreground">
-                +{activeBenefits.length - 3}개 혜택 더보기 ↓
-              </p>
-            )}
-          </div>
+          <SidebarBenefitCards benefits={activeBenefits} />
         )}
       </div>
+    </div>
+  )
+}
+
+function SidebarBenefitCards({ benefits }: { benefits: AccommodationDetail["benefits"] }) {
+  const sorted = [...benefits].sort((a, b) => a.priority - b.priority)
+  const [expanded, setExpanded] = useState(false)
+  const hasMore = sorted.length > 3
+  const visible = expanded ? sorted : sorted.slice(0, 3)
+
+  return (
+    <div className="space-y-2">
+      {visible.map((benefit, index) => (
+        <div
+          key={`${benefit.name}-${index}`}
+          className="flex items-start gap-2.5 p-3 rounded-lg border bg-muted/30"
+        >
+          {benefit.image_url ? (
+            <img
+              src={benefit.image_url}
+              alt={benefit.name}
+              className="size-7 rounded-md object-cover shrink-0"
+            />
+          ) : (
+            <Gift className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-medium leading-tight">{benefit.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+              {benefit.description}
+            </p>
+          </div>
+        </div>
+      ))}
+      {hasMore && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="w-full flex items-center justify-center gap-1 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {expanded ? (
+            <>접기 <ChevronUp className="size-3.5" /></>
+          ) : (
+            <>+{sorted.length - 3}개 혜택 더보기 <ChevronDown className="size-3.5" /></>
+          )}
+        </button>
+      )}
     </div>
   )
 }
