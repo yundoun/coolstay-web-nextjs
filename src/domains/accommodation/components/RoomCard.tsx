@@ -97,27 +97,14 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
           <div className="mt-4 flex flex-col sm:flex-row gap-3" onClick={(e) => e.stopPropagation()}>
             {/* 대실 */}
             {room.rentalAvailable && room.rentalPrice && (
-              <div className="flex-1 rounded-xl bg-muted/50 border overflow-hidden">
-                <div className="flex items-center justify-between p-3">
-                  <div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                      <Clock className="size-3" />
-                      <span>대실</span>
-                      {room.rentalTime && (
-                        <span className="text-muted-foreground/60">({room.rentalTime})</span>
-                      )}
-                    </div>
-                    <div className="flex items-baseline gap-1">
-                      {room.rentalOriginalPrice && (
-                        <span className="text-xs text-muted-foreground line-through">
-                          {room.rentalOriginalPrice.toLocaleString()}
-                        </span>
-                      )}
-                      <span className="text-base font-bold">
-                        {room.rentalPrice.toLocaleString()}원
-                      </span>
-                    </div>
-                  </div>
+              <PriceBox
+                label="대실"
+                labelIcon={<Clock className="size-3" />}
+                subLabel={room.rentalTime ? `(${room.rentalTime})` : undefined}
+                price={room.rentalPrice}
+                originalPrice={room.rentalOriginalPrice}
+                coupons={room.rentalCoupons}
+                actionButton={
                   <Button
                     size="sm"
                     variant="outline"
@@ -126,30 +113,18 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
                   >
                     {room.isAvailable ? "예약" : "매진"}
                   </Button>
-                </div>
-                <CouponList coupons={room.rentalCoupons} price={room.rentalPrice!} />
-              </div>
+                }
+              />
             )}
 
             {/* 숙박 */}
-            <div className="flex-1 rounded-xl bg-muted/50 border overflow-hidden">
-              <div className="flex items-center justify-between p-3">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-                    <Moon className="size-3" />
-                    <span>숙박</span>
-                  </div>
-                  <div className="flex items-baseline gap-1">
-                    {room.stayOriginalPrice && (
-                      <span className="text-xs text-muted-foreground line-through">
-                        {room.stayOriginalPrice.toLocaleString()}
-                      </span>
-                    )}
-                    <span className="text-base font-bold">
-                      {room.stayPrice.toLocaleString()}원
-                    </span>
-                  </div>
-                </div>
+            <PriceBox
+              label="숙박"
+              labelIcon={<Moon className="size-3" />}
+              price={room.stayPrice}
+              originalPrice={room.stayOriginalPrice}
+              coupons={room.stayCoupons}
+              actionButton={
                 <Button
                   size="sm"
                   disabled={!room.stayAvailable}
@@ -163,9 +138,8 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
                     "매진"
                   )}
                 </Button>
-              </div>
-              <CouponList coupons={room.stayCoupons} price={room.stayPrice} />
-            </div>
+              }
+            />
           </div>
         </div>
       </div>
@@ -173,35 +147,103 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
   )
 }
 
-/** 가격 박스 내 쿠폰 리스트 + 적용가 */
-function CouponList({ coupons, price }: { coupons?: Coupon[]; price: number }) {
-  const usable = coupons?.filter(c => c.usable_yn === "Y" && c.dimmed_yn !== "Y")
-  if (!usable || usable.length === 0) return null
+/** 대실/숙박 가격 박스 — Search PriceRow 스타일 통일 */
+function PriceBox({
+  label,
+  labelIcon,
+  subLabel,
+  price,
+  originalPrice,
+  coupons,
+  actionButton,
+}: {
+  label: string
+  labelIcon: React.ReactNode
+  subLabel?: string
+  price: number
+  originalPrice?: number
+  coupons?: Coupon[]
+  actionButton: React.ReactNode
+}) {
+  const discountRate =
+    originalPrice != null && originalPrice > price
+      ? Math.round(((originalPrice - price) / originalPrice) * 100)
+      : null
 
-  const bestDiscount = Math.max(...usable.map(c => calcCouponDiscount(c, price)))
-  const appliedPrice = Math.max(0, price - bestDiscount)
+  const usable = coupons?.filter(c => c.usable_yn === "Y" && c.dimmed_yn !== "Y")
+  const hasCoupon = usable && usable.length > 0
+  const bestDiscount = hasCoupon
+    ? Math.max(...usable.map(c => calcCouponDiscount(c, price)))
+    : 0
+  const couponAppliedPrice = Math.max(0, price - bestDiscount)
+  const couponLabel = hasCoupon
+    ? usable[0].title?.match(/무제한|선착순|한정|특가/)?.[0] || "쿠폰"
+    : ""
 
   return (
-    <div className="border-t border-dashed px-3 py-2 space-y-1.5 bg-primary/[0.03]">
-      {usable.map((coupon, i) => {
-        const isRate = coupon.discount_type === "RATE"
-        const discount = calcCouponDiscount(coupon, price)
-        const label = isRate
-          ? `-${discount.toLocaleString()}원 (${coupon.discount_amount}%)`
-          : `-${discount.toLocaleString()}원`
-
-        return (
-          <div key={coupon.coupon_pk || i} className="flex items-center gap-1.5 text-xs">
-            <Ticket className="size-3 text-primary shrink-0" />
-            <span className="font-semibold text-primary">{label}</span>
-            <span className="text-muted-foreground truncate">{coupon.title}</span>
+    <div className="flex-1 rounded-xl bg-muted/40 border overflow-hidden">
+      <div className="flex items-center justify-between p-3">
+        <div>
+          {/* 라벨 행 */}
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
+            {labelIcon}
+            <span>{label}</span>
+            {subLabel && (
+              <span className="text-muted-foreground/60">{subLabel}</span>
+            )}
           </div>
-        )
-      })}
-      <div className="flex items-center justify-between pt-1 border-t border-dashed">
-        <span className="text-xs text-muted-foreground">쿠폰 적용 시</span>
-        <span className="text-sm font-bold text-primary">{appliedPrice.toLocaleString()}원</span>
+          {/* 가격 행: 할인율 + 정가(취소선) + 할인가 */}
+          <div className="flex items-baseline gap-1.5">
+            {discountRate != null && discountRate > 0 && (
+              <span className="text-sm font-extrabold text-primary-700">{discountRate}%</span>
+            )}
+            {originalPrice != null && originalPrice > price && (
+              <span className="text-xs text-muted-foreground line-through">
+                {originalPrice.toLocaleString()}원
+              </span>
+            )}
+            <span className={cn(
+              "font-bold",
+              hasCoupon
+                ? "text-sm text-muted-foreground line-through"
+                : "text-base text-foreground"
+            )}>
+              {price.toLocaleString()}원
+            </span>
+          </div>
+        </div>
+        {actionButton}
       </div>
+
+      {/* 쿠폰 실결제가 — primary 톤 통일 */}
+      {hasCoupon && (
+        <div className="border-t border-dashed px-3 py-2 bg-primary/10">
+          {usable.map((coupon, i) => {
+            const isRate = coupon.discount_type === "RATE"
+            const discount = calcCouponDiscount(coupon, price)
+            const discountLabel = isRate
+              ? `-${discount.toLocaleString()}원 (${coupon.discount_amount}%)`
+              : `-${discount.toLocaleString()}원`
+
+            return (
+              <div key={coupon.coupon_pk || i} className="flex items-center gap-1.5 text-xs mb-1">
+                <Ticket className="size-3 text-primary-700 shrink-0" />
+                <span className="font-semibold text-primary-700">{discountLabel}</span>
+                <span className="text-muted-foreground truncate">{coupon.title}</span>
+              </div>
+            )
+          })}
+          <div className="flex items-center justify-between pt-1 border-t border-dashed">
+            <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-700">
+              <Ticket className="size-3" />
+              {couponLabel} -{bestDiscount.toLocaleString()}원
+            </span>
+            <span className="text-lg font-extrabold text-foreground">
+              {couponAppliedPrice.toLocaleString()}원
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

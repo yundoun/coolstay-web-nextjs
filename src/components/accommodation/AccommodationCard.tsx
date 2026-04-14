@@ -275,7 +275,7 @@ function PriceRow({
             {label}
           </span>
           {discountRate != null && discountRate > 0 && (
-            <span className="text-sm font-extrabold text-rose-500">{discountRate}%</span>
+            <span className="text-sm font-extrabold text-primary-700">{discountRate}%</span>
           )}
           {originalPrice != null && originalPrice > price && (
             <span className="text-xs text-muted-foreground line-through">
@@ -295,8 +295,8 @@ function PriceRow({
 
       {/* 하단: 쿠폰 실결제가 — 최종 가격이 가장 크고 진하게 */}
       {hasCoupon && (
-        <div className="mt-1.5 flex items-center justify-between rounded-md bg-rose-50 px-2.5 py-1.5">
-          <span className="flex items-center gap-1 text-[11px] font-semibold text-rose-500">
+        <div className="mt-1.5 flex items-center justify-between rounded-md bg-primary/10 px-2.5 py-1.5">
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-700">
             <Ticket className="size-3" />
             {couponLabel} -{couponDiscountAmount.toLocaleString()}원
           </span>

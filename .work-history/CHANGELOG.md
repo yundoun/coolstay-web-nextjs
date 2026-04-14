@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-14 17:31** | RoomCard 가격/쿠폰 디자인 통일 및 브랜드 컬러 적용 | [`39852ce`](.work-history/entries/2026-04-14_23-00_DS-1_price-design-unification.md)
 - **2026-04-14 17:21** | 아동(kids) 인원 선택 제거 및 검색 UI 정리 | [`d6b6fec`](.work-history/entries/2026-04-14_16-30_remove-kids-param.md)
 - **2026-04-14 17:20** | 검색 카드 대실/숙박 가격 구분 표시 및 쿠폰 실결제가 표시 | [`1704a84`](.work-history/entries/2026-04-14_16-15_search-card-price-display.md)
 - **2026-04-14 16:15** | PC 사이드바 꿀혜택 더보기 버튼 추가 | [`0505206`](.work-history/entries/2026-04-14_22-30_FIX_sidebar-benefit-expand.md)
