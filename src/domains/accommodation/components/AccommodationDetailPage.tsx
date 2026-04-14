@@ -8,6 +8,7 @@ import { AccommodationDetailLayout } from "./AccommodationDetailLayout"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
 import { addRecentStoreKey } from "@/domains/home/api/homeApi"
+import { useHeaderStore } from "@/lib/stores/header"
 
 function toApiDate(date: Date): string {
   const y = date.getFullYear()
@@ -24,10 +25,23 @@ export function AccommodationDetailPage({ storeKey }: Props) {
   const [dates, setDates] = useState<{ start: string; end: string } | undefined>(undefined)
   const { data: apiData, isLoading, isFetching } = useStoreDetail(storeKey, dates)
 
+  const setDynamicTitle = useHeaderStore((s) => s.setDynamicTitle)
+
+  // API 데이터 → AccommodationDetail 변환
+  const detail = apiData?.motel
+    ? mapMotelToDetail(apiData.motel)
+    : null
+
   // 비회원용 최근 본 숙소 기록
   useEffect(() => {
     if (storeKey) addRecentStoreKey(storeKey)
   }, [storeKey])
+
+  // 헤더에 숙소명 표시
+  useEffect(() => {
+    if (detail) setDynamicTitle(detail.name)
+    return () => setDynamicTitle(null)
+  }, [detail, setDynamicTitle])
 
   // 날짜 변경 시 API 재조회
   const handleApply = useCallback((checkIn: Date, checkOut: Date) => {
@@ -36,11 +50,6 @@ export function AccommodationDetailPage({ storeKey }: Props) {
       end: toApiDate(checkOut),
     })
   }, [])
-
-  // API 데이터 → AccommodationDetail 변환
-  const detail = apiData?.motel
-    ? mapMotelToDetail(apiData.motel)
-    : null
 
   if (isLoading) {
     return <LoadingSpinner fullPage />

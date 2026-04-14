@@ -12,6 +12,8 @@ interface SectionTabNavProps {
   tabs: SectionTab[]
   stickyTop?: number
   className?: string
+  /** "sticky" (기본) = 독립 sticky 바, "inline" = 부모가 sticky 처리 (PC용) */
+  variant?: "sticky" | "inline"
 }
 
 /**
@@ -20,7 +22,8 @@ interface SectionTabNavProps {
  * - Intersection Observer로 현재 보이는 섹션 감지 → 활성 탭 표시
  * - 탭 클릭 시 해당 섹션으로 스크롤 이동
  */
-export function SectionTabNav({ tabs, stickyTop = 56, className }: SectionTabNavProps) {
+export function SectionTabNav({ tabs, stickyTop = 56, className, variant = "sticky" }: SectionTabNavProps) {
+  const isInline = variant === "inline"
   const [activeId, setActiveId] = useState(tabs[0]?.id ?? "")
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
   const navRef = useRef<HTMLDivElement>(null)
@@ -81,12 +84,13 @@ export function SectionTabNav({ tabs, stickyTop = 56, className }: SectionTabNav
     <div
       ref={navRef}
       className={cn(
-        "sticky bg-background border-b z-[var(--z-sticky,30)] overflow-x-auto scrollbar-hide",
+        "overflow-x-auto scrollbar-hide",
+        !isInline && "sticky bg-background border-b z-[var(--z-sticky,30)]",
         className,
       )}
-      style={{ top: stickyTop }}
+      style={!isInline ? { top: stickyTop } : undefined}
     >
-      <div className="flex">
+      <div className={cn("flex", isInline && "gap-1.5")}>
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -95,10 +99,20 @@ export function SectionTabNav({ tabs, stickyTop = 56, className }: SectionTabNav
             }}
             onClick={() => handleClick(tab.id)}
             className={cn(
-              "shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors",
-              activeId === tab.id
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+              "shrink-0 font-medium whitespace-nowrap transition-all",
+              isInline
+                ? cn(
+                    "text-[13px] px-3 py-1.5 rounded-full border",
+                    activeId === tab.id
+                      ? "bg-foreground text-background border-foreground"
+                      : "text-muted-foreground border-transparent hover:bg-muted hover:text-foreground",
+                  )
+                : cn(
+                    "text-sm px-4 py-3 border-b-2",
+                    activeId === tab.id
+                      ? "border-foreground text-foreground"
+                      : "border-transparent text-muted-foreground hover:text-foreground",
+                  ),
             )}
           >
             {tab.label}

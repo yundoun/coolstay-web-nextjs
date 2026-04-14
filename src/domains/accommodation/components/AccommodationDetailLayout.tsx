@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
-import { Coins, CalendarDays, Users, Loader2 } from "lucide-react"
+import { useState, useMemo, useCallback, useEffect, useRef } from "react"
+import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
 import { ImageGallery } from "./ImageGallery"
 import { AccommodationInfo } from "./AccommodationInfo"
 import { AmenityList } from "./AmenityList"
@@ -57,7 +58,7 @@ const SECTION_TABS: SectionTab[] = [
   { id: "section-info", label: "숙소소개" },
   { id: "section-reviews", label: "후기요약" },
   { id: "section-rooms", label: "객실선택" },
-  { id: "section-benefits", label: "혜택" },
+  { id: "section-benefits", label: "꿀혜택" },
   { id: "section-amenities", label: "시설/서비스" },
   { id: "section-location", label: "위치/교통" },
   { id: "section-policy", label: "이용안내" },
@@ -84,6 +85,24 @@ export function AccommodationDetailLayout({
   const [rentalModalOpen, setRentalModalOpen] = useState(false)
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [guestPickerOpen, setGuestPickerOpen] = useState(false)
+  const [showSubNav, setShowSubNav] = useState(false)
+  const galleryRef = useRef<HTMLDivElement>(null)
+
+  // 이미지 갤러리가 뷰포트를 벗어나면 서브 네비 표시
+  useEffect(() => {
+    const el = galleryRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowSubNav(!entry.isIntersecting)
+      },
+      { threshold: 0, rootMargin: "-56px 0px 0px 0px" },
+    )
+
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const handleDateApply = useCallback(
     (newCheckIn: Date, newCheckOut: Date) => {
@@ -213,19 +232,19 @@ export function AccommodationDetailLayout({
     </div>
   )
 
-  // 날짜/인원 pill 버튼 (모바일/PC 공용)
+  // 날짜/인원 pill 버튼 (모바일: 균등 분배, PC: auto)
   const pillButtons = (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 lg:gap-2">
       <button
         onClick={() => setDatePickerOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-sm font-medium hover:bg-muted transition-colors"
+        className="inline-flex items-center justify-center gap-1.5 flex-1 lg:flex-none px-3.5 py-2 rounded-full border text-sm font-medium hover:bg-muted transition-colors"
       >
         <CalendarDays className="size-3.5 text-muted-foreground" />
         <span>{dateLabel}</span>
       </button>
       <button
         onClick={() => setGuestPickerOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border text-sm font-medium hover:bg-muted transition-colors"
+        className="inline-flex items-center justify-center gap-1.5 flex-1 lg:flex-none px-3.5 py-2 rounded-full border text-sm font-medium hover:bg-muted transition-colors"
       >
         <Users className="size-3.5 text-muted-foreground" />
         <span>{guestLabel}</span>
@@ -241,7 +260,20 @@ export function AccommodationDetailLayout({
     </div>
   )
 
-  // 섹션 순서: 숙소소개 → 리뷰 → 객실 → 혜택 → 시설/서비스 → 위치 → 이용안내
+  // 사장님 인사말 (편의시설과 위치 사이 배치)
+  const greetingContent = accommodation.greetingMsg ? (
+    <div className="p-5 rounded-xl bg-primary/5 border border-primary/10">
+      <div className="flex items-center gap-2 mb-2">
+        <MessageCircle className="size-4 text-primary" />
+        <p className="text-sm font-semibold text-primary">사장님 인사말</p>
+      </div>
+      <p className="text-sm text-muted-foreground leading-relaxed">
+        {accommodation.greetingMsg}
+      </p>
+    </div>
+  ) : null
+
+  // 섹션 순서: 숙소소개 → 리뷰 → 객실 → 꿀혜택 → 시설/서비스 → (사장님 인사말) → 위치 → 이용안내
   const orderedSections = (
     <div className="space-y-8">
       {infoContent}
@@ -253,6 +285,12 @@ export function AccommodationDetailLayout({
       {benefitsContent}
       <Separator />
       {amenitiesContent}
+      {greetingContent && (
+        <>
+          <Separator />
+          {greetingContent}
+        </>
+      )}
       <Separator />
       {locationContent}
       <Separator />
@@ -262,77 +300,58 @@ export function AccommodationDetailLayout({
 
   return (
     <div className="min-h-screen">
-      {/* ─── 이미지 갤러리 (공통) ─── */}
-      <Container size="wide" padding="responsive" className="pt-4">
-        <ImageGallery images={accommodation.images} name={accommodation.name} />
-      </Container>
-
-      {/* ════════════════════════════════════════════════════════
-          모바일 레이아웃
-          - MobileBookingBar 제거 → sticky 탭 + pill 버튼
-          ════════════════════════════════════════════════════════ */}
-      <div className="lg:hidden">
-        {/* Sticky 탭 네비게이션 */}
-        <SectionTabNav tabs={SECTION_TABS} stickyTop={56} className="mt-4" />
-
-        {/* 날짜/인원 pill 버튼 (탭 아래 sticky) */}
-        <div
-          className="sticky bg-background z-[calc(var(--z-sticky,30)-1)] border-b"
-          style={{ top: 56 + 44 }}
-        >
-          <Container size="normal" padding="responsive">
-            <div className="py-2.5">{pillButtons}</div>
-          </Container>
-        </div>
-
-        {/* 콘텐츠 */}
-        <Container size="normal" padding="responsive" className="mt-6 pb-16">
-          {orderedSections}
+      {/* ─── 이미지 갤러리 ─── */}
+      <div ref={galleryRef}>
+        <Container size="wide" padding="responsive" className="pt-4">
+          <ImageGallery images={accommodation.images} name={accommodation.name} />
         </Container>
       </div>
 
-      {/* ════════════════════════════════════════════════════════
-          PC 레이아웃
-          - 기존 2-column 그리드 유지
-          - 좌측 콘텐츠에 탭 추가
-          - 우측 BookingWidget 유지
-          ════════════════════════════════════════════════════════ */}
-      <div className="hidden lg:block">
-        <Container size="normal" padding="responsive" className="mt-8">
-          <div className="grid grid-cols-3 gap-8">
-            {/* Left: Main Content (col-span-2) */}
-            <div className="col-span-2">
-              {/* 탭 바 — 좌측 콘텐츠 내부 */}
-              <SectionTabNav tabs={SECTION_TABS} stickyTop={80} />
+      {/* ─── Slide-down 서브 네비 (탭 + pill) ───
+          이미지가 뷰포트를 벗어나면 헤더 아래로 슬라이드 */}
+      <div
+        className={cn(
+          "fixed left-0 right-0 z-40",
+          "top-14 md:top-[var(--header-height)]",
+          "bg-background/95 backdrop-blur-md border-b border-border",
+          "transition-[transform,opacity] duration-300 ease-out",
+          showSubNav
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0 pointer-events-none",
+        )}
+      >
+        <Container size="normal" padding="responsive">
+          {/* 1행: 탭 (스크롤 가능) */}
+          <SectionTabNav
+            tabs={SECTION_TABS}
+            stickyTop={56}
+            variant="inline"
+            className="py-1.5"
+          />
+          {/* 2행: pill 버튼 */}
+          <div className="pb-2">{pillButtons}</div>
+        </Container>
+      </div>
 
-              {/* 날짜/인원 pill */}
-              <div className="py-3 mt-2">{pillButtons}</div>
+      {/* ─── 콘텐츠 영역 ─── */}
+      <Container size="normal" padding="responsive" className="mt-6 pb-16">
+        {/* 모바일: 1-column / PC: 2-column + 꿀혜택 사이드바 */}
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {orderedSections}
+          </div>
 
-              {/* 콘텐츠 */}
-              <div className="mt-4">{orderedSections}</div>
-            </div>
-
-            {/* Right: Sticky Booking Widget (기존 그대로) */}
-            <div>
-              <div className="sticky top-24">
-                <BookingWidget
-                  accommodation={accommodation}
-                  rooms={availableRooms}
-                  allRoomsCount={accommodation.rooms.length}
-                  checkIn={checkIn}
-                  checkOut={checkOut}
-                  guestLabel={guestLabel}
-                  isRefetching={isRefetching}
-                  onDateClick={() => setDatePickerOpen(true)}
-                  onGuestClick={() => setGuestPickerOpen(true)}
-                />
-              </div>
+          {/* 꿀혜택 사이드바 (PC only) */}
+          <div className="hidden lg:block">
+            <div className="sticky top-[calc(var(--header-height)+96px)]">
+              <BenefitSidebarWidget accommodation={accommodation} />
             </div>
           </div>
-        </Container>
-      </div>
+        </div>
+      </Container>
 
-      {/* ─── Modals (공통) ─── */}
+      {/* ─── Modals ─── */}
       <RoomDetailModal
         room={selectedRoom}
         accommodationId={accommodation.id}
@@ -367,140 +386,142 @@ export function AccommodationDetailLayout({
   )
 }
 
-// ─── BookingWidget (PC 우측, 기존 동일 — SearchModal 대신 콜백) ───
+// ─── 꿀혜택 사이드바 위젯 (PC 우측) ───
 
-function BookingWidget({
+const SIDEBAR_FLAG_LABELS: Record<string, { label: string; icon: React.ElementType }> = {
+  first_reserve: { label: "첫 예약 할인", icon: Star },
+  low_price_korea: { label: "최저가 보장", icon: Crown },
+  visit_korea: { label: "한국관광 인증", icon: Zap },
+  favor_coupon_store: { label: "쿠폰 우대 숙소", icon: Ticket },
+  unlimited_coupon: { label: "무제한 쿠폰", icon: Gift },
+  revisit: { label: "재방문 혜택", icon: Percent },
+}
+
+function BenefitSidebarWidget({
   accommodation,
-  rooms,
-  allRoomsCount,
-  checkIn,
-  checkOut,
-  guestLabel,
-  isRefetching,
-  onDateClick,
-  onGuestClick,
 }: {
   accommodation: AccommodationDetail
-  rooms: Room[]
-  allRoomsCount: number
-  checkIn: Date
-  checkOut: Date
-  guestLabel: string
-  isRefetching?: boolean
-  onDateClick: () => void
-  onGuestClick: () => void
 }) {
-  const stayRooms = rooms.filter((r) => r.stayAvailable)
-  const lowestStayPrice = stayRooms.length > 0
-    ? Math.min(...stayRooms.map((r) => r.stayPrice))
-    : null
+  const {
+    benefits,
+    downloadCouponInfo,
+    v2SupportFlag,
+    consecutiveYn,
+    benefitPointRate,
+  } = accommodation
 
-  const lowestOriginal = lowestStayPrice != null
-    ? accommodation.rooms.find(
-        (r) => r.stayPrice === Math.min(...accommodation.rooms.filter((r2) => r2.stayAvailable).map((r2) => r2.stayPrice))
-      )?.stayOriginalPrice
-    : undefined
+  const activeBenefits = benefits.filter((b) => b.active_yn === "Y")
+  const hasCouponDownload =
+    downloadCouponInfo && downloadCouponInfo.status !== "NON_TARGET"
+  const activeSupportFlags = v2SupportFlag
+    ? Object.entries(v2SupportFlag).filter(
+        ([key, val]) => val === true && SIDEBAR_FLAG_LABELS[key]
+      )
+    : []
+  const hasConsecutive = consecutiveYn === "Y"
+  const hasMileage = benefitPointRate > 0
 
-  const discount = lowestOriginal && lowestStayPrice
-    ? Math.round(((lowestOriginal - lowestStayPrice) / lowestOriginal) * 100)
-    : null
+  const hasAnything =
+    activeBenefits.length > 0 ||
+    hasCouponDownload ||
+    activeSupportFlags.length > 0 ||
+    hasConsecutive ||
+    hasMileage
+
+  if (!hasAnything) return null
 
   return (
-    <div className="rounded-xl border bg-card p-6 shadow-lg">
-      {/* Mileage */}
-      {accommodation.benefitPointRate > 0 && (
-        <div className="flex items-center gap-1.5 mb-3 text-sm text-primary font-medium">
-          <Coins className="size-4" />
-          <span>+{accommodation.benefitPointRate}% 마일리지 적립</span>
+    <div className="rounded-xl border bg-card shadow-lg overflow-hidden">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 border-b">
+        <div className="flex items-center gap-2">
+          <Gift className="size-5 text-primary" />
+          <h3 className="text-lg font-bold text-foreground">꿀혜택</h3>
         </div>
-      )}
-
-      {/* Price */}
-      <div className="mb-4">
-        {lowestStayPrice != null ? (
-          <>
-            {lowestOriginal && (
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-sm text-muted-foreground line-through">
-                  {lowestOriginal.toLocaleString()}원
-                </span>
-                {discount && (
-                  <span className="text-sm font-bold text-destructive">{discount}%</span>
-                )}
-              </div>
-            )}
-            <div className="flex items-baseline gap-1">
-              <span className="text-3xl font-bold">
-                {lowestStayPrice.toLocaleString()}
-              </span>
-              <span className="text-muted-foreground">원~</span>
-              <span className="text-sm text-muted-foreground">/박</span>
-            </div>
-          </>
-        ) : (
-          <p className="text-sm text-muted-foreground">예약 가능한 객실이 없습니다</p>
-        )}
+        <p className="text-xs text-muted-foreground mt-1">이 숙소에서 받을 수 있는 혜택</p>
       </div>
 
-      {/* Date/Guest Selection */}
-      <div className="space-y-3">
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 justify-start rounded-xl h-auto p-3"
-            onClick={onDateClick}
-          >
-            <div className="text-left flex items-center gap-2">
-              <CalendarDays className="size-4 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">체크인</p>
-                <p className="text-sm font-medium">{formatDate(checkIn)}</p>
-              </div>
-            </div>
-          </Button>
-          <Button
-            variant="outline"
-            className="flex-1 justify-start rounded-xl h-auto p-3"
-            onClick={onDateClick}
-          >
-            <div className="text-left flex items-center gap-2">
-              <CalendarDays className="size-4 text-muted-foreground" />
-              <div>
-                <p className="text-xs text-muted-foreground">체크아웃</p>
-                <p className="text-sm font-medium">{formatDate(checkOut)}</p>
-              </div>
-            </div>
-          </Button>
-        </div>
-        <Button
-          variant="outline"
-          className="w-full justify-start rounded-xl h-auto p-3"
-          onClick={onGuestClick}
-        >
-          <div className="text-left flex items-center gap-2">
-            <Users className="size-4 text-muted-foreground" />
+      <div className="p-5 space-y-4">
+        {/* 마일리지 적립 */}
+        {hasMileage && (
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+            <Coins className="size-5 text-emerald-600 shrink-0" />
             <div>
-              <p className="text-xs text-muted-foreground">인원</p>
-              <p className="text-sm font-medium">{guestLabel}</p>
+              <p className="text-sm font-semibold text-emerald-800">
+                +{benefitPointRate}% 마일리지 적립
+              </p>
+              {accommodation.paymentBenefit?.benefit_more_yn === "Y" && (
+                <p className="text-xs text-emerald-600 mt-0.5">추가 적립 가능</p>
+              )}
             </div>
           </div>
-        </Button>
-      </div>
+        )}
 
-      {/* 로딩 표시 */}
-      {isRefetching && (
-        <div className="flex items-center justify-center gap-2 mt-3 text-xs text-muted-foreground">
-          <Loader2 className="size-3 animate-spin" />
-          <span>가격 업데이트 중...</span>
+        {/* 뱃지 그룹 */}
+        <div className="flex flex-wrap gap-1.5">
+          {hasCouponDownload && (
+            <Badge className="gap-1 bg-primary/10 text-primary border-primary/20 hover:bg-primary/15 text-xs">
+              <Ticket className="size-3" />
+              쿠폰 다운로드
+            </Badge>
+          )}
+          {hasConsecutive && (
+            <Badge className="gap-1 bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100 text-xs">
+              <Crown className="size-3" />
+              연박 할인
+            </Badge>
+          )}
+          {activeSupportFlags.map(([key]) => {
+            const config = SIDEBAR_FLAG_LABELS[key]
+            const Icon = config.icon
+            return (
+              <Badge
+                key={key}
+                className="gap-1 bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100 text-xs"
+              >
+                <Icon className="size-3" />
+                {config.label}
+              </Badge>
+            )
+          })}
         </div>
-      )}
 
-      {/* 필터 결과 안내 */}
-      {rooms.length < allRoomsCount && (
-        <p className="text-xs text-center text-muted-foreground mt-3">
-          {guestLabel} 기준 {allRoomsCount}개 중 {rooms.length}개 객실 이용 가능
-        </p>
-      )}
+        {/* 혜택 카드 리스트 (최대 3개) */}
+        {activeBenefits.length > 0 && (
+          <div className="space-y-2">
+            {activeBenefits
+              .sort((a, b) => a.priority - b.priority)
+              .slice(0, 3)
+              .map((benefit, index) => (
+                <div
+                  key={`${benefit.name}-${index}`}
+                  className="flex items-start gap-2.5 p-3 rounded-lg border bg-muted/30"
+                >
+                  {benefit.image_url ? (
+                    <img
+                      src={benefit.image_url}
+                      alt={benefit.name}
+                      className="size-7 rounded-md object-cover shrink-0"
+                    />
+                  ) : (
+                    <Gift className="size-4 mt-0.5 shrink-0 text-muted-foreground" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium leading-tight">{benefit.name}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                      {benefit.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            {activeBenefits.length > 3 && (
+              <p className="text-xs text-center text-muted-foreground">
+                +{activeBenefits.length - 3}개 혜택 더보기 ↓
+              </p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

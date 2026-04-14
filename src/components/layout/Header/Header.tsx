@@ -14,6 +14,7 @@ import {
   getRouteLayoutConfig,
   type HeaderVariant,
 } from "@/components/layout/route-layout-config"
+import { useHeaderStore } from "@/lib/stores/header"
 
 const NAV_ITEMS = [
   { label: "찜목록", href: "/favorites", icon: Heart },
@@ -36,6 +37,8 @@ export function Header({ variant }: HeaderProps) {
 
   const routeConfig = getRouteLayoutConfig(pathname ?? "/")
   const headerVariant: HeaderVariant = routeConfig.headerVariant
+  const dynamicTitle = useHeaderStore((s) => s.dynamicTitle)
+  const headerTitle = dynamicTitle ?? routeConfig.title ?? ""
 
   // IntersectionObserver로 히어로 검색바 감시 (홈에서만)
   useEffect(() => {
@@ -86,7 +89,7 @@ export function Header({ variant }: HeaderProps) {
 
             {/* 타이틀 */}
             <span className="flex-1 text-center font-semibold text-base truncate px-2">
-              {routeConfig.title ?? ""}
+              {headerTitle}
             </span>
 
             {/* 우측 액션 */}

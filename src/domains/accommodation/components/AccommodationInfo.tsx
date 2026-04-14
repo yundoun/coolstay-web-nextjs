@@ -83,16 +83,6 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
         </p>
       </div>
 
-      {/* 사장님 인사말 */}
-      {accommodation.greetingMsg && (
-        <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-          <p className="text-xs font-medium text-primary mb-1">사장님 인사말</p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {accommodation.greetingMsg}
-          </p>
-        </div>
-      )}
-
       {accommodation.parkingInfo && (
         <div className="p-4 rounded-xl bg-muted/50">
           <p className="text-sm">

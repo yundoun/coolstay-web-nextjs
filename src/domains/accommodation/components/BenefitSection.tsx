@@ -59,7 +59,7 @@ export function BenefitSection({ accommodation }: BenefitSectionProps) {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">혜택</h2>
+      <h2 className="text-xl font-semibold mb-4">꿀혜택</h2>
 
       {/* Badges: 쿠폰 다운로드, 연박 할인, 마일리지, v2SupportFlag */}
       <div className="flex flex-wrap gap-2 mb-4">
