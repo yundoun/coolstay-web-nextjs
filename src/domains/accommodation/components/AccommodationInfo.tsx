@@ -1,6 +1,6 @@
 "use client"
 
-import { Star, MapPin, Clock, Share2, Heart, Coins, Ticket } from "lucide-react"
+import { Star, MapPin, Share2, Heart, Coins } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -26,7 +26,6 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
             ))}
           </div>
         )}
-
         {/* Title */}
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
           {accommodation.name}
@@ -74,29 +73,6 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
         </div>
       </div>
 
-      {/* 쿠폰 섹션 */}
-      {accommodation.directDiscountYn && (
-        <>
-          <Separator />
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              className="flex-1 gap-2 border-primary/30 text-primary hover:bg-primary/5"
-            >
-              <Ticket className="size-4" />
-              직접할인 쿠폰
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 gap-2"
-            >
-              <Ticket className="size-4" />
-              내 쿠폰
-            </Button>
-          </div>
-        </>
-      )}
-
       <Separator />
 
       {/* Description */}
@@ -116,26 +92,6 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
           </p>
         </div>
       )}
-
-      <Separator />
-
-      {/* Check-in/out & Parking */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50">
-          <Clock className="size-5 text-primary mt-0.5 shrink-0" />
-          <div>
-            <p className="text-sm font-medium">체크인</p>
-            <p className="text-sm text-muted-foreground">{accommodation.checkInTime}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50">
-          <Clock className="size-5 text-primary mt-0.5 shrink-0" />
-          <div>
-            <p className="text-sm font-medium">체크아웃</p>
-            <p className="text-sm text-muted-foreground">{accommodation.checkOutTime}</p>
-          </div>
-        </div>
-      </div>
 
       {accommodation.parkingInfo && (
         <div className="p-4 rounded-xl bg-muted/50">

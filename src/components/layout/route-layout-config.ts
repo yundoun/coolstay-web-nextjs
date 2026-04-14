@@ -90,6 +90,15 @@ const PATTERN_ROUTES: { pattern: RegExp; config: RouteLayoutConfig }[] = [
     pattern: /^\/bookings\/[^/]+$/,
     config: { headerVariant: "back", showBottomNav: false, title: "예약 상세" },
   },
+  // 숙소 리뷰 전체보기
+  {
+    pattern: /^\/accommodations\/[^/]+\/reviews$/,
+    config: {
+      headerVariant: "back",
+      showBottomNav: false,
+      title: "리뷰",
+    },
+  },
   // 숙소 상세
   {
     pattern: /^\/accommodations\/[^/]+$/,

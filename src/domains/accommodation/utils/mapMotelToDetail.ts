@@ -120,6 +120,23 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
   const reviewCount = rating?.review_count ?? 0
   const avgScore = parseFloat(rating?.avg_score ?? "0")
 
+  // 평점 분포 계산 (API에서 제공하지 않으므로 리뷰 데이터에서 직접 계산)
+  const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  const allRatingReviews = [
+    ...(rating?.reviews ?? []),
+    ...(motel.best_rating ? [motel.best_rating] : []),
+  ]
+  // 중복 제거 후 분포 계산
+  const seenKeys = new Set<number>()
+  for (const r of allRatingReviews) {
+    if (seenKeys.has(r.key)) continue
+    seenKeys.add(r.key)
+    const rounded = Math.round(parseFloat(r.score ?? "0"))
+    if (rounded >= 1 && rounded <= 5) {
+      ratingDistribution[rounded]++
+    }
+  }
+
   return {
     id: motel.key,
     name: motel.name,
@@ -137,33 +154,44 @@ export function mapMotelToDetail(motel: Motel): AccommodationDetail {
     reviews: {
       averageRating: avgScore,
       totalCount: reviewCount,
-      ratingDistribution: {},
+      ratingDistribution,
     },
     bestReview: motel.best_rating
-      ? {
-          id: String(motel.best_rating.key),
-          userName: "",
-          rating: parseFloat(motel.best_rating.score ?? "0"),
-          content: motel.best_rating.text ?? "",
-          createdAt: String(motel.best_rating.reg_dt ?? ""),
-          roomName: motel.best_rating.item_description ?? "",
-          isBest: true,
-          reply: motel.best_rating.comment
-            ? {
-                content: motel.best_rating.comment.text,
-                createdAt: String(motel.best_rating.comment.reg_dt),
-              }
-            : undefined,
-        }
+      ? (() => {
+          // best_rating에 images가 없을 수 있으므로 rating.reviews에서 같은 key의 이미지를 보충
+          const bestImages = motel.best_rating!.images?.map((img) => img.url).filter((u): u is string => !!u) ?? []
+          const fallbackImages = bestImages.length > 0
+            ? bestImages
+            : (rating?.reviews ?? [])
+                .find((r) => r.key === motel.best_rating!.key)
+                ?.images?.map((img) => img.url)
+                .filter((u): u is string => !!u) ?? []
+          return {
+            id: String(motel.best_rating!.key),
+            userName: motel.best_rating!.user?.name ?? "익명",
+            rating: parseFloat(motel.best_rating!.score ?? "0"),
+            content: motel.best_rating!.text ?? "",
+            createdAt: String(motel.best_rating!.reg_dt ?? ""),
+            roomName: motel.best_rating!.item_description ?? "",
+            isBest: true,
+            images: fallbackImages,
+            reply: motel.best_rating!.comment
+              ? {
+                  content: motel.best_rating!.comment.text,
+                  createdAt: String(motel.best_rating!.comment.reg_dt),
+                }
+              : undefined,
+          }
+        })()
       : null,
     recentReviews: (rating?.reviews ?? []).map((r) => ({
       id: String(r.key),
-      userName: "",
+      userName: r.user?.name ?? "익명",
       rating: parseFloat(r.score ?? "0"),
       content: r.text ?? "",
       createdAt: String(r.reg_dt ?? ""),
       roomName: r.item_description ?? "",
-      images: r.images?.map((img) => img.url),
+      images: r.images?.map((img) => img.url).filter((u): u is string => !!u),
     })),
     events: [
       ...(motel.event ?? []).map((ev) => ({
