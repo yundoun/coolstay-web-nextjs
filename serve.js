@@ -25,6 +25,7 @@ const DYNAMIC_ROUTES = [
   { pattern: /^\/events\/[^/]+\/?$/, template: "events/_/index.html" },
   { pattern: /^\/exhibitions\/[^/]+\/?$/, template: "exhibitions/_/index.html" },
   { pattern: /^\/accommodations\/[^/]+\/?$/, template: "accommodations/_/index.html" },
+  { pattern: /^\/accommodations\/[^/]+\/reviews\/?$/, template: "accommodations/_/reviews/index.html" },
   { pattern: /^\/booking\/[^/]+\/?$/, template: "booking/_/index.html" },
   { pattern: /^\/booking\/[^/]+\/complete\/?$/, template: "booking/_/complete/index.html" },
   { pattern: /^\/bookings\/[^/]+\/?$/, template: "bookings/_/index.html" },
@@ -52,8 +53,12 @@ function parseBody(req) {
   });
 }
 
+const BASE_PATH = process.env.BASE_PATH || "/web/coolstay";
+
 const server = http.createServer(async (req, res) => {
-  const url = decodeURIComponent(req.url.split("?")[0]);
+  const rawUrl = decodeURIComponent(req.url.split("?")[0]);
+  // Apache가 basePath를 포함한 채 프록시하므로 strip
+  const url = rawUrl.startsWith(BASE_PATH) ? rawUrl.slice(BASE_PATH.length) || "/" : rawUrl;
 
   // ─── 이니시스 결제 콜백 (returnUrl) ───
   // 결제 인증 결과를 localStorage에 저장하고 완료 페이지로 이동 (UI 플로우만)

@@ -1,11 +1,14 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { PackageDetailPage } from "@/domains/magazine/components/PackageDetailPage"
 
 export function MagazinePackageDetailClient() {
-  const params = useParams<{ key: string }>()
-  const key = Number(params?.key)
+  const pathname = usePathname()
+  // /web/coolstay/magazine/package/{key} or /magazine/package/{key}
+  const segments = (pathname ?? "").split("/").filter(Boolean)
+  const pkgIdx = segments.indexOf("package")
+  const key = pkgIdx >= 0 ? Number(segments[pkgIdx + 1]) : NaN
 
   if (!key || isNaN(key)) {
     return (

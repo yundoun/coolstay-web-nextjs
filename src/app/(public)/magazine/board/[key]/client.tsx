@@ -1,11 +1,14 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { BoardDetailPage } from "@/domains/magazine/components/BoardDetailPage"
 
 export function MagazineBoardDetailClient() {
-  const params = useParams<{ key: string }>()
-  const key = Number(params?.key)
+  const pathname = usePathname()
+  // /web/coolstay/magazine/board/{key} or /magazine/board/{key}
+  const segments = (pathname ?? "").split("/").filter(Boolean)
+  const boardIdx = segments.indexOf("board")
+  const key = boardIdx >= 0 ? Number(segments[boardIdx + 1]) : NaN
 
   if (!key || isNaN(key)) {
     return (
