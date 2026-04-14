@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation"
 import { Home, Heart, Gift, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth"
+import { getRouteLayoutConfig } from "@/components/layout/route-layout-config"
 
 const NAV_ITEMS = [
   { label: "홈", href: "/", icon: Home },
-{ label: "찜숙소", href: "/favorites", icon: Heart },
+  { label: "찜숙소", href: "/favorites", icon: Heart },
   { label: "혜택함", href: "/coupons", icon: Gift },
   { label: "마이페이지", href: "/mypage", icon: User },
 ] as const
@@ -16,6 +17,9 @@ const NAV_ITEMS = [
 export function BottomNav() {
   const pathname = usePathname()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
+
+  const config = getRouteLayoutConfig(pathname ?? "/")
+  if (!config.showBottomNav) return null
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"

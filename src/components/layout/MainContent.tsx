@@ -2,8 +2,7 @@
 
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-
-const FULL_BLEED_PATHS: string[] = []
+import { getRouteLayoutConfig } from "@/components/layout/route-layout-config"
 
 interface MainContentProps {
   children: React.ReactNode
@@ -12,13 +11,18 @@ interface MainContentProps {
 
 export function MainContent({ children, className }: MainContentProps) {
   const pathname = usePathname()
-  const isFullBleed = FULL_BLEED_PATHS.includes(pathname ?? "")
+  const config = getRouteLayoutConfig(pathname ?? "/")
+
+  const isCompactHeader = config.headerVariant === "back" || config.headerVariant === "minimal"
+
   return (
     <div
       className={cn(
         "flex-1",
-        !isFullBleed && "pt-16 md:pt-[var(--header-height)]",
-        "pb-14 md:pb-0", // Bottom padding for mobile GNB
+        isCompactHeader
+          ? "pt-14 md:pt-[var(--header-height)]"
+          : "pt-16 md:pt-[var(--header-height)]",
+        config.showBottomNav ? "pb-14 md:pb-0" : "pb-0",
         className
       )}
     >

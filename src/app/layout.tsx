@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import Script from "next/script"
 import "@/styles/globals.css"
 import { Header, Footer, MainContent, BottomNav } from "@/components/layout"
+import { ScrollToTop } from "@/components/layout/ScrollToTop"
 import { SearchModal } from "@/components/search/SearchModal"
 import { Providers } from "./providers"
 
@@ -25,6 +26,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         <Providers>
+          <ScrollToTop />
           <Suspense>
             <Header />
           </Suspense>

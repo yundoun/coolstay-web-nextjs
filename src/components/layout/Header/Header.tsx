@@ -1,15 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { User, Heart, Gift } from "lucide-react"
+import { User, Heart, Gift, ChevronLeft, Home, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Container } from "@/components/layout"
+import { Container } from "@/components/layout/Container"
 import { cn } from "@/lib/utils"
 import { CompactSearchBar } from "@/domains/search/components/CompactSearchBar"
 import { useAuthStore } from "@/lib/stores/auth"
+import {
+  getRouteLayoutConfig,
+  type HeaderVariant,
+} from "@/components/layout/route-layout-config"
 
 const NAV_ITEMS = [
   { label: "찜목록", href: "/favorites", icon: Heart },
@@ -18,21 +22,20 @@ const NAV_ITEMS = [
   { label: "마이페이지", href: "/mypage" },
 ]
 
-const TRANSPARENT_HEADER_PATHS: string[] = []
-
 export interface HeaderProps {
   variant?: "solid" | "transparent"
 }
 
 export function Header({ variant }: HeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const user = useAuthStore((state) => state.user)
   const [heroSearchVisible, setHeroSearchVisible] = useState(true)
   const isHome = pathname === "/"
-  const isTransparentMode = variant
-    ? variant === "transparent"
-    : TRANSPARENT_HEADER_PATHS.includes(pathname ?? "")
+
+  const routeConfig = getRouteLayoutConfig(pathname ?? "/")
+  const headerVariant: HeaderVariant = routeConfig.headerVariant
 
   // IntersectionObserver로 히어로 검색바 감시 (홈에서만)
   useEffect(() => {
@@ -62,107 +65,190 @@ export function Header({ variant }: HeaderProps) {
     return () => clearTimeout(timeout)
   }, [isHome])
 
-  const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
-  const showHeaderSearch = true
-
-  return (
-    <>
+  // back variant
+  if (headerVariant === "back") {
+    return (
       <header
         data-slot="header"
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50",
-          "transition-all duration-300 ease-out",
-          showSolidHeader
-            ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
-            : "bg-transparent"
-        )}
+        className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
       >
-        <Container size="wide" className="h-16 md:h-[var(--header-height)]">
-          <div className="flex h-full items-center justify-between gap-3 md:gap-4">
-            {/* Logo */}
-            <Link href="/" className="shrink-0">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/coolstay_logo.png`}
-                alt="꿀스테이"
-                width={120}
-                height={40}
-                className={cn(
-                  "h-7 md:h-8 w-auto transition-all",
-                  showSolidHeader ? "" : "brightness-0 invert"
-                )}
-                priority
-              />
-            </Link>
-
-            {/* 검색 텍스트 필드 */}
-            <div
-              className={cn(
-                "flex-1 max-w-md mx-1 md:mx-4",
-                "transition-all duration-300",
-                showHeaderSearch
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-2 pointer-events-none"
-              )}
+        <Container size="wide" className="h-14 md:h-[var(--header-height)]">
+          <div className="flex h-full items-center">
+            {/* 뒤로가기 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 -ml-2"
+              onClick={() => router.back()}
             >
-              <CompactSearchBar />
-            </div>
+              <ChevronLeft className="size-5" />
+            </Button>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1 shrink-0">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                    showSolidHeader
-                      ? "text-foreground hover:bg-muted"
-                      : "text-white/90 hover:text-white hover:bg-white/10"
-                  )}
-                >
-                  {item.icon && <item.icon className="size-4" />}
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            {/* 타이틀 */}
+            <span className="flex-1 text-center font-semibold text-base truncate px-2">
+              {routeConfig.title ?? ""}
+            </span>
 
-            {/* Right Actions */}
-            <div className="flex items-center gap-2 shrink-0">
-              {isLoggedIn ? (
-                <Button
-                  variant={showSolidHeader ? "outline" : "ghost"}
-                  size="sm"
-                  className={cn(
-                    "hidden md:inline-flex gap-2",
-                    !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
-                  )}
-                  asChild
-                >
-                  <Link href="/mypage">
-                    <User className="size-4" />
-                    {user?.nickname}
+            {/* 우측 액션 */}
+            <div className="flex items-center shrink-0 -mr-2">
+              {routeConfig.rightActions?.includes("home") && (
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href="/">
+                    <Home className="size-5" />
                   </Link>
                 </Button>
-              ) : (
+              )}
+              {routeConfig.rightActions?.includes("share") && (
                 <Button
-                  variant={showSolidHeader ? "outline" : "ghost"}
-                  size="sm"
-                  className={cn(
-                    "hidden md:inline-flex gap-2",
-                    !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
-                  )}
-                  asChild
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        url: window.location.href,
+                      })
+                    }
+                  }}
                 >
-                  <Link href="/login">
-                    <User className="size-4" />
-                    로그인
-                  </Link>
+                  <Share2 className="size-5" />
                 </Button>
+              )}
+              {routeConfig.rightActions?.includes("favorite") && (
+                <Button variant="ghost" size="icon">
+                  <Heart className="size-5" />
+                </Button>
+              )}
+              {/* 액션 없으면 뒤로가기 버튼과 대칭 맞추기 위한 spacer */}
+              {!routeConfig.rightActions?.length && (
+                <div className="w-10" />
               )}
             </div>
           </div>
         </Container>
       </header>
-    </>
+    )
+  }
+
+  // minimal variant
+  if (headerVariant === "minimal") {
+    return (
+      <header
+        data-slot="header"
+        className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
+      >
+        <Container size="wide" className="h-14 md:h-[var(--header-height)]">
+          <div className="flex h-full items-center justify-center">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/">
+                <Home className="size-5" />
+              </Link>
+            </Button>
+          </div>
+        </Container>
+      </header>
+    )
+  }
+
+  // default variant
+  const isTransparentMode = variant
+    ? variant === "transparent"
+    : false
+  const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
+
+  return (
+    <header
+      data-slot="header"
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50",
+        "transition-all duration-300 ease-out",
+        showSolidHeader
+          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
+          : "bg-transparent"
+      )}
+    >
+      <Container size="wide" className="h-16 md:h-[var(--header-height)]">
+        <div className="flex h-full items-center justify-between gap-3 md:gap-4">
+          {/* Logo */}
+          <Link href="/" className="shrink-0">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/coolstay_logo.png`}
+              alt="꿀스테이"
+              width={120}
+              height={40}
+              className={cn(
+                "h-7 md:h-8 w-auto transition-all",
+                showSolidHeader ? "" : "brightness-0 invert"
+              )}
+              priority
+            />
+          </Link>
+
+          {/* 검색 텍스트 필드 */}
+          <div
+            className={cn(
+              "flex-1 max-w-md mx-1 md:mx-4",
+              "transition-all duration-300",
+              "opacity-100 translate-y-0"
+            )}
+          >
+            <CompactSearchBar />
+          </div>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-1 shrink-0">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                  showSolidHeader
+                    ? "text-foreground hover:bg-muted"
+                    : "text-white/90 hover:text-white hover:bg-white/10"
+                )}
+              >
+                {item.icon && <item.icon className="size-4" />}
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            {isLoggedIn ? (
+              <Button
+                variant={showSolidHeader ? "outline" : "ghost"}
+                size="sm"
+                className={cn(
+                  "hidden md:inline-flex gap-2",
+                  !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
+                )}
+                asChild
+              >
+                <Link href="/mypage">
+                  <User className="size-4" />
+                  {user?.nickname}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                variant={showSolidHeader ? "outline" : "ghost"}
+                size="sm"
+                className={cn(
+                  "hidden md:inline-flex gap-2",
+                  !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
+                )}
+                asChild
+              >
+                <Link href="/login">
+                  <User className="size-4" />
+                  로그인
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+      </Container>
+    </header>
   )
 }
