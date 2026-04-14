@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-14 15:05** | 리뷰 페이지 generateStaticParams 추가 | [`add8ad9`](.work-history/entries/2026-04-14_21-00_FIX_reviews-static-params.md)
 - **2026-04-14 15:01** | 숙소 상세 탭 재구성 | [`b03ee75`](.work-history/entries/2026-04-14_20-30_REFACTOR_tab-restructure-mobile-benefit.md)
 - **2026-04-14 14:40** | Slide-down 서브 네비, 꿀혜택 위젯, 헤더 숙소명 | [`277ab51`](.work-history/entries/2026-04-14_19-00_FEAT_slide-down-subnav-benefit-widget.md)
 - **2026-04-14 13:37** | 숙소 상세 스티키 탭 네비게이션 및 리뷰 전체보기 페이지 | [`cde10ae`](.work-history/entries/2026-04-14_16-30_FEAT_accommodation-sticky-tab-review-page.md)
