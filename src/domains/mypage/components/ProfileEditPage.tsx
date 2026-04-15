@@ -74,7 +74,7 @@ export function ProfileEditPage() {
         sms_auth_code: verifyCode,
         auth_method: rawPhone,
       })
-      if (!res.is_verified) {
+      if (!res.isVerified) {
         alert("인증번호가 일치하지 않습니다")
         return
       }

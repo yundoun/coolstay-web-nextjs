@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator"
 import { PhoneVerificationStep } from "./PhoneVerificationStep"
 import { registerWithEmail } from "../api/authApi"
 import { useAuthStore } from "@/lib/stores/auth"
-import { encryptPassword } from "@/lib/api/client"
+import { encryptPassword, refreshTempToken } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
 
 interface Agreement {
@@ -24,10 +24,10 @@ interface Agreement {
 }
 
 const INITIAL_AGREEMENTS: Agreement[] = [
-  { id: "terms", label: "이용약관 동의", required: true, checked: false },
-  { id: "privacy", label: "개인정보 수집 및 이용 동의", required: true, checked: false },
-  { id: "age", label: "만 14세 이상 확인", required: true, checked: false },
-  { id: "marketing", label: "마케팅 정보 수신 동의", required: false, checked: false },
+  { id: "TC001", label: "이용약관 동의", required: true, checked: false },
+  { id: "TC002", label: "개인정보 수집 및 이용 동의", required: true, checked: false },
+  { id: "TC003", label: "만 19세 이상 확인", required: true, checked: false },
+  { id: "TC102", label: "마케팅 알림 수신 동의", required: false, checked: false },
 ]
 
 export function RegisterPage() {
@@ -84,10 +84,13 @@ export function RegisterPage() {
 
     const termCodes = agreements
       .filter((a) => a.checked)
-      .map((a) => a.id === "terms" ? "100" : a.id === "privacy" ? "200" : a.id === "age" ? "300" : "400")
+      .map((a) => a.id)
       .join(",")
 
     try {
+      // 임시 토큰 갱신 — 폼 작성 중 만료(5분)될 수 있으므로
+      // encrypt와 API 요청이 동일한 토큰 secret을 사용하도록 보장
+      await refreshTempToken()
       const encPw = await encryptPassword(password)
       const result = await registerWithEmail({
         user_id: email,

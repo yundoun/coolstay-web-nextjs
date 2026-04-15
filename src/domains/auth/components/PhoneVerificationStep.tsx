@@ -100,10 +100,10 @@ export function PhoneVerificationStep({
         sms_auth_code: code,
         auth_method: rawPhone,
       })
-      if (result.is_verified) {
+      if (result.isVerified) {
         setVerified(true)
       } else {
-        setError(`인증번호가 올바르지 않습니다. (남은 횟수: ${result.remain_try_count})`)
+        setError(`인증번호가 올바르지 않습니다.${result.remainTryCount != null ? ` (남은 횟수: ${result.remainTryCount})` : ""}`)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "인증 확인에 실패했습니다")

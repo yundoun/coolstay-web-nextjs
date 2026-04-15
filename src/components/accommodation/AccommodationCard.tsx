@@ -3,7 +3,9 @@
 import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter, usePathname } from "next/navigation"
 import { Heart, Star, Ticket } from "lucide-react"
+import { useAuthStore } from "@/lib/stores/auth"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -51,11 +53,18 @@ export interface AccommodationCardProps {
 export function AccommodationCard({ accommodation, priority = false, onToggleFavorite }: AccommodationCardProps) {
   const [liked, setLiked] = useState(!!accommodation.isLiked)
   const [toggling, setToggling] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
 
   const handleHeartClick = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (!onToggleFavorite || toggling) return
+    if (!isLoggedIn) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname ?? "/")}`)
+      return
+    }
     const prev = liked
     setLiked(!prev) // 낙관적 업데이트
     setToggling(true)
@@ -66,7 +75,7 @@ export function AccommodationCard({ accommodation, priority = false, onToggleFav
     } finally {
       setToggling(false)
     }
-  }, [onToggleFavorite, toggling, liked, accommodation.id])
+  }, [onToggleFavorite, toggling, liked, accommodation.id, isLoggedIn, router, pathname])
 
   const discount = accommodation.originalPrice
     ? Math.round(

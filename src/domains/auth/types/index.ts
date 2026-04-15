@@ -55,8 +55,8 @@ export interface CodeCheckRequest {
 }
 
 export interface CodeCheckResponse {
-  is_verified: boolean           // 스펙: snake_case
-  remain_try_count: number       // 스펙: snake_case
+  isVerified: boolean            // 실측: camelCase (스펙은 snake_case이나 서버는 camelCase 반환)
+  remainTryCount?: number        // 실측: camelCase, AOS에서도 미사용
 }
 
 export interface AuthMethodResponse {
@@ -72,7 +72,7 @@ export interface RegisterRequest {
   user_id: string
   enc_password: string
   nickname: string
-  term_codes: string          // 콤마 구분: "100,200"
+  term_codes: string          // 콤마 구분, TC 접두사 필수: "TC100,TC200"
   phone_number: string
   sms_auth_key: string
   sms_auth_code: string

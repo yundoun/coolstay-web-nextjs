@@ -179,6 +179,13 @@ export async function getTokenSecret(): Promise<string> {
   return token.secret
 }
 
+/** 임시 토큰 강제 갱신 (비로그인 상태에서 토큰 만료 대비) */
+export async function refreshTempToken(): Promise<void> {
+  if (isUserToken) return // 로그인 토큰이면 갱신 불필요
+  clearToken()
+  await getToken()
+}
+
 /** 비밀번호를 AES 암호화 */
 export async function encryptPassword(password: string): Promise<string> {
   const secret = await getTokenSecret()

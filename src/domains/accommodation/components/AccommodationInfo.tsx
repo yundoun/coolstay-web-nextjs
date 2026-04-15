@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { Star, MapPin, Share2, Heart, Coins } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/lib/stores/auth"
 import { useFavorites } from "@/domains/favorites/hooks/useFavorites"
 import type { AccommodationDetail } from "../types"
 
@@ -17,9 +19,16 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
   const { addFavorite, removeFavorites } = useFavorites()
   const [liked, setLiked] = useState(accommodation.userLikeYn === "Y")
   const [toggling, setToggling] = useState(false)
+  const router = useRouter()
+  const pathname = usePathname()
+  const isLoggedIn = useAuthStore((s) => s.isLoggedIn)
 
   const handleToggleFavorite = useCallback(async () => {
     if (toggling) return
+    if (!isLoggedIn) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname ?? "/")}`)
+      return
+    }
     const prev = liked
     setLiked(!prev)
     setToggling(true)
@@ -34,7 +43,7 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
     } finally {
       setToggling(false)
     }
-  }, [toggling, liked, accommodation.id, addFavorite, removeFavorites])
+  }, [toggling, liked, accommodation.id, addFavorite, removeFavorites, isLoggedIn, router, pathname])
   return (
     <div className="space-y-6">
       {/* Header */}
