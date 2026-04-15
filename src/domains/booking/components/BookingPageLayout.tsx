@@ -179,7 +179,7 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
       )}
 
       {/* Mobile Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 lg:hidden z-40">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 lg:hidden z-[var(--z-fixed)] safe-area-bottom">
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-xs text-muted-foreground">최종 결제금액</p>

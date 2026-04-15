@@ -1,9 +1,11 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Instagram, Youtube, MessageCircle } from "lucide-react"
 import { Container } from "./Container"
 import { cn } from "@/lib/utils"
+import { getRouteLayoutConfig } from "@/components/layout/route-layout-config"
 
 const CS_LINKS = [
   { label: "자주 묻는 질문", href: "/faq" },
@@ -24,10 +26,13 @@ const LEGAL_LINKS = [
 ]
 
 export function Footer() {
+  const pathname = usePathname()
+  const config = getRouteLayoutConfig(pathname ?? "/")
+
   return (
     <footer
       data-slot="footer"
-      className="border-t pb-16 md:pb-0"
+      className={cn("border-t", config.showBottomNav ? "pb-16 md:pb-0" : "pb-0")}
     >
       {/* Main Footer — 모바일: 고객센터 + 회사정보 병렬 */}
       <Container size="normal" className="py-6 md:py-8">

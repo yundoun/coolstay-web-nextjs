@@ -224,7 +224,7 @@ export function useBookingSubmit() {
       }
 
       sessionStorage.setItem("bookingResult", JSON.stringify(result))
-      router.push(`/booking/${context.accommodation.id}/complete`)
+      router.replace(`/booking/${context.accommodation.id}/complete`)
     } catch (err) {
       const message = err instanceof Error ? err.message : "예약 처리 중 오류가 발생했습니다"
       setError(message)

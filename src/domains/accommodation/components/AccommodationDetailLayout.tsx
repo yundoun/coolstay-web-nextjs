@@ -308,7 +308,7 @@ export function AccommodationDetailLayout({
           이미지가 뷰포트를 벗어나면 헤더 아래로 슬라이드 */}
       <div
         className={cn(
-          "fixed left-0 right-0 z-40",
+          "fixed left-0 right-0 z-[var(--z-fixed)]",
           "top-14 md:top-[var(--header-height)]",
           "bg-background/95 backdrop-blur-md border-b border-border",
           "transition-[transform,opacity] duration-300 ease-out",

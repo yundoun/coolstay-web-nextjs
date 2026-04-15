@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { CheckCircle, Home, ClipboardList } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -97,19 +96,22 @@ export function BookingCompletePage() {
         </div>
       </div>
 
-      {/* Actions */}
+      {/* Actions — replace로 완료 페이지를 히스토리에서 제거 */}
       <div className="flex gap-3 mt-6">
-        <Button variant="outline" className="flex-1 gap-2" asChild>
-          <Link href="/bookings">
-            <ClipboardList className="size-4" />
-            예약 내역
-          </Link>
+        <Button
+          variant="outline"
+          className="flex-1 gap-2"
+          onClick={() => router.replace("/bookings")}
+        >
+          <ClipboardList className="size-4" />
+          예약 내역
         </Button>
-        <Button className="flex-1 gap-2" asChild>
-          <Link href="/">
-            <Home className="size-4" />
-            홈으로
-          </Link>
+        <Button
+          className="flex-1 gap-2"
+          onClick={() => router.replace("/")}
+        >
+          <Home className="size-4" />
+          홈으로
         </Button>
       </div>
     </Container>

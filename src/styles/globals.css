@@ -426,4 +426,9 @@
   .animate-slide-in-from-left {
     animation: slide-in-from-left 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   }
+
+  /* iOS safe area — 하단 고정 요소에 홈 인디케이터 여백 추가 */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
