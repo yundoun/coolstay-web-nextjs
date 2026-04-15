@@ -94,7 +94,13 @@ export function RegionRecommendations({ categories, stores }: Props) {
             <Link
               key={store.key}
               href={`/accommodations/${store.key}`}
-              className="group rounded-xl overflow-hidden border bg-card hover:shadow-lg transition-all duration-300"
+              className="group rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              style={{
+                background: "rgba(255,255,255,0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.06)",
+              }}
             >
               <div className="relative aspect-[4/3] overflow-hidden bg-muted">
                 {store.images?.[0] ? (

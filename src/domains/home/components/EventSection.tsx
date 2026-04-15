@@ -135,10 +135,15 @@ function EventCard({
       className={cn(
         "group relative flex-shrink-0 snap-start",
         "w-[280px] sm:w-[320px] rounded-2xl overflow-hidden",
-        "bg-card border border-border/40",
         "transition-all duration-300",
-        "hover:shadow-lg hover:-translate-y-1 hover:border-border"
+        "hover:shadow-lg hover:-translate-y-1"
       )}
+      style={{
+        background: "rgba(255,255,255,0.6)",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
+        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.06)",
+      }}
     >
       {/* 이미지 */}
       <div className="relative aspect-[16/9] bg-muted overflow-hidden">

@@ -31,7 +31,7 @@ export function RecentlyViewed({ stores }: Props) {
         size="icon"
         className={cn(
           "absolute -left-3 top-1/2 -translate-y-1/2 z-10 size-8 rounded-full",
-          "bg-background/90 shadow-md border",
+          "bg-white/70 backdrop-blur-md shadow-md",
           "hidden md:flex",
           "opacity-0 group-hover/carousel:opacity-100 transition-opacity"
         )}
@@ -44,7 +44,7 @@ export function RecentlyViewed({ stores }: Props) {
         size="icon"
         className={cn(
           "absolute -right-3 top-1/2 -translate-y-1/2 z-10 size-8 rounded-full",
-          "bg-background/90 shadow-md border",
+          "bg-white/70 backdrop-blur-md shadow-md",
           "hidden md:flex",
           "opacity-0 group-hover/carousel:opacity-100 transition-opacity"
         )}
@@ -69,9 +69,15 @@ export function RecentlyViewed({ stores }: Props) {
               href={`/accommodations/${store.key}`}
               className={cn(
                 "shrink-0 w-44 snap-start group",
-                "rounded-xl overflow-hidden border bg-card",
-                "transition-all duration-300 hover:shadow-lg"
+                "rounded-2xl overflow-hidden",
+                "transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
               )}
+              style={{
+                background: "rgba(255,255,255,0.6)",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.06)",
+              }}
             >
               <div className="relative aspect-[3/2] overflow-hidden">
                 {store.images?.[0] ? (

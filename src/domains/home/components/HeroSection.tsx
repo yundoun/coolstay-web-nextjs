@@ -102,7 +102,15 @@ export function HeroSection() {
       <div className="relative -mt-7 z-10">
         <Container size="normal">
           <div id="hero-search-bar">
-            <div className="bg-white rounded-xl p-3 md:p-4 shadow-lg border">
+            <div
+              className="rounded-2xl p-3 md:p-4 shadow-xl"
+              style={{
+                background: "rgba(255,255,255,0.7)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 10px 40px rgba(0,0,0,0.12)",
+              }}
+            >
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-0 md:divide-x md:divide-border">
                 <SearchField
                   icon={MapPin}

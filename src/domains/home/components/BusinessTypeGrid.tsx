@@ -25,46 +25,66 @@ export function BusinessTypeGrid({ categories }: Props) {
   const handleClick = (item: LinkItem) => {
     const types = item.mapping_business_types
     if (types?.length) {
-      // AOS 앱과 동일: mapping_business_types 전체를 콤마 구분으로 전달
       openWithBusinessType(types.join(","), types)
     }
   }
 
   return (
-    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+    <div className="flex gap-2 overflow-x-auto scrollbar-none sm:grid sm:grid-cols-8 sm:gap-2.5 sm:overflow-visible">
       {items.map((item, idx) => {
-        // 기획전, 비활성 등 특수 링크는 기존 Link 유지
         const specialHref = SPECIAL_HREF[item.sub_type]
+
+        const content = (
+          <>
+
+            {/* 아이콘 */}
+            <div className="relative z-10 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-0.5 group-hover:scale-110">
+              <CategoryIcon item={item} />
+            </div>
+
+            {/* 라벨 */}
+            <span className="relative z-10 mt-1.5 text-[11px] font-semibold text-neutral-700 text-center line-clamp-1 sm:text-xs">
+              {item.btn_name}
+            </span>
+          </>
+        )
+
+        const cardClass = cn(
+          "group relative flex shrink-0 flex-col items-center justify-center",
+          "min-w-[72px] rounded-2xl px-2 py-3.5 sm:min-w-0 sm:py-4",
+          "overflow-hidden",
+          "transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
+          "hover:scale-[1.04] hover:shadow-md",
+        )
+
+        const cardStyle = {
+          background: "rgba(255,255,255,0.55)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.04)",
+        }
+
         if (specialHref) {
           return (
             <Link
               key={`${item.btn_name}-${idx}`}
               href={specialHref}
-              className={cn(
-                "flex flex-col items-center gap-2 py-3 px-2 rounded-xl",
-                "transition-all duration-200",
-                "hover:bg-muted hover:shadow-sm hover:-translate-y-0.5"
-              )}
+              className={cardClass}
+              style={cardStyle}
             >
-              <CategoryIcon item={item} />
-              <CategoryLabel name={item.btn_name} />
+              {content}
             </Link>
           )
         }
 
-        // 업태 버튼 → 지역 선택 모달
         return (
           <button
             key={`${item.btn_name}-${idx}`}
             onClick={() => handleClick(item)}
-            className={cn(
-              "flex flex-col items-center gap-2 py-3 px-2 rounded-xl",
-              "transition-all duration-200",
-              "hover:bg-muted hover:shadow-sm hover:-translate-y-0.5"
-            )}
+            className={cardClass}
+            style={cardStyle}
           >
-            <CategoryIcon item={item} />
-            <CategoryLabel name={item.btn_name} />
+            {content}
           </button>
         )
       })}
@@ -75,28 +95,20 @@ export function BusinessTypeGrid({ categories }: Props) {
 function CategoryIcon({ item }: { item: LinkItem }) {
   if (item.thumb_url) {
     return (
-      <div className="relative size-10 md:size-12">
+      <div className="relative size-10 drop-shadow-sm sm:size-11">
         <Image
           src={item.thumb_url}
           alt={item.btn_name}
           fill
           className="object-contain"
-          sizes="48px"
+          sizes="44px"
         />
       </div>
     )
   }
   return (
-    <div className="size-10 md:size-12 rounded-full bg-muted flex items-center justify-center text-lg">
+    <div className="flex size-10 items-center justify-center rounded-full bg-white/60 text-lg backdrop-blur-sm sm:size-11">
       🏨
     </div>
-  )
-}
-
-function CategoryLabel({ name }: { name: string }) {
-  return (
-    <span className="text-xs font-medium text-muted-foreground text-center line-clamp-1">
-      {name}
-    </span>
   )
 }

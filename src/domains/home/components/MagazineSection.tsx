@@ -36,7 +36,7 @@ export function MagazineSection() {
               <button
                 key={video.key}
                 onClick={() => video.link?.target && window.open(video.link.target, "_blank", "noopener,noreferrer")}
-                className="group relative flex-shrink-0 w-[180px] rounded-xl overflow-hidden"
+                className="group relative flex-shrink-0 w-[180px] rounded-2xl overflow-hidden"
               >
                 <div className="relative aspect-[16/9]">
                   {video.thumbnail_url ? (
@@ -76,9 +76,15 @@ export function MagazineSection() {
                 target={board.sub_type === "VIDEO" ? "_blank" : undefined}
                 rel={board.sub_type === "VIDEO" ? "noopener noreferrer" : undefined}
                 className={cn(
-                  "group rounded-xl overflow-hidden border bg-card",
+                  "group rounded-2xl overflow-hidden",
                   "transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
                 )}
+                style={{
+                  background: "rgba(255,255,255,0.6)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.06)",
+                }}
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {board.thumbnail_url ? (
