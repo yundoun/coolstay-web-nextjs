@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -29,6 +29,7 @@ import { mapStoreToAccommodation } from "@/domains/search/utils/mapStoreToAccomm
 import { downloadCoupon } from "@/domains/coupon/api/couponApi"
 import { COUPON_DOWNLOAD_TYPE } from "@/domains/coupon/types"
 import { useAuthStore } from "@/lib/stores/auth"
+import { useFavorites } from "@/domains/favorites/hooks/useFavorites"
 import { useExhibitionDetail } from "../hooks/useExhibitionDetail"
 import type { BoardItem, BoardItemSortTag } from "@/domains/cs/types"
 import type { Coupon, StoreItem } from "@/lib/api/types"
@@ -169,6 +170,19 @@ function CouponSection({ coupons, exhibitionType }: { coupons: Coupon[]; exhibit
 // ─── Linked stores section ───
 
 function LinkedStoresSection({ stores }: { stores: StoreItem[] }) {
+  const { addFavorite, removeFavorites } = useFavorites()
+
+  const handleToggleFavorite = useCallback(
+    async (id: string, isLiked: boolean) => {
+      if (isLiked) {
+        await removeFavorites([id])
+      } else {
+        await addFavorite(id)
+      }
+    },
+    [addFavorite, removeFavorites]
+  )
+
   return (
     <div className="mt-6">
       <div className="flex items-center gap-1.5 mb-3 text-sm font-medium text-muted-foreground">
@@ -180,6 +194,7 @@ function LinkedStoresSection({ stores }: { stores: StoreItem[] }) {
           <AccommodationCard
             key={store.key}
             accommodation={mapStoreToAccommodation(store)}
+            onToggleFavorite={handleToggleFavorite}
           />
         ))}
       </div>

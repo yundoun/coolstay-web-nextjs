@@ -17,12 +17,15 @@ export function useFavorites() {
   const wishlistItems: StoreItem[] = Array.isArray(data?.motels) ? data.motels : []
   const totalCount = data?.total_count ?? 0
 
+  const invalidateRelated = () => {
+    queryClient.invalidateQueries({ queryKey: ["favorites"] })
+    queryClient.invalidateQueries({ queryKey: ["contents", "detail"] })
+  }
+
   // 찜 등록
   const registerMutation = useMutation({
     mutationFn: (motelKey: string) => registerDibs({ motel_key: motelKey }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["favorites"] })
-    },
+    onSuccess: invalidateRelated,
   })
 
   // 찜 삭제
@@ -30,11 +33,10 @@ export function useFavorites() {
     mutationFn: (motelKeys: string[]) =>
       deleteDibs({
         type: "0",
+        flag: "I",
         motel_keys: motelKeys.join(","),
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["favorites"] })
-    },
+    onSuccess: invalidateRelated,
   })
 
   const addFavorite = useCallback(

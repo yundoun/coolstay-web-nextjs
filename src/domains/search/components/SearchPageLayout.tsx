@@ -13,6 +13,7 @@ import { BusinessTypeFilter } from "./BusinessTypeFilter"
 import { useSearchFilters } from "../hooks"
 import { useFilterSearch, useMyAreaList } from "../hooks/useContentsData"
 import { useKeywordSearch } from "../hooks/useKeywordData"
+import { useFavorites } from "@/domains/favorites/hooks/useFavorites"
 import { useUserLocation } from "../hooks/useUserLocation"
 import { mapStoreToAccommodation } from "../utils/mapStoreToAccommodation"
 import type { Accommodation } from "@/components/accommodation"
@@ -50,6 +51,18 @@ export function SearchPageLayout() {
 
   const { location: userLocation, isLocating } = useUserLocation()
   const { checkIn: defaultCheckIn, checkOut: defaultCheckOut } = getDefaultDates()
+  const { addFavorite, removeFavorites } = useFavorites()
+
+  const handleToggleFavorite = useCallback(
+    async (id: string, isLiked: boolean) => {
+      if (isLiked) {
+        await removeFavorites([id])
+      } else {
+        await addFavorite(id)
+      }
+    },
+    [addFavorite, removeFavorites]
+  )
 
   // URL params를 source of truth로 사용
   // keyword와 regionCode는 배타적 — 동시에 존재하면 regionCode 우선
@@ -257,7 +270,7 @@ export function SearchPageLayout() {
           {isLoading ? (
             <LoadingSpinner />
           ) : (
-            <SearchResultGrid accommodations={accommodations} />
+            <SearchResultGrid accommodations={accommodations} onToggleFavorite={handleToggleFavorite} />
           )}
         </div>
       </Container>
@@ -269,8 +282,10 @@ const PAGE_SIZE = 12
 
 function SearchResultGrid({
   accommodations,
+  onToggleFavorite,
 }: {
   accommodations: Accommodation[]
+  onToggleFavorite?: (id: string, isLiked: boolean) => void
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
   const sentinelRef = useRef<HTMLDivElement>(null)
@@ -318,6 +333,7 @@ function SearchResultGrid({
             key={accommodation.id}
             accommodation={accommodation}
             priority={index < 6}
+            onToggleFavorite={onToggleFavorite}
           />
         ))}
       </div>

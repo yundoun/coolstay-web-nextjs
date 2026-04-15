@@ -59,7 +59,7 @@ export function BookingHistoryPage() {
   const { items, totalCount, isLoading, error, hasMore, loadMore } = useBookingList(currentTab.reserveType)
 
   return (
-    <Container size="normal" padding="responsive" className="py-8">
+    <Container size="narrow" padding="responsive" className="py-8">
       <h1 className="text-2xl font-bold mb-6">예약 내역</h1>
 
       {/* Tabs */}

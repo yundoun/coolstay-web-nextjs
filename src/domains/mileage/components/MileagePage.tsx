@@ -62,7 +62,7 @@ export function MileagePage() {
   // 매장 목록도 없고 포인트 내역도 없으면 빈 상태 표시
   if (stores.length === 0 && points.length === 0) {
     return (
-      <Container size="normal" padding="responsive" className="py-8">
+      <Container size="narrow" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">마일리지</h1>
         <EmptyState
           icon={Coins}
@@ -75,7 +75,7 @@ export function MileagePage() {
   }
 
   return (
-    <Container size="normal" padding="responsive" className="py-8">
+    <Container size="narrow" padding="responsive" className="py-8">
       <h1 className="text-2xl font-bold mb-6">마일리지</h1>
 
       {/* Summary Card */}

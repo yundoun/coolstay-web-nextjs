@@ -1,10 +1,12 @@
 "use client"
 
+import { useState, useCallback } from "react"
 import { Star, MapPin, Share2, Heart, Coins } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { useFavorites } from "@/domains/favorites/hooks/useFavorites"
 import type { AccommodationDetail } from "../types"
 
 interface AccommodationInfoProps {
@@ -12,6 +14,27 @@ interface AccommodationInfoProps {
 }
 
 export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
+  const { addFavorite, removeFavorites } = useFavorites()
+  const [liked, setLiked] = useState(accommodation.userLikeYn === "Y")
+  const [toggling, setToggling] = useState(false)
+
+  const handleToggleFavorite = useCallback(async () => {
+    if (toggling) return
+    const prev = liked
+    setLiked(!prev)
+    setToggling(true)
+    try {
+      if (prev) {
+        await removeFavorites([accommodation.id])
+      } else {
+        await addFavorite(accommodation.id)
+      }
+    } catch {
+      setLiked(prev)
+    } finally {
+      setToggling(false)
+    }
+  }, [toggling, liked, accommodation.id, addFavorite, removeFavorites])
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -60,11 +83,13 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
             size="sm"
             className={cn(
               "gap-2",
-              accommodation.userLikeYn === "Y" && "text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
+              liked && "text-red-500 border-red-200 bg-red-50 hover:bg-red-100"
             )}
+            onClick={handleToggleFavorite}
+            disabled={toggling}
           >
-            <Heart className={cn("size-4", accommodation.userLikeYn === "Y" && "fill-current")} />
-            {accommodation.userLikeYn === "Y" ? "찜" : "찜하기"}
+            <Heart className={cn("size-4", liked && "fill-current")} />
+            {liked ? "찜" : "찜하기"}
           </Button>
           <Button variant="outline" size="sm" className="gap-2">
             <Share2 className="size-4" />

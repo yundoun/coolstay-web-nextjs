@@ -56,7 +56,7 @@ export function MyReviewsPage() {
   }
 
   return (
-    <Container size="normal" padding="responsive" className="py-8">
+    <Container size="narrow" padding="responsive" className="py-8">
       <h1 className="text-2xl font-bold mb-6">리뷰 관리</h1>
 
       {/* Summary Header */}

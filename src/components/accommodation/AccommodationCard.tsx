@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, Star, Ticket } from "lucide-react"
@@ -44,9 +45,29 @@ export interface Accommodation {
 export interface AccommodationCardProps {
   accommodation: Accommodation
   priority?: boolean
+  onToggleFavorite?: (id: string, isLiked: boolean) => void
 }
 
-export function AccommodationCard({ accommodation, priority = false }: AccommodationCardProps) {
+export function AccommodationCard({ accommodation, priority = false, onToggleFavorite }: AccommodationCardProps) {
+  const [liked, setLiked] = useState(!!accommodation.isLiked)
+  const [toggling, setToggling] = useState(false)
+
+  const handleHeartClick = useCallback(async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!onToggleFavorite || toggling) return
+    const prev = liked
+    setLiked(!prev) // 낙관적 업데이트
+    setToggling(true)
+    try {
+      await onToggleFavorite(accommodation.id, prev)
+    } catch {
+      setLiked(prev) // 실패 시 롤백
+    } finally {
+      setToggling(false)
+    }
+  }, [onToggleFavorite, toggling, liked, accommodation.id])
+
   const discount = accommodation.originalPrice
     ? Math.round(
         ((accommodation.originalPrice - accommodation.price) /
@@ -109,15 +130,14 @@ export function AccommodationCard({ accommodation, priority = false }: Accommoda
             className={cn(
               "absolute right-2 top-2 size-8 rounded-full",
               "bg-black/20 backdrop-blur-sm",
-              accommodation.isLiked
+              liked
                 ? "text-red-500 hover:bg-black/30 hover:text-red-500"
                 : "text-white hover:bg-black/30 hover:text-white"
             )}
-            onClick={(e) => {
-              e.preventDefault()
-            }}
+            onClick={handleHeartClick}
+            disabled={toggling}
           >
-            <Heart className={cn("size-4", accommodation.isLiked && "fill-current")} />
+            <Heart className={cn("size-4", liked && "fill-current")} />
             <span className="sr-only">찜하기</span>
           </Button>
         </div>

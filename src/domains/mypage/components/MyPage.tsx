@@ -54,7 +54,7 @@ function buildAccountMenu(info: MypageInfo | null): MenuItem[] {
       href: "/bookings",
       countBadge: (info?.reservation_count ?? 0) > 0 ? info!.reservation_count : undefined,
     },
-    { icon: Heart, label: "최근/관심 숙소", href: "/favorites" },
+    { icon: Heart, label: "찜한 숙소", href: "/favorites" },
     { icon: PenLine, label: "나의 후기", href: "/reviews" },
     { icon: MessageSquare, label: "나의 문의", href: "/inquiries" },
     { icon: FileText, label: "이용 약관", href: "/terms" },
