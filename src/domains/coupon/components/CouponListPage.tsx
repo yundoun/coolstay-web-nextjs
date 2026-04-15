@@ -76,7 +76,7 @@ function getCouponTypeLabel(type: string, subCategory: string): string | null {
   return labels[type] || labels[subCategory] || null
 }
 
-export function CouponListPage() {
+export function CouponListPage({ embedded = false }: { embedded?: boolean }) {
   const { coupons, isLoading, error, register, remain7dayCount } = useCouponList()
   const [couponCode, setCouponCode] = useState("")
   const [expandedId, setExpandedId] = useState<number | null>(null)
@@ -94,10 +94,8 @@ export function CouponListPage() {
     }
   }
 
-  return (
-    <Container size="narrow" padding="responsive" className="py-8">
-      <h1 className="text-2xl font-bold mb-6">쿠폰</h1>
-
+  const content = (
+    <>
       {/* Coupon Code Input */}
       <div className="flex gap-2 mb-6">
         <Input
@@ -186,6 +184,15 @@ export function CouponListPage() {
           )}
         </div>
       )}
+    </>
+  )
+
+  if (embedded) return content
+
+  return (
+    <Container size="narrow" padding="responsive" className="py-8">
+      <h1 className="text-2xl font-bold mb-6">쿠폰</h1>
+      {content}
     </Container>
   )
 }

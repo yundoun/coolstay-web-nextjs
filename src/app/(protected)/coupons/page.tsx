@@ -1,11 +1,16 @@
-import { CouponListPage } from "@/domains/coupon/components"
+import { Suspense } from "react"
+import { BenefitPage } from "@/domains/benefit/components"
 
 export function generateMetadata() {
   return {
-    title: "쿠폰 | 꿀스테이",
+    title: "혜택함 | 꿀스테이",
   }
 }
 
 export default function CouponsRoute() {
-  return <CouponListPage />
+  return (
+    <Suspense>
+      <BenefitPage />
+    </Suspense>
+  )
 }

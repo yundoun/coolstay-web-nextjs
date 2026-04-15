@@ -315,9 +315,11 @@ export interface StoreItem {
     unlimited_coupon: boolean
     revisit: boolean
   }
-  // 상세 조회나 특정 검색 유형(ST006 등)에서 추가 반환되는 필드
+  // 상세 조회나 특정 검색 유형(ST004, ST006 등)에서 추가 반환되는 필드
   rating?: Rating
   benefit_point_rate?: number
+  user_point_amount?: number      // ST004: 사용자 적립 마일리지
+  expire_point_amount?: number    // ST004: 만료 예정 마일리지
   location?: Location
   download_coupon_info?: {
     status: string

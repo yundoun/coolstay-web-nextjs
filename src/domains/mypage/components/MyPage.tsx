@@ -135,14 +135,14 @@ export function MyPage() {
             </div>
           </Link>
           <Link
-            href="/mileage"
+            href="/coupons?tab=mileage"
             className="flex items-center gap-3 p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
           >
             <Coins className="size-5 text-primary" />
             <div>
               <p className="text-xs text-muted-foreground">마일리지</p>
               <p className="text-lg font-bold">
-                {(info?.mileage_store_count ?? 0).toLocaleString()}P
+                {info?.mileage_store_count ?? 0}개 제휴점
               </p>
             </div>
           </Link>

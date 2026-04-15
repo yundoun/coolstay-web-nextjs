@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-15 13:11** | 혜택함 페이지 쿠폰/마일리지 탭 구조 재설계 | [`f706ddf`](.work-history/entries/2026-04-15_13-10_benefit-page-redesign.md)
 - **2026-04-15 11:39** | 홈 화면 글래스모피즘 디자인 통일 | [`ebebc3c`](.work-history/entries/2026-04-15_23-20_home-glassmorphism-design.md)
 - **2026-04-15 11:16** | deploy 스크립트 serve.js 누락 수정 | [`c25ab7f`](.work-history/entries/2026-04-15_19-55_deploy-serve-js-fix.md)
 - **2026-04-15 10:51** | 예약 페이지 레이아웃/상태매핑/네비게이션 수정 | [`b2adcd7`](.work-history/entries/2026-04-15_19-50_booking-layout-status-fix.md)
