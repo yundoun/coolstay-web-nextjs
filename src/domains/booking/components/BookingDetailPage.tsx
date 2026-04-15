@@ -15,7 +15,6 @@ import {
   Copy,
   Share2,
   Trash2,
-  ArrowLeft,
   FileSearch,
   MapPin,
   PhoneCall,
@@ -92,7 +91,7 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
 
   if (isLoading) {
     return (
-      <Container size="normal" padding="responsive" className="py-20">
+      <Container size="narrow" padding="responsive" className="py-20">
         <LoadingSpinner fullPage />
       </Container>
     )
@@ -100,7 +99,7 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
 
   if (error || !booking) {
     return (
-      <Container size="normal" padding="responsive" className="py-20">
+      <Container size="narrow" padding="responsive" className="py-20">
         <EmptyState
           icon={FileSearch}
           title={error || "예약 정보를 찾을 수 없습니다"}
@@ -133,20 +132,7 @@ export function BookingDetailPage({ bookingId }: { bookingId: string }) {
   }
 
   return (
-    <Container size="normal" padding="responsive" className="py-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="shrink-0"
-          onClick={() => router.back()}
-        >
-          <ArrowLeft className="size-5" />
-        </Button>
-        <h1 className="text-xl font-bold">예약 상세</h1>
-      </div>
-
+    <Container size="narrow" padding="responsive" className="py-6 pb-24">
       {/* 숙소/객실 정보 */}
       <section className="rounded-xl border bg-card overflow-hidden">
         <div className="flex gap-4 p-4">

@@ -204,14 +204,6 @@ function BookingCard({ booking }: { booking: BookingHistoryItem }) {
 
       {/* Actions */}
       <div className="flex border-t">
-        {booking.status === "confirmed" && (
-          <button className="flex-1 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium">
-            예약 취소
-          </button>
-        )}
-        {booking.status === "confirmed" && (
-          <div className="w-px bg-border" />
-        )}
         <Link
           href={`/accommodations/${booking.accommodationId}`}
           className="flex-1 py-3 text-sm text-center text-muted-foreground hover:bg-muted/50 transition-colors font-medium"

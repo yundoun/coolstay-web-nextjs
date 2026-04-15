@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-15 10:51** | 예약 페이지 레이아웃/상태매핑/네비게이션 수정 | [`b2adcd7`](.work-history/entries/2026-04-15_19-50_booking-layout-status-fix.md)
 - **2026-04-15 10:37** | 찜 기능 API 연동 및 마이페이지 폭 통일 | [`11f7a64`](.work-history/entries/2026-04-15_10-30_favorites-api-integration.md)
 - **2026-04-14 17:42** | deploy 스크립트 rsync --delete에서 serve.js 보호 | [`c1f096b`](.work-history/entries/2026-04-14_23-30_FIX_deploy-rsync-protect.md)
 - **2026-04-14 17:31** | RoomCard 가격/쿠폰 디자인 통일 및 브랜드 컬러 적용 | [`39852ce`](.work-history/entries/2026-04-14_23-00_DS-1_price-design-unification.md)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { CheckCircle, Home, ClipboardList } from "lucide-react"
 import { Container } from "@/components/layout"
@@ -16,28 +17,23 @@ const PAYMENT_LABELS: Record<string, string> = {
 }
 
 export function BookingCompletePage() {
+  const router = useRouter()
   const [result, setResult] = useState<BookingResult | null>(null)
+  const [checked, setChecked] = useState(false)
 
   useEffect(() => {
     const data = sessionStorage.getItem("bookingResult")
     if (data) {
       setResult(JSON.parse(data))
       sessionStorage.removeItem("bookingResult")
+    } else {
+      router.replace("/bookings")
     }
-  }, [])
+    setChecked(true)
+  }, [router])
 
-  if (!result) {
-    return (
-      <Container size="narrow" padding="responsive" className="py-20">
-        <div className="text-center">
-          <h1 className="text-xl font-bold mb-2">예약 정보를 찾을 수 없습니다</h1>
-          <p className="text-muted-foreground mb-6">잘못된 접근입니다.</p>
-          <Button asChild>
-            <Link href="/">홈으로 돌아가기</Link>
-          </Button>
-        </div>
-      </Container>
-    )
+  if (!result || !checked) {
+    return null
   }
 
   return (

@@ -57,7 +57,7 @@ const EXACT_ROUTES: Record<string, RouteLayoutConfig> = {
   "/mypage/withdraw": { headerVariant: "back", showBottomNav: false, title: "회원탈퇴" },
 
   // 마이페이지 하위 기능
-  "/bookings": { headerVariant: "back", showBottomNav: true, title: "예약내역" },
+  "/bookings": { headerVariant: "back", showBottomNav: true, title: "예약내역", rightActions: ["home"] },
   "/notifications": { headerVariant: "back", showBottomNav: false, title: "알림" },
   "/reviews": { headerVariant: "back", showBottomNav: false, title: "리뷰" },
   "/inquiries": { headerVariant: "back", showBottomNav: false, title: "문의" },
@@ -88,7 +88,7 @@ const PATTERN_ROUTES: { pattern: RegExp; config: RouteLayoutConfig }[] = [
   // 예약 상세
   {
     pattern: /^\/bookings\/[^/]+$/,
-    config: { headerVariant: "back", showBottomNav: false, title: "예약 상세" },
+    config: { headerVariant: "back", showBottomNav: false, title: "예약 상세", rightActions: ["home"] },
   },
   // 숙소 리뷰 전체보기
   {

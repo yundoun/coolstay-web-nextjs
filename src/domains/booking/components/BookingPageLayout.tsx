@@ -45,7 +45,7 @@ export function BookingPageLayout({ context }: BookingPageLayoutProps) {
         localStorage.removeItem("pendingBookingAccommodationId")
         localStorage.removeItem("pendingBookingBookId")
         localStorage.removeItem("pendingPaymentInfo")
-        router.push(`/booking/${context.accommodation.id}/complete`)
+        router.replace(`/booking/${context.accommodation.id}/complete`)
       } else {
         alert("결제가 취소되었습니다.")
       }

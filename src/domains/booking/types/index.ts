@@ -148,10 +148,24 @@ export interface BookingHistoryItem {
 
 // ─── API → 웹 타입 변환 ─────────────────────────────────────
 
-/** API 예약 상태 → 웹 상태 */
+/** API 예약 상태 → 웹 상태
+ * API는 BS코드(legacy) 또는 영문 상태 두 가지를 줄 수 있음
+ * BS001=예약대기/확정, BS002=예약완료, BS003=취소/환불, BS004=준비, BS005=노쇼
+ */
 function mapStatus(apiStatus: string): BookingStatus {
   switch (apiStatus) {
+    // Legacy BS codes
+    case "BS001":
+    case "BS002":
+    case "BS004":
+      return "confirmed"
+    case "BS003":
+      return "cancelled"
+    case "BS005":
+      return "checked_in"
+    // English status names
     case "CONFIRMED":
+    case "CONFIRM":
     case "READY":
       return "confirmed"
     case "USE":
