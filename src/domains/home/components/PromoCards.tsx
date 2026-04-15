@@ -89,7 +89,7 @@ export function PromoCards({ buttons }: Props) {
   if (items.length === 0) return null
 
   return (
-    <div className="flex gap-3 overflow-x-auto scrollbar-none sm:grid sm:grid-cols-3 sm:overflow-visible">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {items.map((button, idx) => {
         const theme = getTheme(button.btn_name)
 
@@ -98,7 +98,7 @@ export function PromoCards({ buttons }: Props) {
             key={`${button.btn_name}-${idx}`}
             href={getPromoHref(button)}
             className={cn(
-              "group relative flex min-w-[200px] flex-col justify-between",
+              "group relative flex flex-col justify-between",
               "overflow-hidden rounded-2xl p-5 sm:p-6",
               "min-h-[130px] sm:min-h-[150px]",
               // Hover

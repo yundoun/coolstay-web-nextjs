@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-15 13:26** | 숙소 상세 EventBanner 제거 및 홈 레이아웃 개선 | [`52ced58`](.work-history/entries/2026-04-15_23-50_remove-eventbanner-home-layout.md)
 - **2026-04-15 13:11** | 혜택함 페이지 쿠폰/마일리지 탭 구조 재설계 | [`f706ddf`](.work-history/entries/2026-04-15_13-10_benefit-page-redesign.md)
 - **2026-04-15 11:39** | 홈 화면 글래스모피즘 디자인 통일 | [`ebebc3c`](.work-history/entries/2026-04-15_23-20_home-glassmorphism-design.md)
 - **2026-04-15 11:16** | deploy 스크립트 serve.js 누락 수정 | [`c25ab7f`](.work-history/entries/2026-04-15_19-55_deploy-serve-js-fix.md)

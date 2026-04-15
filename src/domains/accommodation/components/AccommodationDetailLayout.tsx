@@ -15,7 +15,7 @@ import { RoomCard } from "./RoomCard"
 import { ReviewSection } from "./ReviewSection"
 import { PolicySection } from "./PolicySection"
 import { MapSection } from "./MapSection"
-import { EventBanner } from "./EventBanner"
+
 import { BusinessInfoSection } from "./BusinessInfoSection"
 import { ExternalLinkSection } from "./ExternalLinkSection"
 import { RoomDetailModal } from "./RoomDetailModal"
@@ -186,11 +186,6 @@ export function AccommodationDetailLayout({
   const benefitsContent = (
     <div id="section-benefits">
       <BenefitSection accommodation={accommodation} />
-      {accommodation.events.length > 0 && (
-        <div className="mt-8">
-          <EventBanner events={accommodation.events} />
-        </div>
-      )}
     </div>
   )
 

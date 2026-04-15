@@ -30,7 +30,7 @@ export function BusinessTypeGrid({ categories }: Props) {
   }
 
   return (
-    <div className="flex gap-2 overflow-x-auto scrollbar-none sm:grid sm:grid-cols-8 sm:gap-2.5 sm:overflow-visible">
+    <div className="grid grid-cols-4 gap-2 sm:grid-cols-8 sm:gap-2.5">
       {items.map((item, idx) => {
         const specialHref = SPECIAL_HREF[item.sub_type]
 
@@ -50,8 +50,8 @@ export function BusinessTypeGrid({ categories }: Props) {
         )
 
         const cardClass = cn(
-          "group relative flex shrink-0 flex-col items-center justify-center",
-          "min-w-[72px] rounded-2xl px-2 py-3.5 sm:min-w-0 sm:py-4",
+          "group relative flex flex-col items-center justify-center",
+          "rounded-2xl px-2 py-3.5 sm:py-4",
           "overflow-hidden",
           "transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
           "hover:scale-[1.04] hover:shadow-md",
