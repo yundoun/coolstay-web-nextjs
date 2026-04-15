@@ -15,6 +15,9 @@ NEXT_PUBLIC_BASE_PATH=/web/coolstay \
 pnpm build
 
 echo "📦 업로드 중..."
+# serve.js가 서버에 없을 수 있으므로 (최초 배포, 디렉토리 재생성 등) 먼저 보장
+sshpass -p "$PASS" ssh "$HOST" "mkdir -p ~/$REMOTE_DIR"
+sshpass -p "$PASS" scp serve.js "$HOST:$REMOTE_DIR/serve.js"
 sshpass -p "$PASS" rsync -avz --delete --filter='protect serve.js' --filter='protect /tmp/' out/ "$HOST:$REMOTE_DIR/"
 
 echo "🔄 서버 재시작 중..."
