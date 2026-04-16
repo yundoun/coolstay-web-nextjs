@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import {
   getReviewList,
   registerReview,
   updateReview,
-  deleteReview,
   updateReviewStatus,
+  REVIEW_SEARCH_TYPE,
   type ReviewListParams,
 } from "../api/reviewApi"
 import type { ReviewRegisterRequest, ReviewUpdateRequest } from "@/lib/api/types"
@@ -15,6 +15,23 @@ export function useReviewList(params: ReviewListParams | undefined) {
     queryKey: ["contents", "reviews", params],
     queryFn: () => getReviewList(params!),
     enabled: !!params?.search_extra,
+    retry: 1,
+  })
+}
+
+// 숙소 리뷰 목록 (커서 기반 무한 스크롤)
+export function useStoreReviews(motelKey: string | undefined) {
+  return useInfiniteQuery({
+    queryKey: ["contents", "reviews", "store", motelKey],
+    queryFn: ({ pageParam }) => getReviewList({
+      search_type: REVIEW_SEARCH_TYPE.STORE,
+      search_extra: motelKey!,
+      count: 20,
+      cursor: pageParam as string | undefined,
+    }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
+    enabled: !!motelKey,
     retry: 1,
   })
 }
@@ -41,11 +58,11 @@ export function useUpdateReview() {
   })
 }
 
-// 리뷰 삭제
+// 리뷰 삭제 (스펙상 /reviews/delete는 빈 구현 → status/update로 삭제)
 export function useDeleteReview() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (reviewKey: string) => deleteReview(reviewKey),
+    mutationFn: (reviewKey: string) => updateReviewStatus(reviewKey, "D"),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contents", "reviews"] })
     },

@@ -8,18 +8,19 @@ import type {
 
 // ─── 리뷰 목록 조회 ───
 
-// 리뷰 검색 타입 (ReviewSearchType)
+// 리뷰 검색 타입 — 서버 V1ConstCode.java 기준 (ST301/ST302/ST303)
+// SSoT api-spec.json에는 SR001/SR002/SR003으로 잘못 기재, AOS 실제 전송값 기준
 export const REVIEW_SEARCH_TYPE = {
   /** 제휴점 후기 (search_extra = motel_key) */
-  STORE: "SR001",
+  STORE: "ST301",
   /** 나의 후기 */
-  MY: "SR002",
+  MY: "ST302",
   /** 후기 상세 (search_extra = review_key) */
-  DETAIL: "SR003",
+  DETAIL: "ST303",
 } as const
 
 export interface ReviewListParams {
-  search_type: string    // SR001: 제휴점 후기, SR002: 나의 후기, SR003: 후기 상세
+  search_type: string    // ST301: 제휴점 후기, ST302: 나의 후기, ST303: 후기 상세
   search_extra: string   // motel_key 또는 review_key
   count?: number
   cursor?: string

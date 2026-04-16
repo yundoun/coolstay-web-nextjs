@@ -8,7 +8,7 @@ export function useMyReviews() {
   const queryClient = useQueryClient()
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["myReviews"],
+    queryKey: ["contents", "reviews", "my"],
     queryFn: () => getReviewList({
       search_type: REVIEW_SEARCH_TYPE.MY,
       search_extra: "",
@@ -18,7 +18,7 @@ export function useMyReviews() {
   })
 
   const refresh = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: ["myReviews"] })
+    queryClient.invalidateQueries({ queryKey: ["contents", "reviews", "my"] })
   }, [queryClient])
 
   return {

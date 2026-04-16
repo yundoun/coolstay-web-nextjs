@@ -242,6 +242,7 @@ export function SearchPageLayout() {
           checkIn={checkIn}
           checkOut={checkOut}
           adults={adults}
+          businessType={businessType}
           onDateChange={handleDateChange}
           onGuestChange={handleGuestChange}
           onSearch={handleSearch}

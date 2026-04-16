@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Star, Quote, MapPin } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Star, Quote, MapPin, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ImageLightbox } from "@/components/ui/image-lightbox"
@@ -11,6 +11,8 @@ import { Container } from "@/components/layout"
 import { cn } from "@/lib/utils"
 import { useStoreDetail } from "../hooks/useDetailData"
 import { mapMotelToDetail } from "../utils/mapMotelToDetail"
+import { useStoreReviews } from "@/domains/review/hooks/useReviewData"
+import { mapApiReviewToDisplay } from "@/domains/review/utils/mapReviewToDisplay"
 import { InlineStars, BestBadge, OwnerReply, ReviewCardContainer } from "./ReviewCardParts"
 import type { Review } from "../types"
 
@@ -26,7 +28,16 @@ export function AccommodationReviewsPage({ accommodationId }: Props) {
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
-  const { data: apiData, isLoading } = useStoreDetail(accommodationId)
+  // 헤더 정보용 (숙소명, 이미지, 주소)
+  const { data: storeData, isLoading: isStoreLoading } = useStoreDetail(accommodationId)
+  // 리뷰 전용 API (커서 기반 무한 스크롤)
+  const {
+    data: reviewPages,
+    isLoading: isReviewLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useStoreReviews(accommodationId)
 
   const openLightbox = (images: string[], index: number) => {
     setLightboxImages(images)
@@ -34,73 +45,77 @@ export function AccommodationReviewsPage({ accommodationId }: Props) {
     setLightboxOpen(true)
   }
 
+  const isLoading = isStoreLoading || isReviewLoading
+
   if (isLoading) return <LoadingSpinner fullPage />
 
-  const detail = apiData?.motel ? mapMotelToDetail(apiData.motel) : null
+  const detail = storeData?.motel ? mapMotelToDetail(storeData.motel) : null
 
-  if (!detail) {
-    return (
-      <Container size="normal" padding="responsive" className="py-6">
-        <EmptyState
-          icon={Star}
-          title="숙소를 찾을 수 없습니다"
-          description="요청한 숙소 정보를 불러올 수 없습니다."
-          className="min-h-[30vh]"
-        />
-      </Container>
+  // 리뷰 데이터: 전용 API에서 가져옴
+  const firstPage = reviewPages?.pages[0]
+  const avgScore = firstPage?.avg_score ? parseFloat(firstPage.avg_score) : 0
+  const totalCount = firstPage?.total_count ?? 0
+
+  const allReviews: Review[] = useMemo(() => {
+    if (!reviewPages?.pages) return []
+    return reviewPages.pages.flatMap((page) =>
+      (page.reviews ?? []).map(mapApiReviewToDisplay)
     )
-  }
+  }, [reviewPages])
 
-  // 베스트 + 최근 리뷰 통합 (중복 제거)
-  const allReviews: Review[] = []
-  if (detail.bestReview) allReviews.push(detail.bestReview)
-  for (const r of detail.recentReviews) {
-    if (!detail.bestReview || r.id !== detail.bestReview.id) {
-      allReviews.push(r)
+  // 클라이언트 정렬 (API에 sort 파라미터 없음)
+  const sorted = useMemo(() => {
+    const arr = [...allReviews]
+    if (sort === "highest") return arr.sort((a, b) => b.rating - a.rating)
+    if (sort === "lowest") return arr.sort((a, b) => a.rating - b.rating)
+    return arr // latest — API 기본 순서 (REG_DATE_DESC)
+  }, [allReviews, sort])
+
+  // 로드된 리뷰에서 평점 분포 근사치 계산
+  const ratingDistribution = useMemo(() => {
+    const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+    for (const r of allReviews) {
+      const rounded = Math.round(r.rating)
+      if (rounded >= 1 && rounded <= 5) dist[rounded]++
     }
-  }
-
-  // 정렬
-  const sorted = [...allReviews].sort((a, b) => {
-    if (sort === "highest") return b.rating - a.rating
-    if (sort === "lowest") return a.rating - b.rating
-    return 0
-  })
+    return dist
+  }, [allReviews])
 
   return (
     <Container size="normal" padding="responsive" className="py-6">
       {/* 숙소 정보 헤더 */}
-      <div className="mb-6">
-        <div className="flex items-center gap-4">
-          {detail.images[0] && (
-            <div className="relative size-16 rounded-xl overflow-hidden shrink-0">
-              <Image
-                src={detail.images[0]}
-                alt={detail.name}
-                fill
-                className="object-cover"
-                sizes="64px"
-              />
-            </div>
-          )}
-          <div className="min-w-0">
-            <h1 className="text-lg font-bold truncate">{detail.name}</h1>
-            {detail.address && (
-              <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                <MapPin className="size-3 shrink-0" />
-                <span className="truncate">{detail.address}</span>
-              </p>
+      {detail && (
+        <div className="mb-6">
+          <div className="flex items-center gap-4">
+            {detail.images[0] && (
+              <div className="relative size-16 rounded-xl overflow-hidden shrink-0">
+                <Image
+                  src={detail.images[0]}
+                  alt={detail.name}
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </div>
             )}
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold truncate">{detail.name}</h1>
+              {detail.address && (
+                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
+                  <MapPin className="size-3 shrink-0" />
+                  <span className="truncate">{detail.address}</span>
+                </p>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 평점 요약 + 분포 */}
       <RatingSummaryBlock
-        averageRating={detail.rating}
-        totalCount={detail.reviewCount}
-        reviews={allReviews}
-        ratingDistribution={detail.reviews.ratingDistribution}
+        averageRating={avgScore}
+        totalCount={totalCount}
+        ratingDistribution={ratingDistribution}
       />
 
       {/* 정렬 */}
@@ -135,6 +150,27 @@ export function AccommodationReviewsPage({ accommodationId }: Props) {
               onImageClick={openLightbox}
             />
           ))}
+
+          {/* 더보기 */}
+          {hasNextPage && (
+            <div className="flex justify-center pt-2 pb-4">
+              <Button
+                variant="outline"
+                className="rounded-full"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                    로딩 중...
+                  </>
+                ) : (
+                  "더보기"
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -156,27 +192,13 @@ export function AccommodationReviewsPage({ accommodationId }: Props) {
 function RatingSummaryBlock({
   averageRating,
   totalCount,
-  reviews,
   ratingDistribution,
 }: {
   averageRating: number
   totalCount: number
-  reviews: Review[]
   ratingDistribution: Record<number, number>
 }) {
-  const hasApiDistribution = Object.values(ratingDistribution).some((v) => v > 0)
-  const distribution = hasApiDistribution
-    ? ratingDistribution
-    : reviews.reduce(
-        (acc, r) => {
-          const rounded = Math.round(r.rating)
-          acc[rounded] = (acc[rounded] || 0) + 1
-          return acc
-        },
-        { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } as Record<number, number>,
-      )
-
-  const maxCount = Math.max(...Object.values(distribution), 1)
+  const maxCount = Math.max(...Object.values(ratingDistribution), 1)
 
   return (
     <div className="flex gap-6 items-center p-5 rounded-2xl bg-muted/40 border mb-6">
@@ -204,7 +226,7 @@ function RatingSummaryBlock({
 
       <div className="flex-1 space-y-1.5">
         {[5, 4, 3, 2, 1].map((rating) => {
-          const count = distribution[rating] || 0
+          const count = ratingDistribution[rating] || 0
           const pct = maxCount > 0 ? (count / maxCount) * 100 : 0
           return (
             <div key={rating} className="flex items-center gap-2">

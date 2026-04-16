@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-16 17:23** | 리뷰 시스템 API 연동 및 검색 업태 상태 관리 개선 | [`b939cf5`](.work-history/entries/2026-04-16_18-00_refactor_review-api-search-type.md)
 - **2026-04-16 16:48** | 객실 모달 제거 및 서브 네비 개선 | [`3b1da17`](.work-history/entries/2026-04-16_16-40_FIX_room-modal-remove-subnav.md)
 - **2026-04-16 16:30** | 불필요한 파일 정리 | [`ce966e3`](.work-history/entries/2026-04-16_10-05_chore_cleanup-unused-files.md)
 - **2026-04-16 16:29** | POC 개발 히스토리 문서 추가 | [`eb4d078`](.work-history/entries/2026-04-16_10-00_docs_poc-development-history.md)

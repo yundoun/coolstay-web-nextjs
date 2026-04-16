@@ -2,15 +2,14 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import {
   Star,
   MoreHorizontal,
   Pencil,
   Trash2,
   Camera,
-  X,
   Award,
+  Loader2,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -31,28 +30,71 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { cn } from "@/lib/utils"
 import { formatTimestampDot } from "@/lib/utils/formatDate"
 import { useMyReviews } from "../hooks/useMyReviews"
-import { deleteReview } from "../api/reviewApi"
-import type { Review } from "@/lib/api/types"
+import {
+  useUpdateReviewStatus,
+  useRegisterReview,
+  useUpdateReview,
+} from "../hooks/useReviewData"
+import type { Review, ReviewRegisterRequest, ReviewUpdateRequest } from "@/lib/api/types"
 
 export function MyReviewsPage() {
   const { data, isLoading, error, refresh } = useMyReviews()
+  const deleteReview = useUpdateReviewStatus()
+
+  // 리뷰 작성/수정 모달 상태
   const [writeModalOpen, setWriteModalOpen] = useState(false)
+  const [editingReview, setEditingReview] = useState<Review | null>(null)
+
+  // 삭제 확인 다이얼로그
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
 
   const reviews = data?.reviews ?? []
   const avgScore = data?.avg_score ? parseFloat(data.avg_score) : 0
   const totalCount = data?.total_count ?? 0
   const writableCount = data?.available_count ?? 0
 
-  const handleDelete = async (key: number) => {
+  const handleDeleteConfirm = async () => {
+    if (deleteTarget === null) return
     try {
-      await deleteReview(String(key))
+      await deleteReview.mutateAsync({
+        reviewKey: String(deleteTarget),
+        status: "D",
+      })
       refresh()
     } catch {
       alert("삭제에 실패했습니다")
+    } finally {
+      setDeleteTarget(null)
     }
+  }
+
+  const handleEdit = (review: Review) => {
+    setEditingReview(review)
+    setWriteModalOpen(true)
+  }
+
+  const handleWriteOpen = () => {
+    setEditingReview(null)
+    setWriteModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setWriteModalOpen(false)
+    setEditingReview(null)
+    refresh()
   }
 
   return (
@@ -84,7 +126,7 @@ export function MyReviewsPage() {
         {writableCount > 0 && (
           <Button
             className="w-full mt-4"
-            onClick={() => setWriteModalOpen(true)}
+            onClick={handleWriteOpen}
           >
             <Pencil className="size-4 mr-2" />
             리뷰 작성하기
@@ -110,18 +152,44 @@ export function MyReviewsPage() {
             <ReviewCard
               key={review.key}
               review={review}
-              onDelete={() => handleDelete(review.key)}
-              onEdit={() => setWriteModalOpen(true)}
+              onDelete={() => setDeleteTarget(review.key)}
+              onEdit={() => handleEdit(review)}
             />
           ))}
         </div>
       )}
 
-      {/* Write Modal */}
+      {/* Write/Edit Modal */}
       <ReviewWriteModal
         open={writeModalOpen}
-        onOpenChange={setWriteModalOpen}
+        onClose={handleModalClose}
+        editReview={editingReview}
       />
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>리뷰를 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              삭제된 리뷰는 복구할 수 없습니다.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteReview.isPending ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                "삭제"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Container>
   )
 }
@@ -157,7 +225,6 @@ function ReviewCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="font-semibold text-sm truncate">{motelName}</p>
-            {/* Best review badge */}
             {review.best_yn === "Y" && (
               <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600 gap-1">
                 <Award className="size-3" />
@@ -278,30 +345,71 @@ function StarRating({
 
 function ReviewWriteModal({
   open,
-  onOpenChange,
+  onClose,
+  editReview,
 }: {
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onClose: () => void
+  editReview: Review | null
 }) {
+  const isEditMode = !!editReview
+  const registerMutation = useRegisterReview()
+  const updateMutation = useUpdateReview()
+
   const [rating, setRating] = useState(0)
   const [content, setContent] = useState("")
 
-  const isValid = rating > 0 && content.trim().length >= 10
+  // 수정 모드일 때 기존 값으로 초기화
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && editReview) {
+      setRating(parseFloat(editReview.score) || 0)
+      setContent(editReview.text || "")
+    } else if (isOpen) {
+      setRating(0)
+      setContent("")
+    }
+    if (!isOpen) onClose()
+  }
 
-  const handleSubmit = () => {
-    if (!isValid) return
-    // Mock behavior
-    alert("리뷰가 등록되었습니다!")
-    setRating(0)
-    setContent("")
-    onOpenChange(false)
+  const isValid = rating > 0 && content.trim().length >= 10
+  const isPending = registerMutation.isPending || updateMutation.isPending
+
+  const handleSubmit = async () => {
+    if (!isValid || isPending) return
+
+    try {
+      if (isEditMode) {
+        const body: ReviewUpdateRequest = {
+          review_key: String(editReview!.key),
+          score: String(rating),
+          description: content.trim(),
+        }
+        await updateMutation.mutateAsync(body)
+      } else {
+        // 작성 가능 리뷰 선택 기능은 추후 예약내역 연동 시 구현
+        // 현재는 motel 정보가 없으면 작성 불가
+        const body: ReviewRegisterRequest = {
+          book_id: "",
+          motel_key: "",
+          motel_name: "",
+          score: String(rating),
+          description: content.trim(),
+        }
+        await registerMutation.mutateAsync(body)
+      }
+      setRating(0)
+      setContent("")
+      onClose()
+    } catch {
+      alert(isEditMode ? "수정에 실패했습니다" : "등록에 실패했습니다")
+    }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>리뷰 작성</DialogTitle>
+          <DialogTitle>{isEditMode ? "리뷰 수정" : "리뷰 작성"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
@@ -351,30 +459,34 @@ function ReviewWriteModal({
             </div>
           </div>
 
-          {/* Image Upload UI */}
+          {/* Image Upload UI — GCS 업로드 미구현, 비활성 상태 */}
           <div>
             <p className="text-sm font-medium mb-2">사진 첨부</p>
             <button
               type="button"
-              className="flex items-center justify-center w-20 h-20 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors"
+              disabled
+              className="flex items-center justify-center w-20 h-20 rounded-lg border-2 border-dashed border-border opacity-50 cursor-not-allowed"
+              title="사진 첨부 기능 준비중"
             >
               <Camera className="size-6 text-muted-foreground" />
             </button>
-            <p className="text-xs text-muted-foreground mt-1">최대 3장</p>
+            <p className="text-xs text-muted-foreground mt-1">준비중</p>
           </div>
 
           {/* Submit */}
           <Button
             className="w-full"
             size="lg"
-            disabled={!isValid}
+            disabled={!isValid || isPending}
             onClick={handleSubmit}
           >
-            리뷰 등록
+            {isPending ? (
+              <Loader2 className="size-4 mr-2 animate-spin" />
+            ) : null}
+            {isEditMode ? "수정 완료" : "리뷰 등록"}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
   )
 }
-

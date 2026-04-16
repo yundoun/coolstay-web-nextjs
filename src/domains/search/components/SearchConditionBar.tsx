@@ -55,6 +55,7 @@ interface SearchConditionBarProps {
   checkIn: string
   checkOut: string
   adults: number
+  businessType?: string
   onDateChange: (checkIn: string, checkOut: string) => void
   onGuestChange: (adults: number) => void
   onSearch?: () => void
@@ -67,6 +68,7 @@ export function SearchConditionBar({
   checkIn,
   checkOut,
   adults,
+  businessType,
   onDateChange,
   onGuestChange,
   onSearch,
@@ -111,13 +113,22 @@ export function SearchConditionBar({
   const guestLabelFull = `성인 ${adults}`
 
   const openModal = useSearchModal((s) => s.open)
+  const openWithBusinessType = useSearchModal((s) => s.openWithBusinessType)
+
+  const handleMobileBarClick = () => {
+    if (businessType) {
+      openWithBusinessType(businessType)
+    } else {
+      openModal("region")
+    }
+  }
 
   return (
     <div ref={containerRef} className="sticky top-16 md:top-[var(--header-height)] z-40 -mx-4 px-4 md:-mx-6 md:px-6 py-2.5 bg-background/95 backdrop-blur-md border-b border-border/50">
       {/* 모바일: 요약 바 → 탭하면 SearchModal 열기 */}
       <button
         className="md:hidden flex items-center gap-2 w-full px-3 py-2 rounded-full border border-border/60 bg-muted/40 text-xs text-foreground"
-        onClick={() => openModal("region")}
+        onClick={handleMobileBarClick}
       >
         <Search className="size-3.5 text-muted-foreground shrink-0" />
         <span className="flex items-center gap-1.5 truncate">
@@ -196,6 +207,7 @@ export function SearchConditionBar({
       {/* Dropdown Panels */}
       {openDropdown === "region" && (
         <RegionDropdown
+          businessType={businessType}
           onSelect={(keyword, code) => {
             onRegionChange(keyword, code)
             setOpenDropdown(null)
@@ -232,14 +244,28 @@ export function SearchConditionBar({
 
 type RegionTab = "region" | "subway"
 
+// regions API에서 유효한 category_code 목록
+const VALID_REGION_CATEGORIES = new Set(["ALL", "MOTEL", "HOTEL", "CAMPING", "PENSION", "GUESTHOUSE"])
+
+function getRegionCategoryCode(businessType: string): string {
+  const types = businessType.split(",")
+  const valid = types.find((t) => VALID_REGION_CATEGORIES.has(t))
+  return valid || "ALL"
+}
+
 function RegionDropdown({
+  businessType,
   onSelect,
   onClose,
 }: {
+  businessType?: string
   onSelect: (keyword: string, code: string) => void
   onClose: () => void
 }) {
-  const { data: apiRegions, isLoading } = useRegions()
+  const regionCategoryCode = businessType
+    ? `${getRegionCategoryCode(businessType)},SUBWAY`
+    : undefined
+  const { data: apiRegions, isLoading } = useRegions(regionCategoryCode)
   const [tab, setTab] = useState<RegionTab>("region")
 
   // 지역 목록
@@ -367,7 +393,13 @@ function RegionDropdown({
             {regionList.map((region) => (
               <button
                 key={region.name}
-                onClick={() => setActiveCity(region.name)}
+                onClick={() => {
+                  if (!region.subRegions.length) {
+                    handleSelect(region.name, region.code)
+                  } else {
+                    setActiveCity(region.name)
+                  }
+                }}
                 className={cn(
                   "w-full text-left px-4 py-2.5 text-sm relative",
                   activeCity === region.name
