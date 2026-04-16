@@ -45,7 +45,7 @@ export function BusinessInfoSection({ accommodation }: BusinessInfoSectionProps)
 
   return (
     <div>
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible defaultValue="business-info" className="w-full">
         <AccordionItem value="business-info" className="border-none">
           <AccordionTrigger className="text-xl font-semibold hover:no-underline py-0 mb-4">
             <div className="flex items-center gap-2">

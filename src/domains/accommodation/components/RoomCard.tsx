@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Users, AlertCircle, Clock, Moon, Ticket } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { ImageLightbox } from "@/components/ui/image-lightbox"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
 import type { Coupon } from "@/lib/api/types"
@@ -13,25 +15,35 @@ import { calcCouponDiscount } from "@/lib/utils/coupon"
 interface RoomCardProps {
   room: Room
   accommodationId: string
-  onDetailClick?: (room: Room) => void
   onRentalClick?: (room: Room) => void
 }
 
-export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }: RoomCardProps) {
+export function RoomCard({ room, accommodationId, onRentalClick }: RoomCardProps) {
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+
+  const images = (room.images.length > 0 ? room.images : [room.imageUrl]).filter(
+    (url) => url && url.trim() !== ""
+  )
+
   return (
     <div
       className={cn(
         "rounded-xl border bg-card overflow-hidden",
         "transition-all duration-300",
         room.isAvailable
-          ? "hover:shadow-lg hover:border-primary/30 cursor-pointer"
+          ? "hover:shadow-lg hover:border-primary/30"
           : "opacity-60"
       )}
-      onClick={() => onDetailClick?.(room)}
     >
       <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 p-0 sm:p-4">
-        {/* Image */}
-        <div className="relative w-full sm:w-48 md:w-56 aspect-[16/9] sm:aspect-auto sm:h-44 rounded-none sm:rounded-xl overflow-hidden shrink-0">
+        {/* Image — 클릭 시 라이트박스 */}
+        <div
+          className={cn(
+            "relative w-full sm:w-48 md:w-56 aspect-[16/9] sm:aspect-auto sm:h-44 rounded-none sm:rounded-xl overflow-hidden shrink-0",
+            images.length > 0 && "cursor-pointer"
+          )}
+          onClick={() => images.length > 0 && setLightboxOpen(true)}
+        >
           {room.imageUrl ? (
             <Image
               src={room.imageUrl}
@@ -48,6 +60,12 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
           {!room.isAvailable && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <span className="text-white font-bold text-lg">매진</span>
+            </div>
+          )}
+          {/* 이미지 개수 표시 */}
+          {images.length > 1 && (
+            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-xs font-medium">
+              +{images.length}
             </div>
           )}
         </div>
@@ -93,8 +111,7 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
           )}
 
           {/* 대실/숙박 가격 구분 */}
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
-          <div className="mt-4 flex flex-col sm:flex-row gap-3" onClick={(e) => e.stopPropagation()}>
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
             {/* 대실 */}
             {room.rentalAvailable && room.rentalPrice && (
               <PriceBox
@@ -143,6 +160,15 @@ export function RoomCard({ room, accommodationId, onDetailClick, onRentalClick }
           </div>
         </div>
       </div>
+
+      {/* 이미지 라이트박스 */}
+      <ImageLightbox
+        images={images}
+        initialIndex={0}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        alt={room.name}
+      />
     </div>
   )
 }

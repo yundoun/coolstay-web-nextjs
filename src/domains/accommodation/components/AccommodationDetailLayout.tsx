@@ -18,7 +18,6 @@ import { MapSection } from "./MapSection"
 
 import { BusinessInfoSection } from "./BusinessInfoSection"
 import { ExternalLinkSection } from "./ExternalLinkSection"
-import { RoomDetailModal } from "./RoomDetailModal"
 import { RentalTimeModal } from "./RentalTimeModal"
 import { SectionTabNav, type SectionTab } from "./SectionTabNav"
 import { DatePickerModal, GuestPickerModal } from "./DateGuestPicker"
@@ -78,8 +77,6 @@ export function AccommodationDetailLayout({
   const [checkIn, setCheckIn] = useState(today)
   const [checkOut, setCheckOut] = useState(tomorrow)
   const [appliedAdults, setAppliedAdults] = useState(2)
-  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null)
-  const [roomModalOpen, setRoomModalOpen] = useState(false)
   const [rentalRoom, setRentalRoom] = useState<Room | null>(null)
   const [rentalModalOpen, setRentalModalOpen] = useState(false)
   const [datePickerOpen, setDatePickerOpen] = useState(false)
@@ -158,10 +155,6 @@ export function AccommodationDetailLayout({
             key={room.id}
             room={room}
             accommodationId={accommodation.id}
-            onDetailClick={(r) => {
-              setSelectedRoom(r)
-              setRoomModalOpen(true)
-            }}
             onRentalClick={(r) => {
               setRentalRoom(r)
               setRentalModalOpen(true)
@@ -305,16 +298,16 @@ export function AccommodationDetailLayout({
       </div>
 
       {/* ─── Slide-down 서브 네비 (탭 + pill) ───
-          이미지가 뷰포트를 벗어나면 헤더 아래로 슬라이드 */}
+          이미지가 뷰포트를 벗어나면 헤더 아래로 슬라이드
+          모달이 열려 있으면 숨김 (z-index가 Dialog보다 높아 겹침 방지) */}
       <div
         className={cn(
           "fixed left-0 right-0 z-[var(--z-fixed)]",
           "top-14 md:top-[var(--header-height)]",
           "bg-background/95 backdrop-blur-md border-b border-border",
-          "transition-[transform,opacity] duration-300 ease-out",
-          showSubNav
-            ? "translate-y-0 opacity-100"
-            : "-translate-y-full opacity-0 pointer-events-none",
+                    showSubNav && !rentalModalOpen
+            ? "opacity-100"
+            : "opacity-0 pointer-events-none",
         )}
       >
         <Container size="normal" padding="responsive">
@@ -349,12 +342,6 @@ export function AccommodationDetailLayout({
       </Container>
 
       {/* ─── Modals ─── */}
-      <RoomDetailModal
-        room={selectedRoom}
-        accommodationId={accommodation.id}
-        open={roomModalOpen}
-        onOpenChange={setRoomModalOpen}
-      />
       <RentalTimeModal
         open={rentalModalOpen}
         onOpenChange={setRentalModalOpen}

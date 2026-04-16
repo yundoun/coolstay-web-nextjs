@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-16 16:48** | 객실 모달 제거 및 서브 네비 개선 | [`3b1da17`](.work-history/entries/2026-04-16_16-40_FIX_room-modal-remove-subnav.md)
 - **2026-04-16 16:30** | 불필요한 파일 정리 | [`ce966e3`](.work-history/entries/2026-04-16_10-05_chore_cleanup-unused-files.md)
 - **2026-04-16 16:29** | POC 개발 히스토리 문서 추가 | [`eb4d078`](.work-history/entries/2026-04-16_10-00_docs_poc-development-history.md)
 - **2026-04-15 16:32** | 하단 고정 요소 z-index 통일 및 예약 완료 후 뒤로가기 방지 | [`d5c23a5`](.work-history/entries/2026-04-15_16-15_FIX_bottom-zindex-booking-history.md)
