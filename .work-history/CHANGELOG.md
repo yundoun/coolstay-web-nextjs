@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-16 16:29** | POC 개발 히스토리 문서 추가 | [`eb4d078`](.work-history/entries/2026-04-16_10-00_docs_poc-development-history.md)
 - **2026-04-15 16:32** | 하단 고정 요소 z-index 통일 및 예약 완료 후 뒤로가기 방지 | [`d5c23a5`](.work-history/entries/2026-04-15_16-15_FIX_bottom-zindex-booking-history.md)
 - **2026-04-15 14:26** | 회원가입 API 연동 버그 수정 | [`1f6e7ec`](.work-history/entries/2026-04-15_24-00_FIX_register-api-bugs.md)
 - **2026-04-15 13:26** | 숙소 상세 EventBanner 제거 및 홈 레이아웃 개선 | [`52ced58`](.work-history/entries/2026-04-15_23-50_remove-eventbanner-home-layout.md)
