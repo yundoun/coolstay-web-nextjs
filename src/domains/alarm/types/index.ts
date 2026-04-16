@@ -15,7 +15,7 @@ export interface AlarmLink {
 
 export interface AlarmCategory {
   code: string
-  name: string
+  value: string // "Y" | "N" — 해당 카테고리에 알림 존재 여부
 }
 
 export interface Alarm {
@@ -49,7 +49,7 @@ export interface AlarmCardUpdateRequest {
 // ─── 알림 삭제 ───
 
 export interface AlarmDeleteRequest {
-  category?: string
-  delete_type: string
-  alarm_key: number[]
+  category: string
+  delete_type: string        // "CARDS_A" (전체 삭제) | "CARDS_I" (선택 삭제)
+  alarm_keys?: number[]      // CARDS_I일 때 필수
 }

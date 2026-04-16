@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
   Bell,
@@ -14,7 +13,6 @@ import {
   BellOff,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
@@ -46,19 +44,25 @@ function getRelativeTime(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("ko-KR")
 }
 
-/** 전체 카테고리를 표현하는 상수 */
-const ALL_CATEGORY = "__ALL__"
+/** 카테고리 코드 → 한글 레이블 매핑 */
+const CATEGORY_LABELS: Record<string, string> = {
+  ALL: "전체",
+  RESERVATION: "예약",
+  BENEFIT: "혜택",
+  EVENT: "이벤트",
+  ACTIVITY: "활동",
+}
 
 export function NotificationPage() {
   const queryClient = useQueryClient()
-  const [activeCategory, setActiveCategory] = useState<string>(ALL_CATEGORY)
+  const [activeCategory, setActiveCategory] = useState<string>("ALL")
 
   const { data, isLoading } = useQuery({
-    queryKey: ["alarms", activeCategory === ALL_CATEGORY ? undefined : activeCategory],
+    queryKey: ["alarms", activeCategory === "ALL" ? undefined : activeCategory],
     queryFn: () =>
       getAlarmList({
         count: 50,
-        category: activeCategory === ALL_CATEGORY ? undefined : activeCategory,
+        category: activeCategory === "ALL" ? undefined : activeCategory,
       }),
     retry: 1,
   })
@@ -70,7 +74,7 @@ export function NotificationPage() {
   const handleDeleteAll = async () => {
     if (!confirm("모든 알림을 삭제하시겠습니까?")) return
     try {
-      await deleteAlarms({ delete_type: "ALL", alarm_key: alarms.map((a) => a.key) })
+      await deleteAlarms({ category: activeCategory === "ALL" ? "ALL" : activeCategory, delete_type: "CARDS_A" })
       queryClient.invalidateQueries({ queryKey: ["alarms"] })
     } catch { /* ignore */ }
   }
@@ -80,7 +84,7 @@ export function NotificationPage() {
       try {
         await updateAlarmCard({ type: "READ", alarm_key: [alarm.key] })
         queryClient.setQueryData(
-          ["alarms", activeCategory === ALL_CATEGORY ? undefined : activeCategory],
+          ["alarms", activeCategory === "ALL" ? undefined : activeCategory],
           {
             ...data,
             alarms: alarms.map((a) => a.key === alarm.key ? { ...a, read_yn: "Y" } : a),
@@ -148,17 +152,6 @@ function CategoryTabs({
 }) {
   return (
     <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-hide">
-      <button
-        onClick={() => onChange(ALL_CATEGORY)}
-        className={cn(
-          "shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors",
-          activeCategory === ALL_CATEGORY
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground hover:bg-muted/80",
-        )}
-      >
-        전체
-      </button>
       {categories.map((cat) => (
         <button
           key={cat.code}
@@ -170,7 +163,7 @@ function CategoryTabs({
               : "bg-muted text-muted-foreground hover:bg-muted/80",
           )}
         >
-          {cat.name}
+          {CATEGORY_LABELS[cat.code] ?? cat.code}
         </button>
       ))}
     </div>
@@ -183,23 +176,14 @@ function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
   const Icon = config.icon
   const isRead = alarm.read_yn === "Y"
 
-  const linkTarget = alarm.link?.target
   const hasDescription = !!alarm.description
 
   const regDate = new Date(alarm.reg_dt < 1e12 ? alarm.reg_dt * 1000 : alarm.reg_dt)
   const timeAgo = getRelativeTime(regDate.toISOString())
 
-  const handleCardClick = () => {
-    onClick()
-    // If there's a link target but no btn_name (legacy), navigate directly
-    if (linkTarget && !alarm.link?.btn_name) {
-      window.location.href = linkTarget
-    }
-  }
-
   return (
     <div
-      onClick={handleCardClick}
+      onClick={onClick}
       className={cn(
         "flex gap-3 p-4 rounded-xl border transition-colors cursor-pointer",
         isRead ? "bg-card hover:bg-muted/30" : "bg-primary/5 border-primary/20 hover:bg-primary/10",
@@ -238,21 +222,7 @@ function AlarmCard({ alarm, onClick }: { alarm: Alarm; onClick: () => void }) {
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-1.5">
-          <p className="text-xs text-muted-foreground/70">{timeAgo}</p>
-
-          {/* CTA Button from alarm.link.btn_name */}
-          {alarm.link?.btn_name && linkTarget && (
-            <Link
-              href={linkTarget}
-              onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
-            >
-              {alarm.link.btn_name}
-              <ExternalLink className="size-3" />
-            </Link>
-          )}
-        </div>
+        <p className="text-xs text-muted-foreground/70 mt-1.5">{timeAgo}</p>
       </div>
     </div>
   )
