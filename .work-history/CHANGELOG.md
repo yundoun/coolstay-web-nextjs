@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-17 08:56** | POC 개발 히스토리 문서 수치 보정 | [`a6ab555`](.work-history/entries/2026-04-17_09-00_docs_poc-history-update.md)
 - **2026-04-17 08:55** | 알림 카테고리 탭 가시성 및 전체삭제 버그 수정 | [`7f82421`](.work-history/entries/2026-04-17_08-50_FIX_alarm-tab-visibility-delete.md)
 - **2026-04-16 17:28** | POC 개발 히스토리 팩트체크 및 수치 업데이트 | [`91b0e16`](.work-history/entries/2026-04-16_17-30_docs_poc-history-factcheck.md)
 - **2026-04-16 17:23** | 리뷰 시스템 API 연동 및 검색 업태 상태 관리 개선 | [`b939cf5`](.work-history/entries/2026-04-16_18-00_refactor_review-api-search-type.md)
