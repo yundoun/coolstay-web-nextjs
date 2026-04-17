@@ -77,6 +77,22 @@ export function BusinessTypeGrid({ categories }: Props) {
           )
         }
 
+        // type: "URL" → 외부 링크 이동
+        if (item.type === "URL" && item.target) {
+          return (
+            <a
+              key={`${item.btn_name}-${idx}`}
+              href={item.target}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cardClass}
+              style={cardStyle}
+            >
+              {content}
+            </a>
+          )
+        }
+
         return (
           <button
             key={`${item.btn_name}-${idx}`}
