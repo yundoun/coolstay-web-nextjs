@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-17 13:47** | POC 히스토리 문서 팩트체크 수정 및 배경 보강 | [`9504cda`](.work-history/entries/2026-04-17_11-45_docs_poc-history-factcheck-v2.md)
 - **2026-04-17 09:41** | 배포 서버에서 하단 네비가 예약 페이지에 노출되는 버그 수정 | [`eb717aa`](.work-history/entries/2026-04-17_09-35_FIX_trailing-slash-bottom-nav.md)
 - **2026-04-17 09:04** | 홈 업태 외부 이동 버튼 클릭 미동작 수정 | [`0dbf26a`](.work-history/entries/2026-04-17_09-05_FIX_home-url-button.md)
 - **2026-04-17 08:56** | POC 개발 히스토리 문서 수치 보정 | [`a6ab555`](.work-history/entries/2026-04-17_09-00_docs_poc-history-update.md)
