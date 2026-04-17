@@ -150,14 +150,19 @@ const PATTERN_ROUTES: { pattern: RegExp; config: RouteLayoutConfig }[] = [
  * 현재 경로에 해당하는 레이아웃 설정을 반환
  */
 export function getRouteLayoutConfig(pathname: string): RouteLayoutConfig {
+  // trailingSlash 정규화 (export 빌드에서 /booking/123/ → /booking/123)
+  const normalized = pathname.length > 1 && pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname
+
   // 1. 정확 매치
-  if (EXACT_ROUTES[pathname]) {
-    return EXACT_ROUTES[pathname]
+  if (EXACT_ROUTES[normalized]) {
+    return EXACT_ROUTES[normalized]
   }
 
   // 2. 패턴 매치
   for (const { pattern, config } of PATTERN_ROUTES) {
-    if (pattern.test(pathname)) {
+    if (pattern.test(normalized)) {
       return config
     }
   }
