@@ -232,8 +232,8 @@ export function SearchPageLayout() {
   )
 
   return (
-    <div className="min-h-screen">
-      <Container size="wide" padding="responsive">
+    <div className="min-h-screen bg-white">
+      <Container size="narrow" padding="none">
         {/* 검색 조건 바 + 검색 버튼 */}
         <SearchConditionBar
           selectedRegion={regionName || selectedRegion}
@@ -249,11 +249,12 @@ export function SearchPageLayout() {
         />
 
         {/* 업태 필터 */}
-        <div className="py-3">
+        <div className="py-3 section-px">
           <BusinessTypeFilter />
         </div>
 
         {/* 결과 정보 + 정렬 */}
+        <div className="section-px">
         <SearchInfoBar
           totalCount={totalCount}
           regionLabel={
@@ -265,6 +266,7 @@ export function SearchPageLayout() {
           sort={sort}
           onSortChange={setSort}
         />
+        </div>
 
         {/* 검색 결과 */}
         <div className="pt-4">
@@ -328,7 +330,7 @@ function SearchResultGrid({
 
   return (
     <div className="pb-12">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 section-px">
         {visibleItems.map((accommodation, index) => (
           <AccommodationCard
             key={accommodation.id}

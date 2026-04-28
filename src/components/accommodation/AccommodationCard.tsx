@@ -4,10 +4,8 @@ import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
-import { Heart, Star, Ticket } from "lucide-react"
+import { Heart, Star } from "lucide-react"
 import { useAuthStore } from "@/lib/stores/auth"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 export interface Accommodation {
@@ -28,20 +26,24 @@ export interface Accommodation {
   reviewCount?: number
   mileageRate?: number
   hasCoupon?: boolean
-  couponDiscount?: number      // 쿠폰 최대 할인액
+  couponDiscount?: number
   address?: string
-  benefitTags?: string[]       // 혜택 태그 (benefit_tags)
-  gradeTags?: string[]         // 등급 태그 (grade_tags, 호텔 성급 등)
-  supportFlags?: string[]      // v2_support_flag에서 활성화된 라벨 목록
-  // 대실/숙박 별도 가격
+  benefitTags?: string[]
+  gradeTags?: string[]
+  supportFlags?: string[]
   rentPrice?: number
   rentOriginalPrice?: number
-  rentCouponAppliedPrice?: number  // 쿠폰 적용 후 대실 가격
-  rentCouponLabel?: string         // 쿠폰 라벨 (무제한, 선착순 등)
+  rentCouponAppliedPrice?: number
+  rentCouponLabel?: string
+  rentUseTime?: string            // 대실 이용시간 ("최대 3시간")
+  rentRemainCount?: number        // 대실 잔여 객실 수
   stayPrice?: number
   stayOriginalPrice?: number
-  stayCouponAppliedPrice?: number  // 쿠폰 적용 후 숙박 가격
-  stayCouponLabel?: string         // 쿠폰 라벨
+  stayCouponAppliedPrice?: number
+  stayCouponLabel?: string
+  stayCheckIn?: string            // 숙박 체크인 시간 ("17:00~")
+  stayRemainCount?: number        // 숙박 잔여 객실 수
+  sitePayment?: boolean           // 현장결제 가능
 }
 
 export interface AccommodationCardProps {
@@ -66,222 +68,158 @@ export function AccommodationCard({ accommodation, priority = false, onToggleFav
       return
     }
     const prev = liked
-    setLiked(!prev) // 낙관적 업데이트
+    setLiked(!prev)
     setToggling(true)
     try {
       await onToggleFavorite(accommodation.id, prev)
     } catch {
-      setLiked(prev) // 실패 시 롤백
+      setLiked(prev)
     } finally {
       setToggling(false)
     }
   }, [onToggleFavorite, toggling, liked, accommodation.id, isLoggedIn, router, pathname])
 
-  const discount = accommodation.originalPrice
-    ? Math.round(
-        ((accommodation.originalPrice - accommodation.price) /
-          accommodation.originalPrice) *
-          100
-      )
-    : null
+  const hasRent = accommodation.rentPrice != null
+  const hasStay = accommodation.stayPrice != null
 
   return (
-    <Link
-      href={`/accommodations/${accommodation.id}`}
-      className="group block"
-    >
-      <article className="overflow-hidden rounded-xl bg-card transition-shadow hover:shadow-lg">
-        {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+    <Link href={`/accommodations/${accommodation.id}`} className="block bg-white">
+      <article>
+        {/* ── 이미지 영역 (비율 2:1, 라운드) ── */}
+        <div className="relative aspect-[2/1] overflow-hidden rounded-md bg-neutral-200">
           {accommodation.imageUrl ? (
             <Image
               src={accommodation.imageUrl}
               alt={accommodation.name}
               fill
               priority={priority}
-              className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover"
+              sizes="(max-width: 800px) 100vw, 360px"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              <span className="text-sm">이미지 없음</span>
+            <div className="flex flex-col h-full w-full items-center justify-center text-muted-foreground gap-1">
+              <span className="text-3xl">🐝</span>
+              <span className="text-sm">이미지 준비중</span>
             </div>
           )}
 
-          {/* Discount Badge */}
-          {discount && discount > 0 && (
-            <Badge
-              variant="default"
-              className="absolute left-3 top-3 rounded-md font-bold"
-            >
-              {discount}%
-            </Badge>
-          )}
-
-          {/* Support Flag Badges */}
-          {accommodation.supportFlags && accommodation.supportFlags.length > 0 && (
-            <div className="absolute left-3 bottom-3 flex flex-wrap gap-1">
-              {accommodation.supportFlags.slice(0, 2).map((flag) => (
-                <Badge
-                  key={flag}
-                  className="rounded-md bg-amber-500 text-white text-[10px] font-semibold px-1.5 py-0.5"
-                >
-                  {flag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Wishlist Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "absolute right-2 top-2 size-8 rounded-full",
-              "bg-black/20 backdrop-blur-sm",
-              liked
-                ? "text-red-500 hover:bg-black/30 hover:text-red-500"
-                : "text-white hover:bg-black/30 hover:text-white"
-            )}
-            onClick={handleHeartClick}
-            disabled={toggling}
-          >
-            <Heart className={cn("size-4", liked && "fill-current")} />
-            <span className="sr-only">찜하기</span>
-          </Button>
-        </div>
-
-        {/* Content */}
-        <div className="p-4">
-          {/* Grade Tags (호텔 성급 등) */}
-          {accommodation.gradeTags && accommodation.gradeTags.length > 0 && (
-            <div className="mb-1.5 flex flex-wrap gap-1">
-              {accommodation.gradeTags.map((tag) => (
-                <Badge key={tag} className="bg-indigo-100 text-indigo-700 text-[10px] font-medium hover:bg-indigo-100">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Tags + Benefit Tags */}
-          {((accommodation.tags && accommodation.tags.length > 0) || (accommodation.benefitTags && accommodation.benefitTags.length > 0)) && (
-            <div className="mb-2 flex flex-wrap gap-1">
-              {accommodation.benefitTags?.slice(0, 2).map((tag) => (
-                <Badge key={tag} variant="outline" className="text-xs font-normal text-emerald-700 border-emerald-200 bg-emerald-50">
-                  {tag}
-                </Badge>
-              ))}
-              {accommodation.tags?.slice(0, 3 - (accommodation.benefitTags?.length ?? 0)).map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs font-normal">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Name & Location */}
-          <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-            {accommodation.name}
-          </h3>
-          {accommodation.location && (
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {accommodation.location}
-            </p>
-          )}
-
-          {/* Rating · Mileage · Coupon */}
-          {(accommodation.rating || accommodation.mileageRate || accommodation.hasCoupon) && (
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
+          {/* 하단 그라디언트 + 숙소명/별점/위치 */}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-3 pb-2.5 pt-12">
+            <h3 className="text-white font-bold text-base leading-tight line-clamp-1 drop-shadow-sm">
+              {accommodation.name}
+            </h3>
+            <div className="flex items-center gap-1 mt-0.5">
               {accommodation.rating != null && accommodation.rating > 0 && (
-                <span className="inline-flex items-center gap-0.5">
+                <span className="flex items-center gap-0.5 text-[#d7d7d7] text-[11px]">
                   <Star className="size-3 fill-amber-400 text-amber-400" />
-                  <span className="font-medium text-foreground">{accommodation.rating.toFixed(1)}</span>
+                  <span className="font-bold">{accommodation.rating.toFixed(1)}</span>
                   {accommodation.reviewCount != null && accommodation.reviewCount > 0 && (
-                    <span>({accommodation.reviewCount.toLocaleString()})</span>
+                    <span>(+{accommodation.reviewCount.toLocaleString()})</span>
                   )}
                 </span>
               )}
-              {accommodation.mileageRate != null && accommodation.mileageRate > 0 && (
-                <span className="inline-flex items-center gap-0.5 text-emerald-600">
-                  <span className="font-medium">+{accommodation.mileageRate}% 적립</span>
-                </span>
-              )}
-              {(accommodation.hasCoupon || (accommodation.couponDiscount != null && accommodation.couponDiscount > 0)) && (
-                <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-px text-primary font-medium">
-                  <Ticket className="size-3" />
-                  {accommodation.couponDiscount != null && accommodation.couponDiscount > 0
-                    ? `-${accommodation.couponDiscount.toLocaleString()}원`
-                    : "쿠폰"}
-                </span>
+              {accommodation.location && (
+                <span className="text-[#d7d7d7] text-[11px]">{accommodation.location}</span>
               )}
             </div>
-          )}
+          </div>
 
-          {/* Like Count */}
-          {accommodation.likeCount != null && accommodation.likeCount > 0 && (
-            <div className="mt-1.5 flex items-center gap-1">
-              <Heart className="size-3.5 fill-rose-400 text-rose-400" />
-              <span className="text-sm text-muted-foreground">
-                {accommodation.likeCount.toLocaleString()}
-              </span>
-            </div>
-          )}
-
-          {/* Price — 대실/숙박 행 */}
-          {(accommodation.rentPrice != null || accommodation.stayPrice != null) ? (
-            <div className="mt-3 space-y-2">
-              {accommodation.rentPrice != null && (
-                <PriceRow
-                  label="대실"
-                  price={accommodation.rentPrice}
-                  originalPrice={accommodation.rentOriginalPrice}
-                  couponAppliedPrice={accommodation.rentCouponAppliedPrice}
-                  couponLabel={accommodation.rentCouponLabel}
-                />
-              )}
-              {accommodation.stayPrice != null && (
-                <PriceRow
-                  label="숙박"
-                  price={accommodation.stayPrice}
-                  originalPrice={accommodation.stayOriginalPrice}
-                  couponAppliedPrice={accommodation.stayCouponAppliedPrice}
-                  couponLabel={accommodation.stayCouponLabel}
-                />
-              )}
-            </div>
-          ) : (
-            <div className="mt-3 flex items-baseline gap-2">
-              {accommodation.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                  {accommodation.originalPrice.toLocaleString()}원
-                </span>
-              )}
-              <span className="text-lg font-bold text-foreground">
-                {accommodation.price.toLocaleString()}원
-              </span>
-              {accommodation.priceLabel && (
-                <span className="text-sm text-muted-foreground">
-                  {accommodation.priceLabel}
-                </span>
-              )}
-            </div>
-          )}
+          {/* 하트 버튼 (우상단) */}
+          <button
+            className="absolute right-3 top-3"
+            onClick={handleHeartClick}
+            disabled={toggling}
+          >
+            <Heart className={cn(
+              "size-6",
+              liked ? "fill-red-500 text-red-500" : "fill-white/30 text-white"
+            )} />
+          </button>
         </div>
+
+        {/* ── 대실 / 숙박 가격 2열 (항상 동일 구조) ── */}
+        <div className="grid grid-cols-2 gap-0 px-1.5 pt-2 pb-3 min-h-[103px]">
+          {/* 대실 */}
+          <div className="px-1.5">
+            {hasRent ? (
+              <PriceColumn
+                label="대실"
+                subInfo={accommodation.rentUseTime}
+                remainCount={accommodation.rentRemainCount}
+                price={accommodation.rentPrice!}
+                originalPrice={accommodation.rentOriginalPrice}
+                couponAppliedPrice={accommodation.rentCouponAppliedPrice}
+                couponLabel={accommodation.rentCouponLabel}
+              />
+            ) : (
+              <div className="text-xs text-muted-foreground text-center py-6">-</div>
+            )}
+          </div>
+          {/* 숙박 */}
+          <div className="px-1.5">
+            {hasStay ? (
+              <PriceColumn
+                label="숙박"
+                subInfo={accommodation.stayCheckIn}
+                remainCount={accommodation.stayRemainCount}
+                price={accommodation.stayPrice!}
+                originalPrice={accommodation.stayOriginalPrice}
+                couponAppliedPrice={accommodation.stayCouponAppliedPrice}
+                couponLabel={accommodation.stayCouponLabel}
+              />
+            ) : !hasRent ? (
+              /* 대실·숙박 모두 없으면 단일 가격 우측 표시 */
+              <PriceColumn
+                label={accommodation.priceLabel ?? ""}
+                price={accommodation.price}
+                originalPrice={accommodation.originalPrice}
+              />
+            ) : (
+              <div className="text-xs text-muted-foreground text-center py-6">-</div>
+            )}
+          </div>
+        </div>
+
+        {/* ── 하단 바 (앱 동일 — 고정 1줄, 플래그 최대 3개 + 마일리지 우측) ── */}
+        <div className="mx-1.5 mb-2">
+          <div className="flex items-center justify-between px-2.5 py-1.5 rounded bg-[#F5F5F5] h-[30px]">
+            <div className="flex items-center gap-1.5 text-[11px] text-[#8B909B] truncate">
+              {[
+                ...(accommodation.supportFlags?.slice(0, 3) ?? []),
+                ...(accommodation.sitePayment ? ["현장결제"] : []),
+              ].slice(0, 3).map((flag) => (
+                <span key={flag}>{flag}</span>
+              ))}
+            </div>
+            {accommodation.mileageRate != null && accommodation.mileageRate > 0 && (
+              <span className="flex items-center gap-1 shrink-0 text-[11px] font-bold text-[#FF9500]">
+                <span className="inline-flex items-center justify-center size-3.5 rounded-full bg-[#FF9500] text-[8px] font-bold text-white">M</span>
+                적립 {accommodation.mileageRate}%
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* 카드 간 구분선 */}
+        <div className="h-px bg-border" />
       </article>
     </Link>
   )
 }
 
-/** 대실/숙박 가격 행 */
-function PriceRow({
+/** 대실/숙박 가격 열 — 앱 스크린샷 기준 */
+function PriceColumn({
   label,
+  subInfo,
+  remainCount,
   price,
   originalPrice,
   couponAppliedPrice,
   couponLabel,
 }: {
   label: string
+  subInfo?: string              // "최대 3시간" 또는 "17:00~"
+  remainCount?: number          // 잔여 객실 수
   price: number
   originalPrice?: number
   couponAppliedPrice?: number
@@ -293,46 +231,40 @@ function PriceRow({
       : null
 
   const hasCoupon = couponAppliedPrice != null && couponAppliedPrice < price
-  const couponDiscountAmount = hasCoupon ? price - couponAppliedPrice! : 0
+  const couponAmount = hasCoupon ? price - couponAppliedPrice! : 0
 
   return (
-    <div className="rounded-lg bg-muted/40 px-3 py-2.5">
-      {/* 상단: 라벨 + 정가/할인율 + 할인가 */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <span className="rounded-full bg-foreground px-2 py-0.5 text-[11px] font-bold text-background">
-            {label}
+    <div>
+      {/* 라벨 + 부가 정보 */}
+      <div className="flex items-baseline gap-1.5">
+        <span className="text-sm font-bold">{label}</span>
+        {(subInfo || remainCount != null) && (
+          <span className="text-[11px] text-muted-foreground">
+            {subInfo}{subInfo && remainCount != null && " | "}{remainCount != null && `${remainCount}개 남음`}
           </span>
-          {discountRate != null && discountRate > 0 && (
-            <span className="text-sm font-extrabold text-primary-700">{discountRate}%</span>
-          )}
-          {originalPrice != null && originalPrice > price && (
-            <span className="text-xs text-muted-foreground line-through">
-              {originalPrice.toLocaleString()}원
-            </span>
-          )}
-        </div>
-        <span className={cn(
-          "font-bold",
-          hasCoupon
-            ? "text-sm text-muted-foreground line-through"
-            : "text-lg text-foreground"
-        )}>
-          {price.toLocaleString()}원
-        </span>
+        )}
       </div>
 
-      {/* 하단: 쿠폰 실결제가 — 최종 가격이 가장 크고 진하게 */}
-      {hasCoupon && (
-        <div className="mt-1.5 flex items-center justify-between rounded-md bg-primary/10 px-2.5 py-1.5">
-          <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-700">
-            <Ticket className="size-3" />
-            {couponLabel} -{couponDiscountAmount.toLocaleString()}원
-          </span>
-          <span className="text-lg font-extrabold text-foreground">
-            {couponAppliedPrice!.toLocaleString()}원
+      {/* 할인율 + 정가 */}
+      {discountRate != null && discountRate > 0 ? (
+        <div className="flex items-center gap-1 mt-2">
+          <span className="text-sm font-bold text-[#FF6C2C]">{discountRate}%</span>
+          <span className="text-xs text-muted-foreground line-through">
+            {originalPrice!.toLocaleString()}원
           </span>
         </div>
+      ) : (
+        <div className="mt-2" />
+      )}
+
+      {/* 최종 가격 */}
+      <p className="text-lg font-extrabold tracking-tight">{price.toLocaleString()}원</p>
+
+      {/* 쿠폰 — 테두리 박스 형태 */}
+      {hasCoupon && couponLabel && (
+        <span className="inline-block mt-1 text-[11px] font-medium text-[#FF6C2C] border border-[#FF6C2C] rounded px-1.5 py-0.5">
+          {couponLabel} {couponAmount.toLocaleString()}원
+        </span>
       )}
     </div>
   )

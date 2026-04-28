@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-28 13:54** | 검색 결과 카드 레이아웃 높이 통일 | [`23869c5`](.work-history/entries/2026-04-28_13-50_refactor_search-card-layout-unify.md)
 - **2026-04-28 12:47** | 홈 화면 모바일 앱 레이아웃 재구성 | [`0b3043a`](.work-history/entries/2026-04-28_12-00_refactor_mobile-layout-redesign.md)
 - **2026-04-17 13:47** | POC 히스토리 문서 팩트체크 수정 및 배경 보강 | [`9504cda`](.work-history/entries/2026-04-17_11-45_docs_poc-history-factcheck-v2.md)
 - **2026-04-17 09:41** | 배포 서버에서 하단 네비가 예약 페이지에 노출되는 버그 수정 | [`eb717aa`](.work-history/entries/2026-04-17_09-35_FIX_trailing-slash-bottom-nav.md)
