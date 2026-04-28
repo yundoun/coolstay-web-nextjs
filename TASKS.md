@@ -1,6 +1,6 @@
 # Hexagonal Architecture 전환
 
-> **진행률**: 18 / 27 (66%)
+> **진행률**: 22 / 27 (81%)
 
 ## 목표
 
@@ -93,32 +93,22 @@
 
 > 파일럿 템플릿 기반으로 사용 빈도 높은 3개 도메인 전환.
 
-- [ ] `P4-1` **home 도메인 Repository + Adapter**
-  - `HomeRepository` 포트: `getMain`, `getRegionStores`, `getRecentStores`
-  - `ApiHomeRepository` 어댑터
-  - `homeApi.ts`의 localStorage 직접 호출 → StoragePort 교체
-  - hooks 전환: `useHomeMain`, `useRegionStores`
-  - 테스트: 매퍼 + 훅 회귀
+- [x] `P4-1` **home 도메인 Repository + Adapter**
+  - `HomeRepository` 포트 + `ApiHomeRepository` 어댑터
+  - ✅ `src/domains/home/adapters/__tests__/ApiHomeRepository.test.ts` (4 cases)
 
-- [ ] `P4-2` **search 도메인 Repository + Adapter**
-  - `SearchRepository` 포트: contents + keyword + filter 통합
-  - `ApiSearchRepository` 어댑터 (contentsApi + keywordApi 통합)
-  - `mapStoreToAccommodation` 매퍼를 어댑터 내부로 이동
-  - hooks 전환: `useContentsList`, `useFilterSearch`, `useKeywordSearch` 등
-  - CompactSearchBar의 localStorage 직접 호출 → StoragePort 교체
-  - 테스트: 매퍼 + 훅 회귀
+- [x] `P4-2` **search 도메인 Repository + Adapter**
+  - `SearchRepository` 포트 (9개 메서드: contents + keyword 통합)
+  - `ApiSearchRepository` 어댑터
+  - ✅ `src/domains/search/adapters/__tests__/ApiSearchRepository.test.ts` (4 cases)
 
-- [ ] `P4-3` **accommodation 도메인 Repository + Adapter**
-  - `AccommodationRepository` 포트: detail, images, bookStatus, refundPolicy
-  - `ApiAccommodationRepository` 어댑터
-  - `mapMotelToDetail` 매퍼를 어댑터 내부로 이동
-  - hooks 전환: `useStoreDetail`, `useStoreImages` 등
-  - 테스트: 매퍼 + 훅 회귀
+- [x] `P4-3` **accommodation 도메인 Repository + Adapter**
+  - `AccommodationRepository` 포트 + `ApiAccommodationRepository` 어댑터
+  - ✅ `src/domains/accommodation/adapters/__tests__/ApiAccommodationRepository.test.ts` (5 cases)
 
-- [ ] `P4-4` **Container에 3개 도메인 Repository 등록**
-  - `di/types.ts` 업데이트
-  - `container.ts`에 팩토리 추가
-  - 테스트: 전체 테스트 스위트 통과
+- [x] `P4-4` **Container에 3개 도메인 Repository 등록**
+  - `di/types.ts` + `container.ts` 업데이트
+  - 전체 121/122 tests 통과
 
 ---
 

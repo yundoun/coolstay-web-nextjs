@@ -2,6 +2,9 @@ import type { HttpClient } from "@/lib/ports/HttpClient"
 import type { TokenManager } from "@/lib/ports/TokenManager"
 import type { StoragePort } from "@/lib/ports/Storage"
 import type { BookingRepository } from "@/domains/booking/ports/BookingRepository"
+import type { HomeRepository } from "@/domains/home/ports/HomeRepository"
+import type { SearchRepository } from "@/domains/search/ports/SearchRepository"
+import type { AccommodationRepository } from "@/domains/accommodation/ports/AccommodationRepository"
 
 /**
  * DI 컨테이너 인터페이스
@@ -13,4 +16,7 @@ export interface Container {
   tokenManager: TokenManager
   storage: StoragePort
   bookingRepository: BookingRepository
+  homeRepository: HomeRepository
+  searchRepository: SearchRepository
+  accommodationRepository: AccommodationRepository
 }

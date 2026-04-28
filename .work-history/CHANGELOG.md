@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-28 16:58** | P4: 주요 도메인 전환 (home, search, accommodation) | [`afd6972`](.work-history/entries/2026-04-28_16-58_P4_core-domains-hexagonal.md)
 - **2026-04-28 16:54** | P3: 파일럿 도메인 전환 (booking) | [`0c58344`](.work-history/entries/2026-04-28_16-54_P3_booking-hexagonal.md)
 - **2026-04-28 16:50** | P2: DI 컨테이너 및 Provider 설정 | [`140f98e`](.work-history/entries/2026-04-28_16-50_P2_di-container-provider.md)
 - **2026-04-28 16:48** | P1: 인프라 포트 및 어댑터 추출 | [`3b20727`](.work-history/entries/2026-04-28_16-48_P1_infra-ports-adapters.md)

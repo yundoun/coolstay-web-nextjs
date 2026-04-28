@@ -52,6 +52,27 @@ describe("DIProvider", () => {
         hide: async () => {},
         getReceiptUrl: async () => "",
       },
+      homeRepository: {
+        getMain: async () => ({}) as never,
+        getRegionStores: async () => ({}) as never,
+      },
+      searchRepository: {
+        getRegions: async () => ({}) as never,
+        getContentsList: async () => ({}) as never,
+        getTotalList: async () => ({}) as never,
+        getFilterKeys: async () => ({}) as never,
+        getFilterList: async () => ({}) as never,
+        getMyAreaList: async () => ({}) as never,
+        getKeywordList: async () => ({}) as never,
+        getKeywordSearchKeys: async () => ({}) as never,
+        getKeywordSearchList: async () => ({}) as never,
+      },
+      accommodationRepository: {
+        getDetail: async () => ({}) as never,
+        getImages: async () => ({}) as never,
+        getDailyBookStatus: async () => ({}) as never,
+        getRefundPolicy: async () => ({}) as never,
+      },
     }
 
     const wrapper = ({ children }: { children: ReactNode }) => (
