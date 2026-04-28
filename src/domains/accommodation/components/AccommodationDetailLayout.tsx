@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap, ChevronDown, ChevronUp } from "lucide-react"
+import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap, ChevronDown, ChevronUp, Phone } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
@@ -155,6 +155,7 @@ export function AccommodationDetailLayout({
             key={room.id}
             room={room}
             accommodationId={accommodation.id}
+            benefitPointRate={accommodation.benefitPointRate}
             onRentalClick={(r) => {
               setRentalRoom(r)
               setRentalModalOpen(true)
@@ -273,6 +274,36 @@ export function AccommodationDetailLayout({
       <div className="lg:hidden">
         {benefitsContent}
       </div>
+      {/* 이벤트 배너 — 데이터 있을 때만 */}
+      {accommodation.externalEvents.length > 0 && (
+        <>
+          <Separator />
+          <div>
+            <h2 className="text-xl font-semibold mb-3">이벤트</h2>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+              {accommodation.externalEvents.map((event, i) => {
+                const imageUrl = event.banner_image_url || event.detail_banner_image_url
+                if (!imageUrl) return null
+                return (
+                  <a
+                    key={event.key || i}
+                    href={event.link?.target || "#"}
+                    target={event.link?.type === "URL" ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    className="shrink-0 w-64 rounded-lg overflow-hidden border hover:shadow-md transition-shadow"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={event.title || "이벤트"}
+                      className="w-full aspect-[2/1] object-cover"
+                    />
+                  </a>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
       <Separator />
       {roomsContent}
       {/* 부가 서비스: PC/모바일 모두 표시 */}
@@ -340,6 +371,28 @@ export function AccommodationDetailLayout({
           </div>
         </div>
       </Container>
+
+      {/* ─── 하단 고정 CTA (모바일) ─── */}
+      <div className="fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-border px-4 py-2.5 md:hidden">
+        <div className="flex items-center gap-2 max-w-[var(--container-narrow)] mx-auto">
+          {accommodation.phoneNumber && (
+            <a
+              href={`tel:${accommodation.phoneNumber}`}
+              className="flex items-center justify-center size-10 rounded-lg border border-border hover:bg-muted transition-colors shrink-0"
+            >
+              <Phone className="size-5 text-muted-foreground" />
+            </a>
+          )}
+          <button
+            onClick={() => {
+              document.getElementById("section-rooms")?.scrollIntoView({ behavior: "smooth" })
+            }}
+            className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 transition-colors"
+          >
+            객실 선택하기
+          </button>
+        </div>
+      </div>
 
       {/* ─── Modals ─── */}
       <RentalTimeModal

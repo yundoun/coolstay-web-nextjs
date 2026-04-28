@@ -207,7 +207,7 @@ export function AccommodationCard({ accommodation, priority = false, onToggleFav
   )
 }
 
-/** 대실/숙박 가격 열 — 앱 스크린샷 기준 */
+/** 대실/숙박 가격 열 */
 function PriceColumn({
   label,
   subInfo,
@@ -218,53 +218,64 @@ function PriceColumn({
   couponLabel,
 }: {
   label: string
-  subInfo?: string              // "최대 3시간" 또는 "17:00~"
-  remainCount?: number          // 잔여 객실 수
+  subInfo?: string
+  remainCount?: number
   price: number
   originalPrice?: number
   couponAppliedPrice?: number
   couponLabel?: string
 }) {
-  const discountRate =
+  // 1단계: 기본 할인 (originalPrice → price)
+  const baseDiscountRate =
     originalPrice != null && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
       : null
 
+  // 2단계: 쿠폰 할인 (price → couponAppliedPrice)
   const hasCoupon = couponAppliedPrice != null && couponAppliedPrice < price
   const couponAmount = hasCoupon ? price - couponAppliedPrice! : 0
+  const finalPrice = hasCoupon ? couponAppliedPrice! : price
 
   return (
     <div>
       {/* 라벨 + 부가 정보 */}
       <div className="flex items-baseline gap-1.5">
         <span className="text-sm font-bold">{label}</span>
-        {(subInfo || remainCount != null) && (
+        {(subInfo || (remainCount != null && remainCount > 0 && remainCount <= 5)) && (
           <span className="text-[11px] text-muted-foreground">
-            {subInfo}{subInfo && remainCount != null && " | "}{remainCount != null && `${remainCount}개 남음`}
+            {subInfo}
+            {remainCount != null && remainCount > 0 && remainCount <= 5 && (
+              <>{subInfo ? " · " : ""}<span className="text-orange-500 font-semibold">{remainCount}개 남음</span></>
+            )}
           </span>
         )}
       </div>
 
-      {/* 할인율 + 정가 */}
-      {discountRate != null && discountRate > 0 ? (
-        <div className="flex items-center gap-1 mt-2">
-          <span className="text-sm font-bold text-[#FF6C2C]">{discountRate}%</span>
+      {/* 1단계: 할인율 + 원가(취소선) */}
+      {baseDiscountRate != null && baseDiscountRate > 0 ? (
+        <div className="flex items-center gap-1 mt-1.5">
+          <span className="text-sm font-bold text-[#FF6C2C]">{baseDiscountRate}%</span>
           <span className="text-xs text-muted-foreground line-through">
             {originalPrice!.toLocaleString()}원
           </span>
         </div>
       ) : (
-        <div className="mt-2" />
+        <div className="mt-1.5" />
       )}
 
-      {/* 최종 가격 */}
-      <p className="text-lg font-extrabold tracking-tight">{price.toLocaleString()}원</p>
-
-      {/* 쿠폰 — 테두리 박스 형태 */}
-      {hasCoupon && couponLabel && (
-        <span className="inline-block mt-1 text-[11px] font-medium text-[#FF6C2C] border border-[#FF6C2C] rounded px-1.5 py-0.5">
-          {couponLabel} {couponAmount.toLocaleString()}원
-        </span>
+      {/* 2단계: 쿠폰 있으면 판매가(취소선) → 쿠폰 → 최종가 */}
+      {hasCoupon ? (
+        <>
+          <p className="text-sm text-muted-foreground line-through">{price.toLocaleString()}원</p>
+          <p className="text-lg font-extrabold tracking-tight">{finalPrice.toLocaleString()}원</p>
+          {couponLabel && (
+            <span className="inline-block mt-0.5 text-[11px] font-medium text-[#FF6C2C] border border-[#FF6C2C] rounded px-1.5 py-0.5">
+              {couponLabel} -{couponAmount.toLocaleString()}원
+            </span>
+          )}
+        </>
+      ) : (
+        <p className="text-lg font-extrabold tracking-tight">{price.toLocaleString()}원</p>
       )}
     </div>
   )

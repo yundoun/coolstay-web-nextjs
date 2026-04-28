@@ -3,43 +3,43 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Users, AlertCircle, Clock, Moon, Ticket } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Users, Clock, Moon, Ticket, Coins } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ImageLightbox } from "@/components/ui/image-lightbox"
 import { cn } from "@/lib/utils"
 import type { Room } from "../types"
 import type { Coupon } from "@/lib/api/types"
-import { calcCouponDiscount } from "@/lib/utils/coupon"
+import { calcBestCouponPrice } from "@/lib/utils/coupon"
 
 interface RoomCardProps {
   room: Room
   accommodationId: string
+  benefitPointRate?: number
   onRentalClick?: (room: Room) => void
 }
 
-export function RoomCard({ room, accommodationId, onRentalClick }: RoomCardProps) {
+export function RoomCard({ room, accommodationId, benefitPointRate = 0, onRentalClick }: RoomCardProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
   const images = (room.images.length > 0 ? room.images : [room.imageUrl]).filter(
     (url) => url && url.trim() !== ""
   )
 
+  const hasRental = room.rentalAvailable && room.rentalPrice != null
+
   return (
     <div
       className={cn(
         "rounded-xl border bg-card overflow-hidden",
-        "transition-all duration-300",
-        room.isAvailable
-          ? "hover:shadow-lg hover:border-primary/30"
-          : "opacity-60"
+        room.isAvailable ? "hover:shadow-md transition-shadow" : "opacity-60"
       )}
     >
-      <div className="flex flex-col sm:flex-row gap-0 sm:gap-4 p-0 sm:p-4">
-        {/* Image — 클릭 시 라이트박스 */}
+      {/* PC: 이미지 좌측 + 우측(객실정보 + 가격)  /  모바일: 세로 스택 */}
+      <div className="flex flex-col sm:flex-row">
+        {/* 이미지 */}
         <div
           className={cn(
-            "relative w-full sm:w-48 md:w-56 aspect-[16/9] sm:aspect-auto sm:h-44 rounded-none sm:rounded-xl overflow-hidden shrink-0",
+            "relative w-full sm:w-44 lg:w-52 aspect-[16/9] sm:aspect-auto sm:min-h-[140px] overflow-hidden shrink-0",
             images.length > 0 && "cursor-pointer"
           )}
           onClick={() => images.length > 0 && setLightboxOpen(true)}
@@ -50,7 +50,7 @@ export function RoomCard({ room, accommodationId, onRentalClick }: RoomCardProps
               alt={room.name}
               fill
               className="object-cover"
-              sizes="(max-width: 640px) 100vw, 224px"
+              sizes="(max-width: 640px) 100vw, 208px"
             />
           ) : (
             <div className="flex items-center justify-center h-full bg-muted">
@@ -62,106 +62,70 @@ export function RoomCard({ room, accommodationId, onRentalClick }: RoomCardProps
               <span className="text-white font-bold text-lg">매진</span>
             </div>
           )}
-          {/* 이미지 개수 표시 */}
           {images.length > 1 && (
             <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/60 text-white text-xs font-medium">
-              +{images.length}
+              {images.length}장
             </div>
           )}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0 p-4 sm:p-0">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-lg">{room.name}</h3>
-            {room.isAvailable && room.remainingCount <= 3 && room.remainingCount > 0 && (
-              <Badge variant="destructive" className="shrink-0 text-xs">
-                <AlertCircle className="size-3 mr-1" />
-                {room.remainingCount}실 남음
-              </Badge>
+        {/* 우측: 객실정보 + 가격 */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* 객실 기본 정보 */}
+          <div className="px-4 pt-3 pb-2">
+            <h3 className="font-semibold text-sm">{room.name}</h3>
+            {room.description && (
+              <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{room.description}</p>
             )}
+            <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Users className="size-3" />
+                기준 {room.maxAdults}인 / 최대 {room.maxGuests}인
+              </span>
+              {room.keywords.length > 0 && (
+                <span className="hidden sm:inline text-muted-foreground/60">
+                  {room.keywords.join(" · ")}
+                </span>
+              )}
+            </div>
           </div>
 
-          <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
-            {room.description}
-          </p>
-
-          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Users className="size-4" />
-              <span>최대 {room.maxGuests}인</span>
-            </div>
-            {room.stayStartHour != null && room.stayEndHour != null && (
-              <div className="flex items-center gap-1">
-                <Clock className="size-4" />
-                <span>체크인 {room.stayStartHour}시 / 체크아웃 {room.stayEndHour}시</span>
-              </div>
-            )}
-          </div>
-
-          {/* Keywords */}
-          {room.keywords.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1">
-              {room.keywords.map((keyword) => (
-                <Badge key={keyword} variant="outline" className="text-xs">
-                  {keyword}
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* 대실/숙박 가격 구분 */}
-          <div className="mt-4 flex flex-col sm:flex-row gap-3">
-            {/* 대실 */}
-            {room.rentalAvailable && room.rentalPrice && (
-              <PriceBox
-                label="대실"
-                labelIcon={<Clock className="size-3" />}
-                subLabel={room.rentalTime ? `(${room.rentalTime})` : undefined}
-                price={room.rentalPrice}
+          {/* 대실/숙박 가격 — PC: 가로 나란히 / 모바일: 세로 스택 */}
+          <div className={cn(
+            "flex-1 border-t",
+            hasRental ? "sm:grid sm:grid-cols-2 sm:divide-x divide-y sm:divide-y-0" : ""
+          )}>
+            {hasRental && (
+              <PriceSection
+                type="rental"
+                price={room.rentalPrice!}
                 originalPrice={room.rentalOriginalPrice}
                 coupons={room.rentalCoupons}
-                actionButton={
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={!room.isAvailable}
-                    onClick={() => onRentalClick?.(room)}
-                  >
-                    {room.isAvailable ? "예약" : "매진"}
-                  </Button>
-                }
+                timeInfo={room.rentalTime}
+                startHour={room.rentalStartHour}
+                endHour={room.rentalEndHour}
+                benefitPointRate={benefitPointRate}
+                remainingCount={room.remainingCount}
+                isAvailable={room.isAvailable}
+                onAction={() => onRentalClick?.(room)}
               />
             )}
-
-            {/* 숙박 */}
-            <PriceBox
-              label="숙박"
-              labelIcon={<Moon className="size-3" />}
+            <PriceSection
+              type="stay"
               price={room.stayPrice}
               originalPrice={room.stayOriginalPrice}
               coupons={room.stayCoupons}
-              actionButton={
-                <Button
-                  size="sm"
-                  disabled={!room.stayAvailable}
-                  asChild={room.stayAvailable}
-                >
-                  {room.stayAvailable ? (
-                    <Link href={`/booking/${accommodationId}?room=${room.id}&type=stay`}>
-                      예약
-                    </Link>
-                  ) : (
-                    "매진"
-                  )}
-                </Button>
-              }
+              startHour={room.stayStartHour}
+              endHour={room.stayEndHour}
+              benefitPointRate={benefitPointRate}
+              remainingCount={room.remainingCount}
+              isAvailable={room.stayAvailable}
+              bookingHref={`/booking/${accommodationId}?room=${room.id}&type=stay`}
             />
           </div>
         </div>
       </div>
 
-      {/* 이미지 라이트박스 */}
       <ImageLightbox
         images={images}
         initialIndex={0}
@@ -173,102 +137,140 @@ export function RoomCard({ room, accommodationId, onRentalClick }: RoomCardProps
   )
 }
 
-/** 대실/숙박 가격 박스 — Search PriceRow 스타일 통일 */
-function PriceBox({
-  label,
-  labelIcon,
-  subLabel,
+/** 대실/숙박 가격 섹션 */
+function PriceSection({
+  type,
   price,
   originalPrice,
   coupons,
-  actionButton,
+  timeInfo,
+  startHour,
+  endHour,
+  benefitPointRate,
+  remainingCount,
+  isAvailable,
+  onAction,
+  bookingHref,
 }: {
-  label: string
-  labelIcon: React.ReactNode
-  subLabel?: string
+  type: "rental" | "stay"
   price: number
   originalPrice?: number
   coupons?: Coupon[]
-  actionButton: React.ReactNode
+  timeInfo?: string
+  startHour?: number
+  endHour?: number
+  benefitPointRate: number
+  remainingCount: number
+  isAvailable: boolean
+  onAction?: () => void
+  bookingHref?: string
 }) {
-  const discountRate =
-    originalPrice != null && originalPrice > price
-      ? Math.round(((originalPrice - price) / originalPrice) * 100)
-      : null
+  const isRental = type === "rental"
+  const label = isRental ? "대실" : "숙박"
+  const LabelIcon = isRental ? Clock : Moon
 
-  const usable = coupons?.filter(c => c.usable_yn === "Y" && c.dimmed_yn !== "Y")
-  const hasCoupon = usable && usable.length > 0
-  const bestDiscount = hasCoupon
-    ? Math.max(...usable.map(c => calcCouponDiscount(c, price)))
+  // 1단계: 기본 할인 (originalPrice → price)
+  const baseDiscountRate = originalPrice && originalPrice > price
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : null
+
+  // 2단계: 쿠폰 할인 (price → finalPrice)
+  const bestCoupon = calcBestCouponPrice(coupons, price)
+  const finalPrice = bestCoupon ? bestCoupon.appliedPrice : price
+
+  const mileageAmount = benefitPointRate > 0
+    ? Math.floor(finalPrice * (benefitPointRate / 100))
     : 0
-  const couponAppliedPrice = Math.max(0, price - bestDiscount)
-  const couponLabel = hasCoupon
-    ? usable[0].title?.match(/무제한|선착순|한정|특가/)?.[0] || "쿠폰"
-    : ""
+
+  const timeText = isRental
+    ? timeInfo
+      ? `${timeInfo}${startHour != null && endHour != null ? ` (${startHour}:00 ~ ${endHour}:00)` : ""}`
+      : startHour != null && endHour != null
+        ? `${startHour}:00 ~ ${endHour}:00`
+        : undefined
+    : startHour != null && endHour != null
+      ? `체크인 ${startHour}:00 · 체크아웃 ${endHour}:00`
+      : undefined
 
   return (
-    <div className="flex-1 rounded-xl bg-muted/40 border overflow-hidden">
-      <div className="flex items-center justify-between p-3">
-        <div>
-          {/* 라벨 행 */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
-            {labelIcon}
-            <span>{label}</span>
-            {subLabel && (
-              <span className="text-muted-foreground/60">{subLabel}</span>
-            )}
-          </div>
-          {/* 가격 행: 할인율 + 정가(취소선) + 할인가 */}
-          <div className="flex items-baseline gap-1.5">
-            {discountRate != null && discountRate > 0 && (
-              <span className="text-sm font-extrabold text-primary-700">{discountRate}%</span>
-            )}
-            {originalPrice != null && originalPrice > price && (
-              <span className="text-xs text-muted-foreground line-through">
-                {originalPrice.toLocaleString()}원
-              </span>
-            )}
-            <span className={cn(
-              "font-bold",
-              hasCoupon
-                ? "text-sm text-muted-foreground line-through"
-                : "text-base text-foreground"
-            )}>
-              {price.toLocaleString()}원
-            </span>
-          </div>
-        </div>
-        {actionButton}
+    <div className="px-4 py-2.5">
+      {/* 라벨 + 시간 */}
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <LabelIcon className="size-3 text-muted-foreground" />
+        <span className="text-xs font-semibold">{label}</span>
+        {timeText && (
+          <span className="text-[11px] text-muted-foreground">{timeText}</span>
+        )}
       </div>
 
-      {/* 쿠폰 실결제가 — primary 톤 통일 */}
-      {hasCoupon && (
-        <div className="border-t border-dashed px-3 py-2 bg-primary/10">
-          {usable.map((coupon, i) => {
-            const isRate = coupon.discount_type === "RATE"
-            const discount = calcCouponDiscount(coupon, price)
-            const discountLabel = isRate
-              ? `-${discount.toLocaleString()}원 (${coupon.discount_amount}%)`
-              : `-${discount.toLocaleString()}원`
+      {/* 가격 + 예약 버튼 한 행 */}
+      <div className="flex items-end justify-between gap-3">
+        <div className="text-right flex-1">
+          {/* 1단계: 할인율 + 원가(취소선) */}
+          {originalPrice != null && originalPrice > price && (
+            <div className="flex items-center justify-end gap-1 mb-0.5">
+              {baseDiscountRate != null && baseDiscountRate > 0 && (
+                <span className="text-xs font-bold text-red-500">{baseDiscountRate}%</span>
+              )}
+              <span className="text-[11px] text-muted-foreground line-through">
+                {originalPrice.toLocaleString()}
+              </span>
+            </div>
+          )}
 
-            return (
-              <div key={coupon.coupon_pk || i} className="flex items-center gap-1.5 text-xs mb-1">
-                <Ticket className="size-3 text-primary-700 shrink-0" />
-                <span className="font-semibold text-primary-700">{discountLabel}</span>
-                <span className="text-muted-foreground truncate">{coupon.title}</span>
+          {/* 2단계: 판매가 (쿠폰 있으면 취소선 + 회색) */}
+          {bestCoupon ? (
+            <>
+              <p className="text-sm text-muted-foreground line-through leading-tight">
+                {price.toLocaleString()}원
+              </p>
+              <div className="flex items-center justify-end gap-0.5 mt-0.5">
+                <Ticket className="size-2.5 text-primary" />
+                <span className="text-[10px] text-primary font-medium">
+                  {bestCoupon.label} -{bestCoupon.bestDiscount.toLocaleString()}원
+                </span>
               </div>
-            )
-          })}
-          <div className="flex items-center justify-between pt-1 border-t border-dashed">
-            <span className="flex items-center gap-1 text-[11px] font-semibold text-primary-700">
-              <Ticket className="size-3" />
-              {couponLabel} -{bestDiscount.toLocaleString()}원
+              <p className="text-lg font-extrabold text-foreground leading-tight">
+                {finalPrice.toLocaleString()}<span className="text-xs font-bold">원</span>
+              </p>
+            </>
+          ) : (
+            <p className="text-lg font-extrabold text-foreground leading-tight">
+              {price.toLocaleString()}<span className="text-xs font-bold">원</span>
+            </p>
+          )}
+
+          {/* 마일리지 */}
+          {mileageAmount > 0 && (
+            <span className="text-[10px] text-muted-foreground">
+              최대 <span className="font-semibold text-emerald-600">{mileageAmount.toLocaleString()}P</span> 적립
             </span>
-            <span className="text-lg font-extrabold text-foreground">
-              {couponAppliedPrice.toLocaleString()}원
-            </span>
-          </div>
+          )}
         </div>
+
+        {/* 예약 버튼 */}
+        {isAvailable ? (
+          bookingHref ? (
+            <Button size="sm" className="rounded-lg px-4 shrink-0" asChild>
+              <Link href={bookingHref}>예약</Link>
+            </Button>
+          ) : (
+            <Button size="sm" className="rounded-lg px-4 shrink-0" onClick={onAction}>
+              예약
+            </Button>
+          )
+        ) : (
+          <Button size="sm" variant="outline" disabled className="rounded-lg px-4 shrink-0">
+            매진
+          </Button>
+        )}
+      </div>
+
+      {/* 남은 객실 */}
+      {isAvailable && remainingCount > 0 && remainingCount <= 5 && (
+        <p className="text-[11px] font-semibold text-orange-500 text-right mt-1">
+          남은객실 {remainingCount}개
+        </p>
       )}
     </div>
   )

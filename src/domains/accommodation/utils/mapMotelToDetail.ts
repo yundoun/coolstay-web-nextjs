@@ -1,19 +1,33 @@
 import type { Motel, ItemObj } from "@/lib/api/types"
 import type { AccommodationDetail, Room, AmenityItem, Policy } from "../types"
 
-// 편의시설 코드 → 이름/아이콘 매핑
+// 편의시설 코드 → 이름/아이콘 매핑 (AOS 앱 strings.xml 기준)
 const CONVENIENCE_MAP: Record<string, { name: string; icon: string }> = {
-  C01: { name: "WiFi", icon: "wifi" },
-  C02: { name: "주차장", icon: "car" },
-  C03: { name: "조식", icon: "utensils" },
-  C04: { name: "수영장", icon: "waves" },
-  C05: { name: "피트니스", icon: "dumbbell" },
-  C06: { name: "스파/사우나", icon: "sparkles" },
-  C07: { name: "세탁", icon: "shirt" },
-  C08: { name: "짐보관", icon: "briefcase" },
-  C09: { name: "반려동물", icon: "dog" },
-  C10: { name: "흡연구역", icon: "cigarette" },
-  C20: { name: "엘리베이터", icon: "arrow-up" },
+  C01: { name: "커플PC", icon: "game" },
+  C02: { name: "넷플릭스", icon: "vod" },
+  C03: { name: "조식", icon: "breakfast" },
+  C04: { name: "노래방", icon: "game" },
+  C05: { name: "스파/월풀", icon: "spa" },
+  C06: { name: "스타일러", icon: "laundry" },
+  C07: { name: "트윈베드", icon: "bed" },
+  C08: { name: "찜질방", icon: "spa" },
+  C09: { name: "테마욕조", icon: "bath" },
+  C10: { name: "흡연구역", icon: "check" },
+  C11: { name: "욕실TV", icon: "vod" },
+  C12: { name: "헬스장", icon: "fitness" },
+  C13: { name: "주차장", icon: "parking" },
+  C14: { name: "미니바", icon: "check" },
+  C15: { name: "테라스", icon: "check" },
+  C16: { name: "거울룸", icon: "check" },
+  C17: { name: "발렛파킹", icon: "parking" },
+  C18: { name: "무인텔", icon: "check" },
+  C19: { name: "수영장", icon: "pool" },
+  C20: { name: "엘리베이터", icon: "check" },
+  C21: { name: "물침대", icon: "bed" },
+  C22: { name: "안마의자", icon: "check" },
+  C23: { name: "배틀그라운드", icon: "game" },
+  C24: { name: "셀프세탁실", icon: "laundry" },
+  C25: { name: "금연방", icon: "check" },
 }
 
 /**

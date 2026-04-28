@@ -40,6 +40,7 @@ const iconMap: Record<string, React.ElementType> = {
   bed: BedDouble,
   laundry: Shirt,
   game: Gamepad2,
+  check: Check,
 }
 
 interface AmenityListProps {

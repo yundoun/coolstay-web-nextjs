@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { Star, MapPin, Share2, Heart, Coins } from "lucide-react"
+import { Star, MapPin, Share2, Heart, Coins, Ticket, Gift } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -76,14 +76,45 @@ export function AccommodationInfo({ accommodation }: AccommodationInfoProps) {
             </span>
             <span>({accommodation.reviewCount.toLocaleString()})</span>
           </div>
-          {/* 마일리지 적립률 */}
-          {accommodation.benefitPointRate > 0 && (
-            <div className="flex items-center gap-1 text-primary font-medium">
-              <Coins className="size-4" />
-              <span>+{accommodation.benefitPointRate}% 적립</span>
-            </div>
-          )}
         </div>
+
+        {/* 쿠폰 배너 */}
+        {accommodation.downloadCouponInfo &&
+          accommodation.downloadCouponInfo.status !== "NON_TARGET" && (
+          <div className="mt-3 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-primary/5 border border-primary/20">
+            <Ticket className="size-4 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <span className="text-sm font-semibold text-foreground">
+                {accommodation.downloadCouponInfo.stay_amount > 0
+                  ? `${accommodation.downloadCouponInfo.stay_amount.toLocaleString()}원 즉시할인 쿠폰`
+                  : "할인 쿠폰 사용 가능"}
+              </span>
+              {accommodation.coupons.length > 1 && (
+                <span className="text-xs text-muted-foreground ml-1.5">
+                  외 {accommodation.coupons.length - 1}장
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 마일리지/첫예약 혜택 */}
+        {(accommodation.benefitPointRate > 0 || accommodation.v2SupportFlag?.first_reserve) && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {accommodation.benefitPointRate > 0 && (
+              <div className="flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-full">
+                <Coins className="size-3" />
+                <span className="font-medium">최대 마일리지 적립 +{accommodation.benefitPointRate}%</span>
+              </div>
+            )}
+            {accommodation.v2SupportFlag?.first_reserve && (
+              <div className="flex items-center gap-1 text-xs text-primary bg-primary/5 px-2 py-1 rounded-full">
+                <Gift className="size-3" />
+                <span className="font-medium">첫 예약 혜택</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-4 flex items-center gap-2">
