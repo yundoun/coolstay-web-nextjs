@@ -1,318 +1,178 @@
-# CoolStay Web — 작업 태스크
+# Hexagonal Architecture 전환
+
+> **진행률**: 7 / 28 (25%)
+
+## 목표
+
+현재 도메인 중심 구조를 유지하면서 **Ports & Adapters (Hexagonal) 아키텍처**로 확장.
+콘크리트 직결 체인(`Component → Hook → API → fetch`)에 인터페이스 경계를 도입하여
+테스트 용이성, 구현 교체 가능성, 관심사 분리를 확보한다.
 
 ---
 
-## 이벤트 영역 디자인 & UX 개선 `branch: feat/event-ui-improvement`
+### Phase 1 — 인프라 포트 추출 (공통 기반)
 
-> **진행률**: 118 / 143 (82%)
+> 모든 도메인이 의존하는 `lib/api/client.ts`와 `localStorage` 산재 문제를 해결.
+> 기존 동작은 변경하지 않고, 인터페이스만 추출 + 기존 구현을 어댑터로 래핑.
 
-### 태스크
+- [x] `P1-1` **HttpClient 포트 정의** — `src/lib/ports/HttpClient.ts`
+  - ✅ `src/lib/ports/__tests__/HttpClient.test.ts` (5 cases)
 
-- [x] `EV-1` 현행 UX 분석 — dev 서버 실행 + Playwright로 현재 화면 캡처 + 실제 데이터 기반 문제 식별
-- [x] `EV-2` 홈 EventSection 재설계 — 분석 결과 기반 카드/레이아웃/인터랙션 개선
-- [x] `EV-3` EventListPage 재설계 — 필터/카드/플로우 개선
-- [x] `EV-4` EventDetailPage 재설계 — 히어로/콘텐츠/갤러리/CTA 개선
-- [x] `EV-5` 테스트 전체 통과 확인 + 최종 스크린샷 비교 ✅ 129 tests passed
+- [x] `P1-2` **FetchHttpClient 어댑터 구현** — `src/lib/adapters/FetchHttpClient.ts`
+  - ✅ `src/lib/adapters/__tests__/FetchHttpClient.test.ts` (9 cases)
 
----
+- [x] `P1-3` **TokenManager 포트 정의** — `src/lib/ports/TokenManager.ts`
+  - ✅ `src/lib/ports/__tests__/TokenManager.test.ts` (5 cases)
 
-## Phase 6 — 소셜 로그인 `branch: feat/phase6-social-auth` (보류)
+- [x] `P1-4` **ApiTokenManager 어댑터 구현** — `src/lib/adapters/ApiTokenManager.ts`
+  - ✅ `src/lib/adapters/__tests__/ApiTokenManager.test.ts` (13 cases)
 
-> 개발자 콘솔 준비 중
+- [x] `P1-5` **StoragePort 포트 정의** — `src/lib/ports/Storage.ts`
+  - ✅ `src/lib/ports/__tests__/Storage.test.ts` (5 cases)
 
----
+- [x] `P1-6` **LocalStorageAdapter 구현** — `src/lib/adapters/LocalStorageAdapter.ts`
+  - ✅ `src/lib/adapters/__tests__/LocalStorageAdapter.test.ts` (12 cases)
 
-## Phase 11 — API 실제 응답 검증 및 명세 수정
-
-> 모든 API 엔드포인트를 dev 서버에서 실제 호출하여 응답 구조를 검증하고,
-> 명세서(docs/api/)와 타입(types/)을 실제 응답 기준으로 수정한다.
->
-> **방법**: 각 엔드포인트를 curl로 호출 → 실제 JSON 응답 확인 → 타입/명세 불일치 수정
-
-### Phase 11-A — 홈/검색/숙소 `branch: feat/phase11a-verify-contents`
-
-> 가장 핵심이 되는 콘텐츠 API 검증 (13개 엔드포인트)
-
-#### 홈 (2개)
-- [x] `P11A-1` `POST /home/main` 실제 응답 검증 → home.md 전면 업데이트
-  - banners[], exhibitions[], item_buttons[], recommend_stores[] 등 9개 필드 확인
-  - **기획전은 exhibitions[] 배열로 홈에서 반환, type="EXHIBITION"**
-- [x] `P11A-2` `POST /home/regionStores` 실제 응답 검증 → recommend_categories + recommend_stores
-
-#### 검색 (6개)
-- [x] `P11A-3` `GET /contents/regions/list` 실제 응답 검증 → 17개 지역, sub_regions 구조 확인
-- [ ] `P11A-4` `GET /contents/list` 실제 응답 검증 — 빈 결과 반환 (파라미터 추가 조사 필요)
-- [x] `P11A-5` `GET /contents/total/list` 실제 응답 검증 → total_count + search_results[]
-- [ ] `P11A-6` `GET /contents/filter` 실제 응답 검증 — 에러 반환 (파라미터 추가 조사 필요)
-- [ ] `P11A-7` `POST /contents/filter/list` 실제 응답 검증 (미호출)
-- [ ] `P11A-8` `GET /contents/myArea/list` 실제 응답 검증 (미호출)
-
-#### 숙소 상세 (4개)
-- [x] `P11A-9` `GET /contents/details/list` 실제 응답 검증 → motel 37개 필드 확인, contents-detail.md 업데이트
-- [x] `P11A-10` `GET /contents/images/list` 실제 응답 검증 → images_per_category[] 구조
-- [x] `P11A-11` `GET /contents/books/daystatus/list` 실제 응답 검증 → daily_books[]
-- [ ] `P11A-12` `GET /contents/refund-policy/list` 실제 응답 검증 — 에러 반환 (파라미터 추가 조사 필요)
-
-#### 기획전 신규
-- [x] `P11A-13` `GET /aiMagazine/board/list` 실제 응답 확인 → **칼럼/매거진 API** (기획전 아님)
-- [x] `P11A-14` `GET /aiMagazine/board/detail` 실제 응답 확인 → board_detail 구조
-- [x] `P11A-15` `/exhibitions` 라우트 + ExhibitionListPage/ExhibitionDetailPage 신규 생성
-  - 기획전 = `POST /home/main` → exhibitions[] + `GET /manage/board/list?board_type=EVENT&board_item_key`
-  - exhibition 도메인 생성 (api, hooks, components, routes)
-
-### Phase 11-B — 예약/리뷰 `branch: feat/phase11b-verify-booking`
-
-> 예약 플로우 + 리뷰 (14개 엔드포인트)
-
-#### 예약 (9개)
-- [x] `P11B-1` `GET /reserv/users/payments/list` 검증 → UserPaymentInfoResponse 전면 교체
-- [ ] `P11B-2` `POST /reserv/ready` — 파괴적 (실제 예약 생성), AOS 코드 참조
-- [ ] `P11B-3` `POST /reserv/register` — 파괴적, AOS 코드 참조
-- [ ] `P11B-4` `GET /reserv/users/list` — 파라미터 에러 (추가 조사 필요)
-- [x] `P11B-5` `GET /reserv/users/upcoming` 검증 → total_count + books[]
-- [ ] `P11B-6` `GET /reserv/guest/list` — 미호출
-- [ ] `P11B-7` `POST /reserv/delete` — 파괴적, AOS 코드 참조
-- [ ] `P11B-8` `POST /reserv/users/delete` — 파괴적, AOS 코드 참조
-- [ ] `P11B-9` `GET /reserv/receipt` — 미호출
-
-#### 리뷰 (5개)
-- [x] `P11B-10` `GET /contents/reviews/list` 검증 → Review 타입 수정 (reg_dt, user, status_info, ReviewImage)
-- [ ] `P11B-11` `POST /contents/reviews/register` — 파괴적, AOS 코드 참조
-- [ ] `P11B-12` `POST /contents/reviews/update` — 파괴적, AOS 코드 참조
-- [ ] `P11B-13` `POST /contents/reviews/delete` — 파괴적, AOS 코드 참조
-- [ ] `P11B-14` `POST /contents/reviews/status/update` — 파괴적, AOS 코드 참조
-
-### Phase 11-C — 인증/마이페이지/회원 `branch: feat/phase11c-verify-auth`
-
-> 인증 + 마이페이지 + 찜/마일리지 (20개 엔드포인트)
-
-#### 인증 (9개)
-- [x] `P11C-1` 로그인 응답 검증 → user에 name/history_yn 없음, AuthUser 수정
-- [x] `P11C-2` /auth/code/send → sms_auth_key 반환 확인
-- [ ] `P11C-3` /auth/code/check — 미호출 (인증 코드 필요)
-- [x] `P11C-4` /auth/code/list → auth_method 구조 확인
-- [ ] `P11C-5~9` register/find/sns — 소셜 로그인 보류 (Phase 6)
-
-#### 마이페이지 (4개)
-- [x] `P11C-10` mypage/list → new_alarm/notice_date number(초) 확인, 타입 수정
-- [x] `P11C-11` users/update → token+user 반환 확인
-- [x] `P11C-12` pw/check → 호출 확인 (enc_password 형식 검증 필요)
-- [ ] `P11C-13` users/delete — 미호출 (계정 삭제)
-
-#### 찜 (3개)
-- [x] `P11C-14` ST006 찜 목록 → motels[] + rating/download_coupon_info 확인, StoreItem 보강
-- [x] `P11C-15` dibs/register → storeKey(camelCase) 확인
-- [x] `P11C-16` dibs/delete → 파라미터 에러 (flag 조합 확인 필요)
-
-#### 마일리지 (2개)
-- [x] `P11C-17` mileage/list → store_key 필수, points[] 반환
-- [ ] `P11C-18` mileage/delete — 미호출
-
-### Phase 11-D — CS/설정/기타 `branch: feat/phase11d-verify-cs`
-
-> 알림/공지/FAQ/문의 + 설정/약관/친구추천 (11개 엔드포인트)
-
-#### 알림 (3개)
-- [x] `P11D-1` alarms/list → link 객체, alarm_categories 발견, Alarm 타입 수정
-- [ ] `P11D-2` alarms/card/update — 미호출
-- [ ] `P11D-3` alarms/delete — 미호출
-
-#### 게시판 (3개)
-- [x] `P11D-4` NOTICE → key/view_count/title/reg_dt만 반환 (description 없음)
-- [x] `P11D-5` FAQ → type에 카테고리명("마일리지") 포함
-- [ ] `P11D-6` INQUIRY → 에러 (board_type=ASK일 가능성)
-
-#### 설정 (2개)
-- [x] `P11D-7` settings/list → 코드 US002/US003/US007, 컴포넌트 수정
-- [ ] `P11D-8` settings/update — 미호출
-
-#### 약관 (1개)
-- [x] `P11D-9` terms/list → 기존 타입과 일치 ✅
-
-#### 친구추천 (2개)
-- [x] `P11D-10` friend/list → button 구조 변경, update_dt number, Friend 타입 수정
-- [ ] `P11D-11` friend/register — 미호출
+- [x] `P1-7` **API 응답 코드 상수화** — `src/lib/constants/apiCodes.ts`
+  - `client.ts`의 매직 스트링을 `SUCCESS_CODE`, `TOKEN_ERROR_CODES`로 교체
+  - ✅ `src/lib/constants/__tests__/apiCodes.test.ts` (6 cases)
 
 ---
 
-## Phase 12 — API 필드 100% 활용 UI 재구성
+### Phase 2 — DI 컨테이너 및 Provider 설정
 
-> 검증된 API 응답의 모든 의미있는 필드를 UI에 반영한다.
-> 내부/시스템 필드(filter_bit, area_cd 등)는 제외.
+> 포트 구현체를 런타임에 주입할 수 있는 구조.
+> React Context 기반 경량 DI.
 
-### Phase 12-A — 숙소 상세 ✅ `branch: feat/phase12a-accommodation-detail`
+- [ ] `P2-1` **Container 타입 정의** — `src/lib/di/types.ts`
+  - `Container` 인터페이스: `httpClient`, `tokenManager`, `storage` 필드
+  - 각 도메인 Repository 타입은 Phase 3에서 추가
 
-> 타입 15개 필드 추가 + mapMotelToDetail 전체 매핑 + 신규 컴포넌트 5개
+- [ ] `P2-2` **기본 Container 생성** — `src/lib/di/container.ts`
+  - `createDefaultContainer()`: FetchHttpClient + ApiTokenManager + LocalStorageAdapter 조합
+  - 싱글톤 `defaultContainer` export
 
-#### 혜택/쿠폰 섹션
-- [x] `P12A-1` `motel.coupons[]` — BenefitSection에서 쿠폰 다운로드 뱃지 표시
-- [x] `P12A-2` `motel.benefits[]` — BenefitSection 혜택 카드 (이미지 + 설명)
-- [x] `P12A-3` `motel.benefit_point_rate` — BenefitSection "+N% 적립" 뱃지
-- [x] `P12A-4` `motel.v2_support_flag` — BenefitSection 지원 기능 뱃지
+- [ ] `P2-3` **DIProvider 컴포넌트** — `src/lib/di/DIProvider.tsx`
+  - `DIContext` + `DIProvider` + `useDI()` 훅
+  - `app/providers.tsx`에 통합
+  - 테스트: useDI()가 기본 컨테이너 반환 확인
 
-#### 부가 정보 섹션
-- [x] `P12A-5` `motel.extra_services[]` — ExtraServiceSection 서비스 그리드
-- [x] `P12A-6` `motel.external_events[]` — mapMotelToDetail에서 events 매핑
-- [x] `P12A-7` `motel.event` — mapMotelToDetail에서 events 매핑
-- [x] `P12A-8` `motel.consecutive_yn` — BenefitSection 연박 뱃지
-
-#### 운영 정보 강화
-- [x] `P12A-9` `motel.business_info` — BusinessInfoSection (접이식)
-- [x] `P12A-10` `motel.phone_number` + `safe_number` — BusinessInfoSection 전화 버튼
-- [x] `P12A-11` 주차 정보 — ParkingInfoCard
-- [x] `P12A-12` `motel.site_payment_yn` — ExtraServiceSection "현장결제 가능" 뱃지
-
-#### 객실 상세 강화
-- [x] `P12A-13` `items[].sub_items[].daily_extras[]` — mapMotelToDetail에서 매핑
-- [x] `P12A-14` `items[].sub_items[].extras[]` — mapMotelToDetail에서 매핑
-- [x] `P12A-15` `motel.v2_external_links[]` — ExternalLinkSection (야놀자, 여기어때)
-
-### Phase 12-B — 검색/찜 카드 ✅ `branch: feat/phase12b-search-cards`
-
-> AccommodationCard + mapStoreToAccommodation + WishlistCard 강화
-
-#### 공통 숙소 카드 컴포넌트
-- [x] `P12B-1` `StoreItem.rating` — ⭐ 평점 + (리뷰 수)
-- [x] `P12B-2` `StoreItem.parking_yn` — 태그로 표시 ("주차가능")
-- [x] `P12B-3` `StoreItem.consecutive_yn` — 태그로 표시 ("연박")
-- [x] `P12B-4` `StoreItem.extra_services[]` — 서비스 태그
-- [x] `P12B-5` `StoreItem.benefit_point_rate` — "+N% 적립" 표시
-- [x] `P12B-6` `StoreItem.download_coupon_info` — 쿠폰 뱃지
-
-#### 검색 전용
-- [x] `P12B-7` `StoreItem.distance` — location에 거리 표시
-- [x] `P12B-8` `StoreItem.location.address` — 주소 표시
-
-#### 찜 목록 전용
-- [x] `P12B-9` WishlistCard에 평점/마일리지/쿠폰 뱃지 추가
-- [x] `P12B-10` `StoreItem.location` — 주소 표시
-
-### Phase 12-C — 홈 화면 ✅ `branch: feat/phase12c-home`
-
-> 배너 링크 + 추천 숙소 정보 강화 + 이벤트 섹션 추가
-
-#### 배너
-- [x] `P12C-1` `banners[].link` — resolveBannerLink로 네비게이션 구현
-- [x] `P12C-2` `banners[].link.btn_name` — 오버레이 텍스트
-
-#### 추천 숙소 카드
-- [x] `P12C-3` `recommend_stores[].rating` — 12-B에서 통합 (mapStoreToAccommodation)
-- [x] `P12C-4` `recommend_stores[].parking_yn` — 12-B에서 통합
-- [x] `P12C-5` `recommend_stores[].benefit_point_rate` — 12-B에서 통합
-- [x] `P12C-6` `recommend_stores[].extra_services[]` — 12-B에서 통합
-- [x] `P12C-7` `recommend_stores[].consecutive_yn` — 12-B에서 통합
-
-#### 기획전/이벤트 섹션
-- [x] `P12C-8` `exhibitions[].thumb_description` — FeatureSection에서 표시
-- [x] `P12C-9` 홈 이벤트 섹션 추가 — EventSection (진행중만, 최대 4개, 전체보기 링크)
-
-### Phase 12-D — 예약/리뷰/쿠폰 ✅ `branch: feat/phase12d-booking-review`
-
-#### 예약 상세
-- [x] `P12D-1` `book.refund_policies[]` — 환불 규정 테이블
-- [x] `P12D-2` `book.payment.status` — 결제 상태 뱃지 (PS001~003 매핑)
-- [x] `P12D-3` `book.motel.location.address` — 주소 + MapPin
-- [x] `P12D-4` `book.safe_number` — 안심번호 전화 버튼
-- [x] `P12D-5` `book.items[].category` — 대실/숙박 뱃지
-- [x] `P12D-6` `book.vehicle_yn` — 차량 아이콘
-- [x] `P12D-7` `book.partial_cancel_yn` + `partial_refund_yn` — 상태 뱃지
-- [x] `P12D-8` `book.discount_price` vs `origin_price_total` — 원가/할인가 비교
-
-#### 리뷰
-- [x] `P12D-9` `review.best_yn` — 골드 "베스트" 뱃지
-- [x] `P12D-10` `review.user.name` — 작성자 이름
-- [x] `P12D-11` `review.status_info.start_date` — "YYYY.MM.DD 이용"
-- [x] `P12D-12` `review.motel.images[0]` — 숙소 썸네일
-
-#### 쿠폰 상세
-- [x] `P12D-13` `coupon.day_codes[]` — 요일 그룹핑 ("월~금")
-- [x] `P12D-14` `coupon.usable_start_dt` / `usable_end_dt` — 사용기간
-- [x] `P12D-15` `coupon.enterable_start_dt` / `enterable_end_dt` — 입실가능
-- [x] `P12D-16` `coupon.type` + `sub_category_code` — 유형 뱃지
-
-### Phase 12-E — 마이페이지/알림/마일리지 ✅ `branch: feat/phase12e-mypage-alarm`
-
-#### 마이페이지
-- [x] `P12E-1` `info.new_alarm_date` — 7일 이내 "NEW" 뱃지
-- [x] `P12E-2` `info.new_notice_date` — 7일 이내 "NEW" 뱃지
-- [x] `P12E-3` `info.reservation_count` — 카운트 뱃지
-
-#### 알림
-- [x] `P12E-4` `alarm.link.btn_name` — CTA 버튼 텍스트
-- [x] `P12E-5` `alarm_categories[]` — 카테고리 필터 탭
-- [x] `P12E-6` `alarm.description` — 접이식 상세
-
-#### 마일리지
-- [x] `P12E-7` `points[].reason` — 거래 사유
-- [x] `P12E-8` `points[].remained_point` — 잔액 표시
+- [ ] `P2-4` **기존 `api` 객체 호환 레이어**
+  - 기존 `import { api } from "@/lib/api/client"` 경로 유지
+  - 내부적으로 `defaultContainer.httpClient` 위임
+  - 18개 도메인 API 파일 변경 없이 동작 보장
+  - 테스트: 기존 전체 테스트 스위트 통과
 
 ---
 
-## Phase 13 — 도메인별 스펙 정렬 + UI 재구성 `branch: feat/domain-spec-alignment`
+### Phase 3 — 파일럿 도메인 전환 (booking)
 
-> **기준**: coolstay-domain-analysis 스펙 (flow.md, nested-objects.md, ui-binding.md, v1-v2-conversion.md)
-> **워크플로우**: 타입 정렬 → UI 갭 분석 → UI 구현 → 테스트 → 커밋
-> **진행률**: 118 / 143 (82%)
+> 가장 복잡한 도메인에 Repository + Service 패턴 적용.
+> 성공 시 나머지 도메인 전환의 템플릿이 됨.
 
-### CONTENTS — UI 구현 (타입 정렬 완료) ✅
+- [ ] `P3-1` **booking 도메인 모델 타입 정의** — `src/domains/booking/types/domain.ts`
+  - `BookingRequest`, `PaymentSummary`, `BookingResult` 등 도메인 모델
+  - API 응답 타입(`api.ts`)과 분리 — camelCase 사용
+  - 매퍼 함수 시그니처 정의
 
-- [x] `CT-1` 목록 카드에 benefit_tags, grade_tags 표시 (mapStoreToAccommodation + AccommodationCard)
-- [x] `CT-2` 목록 카드에 v2_support_flag 뱃지 표시 (최저가, 무제한쿠폰, 첫예약 등)
-- [x] `CT-3` 목록 카드 쿠폰 할인액 구체 표시 (hasCoupon boolean → coupons[].discount_amount)
-- [x] `CT-4` 상세 페이지 객실 쿠폰 표시 (sub_items.coupons[] → RoomCard)
-- [x] `CT-5` 상세 페이지 객실 남은 수량 매핑 (daily_extras CUR_SALES → remainingCount)
-- [x] `CT-6` 상세 페이지 객실 키워드 매핑 (items.keywords → Room.keywords)
-- [x] `CT-7` 상세 페이지 보강 — 결제혜택 렌더링, 마일리지유형 분기, 찜 토글 상태
+- [ ] `P3-2` **BookingRepository 포트 정의** — `src/domains/booking/ports/BookingRepository.ts`
+  - `getPaymentInfo(userId): Promise<PaymentInfo>`
+  - `prepare(request): Promise<PrepareResult>`
+  - `confirm(request): Promise<BookingResult>`
+  - `getList(params): Promise<BookingListResult>`
+  - `cancel(bookId): Promise<void>`
+  - 현재 `reservationApi.ts`의 9개 함수를 도메인 메서드로 재구성
 
-### HOME — 타입 정렬 + UI 구현 ✅
+- [ ] `P3-3` **ApiBookingRepository 어댑터** — `src/domains/booking/adapters/ApiBookingRepository.ts`
+  - `HttpClient` 주입받아 `BookingRepository` 구현
+  - API 응답 → 도메인 모델 매핑 로직 포함
+  - 테스트: HttpClient 모킹으로 매핑 로직 단위 테스트
 
-- [x] `HM-1` 타입 정렬 — HomeBanner(title, start_dt, end_dt 등), RegionCategory(thumb_url, geometry, sub_regions) 필드 확장
-- [x] `HM-2` UI 갭 분석 + 구현 — 배너 기간 노출 제어, 비회원 최근 본 숙소 localStorage 연동
-- [x] `HM-3` 홈 화면 데이터 바인딩 보강 — 지역 탭 썸네일, sub_items 가격 추출 대응
+- [ ] `P3-4` **BookingService 비즈니스 로직 추출** — `src/domains/booking/services/BookingService.ts`
+  - `calculatePayment(basePrice, coupon, mileage): PaymentSummary` — useBookingForm의 useMemo 로직
+  - `validateBookerInfo(info): ValidationResult`
+  - `buildBookingRequest(form, context): BookingRequest`
+  - 순수 함수, React 의존 없음
+  - 테스트: 쿠폰 할인 계산, CC009 제약, 마일리지 차감 경계값
 
-### MANAGE — 타입 정렬 + UI 구현 ✅
+- [ ] `P3-5` **PaymentGateway 포트 정의** — `src/domains/booking/ports/PaymentGateway.ts`
+  - `requestPayment(params): Promise<PaymentResult>`
+  - 현재 `inicis.ts`의 INIStdPay 호출을 추상화
+  - InicisPaymentGateway 어댑터 구현
 
-- [x] `MG-1` 타입 정렬 (CRITICAL) — board_type "INQUIRY"→"ASK" 수정, BoardItem 기획전 필드 추가, total_count 타입 통일
-- [x] `MG-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
-- [x] `MG-3` 기획전 상세 API 추가 (getExhibitionDetail)
-- [x] `MG-4` 인기 검색어 API 추가 (getPopularKeywords + PopularKeywordResponse 타입)
+- [ ] `P3-6` **booking hooks 리팩토링**
+  - `useBookingForm`: BookingService + useDI() 사용으로 전환
+  - `useBookingSubmit`: BookingRepository + PaymentGateway 포트 사용
+  - localStorage 직접 호출 → StoragePort 교체 (6개 키)
+  - 테스트: 기존 동작 회귀 테스트
 
-### BENEFIT — 타입 정렬 + UI 구현 ✅
-
-- [x] `BF-1` 타입 정렬 — remain_7day_count 필드명 수정, 쿠폰 검색/정렬/다운로드 상수 정의
-- [x] `BF-2` UI 갭 분석 — flow.md/ui-binding.md 기준 바인딩 체크 완료
-- [x] `BF-3` COUPON_SEARCH_TYPE(ST601/ST602/ST603), COUPON_SORT_TYPE, COUPON_DOWNLOAD_TYPE 상수 추가
-- [x] `BF-4` useCouponList에서 상수 사용, 테스트 업데이트
-
-### RESERVATION — 타입 정렬 + UI 구현 (BENEFIT 이후) ✅
-
-- [x] `RV-1` 타입 정렬 — noshow_block_start_dt/end_dt 추가, BookPaymentSimple.cancel_dt 추가
-- [x] `RV-2` UI 갭 분석 — ui-binding.md 기준 전체 바인딩 체크 완료
-- [x] `RV-3` 가격 계산 로직 수정 — 정률 쿠폰 1일차(oneDayPrice) 적용, CC009 상한선 반영
-- [x] `RV-4` UI 구현 — PaymentMethodSelector에 현장결제 제약 표시 (onsiteDisabled + reason)
-
-### AUTH — 타입 정렬 + 신규 페이지 구현 (CONTENTS 이후) ✅
-
-- [x] `AU-1` 타입 정렬 — AuthUser(phone_number null, history_yn, name, type 코드), CodeCheckResponse snake_case
-- [x] `AU-2` UI 갭 분석 — 마이페이지/설정/알림/찜 이미 구현 확인, PhoneVerification/ProfileEdit 참조 업데이트
-- [x] `AU-3` 확인 완료 — 마이페이지/알림센터/회원정보변경 이미 구현됨 (MyPage, NotificationPage, ProfileEditPage)
-- [x] `AU-4` 확인 완료 — 찜(favorites)/설정(settings)/회원탈퇴(WithdrawPage) 이미 구현됨. SNS 로그인은 Phase 6 보류
+- [ ] `P3-7` **Container에 BookingRepository 등록**
+  - `di/types.ts`에 `bookingRepository` 필드 추가
+  - `container.ts`에서 `ApiBookingRepository` 인스턴스 생성
+  - booking hooks에서 `useDI().bookingRepository` 사용
 
 ---
 
-## 완료된 Phase 요약
+### Phase 4 — 주요 도메인 전환 (home, search, accommodation)
 
-| Phase | 내용 | 테스트 | 상태 |
-|-------|------|--------|------|
-| Phase 1 | 인증/회원 + 로그인 상태 관리 | 38 cases | 완료 |
-| Phase 2 | 마이페이지/회원관리/찜/쿠폰/마일리지 API | 16 cases | 완료 |
-| Phase 3 | 소통/CS API | 10 cases | 완료 |
-| Phase 4 | 부가 콘텐츠/설정 API | 8 cases | 완료 |
-| Phase 5 | Mock → API 전환 | 5 cases | 완료 |
-| Phase 7 | 마이페이지 API 연동 강화 | — | 완료 (P7-6 보류) |
-| Phase 8 | UI/UX 개선 | — | 완료 |
-| Phase 9 | 성능/품질 | — | 완료 |
-| Phase 10 | API 실제 응답 기반 재설계 | 42 cases | 완료 |
-| Phase 11 | API 실제 응답 전수 검증 (34/58) | — | 완료 |
-| Phase 12 | API 필드 100% 활용 UI 재구성 (57개) | — | 완료 |
-| **합계** | | **133 tests** | |
+> 파일럿 템플릿 기반으로 사용 빈도 높은 3개 도메인 전환.
+
+- [ ] `P4-1` **home 도메인 Repository + Adapter**
+  - `HomeRepository` 포트: `getMain`, `getRegionStores`, `getRecentStores`
+  - `ApiHomeRepository` 어댑터
+  - `homeApi.ts`의 localStorage 직접 호출 → StoragePort 교체
+  - hooks 전환: `useHomeMain`, `useRegionStores`
+  - 테스트: 매퍼 + 훅 회귀
+
+- [ ] `P4-2` **search 도메인 Repository + Adapter**
+  - `SearchRepository` 포트: contents + keyword + filter 통합
+  - `ApiSearchRepository` 어댑터 (contentsApi + keywordApi 통합)
+  - `mapStoreToAccommodation` 매퍼를 어댑터 내부로 이동
+  - hooks 전환: `useContentsList`, `useFilterSearch`, `useKeywordSearch` 등
+  - CompactSearchBar의 localStorage 직접 호출 → StoragePort 교체
+  - 테스트: 매퍼 + 훅 회귀
+
+- [ ] `P4-3` **accommodation 도메인 Repository + Adapter**
+  - `AccommodationRepository` 포트: detail, images, bookStatus, refundPolicy
+  - `ApiAccommodationRepository` 어댑터
+  - `mapMotelToDetail` 매퍼를 어댑터 내부로 이동
+  - hooks 전환: `useStoreDetail`, `useStoreImages` 등
+  - 테스트: 매퍼 + 훅 회귀
+
+- [ ] `P4-4` **Container에 3개 도메인 Repository 등록**
+  - `di/types.ts` 업데이트
+  - `container.ts`에 팩토리 추가
+  - 테스트: 전체 테스트 스위트 통과
+
+---
+
+### Phase 5 — 나머지 도메인 일괄 전환
+
+> 단순한 CRUD 도메인들을 템플릿 기반으로 빠르게 전환.
+
+- [ ] `P5-1` **인증/사용자 도메인 전환** — auth, mypage, settings
+  - `AuthRepository`, `UserRepository`, `SettingsRepository` 포트 + 어댑터
+  - hooks 전환 + Container 등록
+
+- [ ] `P5-2` **콘텐츠 도메인 전환** — event, exhibition, magazine, notice, faq, guide, terms
+  - 7개 도메인 공통 패턴: `getList` + `getDetail`
+  - 각 도메인별 개별 포트 작성
+
+- [ ] `P5-3` **부가 기능 도메인 전환** — coupon, mileage, review, favorites, alarm, cs, friend, inquiry, notification
+  - 각 도메인별 Repository 포트 + 어댑터
+  - favorites의 localStorage 의존 → StoragePort 교체
+  - Container 등록
+
+---
+
+### Phase 6 — 정리 및 검증
+
+- [ ] `P6-1` **레거시 직접 import 제거**
+  - `import { api } from "@/lib/api/client"` → 모든 도메인에서 제거 확인
+  - `localStorage`/`sessionStorage` 직접 호출 → 전부 StoragePort 경유 확인
+  - 사용하지 않는 파일/export 정리
+
+- [ ] `P6-2` **전체 테스트 + E2E 검증**
+  - `pnpm test:run` 전체 통과
+  - dev 서버 기동 → 주요 플로우 수동 검증 (홈, 검색, 상세, 예약)
+  - 성능 회귀 없음 확인

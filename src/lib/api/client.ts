@@ -1,4 +1,5 @@
 import { generateSecretCode, aesEncrypt } from "./encrypt"
+import { SUCCESS_CODE, TOKEN_ERROR_CODES } from "@/lib/constants/apiCodes"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -7,13 +8,6 @@ export interface TokenPair {
   accessToken: string
   secret: string
 }
-
-// 인증 에러 코드 — 토큰 재발급 후 재시도
-const TOKEN_ERROR_CODES = new Set([
-  "40000001", // 잘못된 서버 타입
-  "40000003", // 잘못된 토큰 (필드 부족/잘못된 인증 타입)
-  "40000004", // 만료된 토큰
-])
 
 // 로그아웃 콜백 — auth store에서 등록
 let onAuthError: (() => void) | null = null
@@ -160,13 +154,13 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       body: body ? JSON.stringify(body) : undefined,
     })
     const retryData: ApiResponse<T> = await retryResponse.json()
-    if (retryData.code === "20000000") {
+    if (retryData.code === SUCCESS_CODE) {
       return retryData.result
     }
     throw new Error(`API Error: ${retryData.code} ${retryData.desc}`)
   }
 
-  if (data.code !== "20000000") {
+  if (data.code !== SUCCESS_CODE) {
     throw new Error(`API Error: ${data.code} ${data.desc}`)
   }
 
