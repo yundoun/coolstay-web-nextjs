@@ -41,6 +41,17 @@ describe("DIProvider", () => {
         remove: () => {},
         keys: () => [],
       },
+      bookingRepository: {
+        getPaymentInfo: async () => ({}) as never,
+        prepare: async () => ({}) as never,
+        confirm: async () => ({}) as never,
+        getList: async () => ({}) as never,
+        getUpcoming: async () => ({}) as never,
+        getGuestBooking: async () => ({}) as never,
+        cancel: async () => {},
+        hide: async () => {},
+        getReceiptUrl: async () => "",
+      },
     }
 
     const wrapper = ({ children }: { children: ReactNode }) => (

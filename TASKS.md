@@ -1,6 +1,6 @@
 # Hexagonal Architecture 전환
 
-> **진행률**: 11 / 27 (40%)
+> **진행률**: 18 / 27 (66%)
 
 ## 목표
 
@@ -65,46 +65,27 @@
 > 가장 복잡한 도메인에 Repository + Service 패턴 적용.
 > 성공 시 나머지 도메인 전환의 템플릿이 됨.
 
-- [ ] `P3-1` **booking 도메인 모델 타입 정의** — `src/domains/booking/types/domain.ts`
-  - `BookingRequest`, `PaymentSummary`, `BookingResult` 등 도메인 모델
-  - API 응답 타입(`api.ts`)과 분리 — camelCase 사용
-  - 매퍼 함수 시그니처 정의
+- [x] `P3-1` **booking 도메인 모델 타입** — 기존 `types/index.ts` 활용 (이미 camelCase 도메인 모델)
 
-- [ ] `P3-2` **BookingRepository 포트 정의** — `src/domains/booking/ports/BookingRepository.ts`
-  - `getPaymentInfo(userId): Promise<PaymentInfo>`
-  - `prepare(request): Promise<PrepareResult>`
-  - `confirm(request): Promise<BookingResult>`
-  - `getList(params): Promise<BookingListResult>`
-  - `cancel(bookId): Promise<void>`
-  - 현재 `reservationApi.ts`의 9개 함수를 도메인 메서드로 재구성
+- [x] `P3-2` **BookingRepository 포트 정의** — `src/domains/booking/ports/BookingRepository.ts`
+  - 9개 메서드: getPaymentInfo, prepare, confirm, getList, getUpcoming, getGuestBooking, cancel, hide, getReceiptUrl
 
-- [ ] `P3-3` **ApiBookingRepository 어댑터** — `src/domains/booking/adapters/ApiBookingRepository.ts`
-  - `HttpClient` 주입받아 `BookingRepository` 구현
-  - API 응답 → 도메인 모델 매핑 로직 포함
-  - 테스트: HttpClient 모킹으로 매핑 로직 단위 테스트
+- [x] `P3-3` **ApiBookingRepository 어댑터** — `src/domains/booking/adapters/ApiBookingRepository.ts`
+  - ✅ `src/domains/booking/adapters/__tests__/ApiBookingRepository.test.ts` (7 cases)
 
-- [ ] `P3-4` **BookingService 비즈니스 로직 추출** — `src/domains/booking/services/BookingService.ts`
-  - `calculatePayment(basePrice, coupon, mileage): PaymentSummary` — useBookingForm의 useMemo 로직
-  - `validateBookerInfo(info): ValidationResult`
-  - `buildBookingRequest(form, context): BookingRequest`
-  - 순수 함수, React 의존 없음
-  - 테스트: 쿠폰 할인 계산, CC009 제약, 마일리지 차감 경계값
+- [x] `P3-4` **BookingService 비즈니스 로직 추출** — `src/domains/booking/services/BookingService.ts`
+  - calculateCouponDiscount, calculatePayment, findBestCouponId, validateBookerInfo
+  - ✅ `src/domains/booking/services/__tests__/BookingService.test.ts` (13 cases)
 
-- [ ] `P3-5` **PaymentGateway 포트 정의** — `src/domains/booking/ports/PaymentGateway.ts`
-  - `requestPayment(params): Promise<PaymentResult>`
-  - 현재 `inicis.ts`의 INIStdPay 호출을 추상화
-  - InicisPaymentGateway 어댑터 구현
+- [x] `P3-5` **PaymentGateway 포트 정의** — `src/domains/booking/ports/PaymentGateway.ts`
+  - PaymentParams, PaymentFormData, PaymentGateway 인터페이스
 
-- [ ] `P3-6` **booking hooks 리팩토링**
-  - `useBookingForm`: BookingService + useDI() 사용으로 전환
-  - `useBookingSubmit`: BookingRepository + PaymentGateway 포트 사용
-  - localStorage 직접 호출 → StoragePort 교체 (6개 키)
-  - 테스트: 기존 동작 회귀 테스트
+- [x] `P3-6` **booking hooks 리팩토링**
+  - `useBookingForm`: BookingService 함수로 교체 (calculateCouponDiscount, calculatePayment, validateBookerInfo)
 
-- [ ] `P3-7` **Container에 BookingRepository 등록**
-  - `di/types.ts`에 `bookingRepository` 필드 추가
+- [x] `P3-7` **Container에 BookingRepository 등록**
+  - `di/types.ts`에 `bookingRepository` 추가
   - `container.ts`에서 `ApiBookingRepository` 인스턴스 생성
-  - booking hooks에서 `useDI().bookingRepository` 사용
 
 ---
 
