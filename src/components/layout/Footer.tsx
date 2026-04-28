@@ -35,7 +35,7 @@ export function Footer() {
       className={cn("border-t", config.showBottomNav ? "pb-16 md:pb-0" : "pb-0")}
     >
       {/* Main Footer — 모바일: 고객센터 + 회사정보 병렬 */}
-      <Container size="normal" className="py-6 md:py-8">
+      <Container size="narrow" className="py-6 md:py-8">
         <div className="grid grid-cols-2 gap-4 md:gap-8">
           {/* 고객센터 */}
           <div>
@@ -87,7 +87,7 @@ export function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-border/50">
-        <Container size="normal" className="py-3">
+        <Container size="narrow" className="py-3">
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               {LEGAL_LINKS.map((link) => (

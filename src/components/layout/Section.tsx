@@ -7,10 +7,11 @@ import { Container } from "./Container"
 const sectionVariants = cva("", {
   variants: {
     spacing: {
-      sm: "py-6 md:py-8",
-      md: "py-8 md:py-12",
-      lg: "py-12 md:py-16",
-      xl: "py-16 md:py-24",
+      none: "py-0",
+      sm: "py-4",
+      md: "py-5",
+      lg: "py-6",
+      xl: "py-10",
     },
     background: {
       default: "",
@@ -20,7 +21,7 @@ const sectionVariants = cva("", {
     },
   },
   defaultVariants: {
-    spacing: "lg",
+    spacing: "md",
     background: "default",
   },
 })
@@ -36,6 +37,13 @@ export interface SectionProps
   headerAction?: React.ReactNode
 }
 
+/**
+ * 홈 섹션 래퍼
+ * - Container padding="none"으로 고정
+ * - 섹션 헤더(타이틀/액션)는 section-px로 패딩
+ * - 자식 컴포넌트도 동일한 section-px를 사용
+ *   (가로 스크롤 컴포넌트는 -mx로 빼서 edge-to-edge)
+ */
 function Section({
   className,
   spacing,
@@ -43,8 +51,8 @@ function Section({
   title,
   description,
   titleClassName,
-  containerSize = "normal",
-  containerPadding = "responsive",
+  containerSize = "narrow",
+  containerPadding = "none",
   headerAction,
   children,
   ...props
@@ -56,23 +64,16 @@ function Section({
       {...props}
     >
       <Container size={containerSize} padding={containerPadding}>
-        {(title || description || headerAction) && (
-          <div className="mb-6 md:mb-8 flex items-end justify-between gap-4">
+        {(title || headerAction) && (
+          <div className="mb-3 flex items-end justify-between gap-4 section-px">
             <div>
               {title && (
-                <h2
-                  className={cn(
-                    "text-xl font-semibold tracking-tight md:text-2xl lg:text-3xl",
-                    titleClassName
-                  )}
-                >
+                <h2 className={cn("text-base font-bold tracking-tight", titleClassName)}>
                   {title}
                 </h2>
               )}
               {description && (
-                <p className="mt-1 text-sm text-muted-foreground md:text-base">
-                  {description}
-                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
               )}
             </div>
             {headerAction && <div className="shrink-0">{headerAction}</div>}

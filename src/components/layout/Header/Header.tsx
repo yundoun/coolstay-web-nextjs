@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { User, Heart, Gift, ChevronLeft, Home, Share2 } from "lucide-react"
+import { User, Heart, Gift, Bell, ChevronLeft, Home, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout/Container"
 import { cn } from "@/lib/utils"
@@ -32,99 +32,59 @@ export function Header({ variant }: HeaderProps) {
   const router = useRouter()
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn)
   const user = useAuthStore((state) => state.user)
-  const [heroSearchVisible, setHeroSearchVisible] = useState(true)
-  const isHome = pathname === "/"
-
   const routeConfig = getRouteLayoutConfig(pathname ?? "/")
   const headerVariant: HeaderVariant = routeConfig.headerVariant
   const dynamicTitle = useHeaderStore((s) => s.dynamicTitle)
   const headerTitle = dynamicTitle ?? routeConfig.title ?? ""
+  const isHome = pathname === "/"
 
-  // IntersectionObserver로 히어로 검색바 감시 (홈에서만)
+  // 홈에서만: 콘텐츠 검색바가 보이면 헤더 검색바 숨김
+  const [hideHeaderSearch, setHideHeaderSearch] = useState(isHome)
+
   useEffect(() => {
     if (!isHome) {
-      setHeroSearchVisible(false)
+      setHideHeaderSearch(false)
       return
     }
 
-    const timeout = setTimeout(() => {
-      const heroSearchBar = document.getElementById("hero-search-bar")
-      if (!heroSearchBar) {
-        setHeroSearchVisible(false)
-        return
-      }
+    setHideHeaderSearch(true)
 
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setHeroSearchVisible(entry.isIntersecting)
-        },
-        { threshold: 0, rootMargin: "-64px 0px 0px 0px" }
-      )
+    const observer = new IntersectionObserver(
+      ([entry]) => setHideHeaderSearch(entry.isIntersecting),
+      { threshold: 0 }
+    )
 
-      observer.observe(heroSearchBar)
-      return () => observer.disconnect()
-    }, 100)
+    const check = () => {
+      const el = document.getElementById("content-search-bar")
+      if (el) observer.observe(el)
+      else requestAnimationFrame(check)
+    }
+    check()
 
-    return () => clearTimeout(timeout)
+    return () => observer.disconnect()
   }, [isHome])
 
   // back variant
   if (headerVariant === "back") {
     return (
-      <header
-        data-slot="header"
-        className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
-      >
-        <Container size="normal" className="h-14 md:h-[var(--header-height)]">
+      <header data-slot="header" className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border">
+        <Container size="narrow" className="h-14 md:h-[var(--header-height)]">
           <div className="flex h-full items-center">
-            {/* 뒤로가기 */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0 -ml-2"
-              onClick={() => router.back()}
-            >
+            <Button variant="ghost" size="icon" className="shrink-0 -ml-2" onClick={() => router.back()}>
               <ChevronLeft className="size-5" />
             </Button>
-
-            {/* 타이틀 */}
-            <span className="flex-1 text-center font-semibold text-base truncate px-2">
-              {headerTitle}
-            </span>
-
-            {/* 우측 액션 */}
+            <span className="flex-1 text-center font-semibold text-base truncate px-2">{headerTitle}</span>
             <div className="flex items-center shrink-0 -mr-2">
               {routeConfig.rightActions?.includes("home") && (
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/">
-                    <Home className="size-5" />
-                  </Link>
-                </Button>
+                <Button variant="ghost" size="icon" asChild><Link href="/"><Home className="size-5" /></Link></Button>
               )}
               {routeConfig.rightActions?.includes("share") && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        url: window.location.href,
-                      })
-                    }
-                  }}
-                >
-                  <Share2 className="size-5" />
-                </Button>
+                <Button variant="ghost" size="icon" onClick={() => { if (navigator.share) navigator.share({ url: window.location.href }) }}><Share2 className="size-5" /></Button>
               )}
               {routeConfig.rightActions?.includes("favorite") && (
-                <Button variant="ghost" size="icon">
-                  <Heart className="size-5" />
-                </Button>
+                <Button variant="ghost" size="icon"><Heart className="size-5" /></Button>
               )}
-              {/* 액션 없으면 뒤로가기 버튼과 대칭 맞추기 위한 spacer */}
-              {!routeConfig.rightActions?.length && (
-                <div className="w-10" />
-              )}
+              {!routeConfig.rightActions?.length && <div className="w-10" />}
             </div>
           </div>
         </Container>
@@ -135,42 +95,21 @@ export function Header({ variant }: HeaderProps) {
   // minimal variant
   if (headerVariant === "minimal") {
     return (
-      <header
-        data-slot="header"
-        className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border"
-      >
-        <Container size="normal" className="h-14 md:h-[var(--header-height)]">
+      <header data-slot="header" className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border">
+        <Container size="narrow" className="h-14 md:h-[var(--header-height)]">
           <div className="flex h-full items-center justify-center">
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/">
-                <Home className="size-5" />
-              </Link>
-            </Button>
+            <Button variant="ghost" size="icon" asChild><Link href="/"><Home className="size-5" /></Link></Button>
           </div>
         </Container>
       </header>
     )
   }
 
-  // default variant
-  const isTransparentMode = variant
-    ? variant === "transparent"
-    : false
-  const showSolidHeader = isTransparentMode ? !heroSearchVisible : true
-
+  // default variant — 항상 동일한 구조, 홈 최상단에서만 검색바 숨김
   return (
-    <header
-      data-slot="header"
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50",
-        "transition-all duration-300 ease-out",
-        showSolidHeader
-          ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm"
-          : "bg-transparent"
-      )}
-    >
-      <Container size="normal" className="h-16 md:h-[var(--header-height)]">
-        <div className="flex h-full items-center justify-between gap-3 md:gap-4">
+    <header data-slot="header" className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-border">
+      <Container size="narrow" className="h-14 md:h-[var(--header-height)]">
+        <div className="flex h-full items-center gap-3">
           {/* Logo */}
           <Link href="/" className="shrink-0">
             <Image
@@ -178,24 +117,23 @@ export function Header({ variant }: HeaderProps) {
               alt="꿀스테이"
               width={120}
               height={40}
-              className={cn(
-                "h-7 md:h-8 w-auto transition-all",
-                showSolidHeader ? "" : "brightness-0 invert"
-              )}
+              className="h-7 w-auto"
               priority
             />
           </Link>
 
-          {/* 검색 텍스트 필드 */}
-          <div
-            className={cn(
-              "flex-1 max-w-md mx-1 md:mx-4",
-              "transition-all duration-300",
-              "opacity-100 translate-y-0"
-            )}
-          >
+          {/* 검색바 — 홈 최상단에서만 숨김 */}
+          <div className={cn(
+            "flex-1 max-w-md transition-all duration-200",
+            hideHeaderSearch ? "opacity-0 pointer-events-none" : "opacity-100"
+          )}>
             <CompactSearchBar />
           </div>
+
+          {/* 모바일: 알림 아이콘 */}
+          <Link href="/notifications" className="md:hidden shrink-0">
+            <Bell className="size-5 text-muted-foreground" />
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 shrink-0">
@@ -203,12 +141,7 @@ export function Header({ variant }: HeaderProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
-                  showSolidHeader
-                    ? "text-foreground hover:bg-muted"
-                    : "text-white/90 hover:text-white hover:bg-white/10"
-                )}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-foreground hover:bg-muted"
               >
                 {item.icon && <item.icon className="size-4" />}
                 {item.label}
@@ -216,37 +149,15 @@ export function Header({ variant }: HeaderProps) {
             ))}
           </nav>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Desktop: 로그인/유저 */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             {isLoggedIn ? (
-              <Button
-                variant={showSolidHeader ? "outline" : "ghost"}
-                size="sm"
-                className={cn(
-                  "hidden md:inline-flex gap-2",
-                  !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
-                )}
-                asChild
-              >
-                <Link href="/mypage">
-                  <User className="size-4" />
-                  {user?.nickname}
-                </Link>
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <Link href="/mypage"><User className="size-4" />{user?.nickname}</Link>
               </Button>
             ) : (
-              <Button
-                variant={showSolidHeader ? "outline" : "ghost"}
-                size="sm"
-                className={cn(
-                  "hidden md:inline-flex gap-2",
-                  !showSolidHeader && "text-white border-white/30 hover:bg-white/10"
-                )}
-                asChild
-              >
-                <Link href="/login">
-                  <User className="size-4" />
-                  로그인
-                </Link>
+              <Button variant="outline" size="sm" className="gap-2" asChild>
+                <Link href="/login"><User className="size-4" />로그인</Link>
               </Button>
             )}
           </div>

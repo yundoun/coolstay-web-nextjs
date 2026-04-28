@@ -39,14 +39,13 @@ export function EventSection() {
 
   // 1개면 풀너비 피처드, 2개 이상이면 캐러셀
   if (activeEvents.length === 1) {
-    return <FeaturedEventCard event={activeEvents[0]} />
+    return <div className="section-px"><FeaturedEventCard event={activeEvents[0]} /></div>
   }
 
   return (
     <div
       className={cn(
-        "flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2",
-        "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        "flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide section-px"
       )}
     >
       {activeEvents.map((event, idx) => (
@@ -67,9 +66,9 @@ function FeaturedEventCard({ event }: { event: BoardItem }) {
   return (
     <Link
       href={`/events/${event.key}`}
-      className="group block rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+      className="group block rounded-xl overflow-hidden bg-white shadow-sm transition-opacity active:opacity-70"
     >
-      <div className="relative aspect-[2.2/1] bg-muted overflow-hidden">
+      <div className="relative aspect-[2.5/1] bg-muted overflow-hidden">
         {image ? (
           <Image
             src={image}
@@ -134,16 +133,10 @@ function EventCard({
       href={`/events/${event.key}`}
       className={cn(
         "group relative flex-shrink-0 snap-start",
-        "w-[280px] sm:w-[320px] rounded-2xl overflow-hidden",
-        "transition-all duration-300",
-        "hover:shadow-lg hover:-translate-y-1"
+        "w-[280px] rounded-xl overflow-hidden",
+        "bg-white shadow-sm",
+        "transition-opacity active:opacity-70"
       )}
-      style={{
-        background: "rgba(255,255,255,0.6)",
-        backdropFilter: "blur(16px)",
-        WebkitBackdropFilter: "blur(16px)",
-        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.06)",
-      }}
     >
       {/* 이미지 */}
       <div className="relative aspect-[16/9] bg-muted overflow-hidden">

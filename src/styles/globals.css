@@ -269,6 +269,21 @@
     text-wrap: balance;
   }
 
+  /* 섹션 통일 좌우 패딩 — 모든 홈 섹션에서 동일한 여백 */
+  .section-px {
+    padding-inline: 1rem; /* 16px */
+  }
+  @media (min-width: 768px) {
+    .section-px {
+      padding-inline: 1.5rem; /* 24px */
+    }
+  }
+  @media (min-width: 1024px) {
+    .section-px {
+      padding-inline: 2.5rem; /* 40px */
+    }
+  }
+
   /* Container Variants with Responsive Padding */
   .container-wide {
     max-width: var(--container-wide);

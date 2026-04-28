@@ -1,4 +1,3 @@
-export { HeroSection } from "./HeroSection"
 export { BusinessTypeGrid } from "./BusinessTypeGrid"
 export { PromoBannerCarousel } from "./PromoBannerCarousel"
 export { PromoCards } from "./PromoCards"

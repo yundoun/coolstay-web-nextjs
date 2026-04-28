@@ -30,54 +30,36 @@ export function BusinessTypeGrid({ categories }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-4 gap-2 sm:grid-cols-8 sm:gap-2.5">
+    <div className="grid grid-cols-4 gap-y-3 gap-x-2 section-px">
       {items.map((item, idx) => {
         const specialHref = SPECIAL_HREF[item.sub_type]
 
         const content = (
           <>
-
-            {/* 아이콘 */}
-            <div className="relative z-10 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-0.5 group-hover:scale-110">
-              <CategoryIcon item={item} />
-            </div>
-
-            {/* 라벨 */}
-            <span className="relative z-10 mt-1.5 text-[11px] font-semibold text-neutral-700 text-center line-clamp-1 sm:text-xs">
+            <CategoryIcon item={item} />
+            <span className="mt-1.5 text-xs font-medium text-[#32353b] text-center line-clamp-1">
               {item.btn_name}
             </span>
           </>
         )
 
-        const cardClass = cn(
-          "group relative flex flex-col items-center justify-center",
-          "rounded-2xl px-2 py-3.5 sm:py-4",
-          "overflow-hidden",
-          "transition-all duration-200 ease-[cubic-bezier(0.4,0,0.2,1)]",
-          "hover:scale-[1.04] hover:shadow-md",
+        const itemClass = cn(
+          "flex flex-col items-center justify-center",
+          "py-1 transition-opacity active:opacity-70",
         )
-
-        const cardStyle = {
-          background: "rgba(255,255,255,0.55)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
-          boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.04)",
-        }
 
         if (specialHref) {
           return (
             <Link
               key={`${item.btn_name}-${idx}`}
               href={specialHref}
-              className={cardClass}
-              style={cardStyle}
+              className={itemClass}
             >
               {content}
             </Link>
           )
         }
 
-        // type: "URL" → 외부 링크 이동
         if (item.type === "URL" && item.target) {
           return (
             <a
@@ -85,8 +67,7 @@ export function BusinessTypeGrid({ categories }: Props) {
               href={item.target}
               target="_blank"
               rel="noopener noreferrer"
-              className={cardClass}
-              style={cardStyle}
+              className={itemClass}
             >
               {content}
             </a>
@@ -97,8 +78,7 @@ export function BusinessTypeGrid({ categories }: Props) {
           <button
             key={`${item.btn_name}-${idx}`}
             onClick={() => handleClick(item)}
-            className={cardClass}
-            style={cardStyle}
+            className={itemClass}
           >
             {content}
           </button>
@@ -111,19 +91,19 @@ export function BusinessTypeGrid({ categories }: Props) {
 function CategoryIcon({ item }: { item: LinkItem }) {
   if (item.thumb_url) {
     return (
-      <div className="relative size-10 drop-shadow-sm sm:size-11">
+      <div className="relative size-14">
         <Image
           src={item.thumb_url}
           alt={item.btn_name}
           fill
           className="object-contain"
-          sizes="44px"
+          sizes="56px"
         />
       </div>
     )
   }
   return (
-    <div className="flex size-10 items-center justify-center rounded-full bg-white/60 text-lg backdrop-blur-sm sm:size-11">
+    <div className="flex size-14 items-center justify-center rounded-full bg-neutral-100 text-lg">
       🏨
     </div>
   )
