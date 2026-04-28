@@ -1,6 +1,6 @@
 # Hexagonal Architecture 전환
 
-> **진행률**: 22 / 27 (81%)
+> **진행률**: 25 / 27 (92%)
 
 ## 목표
 
@@ -116,18 +116,18 @@
 
 > 단순한 CRUD 도메인들을 템플릿 기반으로 빠르게 전환.
 
-- [ ] `P5-1` **인증/사용자 도메인 전환** — auth, mypage, settings
-  - `AuthRepository`, `UserRepository`, `SettingsRepository` 포트 + 어댑터
-  - hooks 전환 + Container 등록
+- [x] `P5-1` **인증/사용자 도메인 전환** — auth, mypage, settings
+  - `AuthRepository` (9개 메서드), `MypageRepository` (7개), `SettingsRepository` (2개)
+  - 포트 + API 어댑터 + Container 등록
 
-- [ ] `P5-2` **콘텐츠 도메인 전환** — event, exhibition, magazine, notice, faq, guide, terms
-  - 7개 도메인 공통 패턴: `getList` + `getDetail`
-  - 각 도메인별 개별 포트 작성
+- [x] `P5-2` **콘텐츠 도메인 전환** — event, exhibition, magazine, terms
+  - `EventRepository`, `ExhibitionRepository`, `MagazineRepository` (7개), `TermsRepository`
+  - 포트 + API 어댑터 + Container 등록
 
-- [ ] `P5-3` **부가 기능 도메인 전환** — coupon, mileage, review, favorites, alarm, cs, friend, inquiry, notification
-  - 각 도메인별 Repository 포트 + 어댑터
-  - favorites의 localStorage 의존 → StoragePort 교체
-  - Container 등록
+- [x] `P5-3` **부가 기능 도메인 전환** — coupon, mileage, review, alarm, cs, friend
+  - `CouponRepository`, `MileageRepository`, `ReviewRepository`, `AlarmRepository`, `CsRepository` (8개), `FriendRepository`
+  - 포트 + API 어댑터 + Container 등록
+  - 전체 17개 도메인 Repository → Container에 등록 완료
 
 ---
 

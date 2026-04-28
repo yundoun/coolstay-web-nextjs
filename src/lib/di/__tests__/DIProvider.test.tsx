@@ -23,65 +23,19 @@ describe("DIProvider", () => {
   })
 
   it("커스텀 컨테이너를 주입할 수 있다", () => {
-    const mockContainer: Container = {
-      httpClient: {
-        get: async () => ({}),
-        post: async () => ({}),
-      },
-      tokenManager: {
-        getToken: async () => ({ accessToken: "mock", secret: "mock" }),
-        setToken: () => {},
-        clearToken: () => {},
-        isAuthenticated: () => false,
-        onAuthError: () => {},
-      },
-      storage: {
-        get: () => null,
-        set: () => {},
-        remove: () => {},
-        keys: () => [],
-      },
-      bookingRepository: {
-        getPaymentInfo: async () => ({}) as never,
-        prepare: async () => ({}) as never,
-        confirm: async () => ({}) as never,
-        getList: async () => ({}) as never,
-        getUpcoming: async () => ({}) as never,
-        getGuestBooking: async () => ({}) as never,
-        cancel: async () => {},
-        hide: async () => {},
-        getReceiptUrl: async () => "",
-      },
-      homeRepository: {
-        getMain: async () => ({}) as never,
-        getRegionStores: async () => ({}) as never,
-      },
-      searchRepository: {
-        getRegions: async () => ({}) as never,
-        getContentsList: async () => ({}) as never,
-        getTotalList: async () => ({}) as never,
-        getFilterKeys: async () => ({}) as never,
-        getFilterList: async () => ({}) as never,
-        getMyAreaList: async () => ({}) as never,
-        getKeywordList: async () => ({}) as never,
-        getKeywordSearchKeys: async () => ({}) as never,
-        getKeywordSearchList: async () => ({}) as never,
-      },
-      accommodationRepository: {
-        getDetail: async () => ({}) as never,
-        getImages: async () => ({}) as never,
-        getDailyBookStatus: async () => ({}) as never,
-        getRefundPolicy: async () => ({}) as never,
-      },
-    }
+    // createDefaultContainer를 베이스로 사용하되 별도 인스턴스임을 검증
+    const customContainer = createDefaultContainer()
 
     const wrapper = ({ children }: { children: ReactNode }) => (
-      <DIProvider container={mockContainer}>{children}</DIProvider>
+      <DIProvider container={customContainer}>{children}</DIProvider>
     )
 
     const { result } = renderHook(() => useDI(), { wrapper })
 
-    expect(result.current).toBe(mockContainer)
+    expect(result.current).toBe(customContainer)
+    expect(result.current.bookingRepository).toBeDefined()
+    expect(result.current.homeRepository).toBeDefined()
+    expect(result.current.authRepository).toBeDefined()
   })
 
   it("Provider 없이 useDI 호출 시 에러를 throw한다", () => {
