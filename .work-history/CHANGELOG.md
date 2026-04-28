@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-28 16:07** | 숙소 상세 서브 네비 헤더 포탈 통합 | [`a2568df`](.work-history/entries/2026-04-28_16-00_refactor_accommodation-subnav-header-portal.md)
 - **2026-04-28 15:49** | 숙소 상세 페이지 구성 요소 보강 및 가격 표시 통일 | [`38828ee`](.work-history/entries/2026-04-28_15-00_refactor_accommodation-detail-enhancement.md)
 - **2026-04-28 14:33** | SearchConditionBar 헤더 통합 및 관심사 분리 | [`0636811`](.work-history/entries/2026-04-28_14-30_refactor_search-condition-bar-header-merge.md)
 - **2026-04-28 13:54** | 검색 결과 카드 레이아웃 높이 통일 | [`23869c5`](.work-history/entries/2026-04-28_13-50_refactor_search-card-layout-unify.md)

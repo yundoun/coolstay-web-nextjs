@@ -88,6 +88,8 @@ export function Header({ variant }: HeaderProps) {
             </div>
           </div>
         </Container>
+        {/* 페이지별 확장 슬롯 (서브 네비 등이 portal로 렌더됨) */}
+        <div id="header-extension" />
       </header>
     )
   }

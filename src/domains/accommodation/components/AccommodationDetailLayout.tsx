@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { Coins, CalendarDays, Users, Loader2, MessageCircle, Gift, Ticket, Star, Crown, Percent, Zap, ChevronDown, ChevronUp, Phone } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Separator } from "@/components/ui/separator"
@@ -82,6 +83,12 @@ export function AccommodationDetailLayout({
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [guestPickerOpen, setGuestPickerOpen] = useState(false)
   const [showSubNav, setShowSubNav] = useState(false)
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null)
+
+  // 헤더 확장 슬롯에 portal 연결
+  useEffect(() => {
+    setPortalTarget(document.getElementById("header-extension"))
+  }, [])
 
   // 스크롤 시 서브 네비 표시 (최상위에서는 숨김)
   useEffect(() => {
@@ -329,30 +336,33 @@ export function AccommodationDetailLayout({
       </div>
 
       {/* ─── Slide-down 서브 네비 (탭 + pill) ───
-          이미지가 뷰포트를 벗어나면 헤더 아래로 슬라이드
-          모달이 열려 있으면 숨김 (z-index가 Dialog보다 높아 겹침 방지) */}
-      <div
-        className={cn(
-          "fixed left-0 right-0 z-[var(--z-fixed)]",
-          "top-14 md:top-[var(--header-height)]",
-          "bg-background/95 backdrop-blur-md border-b border-border",
-                    showSubNav && !rentalModalOpen
-            ? "opacity-100"
-            : "opacity-0 pointer-events-none",
+          헤더 확장 슬롯(#header-extension)에 portal로 렌더
+          검색 페이지와 동일한 통합 패턴 */}
+      {portalTarget &&
+        createPortal(
+          <div
+            className={cn(
+              "bg-white border-b border-border",
+              "transition-all duration-200 overflow-hidden",
+              showSubNav && !rentalModalOpen
+                ? "opacity-100 max-h-40"
+                : "opacity-0 max-h-0 pointer-events-none",
+            )}
+          >
+            <Container size="normal" padding="responsive">
+              {/* 1행: 탭 (스크롤 가능) */}
+              <SectionTabNav
+                tabs={SECTION_TABS}
+                stickyTop={56}
+                variant="inline"
+                className="py-1.5"
+              />
+              {/* 2행: pill 버튼 */}
+              <div className="pb-2">{pillButtons}</div>
+            </Container>
+          </div>,
+          portalTarget,
         )}
-      >
-        <Container size="normal" padding="responsive">
-          {/* 1행: 탭 (스크롤 가능) */}
-          <SectionTabNav
-            tabs={SECTION_TABS}
-            stickyTop={56}
-            variant="inline"
-            className="py-1.5"
-          />
-          {/* 2행: pill 버튼 */}
-          <div className="pb-2">{pillButtons}</div>
-        </Container>
-      </div>
 
       {/* ─── 콘텐츠 영역 ─── */}
       <Container size="normal" padding="responsive" className="mt-6 pb-16">
@@ -373,7 +383,7 @@ export function AccommodationDetailLayout({
       </Container>
 
       {/* ─── 하단 고정 CTA (모바일) ─── */}
-      <div className="fixed bottom-14 left-0 right-0 z-40 bg-white border-t border-border px-4 py-2.5 md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border px-4 py-2.5 md:hidden">
         <div className="flex items-center gap-2 max-w-[var(--container-narrow)] mx-auto">
           {accommodation.phoneNumber && (
             <a
