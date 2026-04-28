@@ -234,7 +234,7 @@ export function SearchPageLayout() {
   return (
     <div className="min-h-screen bg-white">
       <Container size="narrow" padding="none">
-        {/* 검색 조건 바 + 검색 버튼 */}
+        {/* 검색 조건 바 (헤더 내부에 portal로 렌더됨) */}
         <SearchConditionBar
           selectedRegion={regionName || selectedRegion}
           isKeywordSearch={!!keyword}
@@ -247,6 +247,8 @@ export function SearchPageLayout() {
           onGuestChange={handleGuestChange}
           onSearch={handleSearch}
         />
+        {/* condition bar가 헤더 portal로 이동하므로 그 높이만큼 여백 확보 */}
+        <div className="h-14" />
 
         {/* 업태 필터 */}
         <div className="py-3 section-px">

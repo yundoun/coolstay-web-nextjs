@@ -21,7 +21,7 @@ export function MainContent({ children, className }: MainContentProps) {
         "flex-1",
         isCompactHeader
           ? "pt-14 md:pt-[var(--header-height)]"
-          : "pt-16 md:pt-[var(--header-height)]",
+          : "pt-14 md:pt-[var(--header-height)]",
         config.showBottomNav ? "pb-14 md:pb-0" : "pb-0",
         className
       )}

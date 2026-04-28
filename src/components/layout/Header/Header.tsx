@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import { User, Heart, Gift, Bell, ChevronLeft, Home, Share2 } from "lucide-react"
+import { User, Heart, Gift, ChevronLeft, Home, Share2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Container } from "@/components/layout/Container"
 import { cn } from "@/lib/utils"
@@ -130,11 +130,6 @@ export function Header({ variant }: HeaderProps) {
             <CompactSearchBar />
           </div>
 
-          {/* 모바일: 알림 아이콘 */}
-          <Link href="/notifications" className="md:hidden shrink-0">
-            <Bell className="size-5 text-muted-foreground" />
-          </Link>
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 shrink-0">
             {NAV_ITEMS.map((item) => (
@@ -163,6 +158,8 @@ export function Header({ variant }: HeaderProps) {
           </div>
         </div>
       </Container>
+      {/* 페이지별 확장 슬롯 (검색 조건 바 등이 portal로 렌더됨) */}
+      <div id="header-extension" />
     </header>
   )
 }
