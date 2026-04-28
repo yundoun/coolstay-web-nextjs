@@ -1,4 +1,4 @@
-import type { HttpClient } from "@/lib/ports/HttpClient"
+import type { HttpClient, HttpParams } from "@/lib/ports/HttpClient"
 import type {
   AccommodationRepository,
   StoreDetailParams,
@@ -35,6 +35,6 @@ export class ApiAccommodationRepository implements AccommodationRepository {
   }
 
   getRefundPolicy(params: RefundPolicyParams) {
-    return this.http.get<RefundPolicyResponse>("/contents/refund-policy/list", params)
+    return this.http.get<RefundPolicyResponse>("/contents/refund-policy/list", params as unknown as HttpParams)
   }
 }
