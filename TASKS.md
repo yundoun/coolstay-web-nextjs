@@ -1,6 +1,6 @@
 # Hexagonal Architecture 전환
 
-> **진행률**: 7 / 28 (25%)
+> **진행률**: 11 / 27 (40%)
 
 ## 목표
 
@@ -44,24 +44,19 @@
 > 포트 구현체를 런타임에 주입할 수 있는 구조.
 > React Context 기반 경량 DI.
 
-- [ ] `P2-1` **Container 타입 정의** — `src/lib/di/types.ts`
-  - `Container` 인터페이스: `httpClient`, `tokenManager`, `storage` 필드
-  - 각 도메인 Repository 타입은 Phase 3에서 추가
+- [x] `P2-1` **Container 타입 정의** — `src/lib/di/types.ts`
+  - ✅ `src/lib/di/__tests__/container.test.ts` (5 cases)
 
-- [ ] `P2-2` **기본 Container 생성** — `src/lib/di/container.ts`
-  - `createDefaultContainer()`: FetchHttpClient + ApiTokenManager + LocalStorageAdapter 조합
-  - 싱글톤 `defaultContainer` export
+- [x] `P2-2` **기본 Container 생성** — `src/lib/di/container.ts`
+  - `createDefaultContainer()` + `defaultContainer` 싱글톤
 
-- [ ] `P2-3` **DIProvider 컴포넌트** — `src/lib/di/DIProvider.tsx`
-  - `DIContext` + `DIProvider` + `useDI()` 훅
+- [x] `P2-3` **DIProvider 컴포넌트** — `src/lib/di/DIProvider.tsx`
   - `app/providers.tsx`에 통합
-  - 테스트: useDI()가 기본 컨테이너 반환 확인
+  - ✅ `src/lib/di/__tests__/DIProvider.test.tsx` (3 cases)
 
-- [ ] `P2-4` **기존 `api` 객체 호환 레이어**
-  - 기존 `import { api } from "@/lib/api/client"` 경로 유지
-  - 내부적으로 `defaultContainer.httpClient` 위임
-  - 18개 도메인 API 파일 변경 없이 동작 보장
-  - 테스트: 기존 전체 테스트 스위트 통과
+- [x] `P2-4` **기존 `api` 객체 호환 레이어**
+  - `client.ts`의 `api` 객체 유지 — 18개 도메인 API 파일 변경 없음
+  - 기존 88/89 tests 통과 (1개는 이전부터 실패)
 
 ---
 

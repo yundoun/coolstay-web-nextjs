@@ -2,6 +2,8 @@
 
 import { useState } from "react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { DIProvider } from "@/lib/di/DIProvider"
+import { defaultContainer } from "@/lib/di/container"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,7 +20,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <DIProvider container={defaultContainer}>
+        {children}
+      </DIProvider>
     </QueryClientProvider>
   )
 }

@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-28 16:50** | P2: DI 컨테이너 및 Provider 설정 | [`140f98e`](.work-history/entries/2026-04-28_16-50_P2_di-container-provider.md)
 - **2026-04-28 16:48** | P1: 인프라 포트 및 어댑터 추출 | [`3b20727`](.work-history/entries/2026-04-28_16-48_P1_infra-ports-adapters.md)
 - **2026-04-28 16:07** | 숙소 상세 서브 네비 헤더 포탈 통합 | [`a2568df`](.work-history/entries/2026-04-28_16-00_refactor_accommodation-subnav-header-portal.md)
 - **2026-04-28 15:49** | 숙소 상세 페이지 구성 요소 보강 및 가격 표시 통일 | [`38828ee`](.work-history/entries/2026-04-28_15-00_refactor_accommodation-detail-enhancement.md)
