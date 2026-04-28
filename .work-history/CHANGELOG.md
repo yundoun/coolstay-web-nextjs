@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-28 17:05** | P6: 정리 및 검증 | [`90dad50`](.work-history/entries/2026-04-28_17-06_P6_verification.md)
 - **2026-04-28 17:04** | P5: 나머지 도메인 일괄 전환 | [`eb592b8`](.work-history/entries/2026-04-28_17-04_P5_remaining-domains-hexagonal.md)
 - **2026-04-28 16:58** | P4: 주요 도메인 전환 (home, search, accommodation) | [`afd6972`](.work-history/entries/2026-04-28_16-58_P4_core-domains-hexagonal.md)
 - **2026-04-28 16:54** | P3: 파일럿 도메인 전환 (booking) | [`0c58344`](.work-history/entries/2026-04-28_16-54_P3_booking-hexagonal.md)
