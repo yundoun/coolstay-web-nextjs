@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-29 09:12** | 추천 숙소 "새로운 추천" 버튼 페이지네이션 구현 | [`6fec3c3`](.work-history/entries/2026-04-29_10-00_recommend-pagination.md)
 - **2026-04-28 17:11** | FIX: ApiAccommodationRepository 타입 에러 수정 | [`90efece`](.work-history/entries/2026-04-28_17-15_FIX_refund-policy-type.md)
 - **2026-04-28 17:08** | CLAUDE.md Hexagonal Architecture 업데이트 | [`3144626`](.work-history/entries/2026-04-28_17-10_harness-update.md)
 - **2026-04-28 17:05** | P6: 정리 및 검증 | [`90dad50`](.work-history/entries/2026-04-28_17-06_P6_verification.md)

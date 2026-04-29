@@ -32,20 +32,44 @@ interface Props {
   stores?: StoreItem[]
 }
 
+const PAGE_SIZE = 4
+
 export function RegionRecommendations({ categories, stores }: Props) {
   const tabs = categories?.filter((c) => c.open_yn === "Y").slice(0, 10) || []
   const [activeCode, setActiveCode] = useState<string | undefined>(undefined)
+  const [page, setPage] = useState(0)
 
-  const { data: regionData } = useRegionStores(activeCode)
+  const { data: regionData, isFetching } = useRegionStores(activeCode)
+
+  const isLoading = !!activeCode && isFetching && !regionData
 
   const displayStores = activeCode
     ? regionData?.recommend_stores || []
     : stores || []
 
+  const totalPages = Math.max(1, Math.ceil(displayStores.length / PAGE_SIZE))
+  const pagedStores = displayStores.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
   if (tabs.length === 0 && displayStores.length === 0) return null
 
   return (
     <div>
+      {/* 타이틀 + 새로운 추천 버튼 */}
+      <div className="flex items-center justify-between section-px mb-3">
+        <h2 className="text-base font-bold tracking-tight">이런 숙소는 어떠세요?</h2>
+        {displayStores.length > 0 && (
+          <button
+            onClick={() => setPage((prev) => (prev + 1) % totalPages)}
+            className="flex items-center gap-1 text-xs text-muted-foreground"
+          >
+            <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
+            </svg>
+            새로운 추천
+          </button>
+        )}
+      </div>
+
       {/* 지역 탭 — 앱 스타일 밑줄 탭 */}
       {tabs.length > 0 && (
         <div className="section-px mb-4"><div className="flex items-center gap-0 border-b overflow-x-auto scrollbar-hide">
@@ -54,7 +78,10 @@ export function RegionRecommendations({ categories, stores }: Props) {
             return (
               <button
                 key={tab.code}
-                onClick={() => setActiveCode(tab.code === activeCode ? undefined : tab.code)}
+                onClick={() => {
+                  setActiveCode(tab.code === activeCode ? undefined : tab.code)
+                  setPage(0)
+                }}
                 className={cn(
                   "px-4 py-2.5 text-sm font-medium transition-all relative shrink-0",
                   isActive ? "text-foreground" : "text-muted-foreground"
@@ -70,9 +97,26 @@ export function RegionRecommendations({ categories, stores }: Props) {
         </div></div>
       )}
 
-      {/* 숙소 그리드 — 앱 스타일 2열, 카드에 쿠폰/하트/가격 */}
+      {/* 숙소 그리드 */}
+      {isLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 section-px">
+          {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div key={i} className="rounded-xl overflow-hidden border border-border bg-white">
+              <div className="aspect-[4/3] bg-neutral-100 animate-pulse" />
+              <div className="p-3 space-y-2">
+                <div className="h-3 w-16 bg-neutral-100 rounded animate-pulse" />
+                <div className="h-4 w-full bg-neutral-100 rounded animate-pulse" />
+                <div className="flex items-center justify-between mt-2">
+                  <div className="size-5 bg-neutral-100 rounded-full animate-pulse" />
+                  <div className="h-4 w-14 bg-neutral-100 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 section-px">
-        {displayStores.slice(0, 4).map((store) => {
+        {pagedStores.map((store) => {
           const pricing = getStayPrice(store)
           const discount = pricing.originalPrice
             ? Math.round(((pricing.originalPrice - pricing.price) / pricing.originalPrice) * 100)
@@ -140,16 +184,7 @@ export function RegionRecommendations({ categories, stores }: Props) {
           )
         })}
       </div>
-
-      {/* 새로운 추천 버튼 */}
-      <div className="section-px mt-4">
-        <button className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border text-sm text-muted-foreground hover:bg-neutral-50 transition-colors">
-          <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path d="M21 12a9 9 0 11-6.219-8.56" strokeLinecap="round" />
-          </svg>
-          새로운 추천
-        </button>
-      </div>
+      )}
     </div>
   )
 }

@@ -64,7 +64,7 @@ export default function HomePage() {
       )}
 
       {/* 5. 추천 숙소 */}
-      <Section title="이런 숙소는 어떠세요?" spacing="lg">
+      <Section spacing="lg">
         <RegionRecommendations
           categories={data?.recommend_categories}
           stores={data?.recommend_stores}
