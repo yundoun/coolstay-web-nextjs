@@ -7,6 +7,7 @@ import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
+import { AccommodationCardSkeleton } from "@/components/skeleton"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
 import { BusinessTypeFilter } from "./BusinessTypeFilter"
@@ -273,7 +274,11 @@ export function SearchPageLayout() {
         {/* 검색 결과 */}
         <div className="pt-4">
           {isLoading ? (
-            <LoadingSpinner />
+            <div>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <AccommodationCardSkeleton key={i} />
+              ))}
+            </div>
           ) : (
             <SearchResultGrid accommodations={accommodations} onToggleFavorite={handleToggleFavorite} />
           )}

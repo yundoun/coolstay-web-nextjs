@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart } from "lucide-react"
+import { RegionCardSkeleton } from "@/components/skeleton"
 import { cn } from "@/lib/utils"
 import { useRegionStores } from "../hooks/useHomeData"
 import type { RegionCategory, StoreItem } from "@/lib/api/types"
@@ -101,17 +102,7 @@ export function RegionRecommendations({ categories, stores }: Props) {
       {isLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 section-px">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <div key={i} className="rounded-xl overflow-hidden border border-border bg-white">
-              <div className="aspect-[4/3] bg-neutral-100 animate-pulse" />
-              <div className="p-3 space-y-2">
-                <div className="h-3 w-16 bg-neutral-100 rounded animate-pulse" />
-                <div className="h-4 w-full bg-neutral-100 rounded animate-pulse" />
-                <div className="flex items-center justify-between mt-2">
-                  <div className="size-5 bg-neutral-100 rounded-full animate-pulse" />
-                  <div className="h-4 w-14 bg-neutral-100 rounded animate-pulse" />
-                </div>
-              </div>
-            </div>
+            <RegionCardSkeleton key={i} />
           ))}
         </div>
       ) : (

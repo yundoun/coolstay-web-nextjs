@@ -2,10 +2,11 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Star, MapPin, Loader2, Ticket } from "lucide-react"
+import { Heart, Star, MapPin, Ticket } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
+import { WishlistCardSkeleton } from "@/components/skeleton"
 import { cn } from "@/lib/utils"
 import { useFavorites } from "../hooks/useFavorites"
 import type { StoreItem } from "@/lib/api/types"
@@ -23,8 +24,10 @@ export function FavoritesPage() {
       <h1 className="text-2xl font-bold mb-6">찜한 숙소</h1>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <WishlistCardSkeleton key={i} />
+          ))}
         </div>
       ) : error ? (
         <div className="text-center py-20 text-destructive">{error}</div>
