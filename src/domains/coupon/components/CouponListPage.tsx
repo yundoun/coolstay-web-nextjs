@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Ticket, Clock, ChevronDown, ChevronUp, Gift, Info, CalendarDays, DoorOpen, Tag } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
@@ -135,7 +135,11 @@ export function CouponListPage({ embedded = false }: { embedded?: boolean }) {
 
       {/* Content */}
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="space-y-0">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ListItemSkeleton key={i} hasImage lines={3} />
+          ))}
+        </div>
       ) : error ? (
         <ErrorState message={error} />
       ) : activeCoupons.length === 0 && inactiveCoupons.length === 0 ? (

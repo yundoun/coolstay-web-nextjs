@@ -13,7 +13,8 @@ import {
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { PackageCardSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
@@ -141,7 +142,12 @@ export function PackageExhibitionPage({ groupKey }: { groupKey: number }) {
   if (isLoading) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <LoadingSpinner />
+        <Skeleton className="h-8 w-32 mb-6" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <PackageCardSkeleton key={i} />
+          ))}
+        </div>
       </Container>
     )
   }

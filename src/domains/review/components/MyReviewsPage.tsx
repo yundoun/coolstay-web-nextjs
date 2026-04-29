@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
@@ -136,7 +136,11 @@ export function MyReviewsPage() {
 
       {/* Review List */}
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="space-y-0">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <ListItemSkeleton key={i} hasImage lines={3} />
+          ))}
+        </div>
       ) : error ? (
         <ErrorState message={error} />
       ) : reviews.length === 0 ? (

@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { HelpCircle } from "lucide-react"
 import { Container } from "@/components/layout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -40,7 +40,11 @@ export function FaqPage() {
       <h1 className="text-2xl font-bold mb-6">자주 묻는 질문</h1>
 
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="rounded-xl border bg-card overflow-hidden px-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <ListItemSkeleton key={i} />
+          ))}
+        </div>
       ) : (
         <>
           {/* Category Filter */}

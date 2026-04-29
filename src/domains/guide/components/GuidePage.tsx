@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { Container } from "@/components/layout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
 import { getGuideList } from "@/domains/cs/api/csApi"
@@ -51,7 +51,11 @@ export function GuidePage() {
       </div>
 
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="space-y-0">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ListItemSkeleton key={i} hasImage lines={3} />
+          ))}
+        </div>
       ) : isError ? (
         <ErrorState
           message="가이드를 불러오지 못했습니다"

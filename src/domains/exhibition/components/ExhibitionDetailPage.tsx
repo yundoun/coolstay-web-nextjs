@@ -20,7 +20,8 @@ import {
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { DetailHeroSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { AccommodationCard } from "@/components/accommodation"
 import { cn } from "@/lib/utils"
@@ -238,7 +239,11 @@ export function ExhibitionDetailPage({
   if (isLoading) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <LoadingSpinner />
+        <DetailHeroSkeleton imageAspect="aspect-[2/1]" />
+        <div className="space-y-3 mt-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+        </div>
       </Container>
     )
   }

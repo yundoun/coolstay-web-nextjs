@@ -1,7 +1,7 @@
 "use client"
 
 import { Coins } from "lucide-react"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { useMileageStores } from "../hooks/useMileageStores"
@@ -10,7 +10,13 @@ import { MileageStoreCard } from "./MileageStoreCard"
 export function MileageStoreList() {
   const { stores, isLoading, error } = useMileageStores()
 
-  if (isLoading) return <LoadingSpinner />
+  if (isLoading) return (
+    <div className="space-y-0">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <ListItemSkeleton key={i} hasImage lines={3} />
+      ))}
+    </div>
+  )
   if (error) return <ErrorState message={error} />
 
   if (stores.length === 0) {

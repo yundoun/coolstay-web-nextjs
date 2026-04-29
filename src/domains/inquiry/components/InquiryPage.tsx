@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { getInquiryList, registerInquiry } from "@/domains/cs/api/csApi"
@@ -139,7 +139,13 @@ function InquiryList() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   if (isLoading) {
-    return <LoadingSpinner />
+    return (
+      <div className="space-y-0">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <ListItemSkeleton key={i} lines={3} />
+        ))}
+      </div>
+    )
   }
 
   if (items.length === 0) {

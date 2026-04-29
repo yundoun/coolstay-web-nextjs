@@ -1,7 +1,7 @@
 "use client"
 
 import { Container } from "@/components/layout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTerms } from "../hooks/useTerms"
@@ -13,7 +13,12 @@ export function TermsPage() {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
         <h1 className="text-2xl font-bold mb-6">이용약관</h1>
-        <LoadingSpinner />
+        <div className="flex gap-2 mb-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 flex-1 rounded-md" />
+          ))}
+        </div>
+        <Skeleton className="h-[60vh] rounded-xl" />
       </Container>
     )
   }

@@ -16,7 +16,7 @@ import {
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
 import { getAlarmList, deleteAlarms, updateAlarmCard } from "@/domains/alarm/api/alarmApi"
@@ -123,7 +123,11 @@ export function NotificationPage() {
       )}
 
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="space-y-0">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <ListItemSkeleton key={i} lines={3} />
+          ))}
+        </div>
       ) : alarms.length === 0 ? (
         <EmptyState
           icon={BellOff}

@@ -11,7 +11,8 @@ import {
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EventCardSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
@@ -49,8 +50,12 @@ export function ExhibitionListPage() {
   if (isLoading) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <h1 className="text-2xl font-bold mb-6">기획전</h1>
-        <LoadingSpinner />
+        <Skeleton className="h-8 w-16 mb-6" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
+        </div>
       </Container>
     )
   }

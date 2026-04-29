@@ -5,7 +5,8 @@ import { Star, Quote, MapPin, Loader2 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ImageLightbox } from "@/components/ui/image-lightbox"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Container } from "@/components/layout"
 import { cn } from "@/lib/utils"
@@ -47,7 +48,21 @@ export function AccommodationReviewsPage({ accommodationId }: Props) {
 
   const isLoading = isStoreLoading || isReviewLoading
 
-  if (isLoading) return <LoadingSpinner fullPage />
+  if (isLoading) return (
+    <div className="min-h-[50vh] px-4 py-8 space-y-4">
+      <Skeleton className="h-6 w-32" />
+      <div className="flex items-center gap-3 mb-4">
+        <Skeleton className="h-16 w-16 rounded-xl" />
+        <div className="space-y-2 flex-1">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-3 w-full" />
+        </div>
+      </div>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <ListItemSkeleton key={i} hasImage lines={3} />
+      ))}
+    </div>
+  )
 
   const detail = storeData?.motel ? mapMotelToDetail(storeData.motel) : null
 

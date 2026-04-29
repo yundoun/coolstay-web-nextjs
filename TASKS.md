@@ -1,29 +1,35 @@
-# Phase 3 — 주요 페이지 스켈레톤 적용
+# 스켈레톤 일관성 수정 + 나머지 페이지 적용
 
-> **진행률**: 5 / 5 (100%)
+> **진행률**: 9 / 10 (90%)
 
-### 핵심 페이지 스켈레톤
-- [x] `HT-1` 홈페이지 스켈레톤 추출
-  - 인라인 → `src/domains/home/components/HomePageSkeleton.tsx`
-  - `src/app/(public)/loading.tsx` 생성
+## 원칙
+- 콘텐츠 로딩 → 스켈레톤 (레이아웃 예측 가능)
+- 액션 로딩 → 스피너 (버튼 클릭, 폼 제출, 결제)
+- 모든 스켈레톤은 `<Skeleton>` 프리미티브 사용 (`bg-accent animate-pulse`)
+- 수동 `bg-neutral-100 animate-pulse` 금지
+- 각 태스크 완료 후 dev 서버에서 실제 확인
 
-- [x] `HT-2` 숙소 상세 페이지 스켈레톤
-  - `src/domains/accommodation/components/AccommodationDetailSkeleton.tsx`
-  - LoadingSpinner → AccommodationDetailSkeleton 교체
-  - `src/app/(public)/accommodations/[id]/loading.tsx` 생성
+---
 
-- [x] `HT-3` 검색 결과 페이지 스켈레톤
-  - `src/domains/search/components/SearchPageSkeleton.tsx`
-  - Suspense fallback "로딩 중..." → SearchPageSkeleton 교체
-  - `src/app/(public)/search/loading.tsx` 생성
+### 일관성 수정 (기존 작업 누락분)
 
-- [x] `HT-4` 예약 내역 페이지 스켈레톤
-  - `src/domains/booking/components/BookingHistoryPageSkeleton.tsx`
-  - BookingListSkeleton (인라인) + BookingHistoryPageSkeleton (loading.tsx)
-  - `src/app/(protected)/bookings/loading.tsx` 생성
+- [x] `FIX-1` RegionRecommendations 인라인 스켈레톤 → RegionCardSkeleton 교체
+- [x] `FIX-2` HomePageSkeleton 실제 홈 레이아웃과 1:1 동기화
+- [x] `FIX-3` FavoritesPage Loader2 → WishlistCardSkeleton 교체
+- [x] `FIX-4` SearchPageLayout 내부 LoadingSpinner → AccommodationCardSkeleton 교체
 
-### 매거진 리팩토링
-- [x] `HT-5` 매거진 인라인 스켈레톤 프리미티브 적용
-  - MagazineSection: MagazineCardSkeleton 사용
-  - BoardListPage: BoardCardSkeleton + GridSkeleton 사용
-  - PackageListPage: PackageCardSkeleton + GridSkeleton 사용
+---
+
+### 나머지 페이지 스켈레톤 적용
+
+- [x] `RR-1` 이벤트 목록/상세 스켈레톤 + loading.tsx 2개
+- [x] `RR-2` 기획전 목록/상세 스켈레톤 + loading.tsx 2개
+- [x] `RR-3` 쿠폰/마일리지 스켈레톤 + loading.tsx 2개
+- [x] `RR-4` 리뷰/알림/문의 스켈레톤 + loading.tsx 4개
+- [x] `RR-5` 예약상세/설정/정보 페이지 스켈레톤 + loading.tsx 6개
+
+---
+
+### 최종 검증
+
+- [ ] `RR-6` 전체 빌드 + 일관성 최종 점검

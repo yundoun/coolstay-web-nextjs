@@ -12,7 +12,7 @@ import {
   UserX,
 } from "lucide-react"
 import { Container } from "@/components/layout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { ListItemSkeleton } from "@/components/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { useSettings } from "../hooks/useSettings"
 import { useAuthStore } from "@/lib/stores/auth"
@@ -35,7 +35,11 @@ export function SettingsPage() {
 
       {/* Notification Settings */}
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="rounded-xl border bg-card overflow-hidden px-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <ListItemSkeleton key={i} />
+          ))}
+        </div>
       ) : (
         <div className="rounded-xl border bg-card overflow-hidden">
           <div className="px-4 py-3 bg-muted/30">

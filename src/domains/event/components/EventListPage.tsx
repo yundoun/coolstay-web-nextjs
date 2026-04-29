@@ -11,7 +11,8 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Container } from "@/components/layout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { EventCardSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { cn } from "@/lib/utils"
@@ -57,8 +58,19 @@ export function EventListPage() {
   if (isLoading) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <h1 className="text-2xl font-bold mb-6">이벤트</h1>
-        <LoadingSpinner />
+        <Skeleton className="h-8 w-20 mb-2" />
+        <Skeleton className="h-4 w-56 mb-6" />
+        <div className="flex gap-2 mb-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-16 rounded-full" />
+          ))}
+        </div>
+        <EventCardSkeleton className="mb-4" />
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <EventCardSkeleton key={i} />
+          ))}
+        </div>
       </Container>
     )
   }

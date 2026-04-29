@@ -14,7 +14,8 @@ import {
 } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { DetailHeroSkeleton } from "@/components/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { cn } from "@/lib/utils"
 import { formatTimestampDot } from "@/lib/utils/formatDate"
@@ -52,9 +53,16 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
+      <Container size="narrow" padding="responsive" className="py-8">
+        <DetailHeroSkeleton imageAspect="aspect-[2/1]" />
+        <div className="space-y-3 mt-4">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-60 w-full rounded-xl" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-4/6" />
+        </div>
+      </Container>
     )
   }
 
