@@ -15,7 +15,7 @@ import {
   MagazineSection,
 } from "@/domains/home/components"
 import { useHomeMain } from "@/domains/home/hooks/useHomeData"
-import { Skeleton } from "@/components/ui/skeleton"
+import { HomePageSkeleton } from "@/domains/home/components/HomePageSkeleton"
 
 const SectionLink = ({ href, label }: { href: string; label: string }) => (
   <Link
@@ -99,28 +99,3 @@ export default function HomePage() {
   )
 }
 
-function HomePageSkeleton() {
-  return (
-    <main className="max-w-[var(--container-narrow)] mx-auto px-4">
-      <div className="mt-6 space-y-5">
-        <div className="flex gap-4 overflow-hidden">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="size-14 rounded-full shrink-0" />
-          ))}
-        </div>
-        <Skeleton className="h-32 rounded-xl" />
-        <div className="flex gap-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-[85px] flex-1 rounded-xl" />
-          ))}
-        </div>
-        <div className="h-2 bg-neutral-100 -mx-4" />
-        <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-xl" />
-          ))}
-        </div>
-      </div>
-    </main>
-  )
-}

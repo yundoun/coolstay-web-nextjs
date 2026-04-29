@@ -3,7 +3,7 @@
 import { useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Skeleton } from "@/components/ui/skeleton"
+import { MagazineCardSkeleton } from "@/components/skeleton"
 import { cn } from "@/lib/utils"
 import { useMagazineHome } from "@/domains/magazine/hooks/useMagazine"
 
@@ -89,7 +89,7 @@ function MagazineSkeleton() {
     <div className="section-px">
       <div className="flex gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} className="w-[200px] aspect-[3/4] rounded-xl shrink-0" />
+          <MagazineCardSkeleton key={i} />
         ))}
       </div>
     </div>

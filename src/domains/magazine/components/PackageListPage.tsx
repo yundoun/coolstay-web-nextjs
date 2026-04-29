@@ -6,7 +6,7 @@ import { ArrowLeft, Calendar, Tag } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { PackageCardSkeleton, GridSkeleton } from "@/components/skeleton"
 import { cn } from "@/lib/utils"
 import { usePackageList } from "../hooks/useMagazine"
 import type { BoardItem } from "../types"
@@ -143,17 +143,8 @@ function PackageCard({ item }: { item: BoardItem }) {
 
 function PackageListSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-xl border bg-card overflow-hidden">
-          <Skeleton className="aspect-[2/1]" />
-          <div className="p-4 space-y-2">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-3 w-1/2" />
-          </div>
-        </div>
-      ))}
-    </div>
+    <GridSkeleton cols={2} rows={4} gap={4}>
+      <PackageCardSkeleton />
+    </GridSkeleton>
   )
 }

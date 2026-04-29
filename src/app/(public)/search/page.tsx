@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { SearchPageLayout } from "@/domains/search/components"
+import { SearchPageSkeleton } from "@/domains/search/components/SearchPageSkeleton"
 
 export const metadata = {
   title: "숙소 검색 | 쿨스테이",
@@ -12,13 +13,7 @@ function SearchPageContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-[50vh] items-center justify-center">
-          <div className="text-muted-foreground">로딩 중...</div>
-        </div>
-      }
-    >
+    <Suspense fallback={<SearchPageSkeleton />}>
       <SearchPageContent />
     </Suspense>
   )

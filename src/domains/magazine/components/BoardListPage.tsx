@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { BoardCardSkeleton, GridSkeleton } from "@/components/skeleton"
 import { cn } from "@/lib/utils"
 import { useBoardList } from "../hooks/useMagazine"
 import type { BoardType, BoardSummary } from "../types"
@@ -147,16 +147,8 @@ function BoardCard({ board, showType }: { board: BoardSummary; showType: boolean
 
 function BoardListSkeleton() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-xl border bg-card overflow-hidden">
-          <Skeleton className="aspect-[16/10]" />
-          <div className="p-4 space-y-2">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-          </div>
-        </div>
-      ))}
-    </div>
+    <GridSkeleton cols={3} rows={6} gap={4}>
+      <BoardCardSkeleton />
+    </GridSkeleton>
   )
 }

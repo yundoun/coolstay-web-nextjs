@@ -5,7 +5,7 @@ import { Building2 } from "lucide-react"
 import { useStoreDetail } from "../hooks/useDetailData"
 import { mapMotelToDetail } from "../utils/mapMotelToDetail"
 import { AccommodationDetailLayout } from "./AccommodationDetailLayout"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { AccommodationDetailSkeleton } from "./AccommodationDetailSkeleton"
 import { EmptyState } from "@/components/ui/empty-state"
 import { addRecentStoreKey } from "@/domains/home/api/homeApi"
 import { useHeaderStore } from "@/lib/stores/header"
@@ -52,7 +52,7 @@ export function AccommodationDetailPage({ storeKey }: Props) {
   }, [])
 
   if (isLoading) {
-    return <LoadingSpinner fullPage />
+    return <AccommodationDetailSkeleton />
   }
 
   if (!detail) {

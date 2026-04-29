@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Clock, Moon, Calendar, Search } from "lucide-react"
 import { Container } from "@/components/layout"
 import { Button } from "@/components/ui/button"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import { BookingListSkeleton } from "./BookingHistoryPageSkeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Badge } from "@/components/ui/badge"
@@ -85,7 +85,7 @@ export function BookingHistoryPage() {
 
       {/* Loading */}
       {isLoading && items.length === 0 ? (
-        <LoadingSpinner />
+        <BookingListSkeleton />
       ) : items.length === 0 ? (
         <EmptyState
           icon={Search}
