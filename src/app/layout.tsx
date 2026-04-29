@@ -19,7 +19,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <head />
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin="anonymous"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <meta name="theme-color" content="#FFC600" />
+      </head>
       <body className="flex min-h-screen flex-col bg-white font-sans antialiased">
         <Script
           src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js"
