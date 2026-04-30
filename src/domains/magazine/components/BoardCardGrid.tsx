@@ -23,7 +23,7 @@ export function BoardCardGrid({ boards, hideMore }: Props) {
 
   return (
     <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="flex gap-[15px] overflow-x-auto px-4 pb-1 scrollbar-hide">
         {boards.map((board) => (
           <Link
             key={board.key}
@@ -33,7 +33,7 @@ export function BoardCardGrid({ boards, hideMore }: Props) {
             target={board.sub_type === "VIDEO" ? "_blank" : undefined}
             rel={board.sub_type === "VIDEO" ? "noopener noreferrer" : undefined}
             className={cn(
-              "group rounded-xl overflow-hidden border bg-card",
+              "group relative flex-shrink-0 w-[280px] rounded-2xl overflow-hidden",
               "transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
             )}
           >
@@ -44,19 +44,22 @@ export function BoardCardGrid({ boards, hideMore }: Props) {
                   alt={`게시글 ${board.key}`}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  sizes="280px"
                 />
               ) : (
                 <div className="h-full w-full bg-gradient-to-br from-muted to-muted-foreground/10" />
               )}
-              {board.sub_type && (
-                <Badge
-                  variant="secondary"
-                  className="absolute top-2 left-2 bg-black/50 text-white border-none text-[10px]"
-                >
-                  {SUB_TYPE_LABEL[board.sub_type] ?? board.sub_type}
-                </Badge>
-              )}
+              {/* 하단 그라데이션 + 타입 태그 */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent pt-10 pb-3 px-3">
+                {board.sub_type && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-white/20 text-white border-none text-[10px] backdrop-blur-sm"
+                  >
+                    {SUB_TYPE_LABEL[board.sub_type] ?? board.sub_type}
+                  </Badge>
+                )}
+              </div>
             </div>
           </Link>
         ))}

@@ -1,14 +1,17 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { ChevronRight } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { useMagazineHome } from "../hooks/useMagazine"
 import { MagazineBannerCarousel } from "./MagazineBannerCarousel"
-import { VideoSection } from "./VideoSection"
+import { TourSection } from "./TourSection"
+import { InfluencerSection } from "./InfluencerSection"
+import { RecommendStoreSection } from "./RecommendStoreSection"
 import { BoardCardGrid } from "./BoardCardGrid"
-import { PackageCardGrid } from "./PackageCardGrid"
 import { RegionFilter } from "./RegionFilter"
 
 export function MagazineHomePage() {
@@ -39,91 +42,114 @@ export function MagazineHomePage() {
   }
 
   return (
-    <main>
-      {/* 헤더 + 지역 필터 */}
+    <main className="space-y-10">
+      {/* 1. 헤더 */}
       <Section spacing="md">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">매거진</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              여행이 더 즐거워지는 이야기
-            </p>
-          </div>
-          <RegionFilter onSelect={handleRegionSelect} />
-        </div>
+        <h1 className="text-2xl font-bold">꿀스테이 여행 매거진</h1>
       </Section>
 
-      {/* 배너 캐러셀 */}
+      {/* 2. 배너 캐러셀 */}
       {data?.magazine_banner && data.magazine_banner.length > 0 && (
-        <Section spacing="sm">
+        <Section spacing="none">
           <MagazineBannerCarousel banners={data.magazine_banner} />
         </Section>
       )}
 
-      {/* 동영상 */}
+      {/* 3. 지역 필터 */}
+      <Section spacing="none">
+        <div className="flex items-center gap-2 px-4 text-sm text-muted-foreground">
+          <span>지금은</span>
+          <RegionFilter onSelect={handleRegionSelect} />
+        </div>
+      </Section>
+
+      {/* 4. AI 추천 관광정보 */}
+      <Section
+        title="AI 추천 관광정보"
+        spacing="md"
+        headerAction={<MoreLink href="/magazine/board" />}
+      >
+        <TourSection
+          areaCode={regionFilter.provinceCode ? Number(regionFilter.provinceCode) : undefined}
+          sigunguCode={regionFilter.districtCode ? Number(regionFilter.districtCode) : undefined}
+        />
+      </Section>
+
+      {/* 5. 인플루언서 영상 */}
       {data?.magazine_video && data.magazine_video.length > 0 && (
         <Section
-          title="영상"
-          description="인플루언서가 소개하는 숙소 이야기"
+          title="인플루언서와 함께 여행"
           spacing="md"
         >
-          <VideoSection videos={data.magazine_video} />
+          <InfluencerSection videos={data.magazine_video} />
         </Section>
       )}
 
-      {/* 게시글 */}
+      {/* 6. 추천 숙소 모아보기 */}
+      <Section
+        title="추천 숙소 모아보기"
+        spacing="md"
+        headerAction={<MoreLink href="/magazine/board" />}
+      >
+        <RecommendStoreSection />
+      </Section>
+
+      {/* 7. 이런 글은 어떠신지 */}
       {data?.magazine_board && data.magazine_board.length > 0 && (
         <Section
-          title="게시글"
-          description="칼럼, 맛집 후기 등 다양한 콘텐츠"
+          title="이런 글은 어떠신지"
           spacing="md"
+          headerAction={<MoreLink href="/magazine/board" />}
         >
-          <BoardCardGrid boards={data.magazine_board} />
-        </Section>
-      )}
-
-      {/* 패키지 */}
-      {data?.magazine_package && data.magazine_package.length > 0 && (
-        <Section
-          title="패키지"
-          description="특별한 혜택이 담긴 숙소 패키지"
-          spacing="md"
-        >
-          <PackageCardGrid packages={data.magazine_package} />
+          <BoardCardGrid boards={data.magazine_board} hideMore />
         </Section>
       )}
     </main>
   )
 }
 
+function MoreLink({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center gap-0.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+    >
+      전체보기
+      <ChevronRight className="size-3.5" />
+    </Link>
+  )
+}
+
 function MagazineHomeSkeleton() {
   return (
-    <main>
+    <main className="space-y-10">
       <Section spacing="md">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-24" />
-            <Skeleton className="mt-2 h-4 w-48" />
-          </div>
-          <Skeleton className="h-9 w-24 rounded-full" />
-        </div>
+        <Skeleton className="h-8 w-52" />
       </Section>
-      <Section spacing="sm">
-        <Skeleton className="aspect-[2.5/1] w-full rounded-xl" />
+      <Section spacing="none">
+        <Skeleton className="aspect-video w-full rounded-xl" />
+      </Section>
+      <Section spacing="none">
+        <Skeleton className="h-9 w-32 rounded-full mx-4" />
       </Section>
       <Section spacing="md">
-        <Skeleton className="h-6 w-16 mb-4" />
-        <div className="flex gap-3">
+        <Skeleton className="h-6 w-32 mb-4" />
+        <div className="flex gap-2 px-4 mb-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-[135px] w-[240px] flex-shrink-0 rounded-xl" />
+            <Skeleton key={i} className="h-8 w-16 rounded-full" />
+          ))}
+        </div>
+        <div className="flex gap-3 px-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="w-[174px] h-[200px] rounded-xl shrink-0" />
           ))}
         </div>
       </Section>
       <Section spacing="md">
-        <Skeleton className="h-6 w-16 mb-4" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
+        <Skeleton className="h-6 w-40 mb-4" />
+        <div className="flex gap-3 px-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Skeleton key={i} className="w-[322px] aspect-video rounded-2xl shrink-0" />
           ))}
         </div>
       </Section>

@@ -7,6 +7,8 @@ import type {
   PackageListResponse,
   PackageDetailResponse,
   PackageBannerResponse,
+  MagazineStoreListResponse,
+  TourApiResponse,
   BoardType,
 } from "../types"
 
@@ -66,6 +68,36 @@ export function getPackageDetail(params: {
     sales_date: params.sales_date,
     customer_count: params.customer_count,
   })
+}
+
+/** 추천 숙소 — 위치 기반 10km 반경, 최대 10개 */
+export function getMagazineStores(params?: {
+  latitude?: string
+  longitude?: string
+}) {
+  return api.get<MagazineStoreListResponse>("/aiMagazine/store/list", {
+    latitude: params?.latitude,
+    longitude: params?.longitude,
+  })
+}
+
+/** 한국관광공사 관광정보 — Next.js 프록시 경유 */
+export async function getTourSpots(params: {
+  contentTypeId: number
+  areaCode?: number
+  sigunguCode?: number
+  numOfRows?: number
+}): Promise<TourApiResponse> {
+  const searchParams = new URLSearchParams({
+    contentTypeId: String(params.contentTypeId),
+    numOfRows: String(params.numOfRows ?? 10),
+  })
+  if (params.areaCode) searchParams.set("areaCode", String(params.areaCode))
+  if (params.sigunguCode) searchParams.set("sigunguCode", String(params.sigunguCode))
+
+  const res = await fetch(`/api/tour?${searchParams.toString()}`)
+  if (!res.ok) throw new Error("Tour API failed")
+  return res.json()
 }
 
 /** 패키지 배너 — 지역별 */

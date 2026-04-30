@@ -9,6 +9,8 @@ import {
   getPackageList,
   getPackageDetail,
   getPackageBanners,
+  getMagazineStores,
+  getTourSpots,
 } from "../api/magazineApi"
 import type { BoardType } from "../types"
 
@@ -79,6 +81,26 @@ export function usePackageDetail(key: number | undefined) {
     queryKey: ["magazine", "package", "detail", key],
     queryFn: () => getPackageDetail({ key: key! }),
     enabled: !!key,
+    retry: 1,
+  })
+}
+
+/** 추천 숙소 — 위치 기반 */
+export function useMagazineStores(latitude?: string, longitude?: string) {
+  return useQuery({
+    queryKey: ["magazine", "stores", latitude, longitude],
+    queryFn: () => getMagazineStores({ latitude, longitude }),
+    enabled: !!latitude && !!longitude,
+    retry: 1,
+  })
+}
+
+/** 한국관광공사 관광정보 */
+export function useTourSpots(contentTypeId: number, areaCode?: number, sigunguCode?: number) {
+  return useQuery({
+    queryKey: ["tour", contentTypeId, areaCode, sigunguCode],
+    queryFn: () => getTourSpots({ contentTypeId, areaCode, sigunguCode, numOfRows: 10 }),
+    staleTime: 1000 * 60 * 30,
     retry: 1,
   })
 }

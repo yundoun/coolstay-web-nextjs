@@ -164,3 +164,36 @@ export interface PackageBannerItem {
 export interface PackageBannerResponse {
   package_banners: PackageBannerItem[]
 }
+
+// ─── 추천 숙소 (/aiMagazine/store/list) ───
+
+export interface MagazineStoreListResponse {
+  motels: import("@/lib/api/types").StoreItem[]
+}
+
+// ─── 한국관광공사 공공API ───
+
+export interface TourItem {
+  title: string
+  contentid: string
+  contenttypeid: string
+  firstimage: string
+  firstimage2: string       // 썸네일
+  addr1: string
+  addr2?: string
+  mapx?: string
+  mapy?: string
+  tel?: string
+}
+
+export interface TourApiResponse {
+  response: {
+    header: { resultCode: string; resultMsg: string }
+    body: {
+      totalCount: number
+      numOfRows: number
+      pageNo: number
+      items: { item: TourItem[] }
+    }
+  }
+}

@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-30 15:40** | 매거진 페이지 모바일 앱 구조 동일화 | [`3145104`](.work-history/entries/2026-04-30_15-15_MZ-1-14_magazine-mobile-match.md)
 - **2026-04-30 13:51** | Mobile G/W 프록시 포트 변경 | [`196bb5b`](.work-history/entries/2026-04-30_14-00_gw-port-change.md)
 - **2026-04-30 11:04** | 전체 페이지 서버 에러 처리 + 홈 스켈레톤 개선 | [`97a61bc`](.work-history/entries/2026-04-30_11-10_error-handling-all-pages.md)
 - **2026-04-30 09:59** | 에러 바운더리 추가 + 홈 페이지 서버 에러 처리 | [`50b0620`](.work-history/entries/2026-04-30_09-15_error-boundary.md)

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MagazineBanner } from "../types"
 
@@ -12,31 +11,33 @@ interface Props {
 
 export function MagazineBannerCarousel({ banners }: Props) {
   const [current, setCurrent] = useState(0)
+  const [paused, setPaused] = useState(false)
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % banners.length)
   }, [banners.length])
 
-  const prev = useCallback(() => {
-    setCurrent((prev) => (prev - 1 + banners.length) % banners.length)
-  }, [banners.length])
-
   useEffect(() => {
-    if (banners.length <= 1) return
-    const timer = setInterval(next, 4000)
+    if (banners.length <= 1 || paused) return
+    const timer = setInterval(next, 3000)
     return () => clearInterval(timer)
-  }, [banners.length, next])
+  }, [banners.length, next, paused])
 
   if (banners.length === 0) return null
 
   return (
-    <div className="group relative overflow-hidden rounded-xl">
+    <div
+      className="relative overflow-hidden rounded-xl"
+      onPointerDown={() => setPaused(true)}
+      onPointerUp={() => setPaused(false)}
+      onPointerLeave={() => setPaused(false)}
+    >
       <div
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
         {banners.map((banner) => (
-          <div key={banner.key} className="relative aspect-[2.5/1] w-full flex-shrink-0">
+          <div key={banner.key} className="relative aspect-video w-full flex-shrink-0">
             <Image
               src={banner.image_url}
               alt={`매거진 배너 ${banner.key}`}
@@ -50,23 +51,20 @@ export function MagazineBannerCarousel({ banners }: Props) {
       </div>
 
       {banners.length > 1 && (
-        <>
-          <button
-            onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50"
-          >
-            <ChevronLeft className="size-5" />
-          </button>
-          <button
-            onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/30 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-black/50"
-          >
-            <ChevronRight className="size-5" />
-          </button>
-          <div className="absolute bottom-3 right-3 rounded-full bg-black/50 px-2.5 py-0.5 text-xs text-white">
-            {current + 1} / {banners.length}
-          </div>
-        </>
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-[3.5px]">
+          {banners.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={cn(
+                "size-[7px] rounded-full transition-colors duration-300",
+                i === current ? "bg-white" : "bg-white/40"
+              )}
+              onClick={() => setCurrent(i)}
+              aria-label={`배너 ${i + 1}로 이동`}
+            />
+          ))}
+        </div>
       )}
     </div>
   )
