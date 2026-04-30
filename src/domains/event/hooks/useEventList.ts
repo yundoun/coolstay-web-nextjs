@@ -13,6 +13,6 @@ export function useEventList() {
   return {
     events: data?.board_items ?? [],
     isLoading,
-    error: error ? (error instanceof Error ? error.message : "이벤트를 불러올 수 없습니다") : null,
+    error: error ? "서버에 연결할 수 없습니다" : null,
   }
 }

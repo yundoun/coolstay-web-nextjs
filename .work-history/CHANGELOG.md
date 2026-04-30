@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-30 11:04** | 전체 페이지 서버 에러 처리 + 홈 스켈레톤 개선 | [`97a61bc`](.work-history/entries/2026-04-30_11-10_error-handling-all-pages.md)
 - **2026-04-30 09:59** | 에러 바운더리 추가 + 홈 페이지 서버 에러 처리 | [`50b0620`](.work-history/entries/2026-04-30_09-15_error-boundary.md)
 - **2026-04-29 10:30** | RR-1~RR-5: 나머지 전체 페이지 스켈레톤 적용 | [`b8f30ab`](.work-history/entries/2026-04-29_10-40_RR-1-5_remaining-skeleton.md)
 - **2026-04-29 10:22** | FIX-1~FIX-4: 스켈레톤 일관성 수정 | [`44c8dc1`](.work-history/entries/2026-04-29_10-25_FIX-1-4_skeleton-consistency-fix.md)

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Section } from "@/components/layout"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ErrorState } from "@/components/ui/error-state"
 import { useMagazineHome } from "../hooks/useMagazine"
 import { MagazineBannerCarousel } from "./MagazineBannerCarousel"
 import { VideoSection } from "./VideoSection"
@@ -16,7 +17,7 @@ export function MagazineHomePage() {
     districtCode?: string
   }>({})
 
-  const { data, isLoading } = useMagazineHome(
+  const { data, isLoading, isError, refetch } = useMagazineHome(
     regionFilter.provinceCode,
     regionFilter.districtCode
   )
@@ -26,6 +27,16 @@ export function MagazineHomePage() {
   }
 
   if (isLoading) return <MagazineHomeSkeleton />
+
+  if (isError) {
+    return (
+      <ErrorState
+        message="서버에 연결할 수 없습니다"
+        onRetry={() => refetch()}
+        fullPage
+      />
+    )
+  }
 
   return (
     <main>

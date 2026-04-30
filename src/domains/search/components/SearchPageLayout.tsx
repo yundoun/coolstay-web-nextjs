@@ -7,6 +7,7 @@ import { Container } from "@/components/layout"
 import { AccommodationCard } from "@/components/accommodation"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { AccommodationCardSkeleton } from "@/components/skeleton"
 import { SearchConditionBar } from "./SearchConditionBar"
 import { SearchInfoBar } from "./SearchInfoBar"
@@ -147,9 +148,10 @@ export function SearchPageLayout() {
       businessType: businessType || undefined,
     }
   }, [regionCode, keyword, promoSearchType, isLocating, userLocation, businessType])
-  const { data: myAreaData, isLoading: isMyAreaLoading } = useMyAreaList(myAreaParams)
+  const { data: myAreaData, isLoading: isMyAreaLoading, isError: isMyAreaError } = useMyAreaList(myAreaParams)
 
   const isLoading = keywordSearch.isLoading || filterSearch.isLoading || promoSearch.isLoading || isMyAreaLoading
+  const isError = keywordSearch.isError || filterSearch.isError || promoSearch.isError || isMyAreaError
 
   // 우선순위: 프로모 검색 > 키워드 검색 > 지역 검색 > myArea
   const accommodations: Accommodation[] = useMemo(() => {
@@ -279,6 +281,12 @@ export function SearchPageLayout() {
                 <AccommodationCardSkeleton key={i} />
               ))}
             </div>
+          ) : isError ? (
+            <ErrorState
+              message="서버에 연결할 수 없습니다"
+              onRetry={() => window.location.reload()}
+              fullPage
+            />
           ) : (
             <SearchResultGrid accommodations={accommodations} onToggleFavorite={handleToggleFavorite} />
           )}

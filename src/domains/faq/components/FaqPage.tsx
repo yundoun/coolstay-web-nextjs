@@ -6,6 +6,7 @@ import { HelpCircle } from "lucide-react"
 import { Container } from "@/components/layout"
 import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { Badge } from "@/components/ui/badge"
 import {
   Accordion,
@@ -18,7 +19,7 @@ import { getFaqList } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
 
 export function FaqPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["faq"],
     queryFn: () => getFaqList(),
     retry: 1,
@@ -45,6 +46,12 @@ export function FaqPage() {
             <ListItemSkeleton key={i} />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          message="서버에 연결할 수 없습니다"
+          onRetry={() => refetch()}
+          fullPage
+        />
       ) : (
         <>
           {/* Category Filter */}

@@ -6,13 +6,14 @@ import { Megaphone, ChevronDown, ChevronUp } from "lucide-react"
 import { Container } from "@/components/layout"
 import { ListItemSkeleton } from "@/components/skeleton"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { getNoticeList } from "@/domains/cs/api/csApi"
 import type { BoardItem } from "@/domains/cs/types"
 
 export function NoticeListPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["notices"],
     queryFn: () => getNoticeList(),
     retry: 1,
@@ -30,6 +31,12 @@ export function NoticeListPage() {
             <ListItemSkeleton key={i} />
           ))}
         </div>
+      ) : isError ? (
+        <ErrorState
+          message="서버에 연결할 수 없습니다"
+          onRetry={() => refetch()}
+          fullPage
+        />
       ) : items.length === 0 ? (
         <EmptyState icon={Megaphone} title="공지사항이 없습니다" />
       ) : (

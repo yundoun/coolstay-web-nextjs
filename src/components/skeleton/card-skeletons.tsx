@@ -40,7 +40,7 @@ export function AccommodationCardSkeleton({ className }: { className?: string })
  */
 export function RegionCardSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-xl overflow-hidden border border-border bg-white", className)}>
+    <div className={cn("rounded-xl overflow-hidden", className)}>
       <Skeleton className="aspect-[4/3] rounded-none" />
       <div className="p-3 space-y-2">
         <Skeleton className="h-3 w-16" />

@@ -13,10 +13,6 @@ export function useExhibitionList() {
   return {
     exhibitions: data ?? [],
     isLoading,
-    error: error
-      ? error instanceof Error
-        ? error.message
-        : "기획전을 불러올 수 없습니다"
-      : null,
+    error: error ? "서버에 연결할 수 없습니다" : null,
   }
 }

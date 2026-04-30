@@ -7,6 +7,7 @@ import { mapMotelToDetail } from "../utils/mapMotelToDetail"
 import { AccommodationDetailLayout } from "./AccommodationDetailLayout"
 import { AccommodationDetailSkeleton } from "./AccommodationDetailSkeleton"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { addRecentStoreKey } from "@/domains/home/api/homeApi"
 import { useHeaderStore } from "@/lib/stores/header"
 
@@ -23,7 +24,7 @@ interface Props {
 
 export function AccommodationDetailPage({ storeKey }: Props) {
   const [dates, setDates] = useState<{ start: string; end: string } | undefined>(undefined)
-  const { data: apiData, isLoading, isFetching } = useStoreDetail(storeKey, dates)
+  const { data: apiData, isLoading, isError, refetch, isFetching } = useStoreDetail(storeKey, dates)
 
   const setDynamicTitle = useHeaderStore((s) => s.setDynamicTitle)
 
@@ -53,6 +54,16 @@ export function AccommodationDetailPage({ storeKey }: Props) {
 
   if (isLoading) {
     return <AccommodationDetailSkeleton />
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        message="서버에 연결할 수 없습니다"
+        onRetry={() => refetch()}
+        fullPage
+      />
+    )
   }
 
   if (!detail) {
