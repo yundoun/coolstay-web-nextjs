@@ -3,6 +3,7 @@
 모든 작업 히스토리가 최신순으로 기록됩니다.
 
 ---
+- **2026-04-30 17:02** | 이벤트 상세 페이지 카드형 레이아웃 전환 | [`5f72445`](.work-history/entries/2026-04-30_17-00_event-detail-card-layout.md)
 - **2026-04-30 16:53** | 전체 페이지 헤더 계층 구조 통일 | [`bfda4d0`](.work-history/entries/2026-04-30_16-40_header-hierarchy-unification.md)
 - **2026-04-30 15:40** | 매거진 페이지 모바일 앱 구조 동일화 | [`3145104`](.work-history/entries/2026-04-30_15-15_MZ-1-14_magazine-mobile-match.md)
 - **2026-04-30 13:51** | Mobile G/W 프록시 포트 변경 | [`196bb5b`](.work-history/entries/2026-04-30_14-00_gw-port-change.md)

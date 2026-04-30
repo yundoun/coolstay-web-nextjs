@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { Container } from "@/components/layout"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DetailHeroSkeleton } from "@/components/skeleton"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -51,7 +52,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
   if (isLoading) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <DetailHeroSkeleton imageAspect="aspect-[2/1]" />
+        <DetailHeroSkeleton imageAspect="aspect-[2/1] sm:aspect-[5/2] lg:aspect-[3/1]" />
         <div className="space-y-3 mt-4">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
@@ -93,18 +94,17 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
     hasDescription || detailImages.length > 0 || event.webview_link
 
   return (
-    <div className="min-h-screen">
-      {/* ─── 히어로 섹션 (풀블리드) ─── */}
-      <div className="relative">
-        {/* 히어로 이미지 (썸네일 배너) */}
-        <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] lg:aspect-[5/2] bg-gray-900 overflow-hidden">
+    <Container size="narrow" padding="responsive" className="py-8">
+      <article className="rounded-xl border bg-card overflow-hidden shadow-sm">
+        {/* ─── 히어로 이미지 ─── */}
+        <div className="relative aspect-[2/1] bg-gray-900 overflow-hidden">
           {heroImage ? (
             <Image
               src={heroImage}
               alt={event.title}
               fill
               className="object-cover"
-              sizes="100vw"
+              sizes="(max-width: 640px) 100vw, 560px"
               priority
             />
           ) : (
@@ -112,67 +112,47 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
               <Gift className="size-20 text-white/10" />
             </div>
           )}
-
-          {/* 그라디언트 오버레이 */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
-          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent" />
         </div>
 
-        {/* 히어로 위 텍스트 오버레이 */}
-        <div className="absolute bottom-0 inset-x-0 p-5 sm:p-8">
-          <Container size="narrow" padding="none">
-            {/* 상태 + 타입 배지 */}
-            <div className="flex items-center gap-2 mb-3">
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm",
-                  status.label === "진행중" &&
-                    "bg-emerald-500/90 text-white shadow-lg shadow-emerald-500/30",
-                  status.label === "예정" &&
-                    "bg-blue-500/90 text-white shadow-lg shadow-blue-500/30",
-                  status.label === "종료" && "bg-muted-foreground/80 text-white/80"
-                )}
-              >
-                <StatusIcon className="size-3" />
-                {status.label}
+        <div className="p-5 sm:p-6">
+          {/* 상태 + 타입 배지 */}
+          <div className="flex items-center gap-2 mb-3">
+            <Badge variant={status.label === "진행중" ? "default" : status.label === "예정" ? "secondary" : "destructive"} className="gap-1">
+              <StatusIcon className="size-3" />
+              {status.label}
+            </Badge>
+            {event.type && (
+              <Badge variant="outline" className="text-xs">
+                <Tag className="size-3 mr-1" />
+                {event.type}
+              </Badge>
+            )}
+          </div>
+
+          {/* 타이틀 */}
+          <h1 className="text-xl font-bold leading-snug">{event.title}</h1>
+
+          {/* 날짜 + 조회수 */}
+          <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
+            {(event.start_dt || event.end_dt) && (
+              <span className="flex items-center gap-1.5">
+                <Calendar className="size-4 shrink-0" />
+                {formatTimestampDot(event.start_dt)} ~{" "}
+                {formatTimestampDot(event.end_dt)}
               </span>
-              {event.type && (
-                <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm text-white/80">
-                  <Tag className="size-3" />
-                  {event.type}
-                </span>
-              )}
-            </div>
-
-            {/* 타이틀 */}
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white leading-snug drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
-              {event.title}
-            </h1>
-
-            {/* 날짜 + 조회수 */}
-            <div className="flex flex-wrap items-center gap-4 mt-3">
-              {(event.start_dt || event.end_dt) && (
-                <span className="flex items-center gap-1.5 text-xs text-white/60">
-                  <Calendar className="size-3.5" />
-                  {formatTimestampDot(event.start_dt)} ~{" "}
-                  {formatTimestampDot(event.end_dt)}
-                </span>
-              )}
-              {event.view_count != null && (
-                <span className="flex items-center gap-1 text-xs text-white/50">
-                  <Eye className="size-3.5" />
-                  {event.view_count.toLocaleString()}
-                </span>
-              )}
-            </div>
-          </Container>
+            )}
+            {event.view_count != null && (
+              <span className="flex items-center gap-1">
+                <Eye className="size-4" />
+                {event.view_count.toLocaleString()}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* ─── 콘텐츠 영역 ─── */}
-      <Container size="narrow" padding="responsive">
-        <div className="relative -mt-8 bg-background rounded-t-3xl shadow-[0_-4px_24px_rgba(0,0,0,0.1)] min-h-[120px]">
-          <div className="p-5 sm:p-8">
+        {/* ─── 콘텐츠 영역 ─── */}
+        <div className="border-t">
+          <div className="p-5 sm:p-6">
             {/* 설명 텍스트 */}
             {hasDescription && (
               <div
@@ -210,7 +190,8 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
           )}
 
           {/* 하단 영역 (링크 + CTA) */}
-          <div className="p-5 sm:p-8">
+          {/* 하단 영역 (링크 + CTA) */}
+          <div className="p-5 sm:p-6">
             {/* 웹뷰 링크 */}
             {event.webview_link && (
               <div className="mb-4">
@@ -231,7 +212,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
               </div>
             )}
 
-            {/* CTA 버튼 — 인라인 (모바일/데스크탑 공통) */}
+            {/* CTA 버튼 */}
             {event.buttons && event.buttons.length > 0 && (
               <div className="flex gap-2 sm:gap-3">
                 {event.buttons.map((btn: BoardItemLink, idx: number) => (
@@ -264,7 +245,7 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
             )}
           </div>
         </div>
-      </Container>
-    </div>
+      </article>
+    </Container>
   )
 }
