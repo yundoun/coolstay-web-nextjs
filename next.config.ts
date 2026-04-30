@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       return [
         {
           source: '/proxy/api/:path*',
-          destination: 'http://dev.server.coolstay.co.kr:9002/api/:path*',
+          destination: 'http://dev.server.coolstay.co.kr:10000/api/:path*',
         },
       ];
     },
