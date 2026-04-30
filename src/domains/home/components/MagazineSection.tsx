@@ -12,24 +12,36 @@ export function MagazineSection() {
   const { data, isLoading } = useMagazineHome()
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const dragState = useRef({ startX: 0, scrollLeft: 0 })
+  const dragState = useRef({ startX: 0, scrollLeft: 0, isDown: false })
 
   if (isLoading) return <MagazineSkeleton />
 
   const banners = data?.magazine_banner ?? []
   if (banners.length === 0) return null
 
+  const DRAG_THRESHOLD = 5
+
   const onMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    dragState.current = { startX: e.pageX, scrollLeft: scrollRef.current?.scrollLeft ?? 0 }
+    console.log("[Magazine] mouseDown", { pageX: e.pageX, isDragging })
+    dragState.current = { startX: e.pageX, scrollLeft: scrollRef.current?.scrollLeft ?? 0, isDown: true }
   }
   const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return
-    e.preventDefault()
+    if (!dragState.current.isDown || !scrollRef.current) return
     const dx = e.pageX - dragState.current.startX
-    scrollRef.current.scrollLeft = dragState.current.scrollLeft - dx
+    if (!isDragging && Math.abs(dx) > DRAG_THRESHOLD) {
+      console.log("[Magazine] drag started", { dx })
+      setIsDragging(true)
+    }
+    if (Math.abs(dx) > DRAG_THRESHOLD) {
+      e.preventDefault()
+      scrollRef.current.scrollLeft = dragState.current.scrollLeft - dx
+    }
   }
-  const onMouseUp = () => setIsDragging(false)
+  const onMouseUp = () => {
+    console.log("[Magazine] mouseUp", { isDragging, isDown: dragState.current.isDown })
+    dragState.current.isDown = false
+    setIsDragging(false)
+  }
 
   return (
     <div className="section-px">
@@ -57,6 +69,15 @@ function BannerCard({ banner, isDragging }: { banner: MagazineBanner; isDragging
   const href = resolveBannerLink(banner)
   const isExternal = href.startsWith("http")
 
+  console.log("[Magazine] BannerCard render", {
+    key: banner.key,
+    href,
+    isDragging,
+    linkType: banner.link?.type,
+    subType: banner.link?.sub_type,
+    target: banner.link?.target,
+  })
+
   return (
     <Link
       href={href}
@@ -67,6 +88,16 @@ function BannerCard({ banner, isDragging }: { banner: MagazineBanner; isDragging
         isDragging && "pointer-events-none"
       )}
       draggable={false}
+      onClick={(e) => {
+        console.log("[Magazine] Link clicked!", {
+          key: banner.key,
+          href,
+          isDragging,
+          defaultPrevented: e.defaultPrevented,
+          pointerEvents: (e.currentTarget as HTMLElement).style.pointerEvents,
+          classList: (e.currentTarget as HTMLElement).className,
+        })
+      }}
     >
       {banner.image_url ? (
         <Image

@@ -3,7 +3,6 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -35,17 +34,9 @@ export function BoardListPage() {
   return (
     <main>
       <Section spacing="md">
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/magazine" className="rounded-full p-1.5 hover:bg-accent transition-colors">
-            <ArrowLeft className="size-5" />
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold">게시글</h1>
-            {totalCount > 0 && (
-              <p className="text-sm text-muted-foreground">{totalCount}개의 글</p>
-            )}
-          </div>
-        </div>
+        {totalCount > 0 && (
+          <p className="text-sm text-muted-foreground mb-6">{totalCount}개의 글</p>
+        )}
 
         {/* 타입 필터 탭 */}
         <div className="flex gap-2 mb-6">

@@ -67,7 +67,7 @@ export function MagazineHomePage() {
       <Section
         title="AI 추천 관광정보"
         spacing="md"
-        headerAction={<MoreLink href="/magazine/board" />}
+        headerAction={<MoreLink href="/magazine/tour" />}
       >
         <TourSection
           areaCode={regionFilter.provinceCode ? Number(regionFilter.provinceCode) : undefined}
@@ -89,7 +89,7 @@ export function MagazineHomePage() {
       <Section
         title="추천 숙소 모아보기"
         spacing="md"
-        headerAction={<MoreLink href="/magazine/board" />}
+        headerAction={<MoreLink href="/search" />}
       >
         <RecommendStoreSection />
       </Section>

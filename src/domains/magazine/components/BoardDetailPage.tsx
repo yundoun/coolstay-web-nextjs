@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, User } from "lucide-react"
+import { Calendar, User } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useBoardDetail } from "../hooks/useMagazine"
@@ -30,13 +30,8 @@ export function BoardDetailPage({ boardKey }: Props) {
   return (
     <main>
       <Section spacing="md">
-        {/* 헤더 */}
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/magazine/board" className="rounded-full p-1.5 hover:bg-accent transition-colors">
-            <ArrowLeft className="size-5" />
-          </Link>
-          <h1 className="text-lg font-bold line-clamp-1">{detail.title}</h1>
-        </div>
+        {/* 타이틀 */}
+        <h1 className="text-lg font-bold line-clamp-2 mb-6">{detail.title}</h1>
 
         {/* 작성자 정보 */}
         <div className="flex items-center gap-3 mb-6 pb-6 border-b">

@@ -34,11 +34,11 @@ const EXACT_ROUTES: Record<string, RouteLayoutConfig> = {
   "/favorites": { headerVariant: "default", showBottomNav: true },
   "/coupons": { headerVariant: "default", showBottomNav: true },
   "/mypage": { headerVariant: "default", showBottomNav: true },
-  "/events": { headerVariant: "default", showBottomNav: true },
-  "/exhibitions": { headerVariant: "default", showBottomNav: true },
-  "/magazine": { headerVariant: "default", showBottomNav: true },
-  "/magazine/board": { headerVariant: "default", showBottomNav: true },
-  "/magazine/package": { headerVariant: "default", showBottomNav: true },
+  "/events": { headerVariant: "back", showBottomNav: true, title: "이벤트", rightActions: ["home"] },
+  "/exhibitions": { headerVariant: "back", showBottomNav: true, title: "기획전", rightActions: ["home"] },
+  "/magazine": { headerVariant: "back", showBottomNav: true, title: "매거진", rightActions: ["home"] },
+  "/magazine/board": { headerVariant: "back", showBottomNav: true, title: "게시글", rightActions: ["home"] },
+  "/magazine/package": { headerVariant: "back", showBottomNav: true, title: "패키지", rightActions: ["home"] },
 
   // 지원 페이지
   "/faq": { headerVariant: "back", showBottomNav: true, title: "FAQ" },
@@ -114,7 +114,7 @@ const PATTERN_ROUTES: { pattern: RegExp; config: RouteLayoutConfig }[] = [
     config: {
       headerVariant: "back",
       showBottomNav: false,
-      rightActions: ["home"],
+      rightActions: ["home", "share"],
     },
   },
   // 기획전 상세
@@ -123,7 +123,7 @@ const PATTERN_ROUTES: { pattern: RegExp; config: RouteLayoutConfig }[] = [
     config: {
       headerVariant: "back",
       showBottomNav: false,
-      rightActions: ["home"],
+      rightActions: ["home", "share"],
     },
   },
   // 매거진 게시글 상세

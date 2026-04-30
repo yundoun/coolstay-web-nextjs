@@ -3,7 +3,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import {
-  ArrowLeft,
   Calendar,
   ChevronRight,
   Eye,
@@ -155,13 +154,6 @@ export function PackageExhibitionPage({ groupKey }: { groupKey: number }) {
   if (isError) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <Link
-          href="/exhibitions"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          기획전 목록
-        </Link>
         <ErrorState
           message="패키지 기획전을 불러오지 못했습니다"
           onRetry={() => refetch()}
@@ -184,15 +176,6 @@ export function PackageExhibitionPage({ groupKey }: { groupKey: number }) {
       {/* Hero header */}
       <div className="relative bg-gradient-to-br from-primary/10 via-background to-primary/5">
         <Container size="narrow" padding="responsive" className="pt-6 pb-8">
-          {/* Back */}
-          <Link
-            href="/exhibitions"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-          >
-            <ArrowLeft className="size-4" />
-            기획전 목록
-          </Link>
-
           {/* Title area */}
           <div className="flex items-start gap-3">
             <div className="flex items-center justify-center size-10 rounded-xl bg-primary/10 shrink-0">

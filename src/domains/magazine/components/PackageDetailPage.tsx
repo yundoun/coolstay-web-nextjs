@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Tag, Gift, Star } from "lucide-react"
+import { Calendar, Tag, Gift, Star } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -64,12 +64,6 @@ export function PackageDetailPage({ packageKey }: Props) {
               )}
             </div>
           </div>
-          <Link
-            href="/magazine/package"
-            className="absolute top-4 left-4 rounded-full bg-black/30 p-2 text-white hover:bg-black/50 transition-colors"
-          >
-            <ArrowLeft className="size-5" />
-          </Link>
         </div>
       )}
 

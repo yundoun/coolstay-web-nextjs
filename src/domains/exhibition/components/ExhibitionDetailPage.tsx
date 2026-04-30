@@ -2,15 +2,12 @@
 
 import { useState, useCallback } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   Calendar,
   Sparkles,
-  ArrowLeft,
   Eye,
   Images,
-  Share2,
   Tag,
   Store,
   Ticket,
@@ -251,13 +248,6 @@ export function ExhibitionDetailPage({
   if (isError || !exhibition) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <Link
-          href="/exhibitions"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          기획전 목록
-        </Link>
         <ErrorState
           message="기획전을 불러오지 못했습니다"
           onRetry={() => refetch()}
@@ -268,28 +258,9 @@ export function ExhibitionDetailPage({
 
   const status = getDetailStatus(exhibition)
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: exhibition.title,
-        url: window.location.href,
-      })
-    } catch {
-      await navigator.clipboard.writeText(window.location.href)
-    }
-  }
 
   return (
     <Container size="narrow" padding="responsive" className="py-8">
-      {/* Back */}
-      <Link
-        href="/exhibitions"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-      >
-        <ArrowLeft className="size-4" />
-        기획전 목록
-      </Link>
-
       <article className="rounded-xl border bg-card overflow-hidden shadow-sm">
         {/* Hero image */}
         {exhibition.detail_banner_image_url && (
@@ -306,20 +277,15 @@ export function ExhibitionDetailPage({
         )}
 
         <div className="p-5 sm:p-6">
-          {/* Status + share */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Badge variant={status.variant} className="gap-1">
-                <Sparkles className="size-3" />
-                {status.label}
-              </Badge>
-              <Badge variant="outline" className="text-xs">
-                기획전
-              </Badge>
-            </div>
-            <Button variant="ghost" size="icon" className="size-8" onClick={handleShare}>
-              <Share2 className="size-4" />
-            </Button>
+          {/* Status */}
+          <div className="flex items-center gap-2 mb-3">
+            <Badge variant={status.variant} className="gap-1">
+              <Sparkles className="size-3" />
+              {status.label}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              기획전
+            </Badge>
           </div>
 
           {/* Title */}

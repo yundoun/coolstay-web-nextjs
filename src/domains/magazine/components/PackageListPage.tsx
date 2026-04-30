@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, Calendar, Tag } from "lucide-react"
+import { Calendar, Tag } from "lucide-react"
 import { Section } from "@/components/layout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -26,17 +26,9 @@ export function PackageListPage() {
   return (
     <main>
       <Section spacing="md">
-        <div className="flex items-center gap-3 mb-6">
-          <Link href="/magazine" className="rounded-full p-1.5 hover:bg-accent transition-colors">
-            <ArrowLeft className="size-5" />
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold">패키지</h1>
-            {totalCount > 0 && (
-              <p className="text-sm text-muted-foreground">{totalCount}개의 패키지</p>
-            )}
-          </div>
-        </div>
+        {totalCount > 0 && (
+          <p className="text-sm text-muted-foreground mb-6">{totalCount}개의 패키지</p>
+        )}
 
         {isLoading ? (
           <PackageListSkeleton />

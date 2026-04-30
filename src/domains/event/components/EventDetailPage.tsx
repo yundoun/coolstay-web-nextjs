@@ -1,14 +1,11 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import {
   Calendar,
   Gift,
-  ArrowLeft,
   ExternalLink,
   Eye,
-  Share2,
   Tag,
   Sparkles,
 } from "lucide-react"
@@ -69,13 +66,6 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
   if (isError || !event) {
     return (
       <Container size="narrow" padding="responsive" className="py-8">
-        <Link
-          href="/events"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-        >
-          <ArrowLeft className="size-4" />
-          이벤트 목록
-        </Link>
         <ErrorState
           message="이벤트를 불러오지 못했습니다"
           onRetry={() => refetch()}
@@ -102,17 +92,6 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
   const hasContent =
     hasDescription || detailImages.length > 0 || event.webview_link
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: event.title,
-        url: window.location.href,
-      })
-    } catch {
-      await navigator.clipboard.writeText(window.location.href)
-    }
-  }
-
   return (
     <div className="min-h-screen">
       {/* ─── 히어로 섹션 (풀블리드) ─── */}
@@ -138,34 +117,6 @@ export function EventDetailPage({ eventKey }: { eventKey: number }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/20" />
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent" />
         </div>
-
-        {/* 플로팅 뒤로가기 */}
-        <Link
-          href="/events"
-          className={cn(
-            "absolute top-4 left-4 z-10",
-            "flex items-center justify-center size-10 rounded-full",
-            "bg-black/30 backdrop-blur-md text-white/90",
-            "hover:bg-black/50 transition-colors",
-            "shadow-lg"
-          )}
-        >
-          <ArrowLeft className="size-5" />
-        </Link>
-
-        {/* 플로팅 공유 버튼 */}
-        <button
-          onClick={handleShare}
-          className={cn(
-            "absolute top-4 right-4 z-10",
-            "flex items-center justify-center size-10 rounded-full",
-            "bg-black/30 backdrop-blur-md text-white/90",
-            "hover:bg-black/50 transition-colors",
-            "shadow-lg"
-          )}
-        >
-          <Share2 className="size-4" />
-        </button>
 
         {/* 히어로 위 텍스트 오버레이 */}
         <div className="absolute bottom-0 inset-x-0 p-5 sm:p-8">
