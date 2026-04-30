@@ -16,6 +16,7 @@ import {
 } from "@/domains/home/components"
 import { useHomeMain } from "@/domains/home/hooks/useHomeData"
 import { HomePageSkeleton } from "@/domains/home/components/HomePageSkeleton"
+import { ErrorState } from "@/components/ui/error-state"
 
 const SectionLink = ({ href, label }: { href: string; label: string }) => (
   <Link
@@ -28,10 +29,20 @@ const SectionLink = ({ href, label }: { href: string; label: string }) => (
 )
 
 export default function HomePage() {
-  const { data, isLoading } = useHomeMain()
+  const { data, isLoading, isError, refetch } = useHomeMain()
 
   if (isLoading) {
     return <HomePageSkeleton />
+  }
+
+  if (isError) {
+    return (
+      <ErrorState
+        message="서버에 연결할 수 없습니다"
+        onRetry={() => refetch()}
+        fullPage
+      />
+    )
   }
 
   return (
